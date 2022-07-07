@@ -195,7 +195,8 @@ textarea {
 
 .reports-row-thumbnail img,
 .orgs-row-thumbnail img,
-.object-row-thumbnail img {
+.object-row-thumbnail img,
+.thumbnail-image img {
     max-width: 150px;
 }
 

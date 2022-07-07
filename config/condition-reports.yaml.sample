@@ -606,6 +606,28 @@ parameters:
       image: /annotation_images/frame_back.svg
       thumbnail: /annotation_images/frame_back_150px.svg
 
+  # Possible values:
+  #   - mysql (cached by running the appropriate command to fetch all data)
+  #   - omeka (live lookups in Omeka-S)
+  lookup_source: mysql
+
+  omeka_api:
+    url: ''
+    key_identity: ''
+    key_credential: ''
+    inventory_number_property_id: -1
+
+  # JSON path expressions (see https://github.com/Galbar/JsonPath-PHP)
+  omeka_data_definition:
+    id: "$['modsrdf:identifier'][0]['@value']"
+    thumbnail: "$['thumbnail_display_urls']['medium']"
+    media: "$['o:media']['0']['@id']"
+    title_nl: "$['dcterms:description'][0]['@value']"
+    title_en: "$['dcterms:description'][0]['@value']"
+    creation_date: "$['dcterms:date'][0]['@value']"
+
+  omeka_media_image_path: "$['o:source']"
+
   datahub_url: 'http://datahub.kmska.be'
   datahub_language: nl
   datahub_namespace: 'lido'

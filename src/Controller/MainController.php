@@ -3,15 +3,24 @@
 namespace App\Controller;
 
 use App\Entity\DatahubData;
+use App\Entity\Image;
 use App\Entity\InventoryNumber;
 use App\Entity\Report;
 use App\Entity\ReportData;
 use App\Entity\ReportHistory;
 use App\Entity\Search;
+use App\Utils\CurlUtil;
+use App\Utils\IIIFUtil;
+use App\Utils\StringUtil;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\QueryBuilder;
+use JsonPath\InvalidJsonException;
+use JsonPath\JsonObject;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -46,9 +55,19 @@ class MainController extends AbstractController
             return $this->redirectToRoute('main');
         }
 
+        $lookupSource = $this->getParameter('lookup_source');
+        if($lookupSource === null) {
+            $lookupSource = 'mysql';
+        }
+
+        $searchTypes = [ $t->trans('Exact') => 0, $t->trans('Partly') => 1, $t->trans('Starts with') => 2 ];
+        if($lookupSource === 'omeka') {
+            $searchTypes = [ $t->trans('Exact') => 0, $t->trans('Partly') => 1 ];
+        }
+
         $search = new Search();
         $form = $this->createFormBuilder($search)
-            ->add('match_type', ChoiceType::class, [ 'label' => $t->trans('Search type'), 'choices' => [ $t->trans('Exact') => 0, $t->trans('Partly') => 1, $t->trans('Starts with') => 2 ]])
+            ->add('match_type', ChoiceType::class, [ 'label' => $t->trans('Search type'), 'choices' => $searchTypes ])
             ->add('inventory_number', TextType::class, [ 'label' => $t->trans('Inventory number'), 'required' => false, 'empty_data' => '', 'attr' => ['placeholder' => $t->trans('Search by inventory number ...')] ])
             ->add('submit', SubmitType::class, [ 'label' => $t->trans('Search') ])
             ->getForm();
@@ -57,50 +76,154 @@ class MainController extends AbstractController
 
         $reportReasons = $this->getParameter('report_reasons');
 
+        /* @var $em EntityManager */
         $em = $this->container->get('doctrine')->getManager();
+        /* @var $qb QueryBuilder */
+        $qb = $em->createQueryBuilder();
 
-        $inventoryNumber = '';
+        $searchParameter = null;
         $matchType = '0';
 
         if($form->isSubmitted() && $form->isValid()) {
             $formData = $form->getData();
             $inventoryNumber = $formData->getInventoryNumber();
             $matchType = $formData->getMatchType();
-        }
 
-        $searchParameter = $inventoryNumber;
-        if ($matchType == '1') {
-            $searchParameter = '%' . $searchParameter . '%';
-        } else if ($matchType == '2') {
-            $searchParameter .= '%';
-        }
-
-        $datahubData = $em->createQueryBuilder()
-            ->select('i.id, i.inventoryNumber, d.name, d.value')
-            ->from(InventoryNumber::class, 'i')
-            ->leftJoin(DatahubData::class, 'd', 'WITH', 'd.id = i.id')
-            ->where('i.inventoryNumber ' . ($matchType == '0' ? '=' : 'LIKE') . ' :inventory_number')
-            ->setParameter('inventory_number', $searchParameter)
-            ->orderBy('d.id')
-            ->setMaxResults(1000)
-            ->getQuery()
-            ->getResult();
-        $datahubData = array_reverse($datahubData);
-        foreach ($datahubData as $data) {
-            $id = $data['id'] . '_0';
-            if (!array_key_exists($id, $searchResults)) {
-                $searchResults[$id] = [
-                    'id' => '',
-                    'base_id' => '',
-                    'inventory_id' => $data['id'],
-                    'inventory_number' => $data['inventoryNumber'],
-                    'timestamp' => '',
-                    'thumbnail' => '',
-                    'title_nl' => '',
-                    'creator_nl' => ''
-                ];
+            $searchParameter = $inventoryNumber;
+            if ($matchType == '1') {
+                $searchParameter = '%' . $searchParameter . '%';
+            } else if ($matchType == '2') {
+                $searchParameter .= '%';
             }
-            $searchResults[$id][$data['name']] = $data['value'];
+
+            if ($lookupSource === 'mysql') {
+
+                $datahubData = $em->createQueryBuilder()
+                    ->select('i.id, i.inventoryNumber, d.name, d.value')
+                    ->from(InventoryNumber::class, 'i')
+                    ->leftJoin(DatahubData::class, 'd', 'WITH', 'd.id = i.id')
+                    ->where('i.inventoryNumber ' . ($matchType == '0' ? '=' : 'LIKE') . ' :inventory_number')
+                    ->setParameter('inventory_number', $searchParameter)
+                    ->orderBy('d.id')
+                    ->setMaxResults(1000)
+                    ->getQuery()
+                    ->getResult();
+                $datahubData = array_reverse($datahubData);
+                foreach ($datahubData as $data) {
+                    $inventoryNumber = $data['id'] . '_0';
+                    if (!array_key_exists($inventoryNumber, $searchResults)) {
+                        $searchResults[$inventoryNumber] = [
+                            'id' => '',
+                            'base_id' => '',
+                            'inventory_id' => $data['id'],
+                            'inventory_number' => $data['inventoryNumber'],
+                            'timestamp' => '',
+                            'thumbnail' => '',
+                            'title_nl' => '',
+                            'creator_nl' => ''
+                        ];
+                    }
+                    $searchResults[$inventoryNumber][$data['name']] = $data['value'];
+                }
+            } else if ($lookupSource === 'omeka') {
+                $matchParameter = 'eq';
+                if ($matchType == '1' || $matchType == '2') {
+                    $matchParameter = 'in';
+                }
+                $omekaApi = $this->getParameter('omeka_api');
+                $url = $omekaApi['url'];
+                if (!StringUtil::endsWith($url, '/')) {
+                    $url .= '/';
+                }
+                $inventoryNumberPropertyId = $omekaApi['inventory_number_property_id'];
+                $keyIdentity = $omekaApi['key_identity'];
+                $keyCredential = $omekaApi['key_credential'];
+                $url .= 'items?property[0][property]=' . $inventoryNumberPropertyId . '&property[0][type]=' . $matchParameter . '&property[0][text]=' . urlencode($inventoryNumber) . '&per_page=200&key_identity=' . $keyIdentity . '&key_credential=' . $keyCredential;
+                echo $url;
+                $jsonData = CurlUtil::get($url);
+                $items = json_decode($jsonData);
+                $omekaDataDefinition = $this->getParameter('omeka_data_definition');
+                foreach($items as $item) {
+                    $data = [
+                        'id' => '',
+                        'base_id' => '',
+                        'inventory_id' => '',
+                        'inventory_number' => '',
+                        'timestamp' => '',
+                        'thumbnail' => '',
+                        'media' => '',
+                        'title_nl' => '',
+                        'creator_nl' => ''
+                    ];
+                    try {
+                        $jsonObject = new JsonObject($item);
+                        $inventoryNumber = null;
+                        foreach($omekaDataDefinition as $key => $path) {
+                            $res = $jsonObject->get($path);
+                            if(is_array($res)) {
+                                $res = $res[0];
+                            }
+                            if(is_string($res)) {
+                                if ($key === 'id') {
+                                    $inventoryNumber = $res;
+                                } else {
+                                    $data[$key] = $res;
+                                }
+                            }
+                        }
+                        var_dump($inventoryNumber);
+                        if($inventoryNumber !== null) {
+                            $inventoryId = null;
+                            $inventoryNumbers = $em->createQueryBuilder()
+                                ->select('i')
+                                ->from(InventoryNumber::class, 'i')
+                                ->where('i.inventoryNumber = :inventory_number')
+                                ->setParameter('inventory_number', $inventoryNumber)
+                                ->getQuery()
+                                ->getResult();
+                            foreach ($inventoryNumbers as $invNr) {
+                                $inventoryId = $invNr->getId();
+                            }
+                            if($inventoryId === null) {
+                                $invNr = new InventoryNumber();
+                                $invNr->setInventoryNumber($inventoryNumber);
+                                $em->persist($invNr);
+                                $em->flush();
+                                $inventoryId = $invNr->getId();
+                            }
+                            $id = $inventoryId . '_0';
+                            if (!array_key_exists($id, $searchResults)) {
+                                $data['inventory_id'] = $inventoryId;
+                                $data['inventory_number'] = $inventoryNumber;
+                                $searchResults[$inventoryNumber] = $data;
+                            }
+
+                            // Delete any data that might already exist for this inventory number
+                            $query = $qb->delete(DatahubData::class, 'data')
+                                ->where('data.id = :id')
+                                ->setParameter('id', $inventoryId)
+                                ->getQuery();
+                            $query->execute();
+                            $em->flush();
+
+                            //Store all relevant data in mysql
+                            foreach($data as $key => $value) {
+                                if($value !== null && !empty($value)) {
+                                    $data = new DatahubData();
+                                    $data->setId($invNr->getId());
+                                    $data->setName($key);
+                                    $data->setValue($value);
+                                    $em->persist($data);
+                                }
+                            }
+                            $em->flush();
+                            $em->clear();
+                        }
+                    } catch (InvalidJsonException $e) {
+                        echo 'JSONPath error: ' . $e->getMessage() . PHP_EOL;
+                    }
+                }
+            }
         }
 
         $queryBuilder = $em->createQueryBuilder()
@@ -108,7 +231,7 @@ class MainController extends AbstractController
             ->from(Report::class, 'r')
             ->leftJoin(InventoryNumber::class, 'i', 'WITH', 'i.id = r.inventoryId')
             ->leftJoin(DatahubData::class, 'd', 'WITH', 'd.id = r.inventoryId');
-        if($searchParameter != null) {
+        if($searchParameter !== null) {
             $queryBuilder = $queryBuilder->where('i.inventoryNumber ' . ($matchType == '0' ? '=' : 'LIKE') . ' :inventory_number')
                 ->setParameter('inventory_number', $searchParameter);
         }
@@ -119,19 +242,19 @@ class MainController extends AbstractController
             ->getResult();
         $reportData = array_reverse($reportData);
         foreach ($reportData as $data) {
-            $id = $data['inventoryId'] . '_' . $data['baseId'];
-            if(!array_key_exists($id, $searchResults)) {
-                $searchResults[$id] = array();
+            $inventoryNumber = $data['inventoryId'] . '_' . $data['baseId'];
+            if(!array_key_exists($inventoryNumber, $searchResults)) {
+                $searchResults[$inventoryNumber] = array();
                 // Remove any results of Datahub data when a report exists for this inventory number
                 if(array_key_exists($data['inventoryId'] . '_0', $searchResults)) {
                     unset($searchResults[$data['inventoryId'] . '_0']);
                 }
             }
-            $searchResults[$id]['id'] = $data['id'];
-            $searchResults[$id]['base_id'] = $data['baseId'];
-            $searchResults[$id]['inventory_id'] = $data['inventoryId'];
-            $searchResults[$id]['inventory_number'] = $data['inventoryNumber'];
-            $searchResults[$id]['timestamp'] = $data['timestamp']->format('Y-m-d H:i:s');
+            $searchResults[$inventoryNumber]['id'] = $data['id'];
+            $searchResults[$inventoryNumber]['base_id'] = $data['baseId'];
+            $searchResults[$inventoryNumber]['inventory_id'] = $data['inventoryId'];
+            $searchResults[$inventoryNumber]['inventory_number'] = $data['inventoryNumber'];
+            $searchResults[$inventoryNumber]['timestamp'] = $data['timestamp']->format('Y-m-d H:i:s');
             $reason = null;
             if($data['reason'] !== null) {
                 foreach($reportReasons as $key => $reasons) {
@@ -140,18 +263,18 @@ class MainController extends AbstractController
                     }
                 }
             }
-            $searchResults[$id]['reason'] = $reason;
-            $searchResults[$id][$data['name']] = $data['value'];
+            $searchResults[$inventoryNumber]['reason'] = $reason;
+            $searchResults[$inventoryNumber][$data['name']] = $data['value'];
         }
-        foreach($searchResults as $id => $data) {
+        foreach($searchResults as $inventoryNumber => $data) {
             if(!array_key_exists('thumbnail', $data)) {
-                $searchResults[$id]['thumbnail'] = '';
+                $searchResults[$inventoryNumber]['thumbnail'] = '';
             }
             if(!array_key_exists('title_nl', $data)) {
-                $searchResults[$id]['title_nl'] = '';
+                $searchResults[$inventoryNumber]['title_nl'] = '';
             }
             if(!array_key_exists('creator_nl', $data)) {
-                $searchResults[$id]['creator_nl'] = '';
+                $searchResults[$inventoryNumber]['creator_nl'] = '';
             }
         }
         usort($searchResults, array('App\Controller\MainController', 'cmp'));

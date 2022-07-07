@@ -39,6 +39,11 @@ class CreateBlankReportController extends AbstractController
         $objectTypes = $this->getParameter('object_types');
         $reportFields = $this->getParameter('report_fields');
         $pictures = $this->getParameter('pictures');
+        $lookupSource = $this->getParameter('lookup_source');
+        if($lookupSource === null) {
+            $lookupSource = 'mysql';
+        }
+        $omekaMediaImagePath = $this->getParameter('omeka_media_image_path');
 
         $translatedRoutes = array();
         foreach($locales as $l) {
@@ -49,7 +54,7 @@ class CreateBlankReportController extends AbstractController
             );
         }
 
-        $data = ReportTemplateData::getDataToCreateBlank($em, $this->getUser(), $reportReasons, $objectTypes, $reportFields, $pictures, $id, $translatedRoutes);
+        $data = ReportTemplateData::getDataToCreateBlank($em, $this->getUser(), $lookupSource, $omekaMediaImagePath, $reportReasons, $objectTypes, $reportFields, $pictures, $id, $translatedRoutes);
         if($data === null) {
             return $this->redirectToRoute('main', array('_locale' => $locale));
         } else {

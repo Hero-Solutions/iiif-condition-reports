@@ -17,6 +17,7 @@
         "doctrine/doctrine-bundle": "^2.4",
         "doctrine/doctrine-migrations-bundle": "^3.1",
         "doctrine/orm": "^2.9",
+        "galbar/jsonpath": "^2.0",
         "simplesamlphp/simplesamlphp": "^1.19",
         "symfony/asset": "5.3.*",
         "symfony/console": "5.3.*",

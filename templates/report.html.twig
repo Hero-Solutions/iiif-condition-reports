@@ -259,9 +259,11 @@
                     <div class="object-row-creator">
                         <div>{{ 'Creator' | trans }}: </div>
                         <div>
-                        {% for creator in prefilled_data.creator_nl|split('\n') %}
-                            {{ creator }}{% if not loop.last %}<br>{% endif %}
-                        {% endfor %}
+                        {% if prefilled_data.creator_nl is defined %}
+                            {% for creator in prefilled_data.creator_nl|split('\n') %}
+                                {{ creator }}{% if not loop.last %}<br>{% endif %}
+                            {% endfor %}
+                        {% endif %}
                         </div>
                     </div>
                 </div>

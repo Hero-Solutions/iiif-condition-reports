@@ -14,6 +14,8 @@ use App\Entity\ReportHistory;
 use App\Entity\Representative;
 use App\Entity\Signature;
 use Doctrine\ORM\EntityManager;
+use JsonPath\InvalidJsonException;
+use JsonPath\JsonObject;
 
 class ReportTemplateData
 {
@@ -77,7 +79,7 @@ class ReportTemplateData
         return $data;
     }
 
-    public static function getDataToCreateBlank(EntityManager $em, $user, $reportReasons, $objectTypes, $reportFields, $pictures, $id, $translatedRoutes)
+    public static function getDataToCreateBlank(EntityManager $em, $user, $lookupSource, $omekaMediaImagePath, $reportReasons, $objectTypes, $reportFields, $pictures, $id, $translatedRoutes)
     {
         // Prevent creation of a blank report if there is already a report for this inventory number
         $canCreate = true;
@@ -98,7 +100,7 @@ class ReportTemplateData
         $prefilledData = self::getDatahubData($em, $id, array());
 
         $imageRelPath = '../../..';
-        $images = self::getImages($em, $prefilledData, $imageRelPath);
+        $images = self::getImages($em, $lookupSource, $omekaMediaImagePath, $prefilledData, $id, $imageRelPath);
 
         return [
             'current_page' => 'reports',
@@ -149,7 +151,7 @@ class ReportTemplateData
         }
 
         $prefilledData = self::getDatahubData($em, $prefilledData['inventory_id'], $prefilledData);
-        $images = self::getImages($em, $prefilledData, $imageRelPath);
+        $images = self::getImages($em, null, null, $prefilledData, null, $imageRelPath);
 
         $reportHistory = $em->createQueryBuilder()
             ->select('h.id, h.previousId, h.sortOrder, r.timestamp')
@@ -272,7 +274,7 @@ class ReportTemplateData
        return $prefilledData;
    }
 
-   public static function getImages(EntityManager $em, $prefilledData, $imageRelPath)
+   public static function getImages(EntityManager $em, $lookupSource, $omekaMediaImagePath, &$prefilledData, $inventoryId, $imageRelPath)
    {
        $images = array();
        if(array_key_exists('images', $prefilledData)) {
@@ -314,6 +316,54 @@ class ReportTemplateData
                if(array_key_exists($hash, $tmpImages)) {
                    $images[] = $tmpImages[$hash];
                }
+           }
+       } else if($lookupSource === 'omeka' && array_key_exists('media', $prefilledData)) {
+           $media = CurlUtil::get($prefilledData['media']);
+           try {
+               $jsonObject = new JsonObject($media);
+               $imageUrl = $jsonObject->get($omekaMediaImagePath);
+               if (is_array($imageUrl)) {
+                   $imageUrl = $imageUrl[0];
+               }
+               if (is_string($imageUrl)) {
+                    $image = new Image();
+                    $image->setImage($imageUrl);
+                    if(array_key_exists('thumbnail', $prefilledData)) {
+                        $image->setThumbnail($prefilledData['thumbnail']);
+                    }
+
+                   //Disable SQL logging to improve performance
+                   $em->getConnection()->getConfiguration()->setSQLLogger(null);
+                   $imgs = $em->createQueryBuilder()
+                       ->select('i')
+                       ->from(Image::class, 'i')
+                       ->where('i.hash = :hash')
+                       ->setParameter('hash', $image->getHash())
+                       ->getQuery()
+                       ->getResult();
+                   $persist = true;
+                   foreach($imgs as $img) {
+                       $persist = false;
+                       $image = $img;
+                   }
+                   if($persist) {
+                       $em->persist($image);
+                       $datahubData = new DatahubData();
+                       $datahubData->setId($inventoryId);
+                       $datahubData->setName('images');
+                       $datahubData->setValue($image->getHash());
+                       $em->persist($datahubData);
+                       $em->flush();
+                   }
+                   $images[] = array(
+                       'hash' => $image->getHash(),
+                       'image' => $image->getImage(),
+                       'thumbnail' => $image->getThumbnail()
+                   );
+                   $prefilledData['images'] = $image->getHash();
+               }
+           } catch(InvalidJsonException $e) {
+               echo 'JSONPath error: ' . $e->getMessage() . PHP_EOL;
            }
        }
        return $images;
