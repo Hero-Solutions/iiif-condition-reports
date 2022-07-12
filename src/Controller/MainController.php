@@ -171,7 +171,6 @@ class MainController extends AbstractController
                                 }
                             }
                         }
-                        var_dump($inventoryNumber);
                         if($inventoryNumber !== null) {
                             $inventoryId = null;
                             $inventoryNumbers = $em->createQueryBuilder()
