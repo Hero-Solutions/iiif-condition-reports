@@ -139,7 +139,6 @@ class MainController extends AbstractController
                 $keyIdentity = $omekaApi['key_identity'];
                 $keyCredential = $omekaApi['key_credential'];
                 $url .= 'items?property[0][property]=' . $inventoryNumberPropertyId . '&property[0][type]=' . $matchParameter . '&property[0][text]=' . urlencode($inventoryNumber) . '&per_page=200&key_identity=' . $keyIdentity . '&key_credential=' . $keyCredential;
-                echo $url;
                 $jsonData = CurlUtil::get($url);
                 $items = json_decode($jsonData);
                 $omekaDataDefinition = $this->getParameter('omeka_data_definition');
