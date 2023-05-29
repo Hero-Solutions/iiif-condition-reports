@@ -17,22 +17,46 @@
                 }
             }
         }
+
+        function toggleCustomRep(customRepId, value, show) {
+            console.log(value);
+            var customRep = document.getElementById(customRepId);
+            if(customRep != null) {
+                if(show) {
+                    customRep.value = '';
+                    customRep.style = 'display: block';
+                    customRep.focus();
+                } else {
+                    customRep.style = 'display: none';
+                    customRep.value = value;
+                }
+            }
+        }
     </script>
-    <select onchange="fill{{  type }}Representative(this.options[this.selectedIndex].value)" autocomplete="off">
-        <option></option>
-        {% for representative in representatives %}
-            <option value="{{ representative.id }}">{{ representative.alias }}</option>
-        {% endfor %}
-    </select>
-{% endif %}
-<div class="form-subgroup">
+    <div class="form-subgroup">
+        <div class="form-item">
+            <label>{{ 'Name' | trans }}</label>
+            <div class="flex">
+                <select id="rep-dropdown" name="{{ type }}_rep_id" onchange="toggleCustomRep('{{ type }}-name', this.options[this.selectedIndex].value, this.options[this.selectedIndex].value === 'customOption'); fill{{  type }}Representative(this.options[this.selectedIndex].value)" autocomplete="off">
+                    <option></option>
+                    {% for representative in representatives %}
+                        <option value="{{ representative.id }}">{{ representative.alias }}</option>
+                    {% endfor %}
+                    <option value="customOption"{% if prefilled_data[type ~ '_name'] is defined %} selected{% endif %}>{{ 'Other' | trans }}</option>
+                    <input type="text" class="custom-input" id="{{ type }}-name" placeholder="{{ 'Fill in another name ...' | trans }}" name="{{ type }}_name"
+                       {% if prefilled_data[type ~ '_name'] is defined %}value="{{ prefilled_data[type ~ '_name'] }}" {% else %}style="display: none;" {% endif %} autocomplete="off">
+                </select>
+                </div>
+        </div>
+        <div class="form-item">
+            {% include 'textfield.html.twig' with { 'name': type ~ '_role', 'label': 'Role' | trans } %}
+        </div>
+    </div>
+{% elseif prefilled_data[type ~ '_name'] is defined %}
     <div class="form-item">
         {% include 'textfield.html.twig' with { 'name': type ~ '_name', 'label': 'Name' | trans } %}
     </div>
-    <div class="form-item">
-        {% include 'textfield.html.twig' with { 'name': type ~ '_role', 'label': 'Role' | trans } %}
-    </div>
-</div>
+{% endif %}
 <div class="form-subgroup">
     <div class="form-item">
         {% include 'textfield.html.twig' with { 'name': type ~ '_email', 'label': 'E-mail' | trans } %}

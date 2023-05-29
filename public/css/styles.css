@@ -384,6 +384,11 @@ textarea {
     width: 40%;
 }
 
+.remark p {
+    font-size: 13px;
+    margin-top: 20px;
+}
+
 #openseadragon-annotorious {
     display: flex;
     grid-row-start: 1;
@@ -549,7 +554,7 @@ textarea {
     -webkit-transform: translate(-50%, -50%);
     transform: translate(-50%, -50%);
     background-color: white;
-    width: 400px;
+    width: 500px;
     height: auto;
     border: 1px solid rgb(219, 219, 219);
     padding: 30px;
@@ -722,6 +727,11 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
 #representative-form > .form-group > .form-subgroup > div:first-child,
 #user-form > .form-group > .form-subgroup > div:first-child {
     margin-left: 0;
+}
+
+.subgroup-with-border {
+    padding: 5px 15px 15px 15px;
+    border: 1px solid rgb(204 204 204);
 }
 
 #report-form .form-group {
@@ -1725,7 +1735,7 @@ form {
 }
 
 .readonly #report-form .readonly-label {
-    width: 300px;
+    width: 350px;
     flex-shrink: 0;
 }
 
@@ -1802,6 +1812,11 @@ form {
 
 .readonly #report-form .form-group .form-subgroup:nth-child(1) div:nth-child(1) {
     margin-top: 0;
+}
+
+.readonly .subgroup-with-border {
+    padding: 5px;
+    margin-bottom: 10px;
 }
 
 .readonly .signatures .signatures-row {

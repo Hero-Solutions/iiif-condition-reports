@@ -1,43 +1,11 @@
 {% if not readonly or prefilled_data.inventory_number is defined or prefilled_data.current_location is defined
-    or prefilled_data.object_name is defined or prefilled_data.object_type is defined
+    or prefilled_data.license is defined or prefilled_data.object_type is defined
     or prefilled_data.dimensions is defined or prefilled_data.weight is defined
     or prefilled_data.creator_nl is defined or prefilled_data.title_nl is defined
-    or prefilled_data.creation_date is defined or prefilled_data.copyright is defined %}
+    or prefilled_data.technique_nl is defined or prefilled_data.creation_date is defined or prefilled_data.copyright is defined %}
 <div id="basic-info-form"{% if not readonly %} class="form-tab"{% endif %}>
     <div class="report-header">{{ 'Object identification' | trans }}</div>
     <div class="form-group">
-        <div class="form-subgroup">
-            <div class="form-item">
-                {% include 'textfield.html.twig' with { 'name': 'inventory_number', 'label': 'Inventory number' | trans } %}
-            </div>
-            <div class="form-item">
-                {% include 'textfield.html.twig' with { 'name': 'current_location', 'label': 'Location' | trans } %}
-            </div>
-            <div class="form-item">
-                {% include 'textfield.html.twig' with { 'name': 'object_name', 'label': 'Object name' | trans } %}
-            </div>
-            <div class="form-item">
-                {% if not readonly %}
-                    <label for="object-type-select">{{ 'Object type' | trans }}</label>
-                    <div class="flex">
-                        <select required id="object-type-select"{% if prefilled_data.object_type is not defined or this_object_type != 'default' %} name="object_type"{% endif %}
-                                onchange="toggleObjectTypeField(this, 'object-type-custom', this.options[this.selectedIndex].value === 'customOption', true); objectTypeChanged(this.options[this.selectedIndex].value);" autocomplete="off">
-                            <option value=""{% if prefilled_data.object_type is not defined %} selected="selected"{% endif %} disabled hidden>{{ 'Select the object type' | trans }}</option>
-                            {% for object_type in object_types %}
-                                {% if object_type == 'default' %}
-                                    <option value="customOption">{{ 'Other' | trans }}</option>
-                                {% else %}
-                                    <option value="{{ object_type }}"{% if this_object_type == object_type %} selected="selected"{% endif %}>{{ object_type | trans }}</option>
-                                {% endif %}
-                            {% endfor %}
-                        </select>
-                        <input type="text" class="custom-input" id="object-type-custom" placeholder="{{ 'Fill in another object type ...' | trans }}"{% if prefilled_data.object_type is defined and this_object_type == 'default' %} name="object_type" value="{{ prefilled_data.object_type }}"{% else %} style="display: none;"{% endif %} autocomplete="off">
-                    </div>
-                {% else %}
-                    {% include 'textfield.html.twig' with { 'name': 'object_type', 'label': 'Object type' | trans } %}
-                {% endif %}
-            </div>
-        </div>
         <div class="form-subgroup">
             <div class="form-item form-creator">
                 {% include 'textarea.html.twig' with { 'name': 'creator_nl', 'label': 'Creator' | trans } %}
@@ -60,10 +28,57 @@
         </div>
         <div class="form-subgroup">
             <div class="form-item">
+                {% include 'textfield.html.twig' with { 'name': 'inventory_number', 'label': 'Inventory number' | trans } %}
+            </div>
+            <div class="form-item">
+                {% if not readonly %}
+                    <label for="object-type-select">{{ 'Object category' | trans }}</label>
+                    <div class="flex">
+                        <select required id="object-type-select"{% if prefilled_data.object_type is not defined or this_object_type != 'default' %} name="object_type"{% endif %}
+                                onchange="toggleObjectTypeField(this, 'object-type-custom', this.options[this.selectedIndex].value === 'customOption', true); objectTypeChanged(this.options[this.selectedIndex].value);" autocomplete="off">
+                            <option value=""{% if prefilled_data.object_type is not defined %} selected="selected"{% endif %} disabled hidden>{{ 'Select the object category' | trans }}</option>
+                            {% for object_type in object_types %}
+                                {% if object_type == 'default' %}
+                                    <option value="customOption">{{ 'Other' | trans }}</option>
+                                {% else %}
+                                    <option value="{{ object_type }}"{% if this_object_type == object_type %} selected="selected"{% endif %}>{{ object_type | trans }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                        <input type="text" class="custom-input" id="object-type-custom" placeholder="{{ 'Fill in another object category ...' | trans }}"{% if prefilled_data.object_type is defined and this_object_type == 'default' %} name="object_type" value="{{ prefilled_data.object_type }}"{% else %} style="display: none;"{% endif %} autocomplete="off">
+                    </div>
+                {% else %}
+                    {% include 'textfield.html.twig' with { 'name': 'object_type', 'label': 'Object category' | trans } %}
+                {% endif %}
+            </div>
+        </div>
+        <div class="form-subgroup">
+            <div class="form-item">
+                {% if app.request.locale == 'en' and prefilled_data.technique_en is defined and prefilled_data.technique_en is not empty %}
+                    {% include 'textfield.html.twig' with { 'name': 'technique_en', 'label': 'Technique' | trans } %}
+                    {% if not readonly and prefilled_data.technique_nl is defined %}
+                        <input type="hidden" name="technique_nl" value="{{ prefilled_data.technique_nl }}">
+                    {% endif %}
+                {% else %}
+                    {% include 'textfield.html.twig' with { 'name': 'technique_nl', 'label': 'Technique' | trans } %}
+                    {% if not readonly and prefilled_data.technique_en is defined %}
+                        <input type="hidden" name="technique_en" value="{{ prefilled_data.technique_en }}">
+                    {% endif %}
+                {% endif %}
+            </div>
+            <div class="form-item">
                 {% include 'textfield.html.twig' with { 'name': 'creation_date', 'label': 'Dating' | trans } %}
             </div>
             <div class="form-item">
-                {% include 'textfield.html.twig' with { 'name': 'copyright', 'label': 'Copyright' | trans } %}
+                {% include 'textfield.html.twig' with { 'name': 'current_location', 'label': 'Location' | trans } %}
+            </div>
+        </div>
+        <div class="form-subgroup">
+            <div class="form-item">
+                {% include 'textfield.html.twig' with { 'name': 'copyright', 'label': 'Copyright status' | trans } %}
+            </div>
+            <div class= "form-item">
+                {% include 'textfield.html.twig' with { 'name': 'license', 'label': 'License notification in case of publication' | trans } %}
             </div>
         </div>
     </div>

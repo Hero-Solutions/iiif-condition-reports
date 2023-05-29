@@ -55,7 +55,7 @@
                 <div class="header-popup">{{ 'Create report' | trans }}</div>
                 <a id="object-type-close" href="{{ path('main') }}"><i class="fas fa-times"></i></a>
                 <div id="object-type-select-div-div">
-                    <label for="object-type-popup-select">{{ 'Object type' | trans }}</label>
+                    <label for="object-type-popup-select">{{ 'Object category' | trans }}</label>
                     <div class="flex">
                         <select required id="object-type-popup-select" onchange="
                             if(this.options[this.selectedIndex].value === 'customOption') {
@@ -68,7 +68,7 @@
                                 }
                             }
                         " autocomplete="off">
-                            <option value="" selected disabled hidden>{{ 'Select the object type' | trans }}</option>
+                            <option value="" selected disabled hidden>{{ 'Select the object category' | trans }}</option>
                             {% for object_type in object_types %}
                                 {% if object_type == 'default' %}
                                     <option value="customOption">{{ 'Other' | trans }}</option>
@@ -77,8 +77,11 @@
                                 {% endif %}
                             {% endfor %}
                         </select>
-                        <input type="text" class="custom-input" id="object-type-popup-custom" placeholder="{{ 'Fill in another object type ...' | trans }}" style="display: none;" disabled="disabled" autocomplete="off">
+                        <input type="text" class="custom-input" id="object-type-popup-custom" placeholder="{{ 'Fill in another object category ...' | trans }}" style="display: none;" disabled="disabled" autocomplete="off">
                     </div>
+                </div>
+                <div class="remark">
+                    <p>{{ 'Remark: paintings on paper or cardboard, … are considered as \'work on paper\'' | trans }}</p>
                 </div>
                 <div class="save">
                     <button onclick="checkSelectedObjectType();">{{ 'Save' | trans }}</button>

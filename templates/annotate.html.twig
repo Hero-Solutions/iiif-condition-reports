@@ -157,7 +157,7 @@
         {% if images | length > 1 or not readonly %}
             <div id="annotation-images">
                 {% if not readonly %}
-                    <!-- TODO fix this, if you change object type from sculpture (in an already made report) to anything else, this will not work -->
+                    <!-- TODO fix this, if you change object category from sculpture (in an already made report) to anything else, this will not work -->
                     <div id="add-images">
                         <select id="add-image-select" onchange="selectedImageToAdd(this)" autocomplete="off">
                             <option value="" selected disabled hidden>{{ 'Add image' | trans }}</option>

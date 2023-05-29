@@ -1,4 +1,6 @@
-{% if not readonly or prefilled_data.reason is defined or prefilled_data.reason_custom is defined or prefilled_data.exhibition_title is defined or prefilled_data.exhibition_url is defined or prefilled_data.exhibition_date is defined or prefilled_data.exhibition_id is defined or prefilled_data.exhibition_info is defined or prefilled_data.exhibition_rep_name is defined %}
+{% set report_types = [ 'Basic report', 'Extensive reporting' ] %}
+
+{% if not readonly or prefilled_data.reason is defined or prefilled_data.reason_custom is defined or prefilled_data.report_type is defined or prefilled_data.exhibition_title is defined or prefilled_data.exhibition_url is defined or prefilled_data.exhibition_date is defined or prefilled_data.exhibition_id is defined or prefilled_data.exhibition_info is defined or prefilled_data.exhibition_rep_name is defined or prefilled_data.receipt is defined %}
 <div id="reason-form"{% if not readonly %} class="form-tab"{% endif %}>
     {% if not readonly %}
     <div class="report-header">{{ 'Identification of the reason for the report' | trans }}</div>
@@ -63,28 +65,80 @@
     </div>
     {% endif %}
 
-    {% if not readonly or prefilled_data.exhibition_title is defined or prefilled_data.exhibition_url is defined
-        or prefilled_data.exhibition_date is defined or prefilled_data.exhibition_id is defined or prefilled_data.exhibition_info is defined
-        or prefilled_data.exhibition_rep_name is defined %}
+    {% if not readonly or prefilled_data.report_type is defined %}
+    <div class="report-header">{{ 'Report type' | trans }}</div>
+    <div class="form-group">
+        <div class="form-subgroup">
+            <div class="form-item">
+                {% for report_type in report_types %}
+                    <div class="form-radio">{% include 'radio.html.twig' with { 'name': 'report_type', 'value': 'report_type_' ~ report_type, 'label': report_type | trans } %}</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if not readonly or prefilled_data.exhibition_title is defined or prefilled_data.exhibition_org_name is defined or prefilled_data.exhibition_org_address is defined
+        or prefilled_data.exhibition_org_postal is defined or prefilled_data.exhibition_org_city is defined or prefilled_data.exhibition_org_country is defined
+        or prefilled_data.exhibition_org_state_province is defined or prefilled_data.exhibition_url is defined
+        or prefilled_data.exhibition_date_start is defined or prefilled_data.exhibition_date_end is defined
+        or prefilled_data.exhibition_insured_date_start is defined or prefilled_data.exhibition_insured_date_end is defined
+        or prefilled_data.exhibition_id is defined or prefilled_data.exhibition_info is defined or prefilled_data.exhibition_rep_name is defined
+        or prefilled_data.receipt is defined %}
         <div class="report-header">{{ 'Information loan project' | trans }}{% if not readonly %} ({{ 'if applicable' | trans }}){% endif %}</div>
-        {% if not readonly or prefilled_data.exhibition_title is defined or prefilled_data.exhibition_url is defined
-            or prefilled_data.exhibition_date is defined or prefilled_data.exhibition_id is defined or prefilled_data.exhibition_info is defined %}
+        {% if not readonly or prefilled_data.exhibition_title is defined or prefilled_data.exhibition_org_name is defined or prefilled_data.exhibition_org_address is defined
+            or prefilled_data.exhibition_org_postal is defined or prefilled_data.exhibition_org_city is defined or prefilled_data.exhibition_org_country is defined
+            or prefilled_data.exhibition_org_state_province is defined or prefilled_data.exhibition_url is defined
+            or prefilled_data.exhibition_date_start is defined or prefilled_data.exhibition_date_end is defined
+            or prefilled_data.exhibition_insured_date_start is defined or prefilled_data.exhibition_insured_date_end is defined
+            or prefilled_data.exhibition_id is defined or prefilled_data.exhibition_info is defined %}
             <div class="form-group">
                 <div class="form-subgroup">
-                    <div class="form-item">{% include 'textfield.html.twig' with { 'name': 'exhibition_title', 'label': 'Name exhibition / loan project / restoration project / ...' | trans } %}</div>
+                    <div class="form-item">{% include 'textfield.html.twig' with { 'name': 'exhibition_title', 'label': 'Title exhibition / loan project / restoration project / ...' | trans } %}</div>
+                </div>
+
+                {% if not readonly or prefilled_data.exhibition_org_name is defined or prefilled_data.exhibition_org_address is defined or prefilled_data.exhibition_org_postal is defined
+                   or prefilled_data.exhibition_org_city is defined or prefilled_data.exhibition_org_country is defined or prefilled_data.exhibition_org_state_province is defined %}
+                    {% include 'organisation_name_address.html.twig' with { 'type': 'exhibition_org' }%}
+                {% endif %}
+
+                <div class="form-subgroup">
                     <div class="form-item">{% include 'textfield.html.twig' with { 'name': 'exhibition_url', 'label': 'Link to webpage if applicable' | trans, 'is_url': true } %}</div>
                 </div>
+
                 <div class="form-subgroup">
                     <div class="form-item">{% include 'date_input.html.twig' with { 'name': 'exhibition_date_start', 'label': 'Start date loan' | trans } %}</div>
                     <div class="form-item">{% include 'date_input.html.twig' with { 'name': 'exhibition_date_end', 'label': 'End date loan' | trans } %}</div>
-                    <div class="form-item">{% include 'textfield.html.twig' with { 'name': 'exhibition_id', 'label': 'Loan number' | trans } %}</div>
                 </div>
+
+                {% if not readonly or prefilled_data.exhibition_insured_date_start is defined or prefilled_data.exhibition_insured_date_end is defined %}
+                    <label>{{ 'Loan period covered by the insurance' | trans }}</label>
+                    <div class="form-subgroup subgroup-with-border">
+                        <div class="form-item">{% include 'date_input.html.twig' with { 'name': 'exhibition_insured_date_start', 'label': 'Start date' | trans } %}</div>
+                        <div class="form-item">{% include 'date_input.html.twig' with { 'name': 'exhibition_insured_date_end', 'label': 'End date' | trans } %}</div>
+                    </div>
+                {% endif %}
+
+                <div class="form-subgroup">
+                    <div class="form-item">{% include 'textfield.html.twig' with { 'name': 'exhibition_id', 'label': 'Loan number or dossier number' | trans } %}</div>
+                </div>
+
             </div>
         {% endif %}
         {% if not readonly or prefilled_data.exhibition_rep_name is defined %}
             <div class="form-group">
                 {% include 'representative_info.html.twig' with { 'type': 'exhibition_rep', 'representative_title': 'Responsible loan project' }%}
             </div>
+        {% endif %}
+        {% if not readonly or prefilled_data.receipt is defined %}
+        <div class="report-header">{{ 'Receipt' | trans }}</div>
+        <div class="form-group">
+            <div class="form-subgroup">
+                <div class="form-item">
+                    {% include 'date_input.html.twig' with { 'name': 'receipt', 'label': 'This document also serves as a receipt for the transfer of the work on' | trans } %}
+                </div>
+            </div>
+        </div>
         {% endif %}
     {% endif %}
     {% if not readonly %}

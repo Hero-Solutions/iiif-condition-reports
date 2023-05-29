@@ -60,6 +60,11 @@ class Organisation
     /**
      * @ORM\Column(type="string", length=255)
      */
+    public $stateProvince;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
     public $country;
 
     /**
@@ -175,6 +180,16 @@ class Organisation
     public function setCity($city)
     {
         $this->city = $city;
+    }
+
+    public function getStateProvince()
+    {
+        return $this->stateProvince;
+    }
+
+    public function setStateProvince($stateProvince)
+    {
+        $this->stateProvince = $stateProvince;
     }
 
     public function getCountry()

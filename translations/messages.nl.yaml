@@ -60,8 +60,9 @@ Institution / organisation: Instelling / organisatie
 Representative: Vertegenwoordiger
 Choose a role: Kies een rol
 
-Select the object type: Selecteer het objecttype
-Fill in another object type ...: Vul een ander objecttype in ...
+Select the object category: Selecteer de objectcategorie
+Fill in another object category ...: Vul een andere objectcategorie in ...
+"Remark: paintings on paper or cardboard, … are considered as 'work on paper'": "Opmerking: schilderijen op papier of karton, … vallen onder 'werken op papier'"
 Responsible loan project: Verantwoordelijke bruikleenproject
 Search: Zoeken
 Search type: Type zoekopdracht
@@ -70,13 +71,13 @@ Exact: Exact
 Partly: Gedeeltelijk
 Starts with: Begint met
 
-Object type: Objecttype
+Object category: Objectcategorie
 Painting: Schilderij
 painting: Schilderij
 Work on paper: Werk op papier
 work_on_paper: Werk op papier
-Sculpture: Beeldhouwwerk
-sculpture: Beeldhouwwerk
+Sculpture: Sculptuur
+sculpture: Sculptuur
 
 Measurements and weight: Afmetingen en gewicht
 Paper: Papier
@@ -88,13 +89,21 @@ Separate part B: Afzonderlijk deel B
 Complete sculpture: Volledig beeldhouwwerk
 
 Identification of the reason for the report : Identificatie van de aanleiding voor het rapport
+Report type: Soort rapport
 Information loan project: Informatie bruikleenproject
 if applicable: indien van toepassing
-Name exhibition / loan project / restoration project / ...: Naam tentoonstelling / bruikleenproject / restauratieproject / ...
+Title exhibition / loan project / restoration project / ...: Titel tentoonstelling / bruikleenproject / restauratieproject / ...
+Name of the organising institution: Naam van de organiserende instelling
+Venue of the project: Plaats van het project
 Link to webpage if applicable: Link naar eventuele webpagina
 Start date loan: Startdatum bruikleen
 End date loan: Einddatum bruikleen
-Loan number: Bruikleennummer
+Loan period covered by the insurance: Bruikleenperiode gedekt door de verzekering
+Start date: Startdatum
+End date: Einddatum
+Loan number or dossier number: Bruikleennummer of dossiernummer
+Receipt: Ontvangstbewijs
+This document also serves as a receipt for the transfer of the work on: Dit document dient tevens als ontvangstbewijs voor de overdracht van het werk op
 
 Information owner / lender: Informatie eigenaar / bruikleengever
 Information borrower / restorer: Informatie bruikleennemer / restaurateur
@@ -115,8 +124,10 @@ Height: Hoogte
 Width: Breedte
 Depth: Diepte
 Weight: Gewicht
+Technique: Techniek
 Dating: Datering
-Copyright: Copyright
+Copyright status: Copyright status
+License notification in case of publication: Licentievermelding bij publicatie
 
 Material type: Materiaalsoort
 Carrier: Drager
@@ -173,6 +184,7 @@ Insurance and indemnity: Verzekering en indemniteit
 Loss and damage: Verlies en schade
 Damage claim: Schadeclaim
 Fill in another reason ...: Vul een andere aanleiding in ...
+Fill in another name ...: Vul een andere naam in ...
 
 Add organisation: Organisatie toevoegen
 Alter organisation: Organisatie wijzigen
@@ -189,8 +201,10 @@ VAT number: BTW-nummer
 Address: Adres
 Postal code: Postcode
 City: Gemeente
+Province or state: Provincie of (deel)staat
 Country: Land
 E-mail: E-mail
+General e-mail address: Algemeen e-mailadres
 Website: Website
 Telephone: Telefoon
 Cell phone: GSM
@@ -203,6 +217,7 @@ URL of company logo: URL van bedrijfslogo
 Street + house number: Straat + huisnummer
 Ex. 9000: Bv. 9000
 Ex. Ghent: Bv. Gent
+Ex. East Flanders: Bv. Oost-Vlaanderen
 Ex. Belgium: Bv. België
 contact@example.com: contact@voorbeeld.com
 https://www.example.com: https://www.voorbeeld.com
@@ -390,6 +405,9 @@ reasonable: Redelijk
 bad: Slecht
 not_transportable: Niet vervoerbaar
 not_displayable: Niet tentoonstelbaar
+
+Basic report: Basisrapportage
+Extensive reporting: Uitgebreide rapportage
 
 surface_dirt: Oppervlaktevuil
 crusted_dirt: Geïncrusteerd vuil

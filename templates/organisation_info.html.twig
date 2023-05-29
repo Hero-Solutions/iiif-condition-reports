@@ -17,25 +17,48 @@
                 }
             }
         }
+
+        function toggleCustomOrg(customOrgId, value, show) {
+            var customOrg = document.getElementById(customOrgId);
+            if(customOrg != null) {
+                if(show) {
+                    customOrg.value = '';
+                    customOrg.style = 'display: block';
+                    customOrg.focus();
+                } else {
+                    customOrg.style = 'display: none';
+                    customOrg.value = value;
+                }
+            }
+        }
     </script>
-    <select onchange="fill{{  type }}Organisation(this.options[this.selectedIndex].value)" autocomplete="off">
-        <option></option>
-        {% for organisation in organisations %}
-            <option value="{{ organisation.id }}">{{ organisation.alias }}</option>
-        {% endfor %}
-    </select>
-{% endif %}
-<div class="form-subgroup">
+    <div class="form-subgroup">
+        <div class="form-item">
+            <label>{{ 'Name' | trans }}</label>
+            <div class="flex">
+                <select id="{{ type }}-id" name="{{ type }}_org_id" onchange="toggleCustomOrg('{{ type }}-name', this.options[this.selectedIndex].value, this.options[this.selectedIndex].value === 'customOption'); fill{{  type }}Organisation(this.options[this.selectedIndex].value)" autocomplete="off">
+                    <option></option>
+                    {% for organisation in organisations %}
+                        <option value="{{ organisation.id }}">{{ organisation.alias }}</option>
+                    {% endfor %}
+                    <option value="customOption"{% if prefilled_data[type ~ '_name'] is defined %} selected{% endif %}>{{ 'Other' | trans }}</option>
+                    <input type="text" class="custom-input" id="{{ type }}-name" placeholder="{{ 'Fill in another name ...' | trans }}" name="{{ type }}_name"
+                       {% if prefilled_data[type ~ '_name'] is defined %}value="{{ prefilled_data[type ~ '_name'] }}" {% else %}style="display: none;"{% endif %} autocomplete="off">
+                </select>
+                </div>
+        </div>
+        <div class="form-item">
+            {% include 'textfield.html.twig' with { 'name': type ~ '_vat', 'label': 'VAT number' | trans } %}
+        </div>
+    </div>
+{% elseif prefilled_data[type ~ '_name'] is defined %}
     <div class="form-item">
         {% include 'textfield.html.twig' with { 'name': type ~ '_name', 'label': 'Name' | trans } %}
     </div>
-    <div class="form-item">
-        {% include 'textfield.html.twig' with { 'name': type ~ '_vat', 'label': 'VAT number' | trans } %}
-    </div>
-</div>
+{% endif %}
 <div class="form-subgroup">
     <div class="form-item">
-        {% include 'textfield.html.twig' with { 'name': type ~ '_address', 'label': 'Adress' | trans } %}
+        {% include 'textfield.html.twig' with { 'name': type ~ '_address', 'label': 'Address' | trans } %}
     </div>
     <div class="form-item">
         {% include 'textfield.html.twig' with { 'name': type ~ '_postal', 'label': 'Postal code' | trans } %}
@@ -44,12 +67,15 @@
         {% include 'textfield.html.twig' with { 'name': type ~ '_city', 'label': 'City' | trans } %}
     </div>
     <div class="form-item">
+        {% include 'textfield.html.twig' with { 'name': type ~ '_state_province', 'label': 'Province or state' | trans } %}
+    </div>
+    <div class="form-item">
         {% include 'textfield.html.twig' with { 'name': type ~ '_country', 'label': 'Country' | trans } %}
     </div>
 </div>
 <div class="form-subgroup">
     <div class="form-item">
-        {% include 'textfield.html.twig' with { 'name': type ~ '_email', 'label': 'E-mail' | trans } %}
+        {% include 'textfield.html.twig' with { 'name': type ~ '_email', 'label': 'General e-mail address' | trans } %}
     </div>
     <div class="form-item">
         {% include 'textfield.html.twig' with { 'name': type ~ '_website', 'label': 'Website' | trans, 'is_url': true } %}
