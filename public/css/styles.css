@@ -708,6 +708,7 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
 }
 
 #report-form > .form-tab > .form-group > .form-subgroup,
+#report-form > .form-tab > .form-group > .measurements-subgroup > .form-subgroup,
 #organisation-form > .form-group > .form-subgroup,
 #representative-form > .form-group > .form-subgroup,
 #user-form > .form-group > .form-subgroup {
@@ -715,6 +716,7 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
 }
 
 #report-form > .form-tab > .form-group > .form-subgroup > .form-item,
+#report-form > .form-tab > .form-group > .measurements-subgroup > .form-subgroup > .form-item,
 #organisation-form > .form-group > .form-subgroup > div,
 #representative-form > .form-group > .form-subgroup > div,
 #user-form > .form-group > .form-subgroup > div {
@@ -723,6 +725,7 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
 }
 
 #report-form > .form-tab > .form-group > .form-subgroup > .form-item:first-child,
+#report-form > .form-tab > .form-group > .measurements-subgroup > .form-subgroup > .form-item:first-child,
 #organisation-form > .form-group > .form-subgroup > div:first-child,
 #representative-form > .form-group > .form-subgroup > div:first-child,
 #user-form > .form-group > .form-subgroup > div:first-child {
@@ -1708,12 +1711,13 @@ form {
     margin-left: 15px;
 }
 
-.readonly #report-form .form-group .report-column:first-child {
+.readonly #report-form .form-group .report-column:first-child,
+.readonly #report-form #recommendations-form .form-group .report-column:first-child {
     margin-left: 0;
 }
 
-.readonly #report-form #recommendations-form .form-group .report-column:first-child {
-    margin-left: 0;
+.no-left-margin-item {
+    margin-left: 0 !important;
 }
 
 .readonly #report-form .form-item {

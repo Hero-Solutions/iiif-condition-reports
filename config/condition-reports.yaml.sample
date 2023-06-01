@@ -60,49 +60,96 @@ parameters:
   # You must always provide a default list as fallback (which ideally contains all elements of the other object types) and each list should end in 'custom'
   # Spaces are not allowed in any of the list elements, only letters, numbers and underscores
   report_fields:
-    # Measurements has a slightly more complex structure than the other fields. It is split into separate parts, each with its own header and items with labels.
+    number_of_parts:
+      default: 'Number of parts'
+      painting: 'Number of parts (in case of polyptychs / works in a series / ...)'
+      work_on_paper: 'Number of parts (in case of polyptychs / works in a series / ...)'
+      sculpture: 'Number of parts pedestal included'
+    # Measurements has a slightly more complex structure than the other fields. It is split into separate parts, each with its own header and items with labels, along with repeating elements for each part.
     measurements:
       default:
-        - header: ''
-          items:
-            height: Height
-            width: Width
-            depth: Depth
-            weight: Weight
+        header: ''
+        items:
+          height_full: Height
+          width_full: Width
+          depth_full: Depth
+          weight_full: Weight
+        repeat:
+          none:
+            header: ''
+            items:
+              height: Height
+              width: Width
+              depth: Depth
+              weight: Weight
+      painting:
+        header: 'Total work'
+        items:
+          height_full: Height
+          width_full: Width
+          depth_full: Depth
+          weight_full: Weight
+        repeat:
+          with_frame:
+            header: 'With frame'
+            items:
+              height_with_frame: Height
+              width_with_frame: Width
+              depth_with_frame: Depth
+              weight_with_frame: Weight
+          without_frame:
+            header: 'Without frame'
+            items:
+              height_without_frame: Height
+              width_without_frame: Width
+              depth_without_frame: Depth
+              weight_without_frame: Weight
       work_on_paper:
-        - header: Paper
-          items:
-            height: Height
-            width: Width
-        - header: Passe-partout
-          items:
-            height_passe_partout: Height
-            width_passe_partout: Width
-        - header: Box
-          items:
-            height_box: Height
-            width_box: Width
-            depth_box: Depth
-            weight: Total weight
+        header: 'Box'
+        items:
+          height_box: Height
+          width_box: Width
+          depth_box: Depth
+          weight_box: Total weight
+        repeat:
+          paper_with_frame:
+            header: 'Paper with frame'
+            items:
+              height_with_frame: Height
+              width_with_frame: Width
+              depth_with_frame: Depth
+              weight_with_frame: Weight
+          paper_without_frame:
+            header: 'Paper without frame'
+            items:
+              height_without_frame: Height
+              width_without_frame: Width
+          passe_partout:
+            header: 'Passe-partout'
+            items:
+              height_passe_partout: Height
+              width_passe_partout: Width
+          window_in_passe_partout:
+            header: 'Window in the passe-partout'
+            items:
+              height_window_passe_partout: Height
+              width_window_passe_partout: Width
       sculpture:
-        - header: Separate part A
-          items:
-            height_part_a: Height
-            width_part_a: Width
-            depth_part_a: Depth
-            weight_part_a: Weight
-        - header: Separate part B
-          items:
-            height_part_b: Height
-            width_part_b: Width
-            depth_part_b: Depth
-            weight_part_b: Weight
-        - header: Complete sculpture
-          items:
-            height: Height
-            width: Width
-            depth: Depth
-            weight: Total weight
+        header: 'Complete sculpture'
+        items:
+          height_full: Height
+          width_full: Width
+          depth_full: Depth
+          weight_full: Weight
+        repeat:
+          none:
+            header: ''
+            items:
+              type: Pedestal / Sculpture / ...
+              height: Height
+              width: Width
+              depth: Depth
+              weight: Weight
     materials:
       default:
         - stone

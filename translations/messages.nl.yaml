@@ -80,12 +80,24 @@ Sculpture: Sculptuur
 sculpture: Sculptuur
 
 Measurements and weight: Afmetingen en gewicht
+Measurements: Afmetingen
+Number of parts: Aantal onderdelen
+Number of parts (in case of polyptychs / works in a series / ...): Aantal onderdelen (in geval van veelluiken / werken in een reeks / ...)
+Number of parts pedestal included: Aantal onderdelen inclusief sokkel
+Parts: Onderdelen
+Part: Deel
+Specification: Specificatie
+Total work: Volledig werk
+With frame: Met lijst
+Without frame: Zonder lijst
 Paper: Papier
+Paper with frame: Papier met lijst
+Paper without frame: Papier zonder lijst
 Passe-partout: Passe-partout
+Window in the passe-partout: Venster in het passe-partout
 Box: Doos
 Total weight: Totaal gewicht
-Separate part A: Afzonderlijk deel A
-Separate part B: Afzonderlijk deel B
+Pedestal / Sculpture / ...: Sokkel / Sculptuur / ...
 Complete sculpture: Volledig beeldhouwwerk
 
 Identification of the reason for the report : Identificatie van de aanleiding voor het rapport
@@ -119,7 +131,6 @@ Undo: Ongedaan maken
 
 Location: Standplaats
 Object name: Objectnaam
-Measurements: Afmetingen
 Height: Hoogte
 Width: Breedte
 Depth: Diepte
@@ -141,7 +152,6 @@ Relief: Reliëf
 Full plastic: Volplastisch
 Construction / composition: Constructie / samenstelling
 Work: Werk
-Number of parts: Aantal onderdelen
 To be mounted with: Te monteren met
 Connections: Verbindingen
 Between separate parts of the sculpture: Tussen afzonderlijke delen van het beeld

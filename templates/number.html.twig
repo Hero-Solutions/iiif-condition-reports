@@ -5,5 +5,5 @@
     {% endif %}
 {% else %}
     <label for="{{ name }}">{{ label }}</label>
-    <input name="{{ name }}" type="number" value="{% if prefilled_data[name] is defined %}{{ prefilled_data[name] }}{% endif %}"{% if class is defined %} class="{{ class }}"{% endif %}{% if disabled is defined and disabled %} disabled{% endif %}/>
+    <input name="{{ name }}" type="number"{% if min is defined %} min="{{ min }}"{% endif %}{% if max is defined %} max="{{ max }}"{% endif %}{% if prefilled_data[name] is defined %} value="{{ prefilled_data[name] }}"{% elseif value is defined %} value="{{ value }}"{% endif %}{% if id is defined %} id="{{ id }}"{% endif %}{% if class is defined %} class="{{ class }}"{% endif %}{% if disabled is defined and disabled %} disabled{% endif %}/>
 {% endif %}
