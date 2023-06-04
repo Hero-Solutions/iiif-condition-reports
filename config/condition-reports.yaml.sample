@@ -152,9 +152,9 @@ parameters:
               weight: Weight
 
     # See templates/form_builder.html.twig for implementation
-    # Supported types: div, div_text, textarea, checkbox, checkbox_custom, radio, radio_custom
+    # Supported types: div, div_text, textarea, number, checkbox, checkbox_custom, radio, radio_custom
     # 'content' must always be a list or a string (the string may be empty)
-    # 'name' must always be a non-empty string in a textarea, checkbox, checkbox_custom, radio or radio_custom
+    # 'name' must always be a non-empty string in a textarea, number, checkbox, checkbox_custom, radio or radio_custom
     materials:
       default:
       - type: div
