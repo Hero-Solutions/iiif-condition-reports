@@ -60,6 +60,8 @@
                 </div>
             {% elseif item.type == 'div_text' %}
                 <div{% if item.class is defined %} class="{{ item.class  }}"{% endif %}>{{ item.content | trans }}</div>
+            {% elseif item.type == 'textfield' and item.name is defined %}
+                <div class="form-item">{% include 'textfield.html.twig' with { 'name': item.name, 'label': item.content | trans } %}</div>
             {% elseif item.type == 'textarea' and item.name is defined %}
                 <div class="no-spaces">{% include 'textarea.html.twig' with { 'name': item.name, 'label': item.content | trans } %}</div>
             {% elseif item.type == 'number' and item.name is defined %}
@@ -68,10 +70,10 @@
                     {% set with_data = with_data|merge({ 'value': prefilled_data[item.name]}) %}
                 {% endif %}
                 {% if item.min is defined %}
-                    {% set with_data = with_data|merge({ 'min': item.min}) %}
+                    {% set with_data = with_data|merge({ 'min': item.min }) %}
                 {% endif %}
                 {% if item.max is defined %}
-                    {% set with_data = with_data|merge({ 'max': item.max}) %}
+                    {% set with_data = with_data|merge({ 'max': item.max }) %}
                 {% endif %}
                 <div class="form-item{% if item.class is defined %} {{ item.class }}{% endif %}">{% include 'number.html.twig' with with_data %}</div>
             {% elseif item.type == 'checkbox' and item.name is defined %}
@@ -80,15 +82,17 @@
                 </div>
             {% elseif item.type == 'checkbox_custom' and item.name is defined %}
                 <div class="form-item">
+                    {% set with_data = { 'name': item.name } %}
                     {% if item.content is not empty %}
-                        {% if item.class is defined %}
-                            <div class="form-checkbox-custom">{% include 'checkbox_custom.html.twig' with { 'name': item.name, 'label': item.content, 'label_class': item.class } %}</div>
-                        {% else %}
-                            <div class="form-checkbox-custom">{% include 'checkbox_custom.html.twig' with { 'name': item.name, 'label': item.content } %}</div>
-                        {% endif %}
-                    {% else %}
-                        <div class="form-checkbox-custom">{% include 'checkbox_custom.html.twig' with { 'name': item.name } %}</div>
+                        {% set with_data = with_data|merge({ 'label': item.content }) %}
                     {% endif %}
+                    {% if item.class is defined %}
+                        {% set with_data = with_data|merge({ 'label_class': item.class }) %}
+                    {% endif %}
+                    {% if item.placeholder is defined %}
+                        {% set with_data = with_data|merge({ 'placeholder': item.placeholder }) %}
+                    {% endif %}
+                    <div class="form-checkbox-custom">{% include 'checkbox_custom.html.twig' with with_data %}</div>
                 </div>
             {% elseif item.type == 'radio' and item.name is defined and (not readonly or (prefilled_data[item.name] is defined and prefilled_data[item.name] == item.content | lower)) %}
                 <div class="form-radio">{% include 'radio.html.twig' with { 'name': item.name, 'value': item.content | lower, 'label': item.content | trans } %}</div>
