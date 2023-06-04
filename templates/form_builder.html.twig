@@ -84,7 +84,7 @@
                 <div class="form-item">
                     {% set with_data = { 'name': item.name } %}
                     {% if item.content is not empty %}
-                        {% set with_data = with_data|merge({ 'label': item.content }) %}
+                        {% set with_data = with_data|merge({ 'label': item.content | trans }) %}
                     {% endif %}
                     {% if item.class is defined %}
                         {% set with_data = with_data|merge({ 'label_class': item.class }) %}
