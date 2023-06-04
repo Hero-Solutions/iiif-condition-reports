@@ -870,8 +870,13 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
 }
 
 #report-form .form-checkbox label,
-#report-form .form-radio label {
+#report-form .form-radio label,
+#report-form .form-radio-custom label {
     padding-top: 0;
+}
+
+.top-margin-subgroup {
+    margin-top: 10px !important;
 }
 
 #report-form .form-checkbox-conservation label {
@@ -927,6 +932,10 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
 #report-form .report-legend {
     font-style: italic;
     padding-left: 333px;
+}
+
+.checkbox-subgroup {
+    margin-left: 23px;
 }
 
 #report-form label[for=construction_work_custom_checkbox_custom] {

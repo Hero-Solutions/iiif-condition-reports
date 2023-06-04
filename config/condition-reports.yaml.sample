@@ -150,43 +150,106 @@ parameters:
               width: Width
               depth: Depth
               weight: Weight
+
+    # See templates/form_builder.html.twig for implementation
+    # Supported types: div, div_text, textarea, checkbox, checkbox_custom, radio, radio_custom
+    # 'content' must always be a list or a string (the string may be empty)
+    # 'name' must always be a non-empty string in a textarea, checkbox, checkbox_custom, radio or radio_custom
     materials:
       default:
-        - stone
-        - metal
-        - glass
-        - ceramic
-        - plaster
-        - textile
-        - paper
-        - wood
-        - plastic
-        - custom
+      - type: div
+        content:
+        - type: div_text
+          class: 'report-header'
+          content: 'Material type'
+          # TODO implement
       painting:
-        - textile
-        - wood
-        - metal
-        - ceramic
-        - paper
-        - custom
+        - type: div
+          content:
+            - type: div_text
+              class: 'report-header'
+              content: 'Material type'
+            - type: div
+              class: 'form-group'
+              content:
+                - type: div
+                  class: 'form-subgroup'
+                  content:
+                    - type: div_text
+                      class: 'report-header-2'
+                      content: 'Support PAINT'
+                    - type: checkbox
+                      name: 'material_painting_support_canvas'
+                      content: 'Canvas'
+                    - type: checkbox
+                      name: 'material_painting_support_wood'
+                      content: 'Wood'
+                    - type: checkbox
+                      name: 'material_painting_support_metal'
+                      content: 'Metal'
+                    - type: checkbox
+                      name: 'material_painting_support_paper'
+                      content: 'Paper'
+                    - type: checkbox
+                      name: 'material_painting_support_cardboard'
+                      content: 'Cardboard'
+                    - type: checkbox
+                      name: 'material_painting_support_hardboard'
+                      content: 'Hardboard'
+                    - type: checkbox
+                      name: 'material_painting_support_marouflage'
+                      content: 'Marouflage'
+                    - type: checkbox_custom
+                      name: 'material_painting_support_custom'
+                      content: ''
+                - type: div
+                  class: 'form-subgroup top-margin-subgroup'
+                  content:
+                    - type: div_text
+                      class: 'report-header-2'
+                      content: 'Paint layer'
+                    - type: textarea
+                      name: 'material_painting_paint_layer_material'
+                      content: 'Material'
+                    - type: textarea
+                      name: 'material_painting_paint_layer_technique_remarks'
+                      content: 'Remarks on the painting techniques'
+                - type: div
+                  class: 'form-subgroup top-margin-subgroup'
+                  content:
+                    - type: div_text
+                      class: 'report-header-2'
+                      content: 'Varnish layer'
+                    - type: checkbox
+                      name: 'material_painting_varnish_layer_present'
+                      content: 'Present'
+                    - type: div
+                      class: 'form-subgroup checkbox-subgroup'
+                      content:
+                        - type: radio
+                          name: 'material_painting_varnish_layer_present_radio'
+                          content: 'Complete'
+                        - type: radio
+                          name: 'material_painting_varnish_layer_present_radio'
+                          content: 'Local'
+                        - type: radio_custom
+                          name: 'material_painting_varnish_layer_present_radio'
+                          content: ''
+          # TODO complete this list
       work_on_paper:
-        - textile
-        - wood
-        - metal
-        - ceramic
-        - paper
-        - custom
+        - type: div
+          content:
+            - type: div_text
+              class: 'report-header'
+              content: 'Material type'
+          # TODO implement
       sculpture:
-        - stone
-        - metal
-        - glass
-        - ceramic
-        - plaster
-        - textile
-        - paper
-        - wood
-        - plastic
-        - custom
+        - type: div
+          content:
+            - type: div_text
+              class: 'report-header'
+              content: 'Material type'
+          # TODO implement
     finishing_layers:
       default:
         - absent

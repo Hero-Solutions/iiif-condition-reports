@@ -1,0 +1,89 @@
+{% for object_type, content in form %}
+    {% for item in content %}
+        {{ _self.build(this_object_type, object_type, item, readonly, prefilled_data, id, true) }}
+    {% endfor %}
+{% endfor %}
+
+{% macro build(this_object_type, object_type, item, readonly, prefilled_data, id, top_div) %}
+    {% if item.type is defined and item.content is defined %}
+
+        {% set do_show = not readonly or item.type == 'div_text' %}
+        {% if readonly %}
+            {% if item.type == 'div' %}
+                {# Check if the content of this div is empty by looping through all of its children; if empty, do not display in readonly version #}
+                {% set looping = true %}
+                {% set looping_content = item.content %}
+                {% set new_looping_content = [] %}
+                {% for i in 0..10000 if looping %}
+                    {% for subitem in looping_content %}
+                        {% if subitem.type == 'div' %}
+                            {% set new_looping_content = new_looping_content|merge(subitem.content) %}
+                        {% elseif subitem.name is defined %}
+                            {% if prefilled_data[subitem.name] is defined %}
+                                {% if prefilled_data[subitem.name] is not empty %}
+                                    {% set looping = false %}
+                                    {% set do_show = true %}
+                                {% endif %}
+                            {% endif %}
+                        {% endif %}
+                        {% if loop.last %}
+                            {% if new_looping_content is empty %}
+                                {% set looping = false %}
+                            {% else %}
+                                {% set looping_content = new_looping_content %}
+                                {% set new_looping_content = [] %}
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                {% endfor %}
+            {% elseif item.name is defined %}
+                {% if prefilled_data[item.name] is defined %}
+                    {% set do_show = true %}
+                {% endif %}
+            {% endif %}
+        {% endif %}
+
+        {% if do_show %}
+            {% if item.type == 'div' %}
+                {% if top_div %}
+                    {% if item.class is defined %}
+                        <div class="{{ item.class  }}{% if this_object_type is defined and this_object_type != object_type %} hidden{% endif %}" id="{{ id }}-{{ object_type }}">
+                    {% else %}
+                        <div{% if this_object_type is defined and this_object_type != object_type %} class="hidden"{% endif %} id="{{ id }}-{{ object_type }}">
+                    {% endif %}
+                {% else %}
+                    <div{% if item.class is defined %} class="{{ item.class  }}"{% endif %}{% if top_div %} id="{{ id }}" {% endif %}>
+                {% endif %}
+                {% for subitem in item.content %}
+                    {{ _self.build(this_object_type, object_type, subitem, readonly, prefilled_data, id, false) }}
+                {% endfor %}
+                </div>
+            {% elseif item.type == 'div_text' %}
+                <div{% if item.class is defined %} class="{{ item.class  }}"{% endif %}>{{ item.content | trans }}</div>
+            {% elseif item.type == 'textarea' and item.name is defined %}
+                <div class="no-spaces">{% include 'textarea.html.twig' with { 'name': item.name, 'label': item.content | trans } %}</div>
+            {% elseif item.type == 'checkbox' and item.name is defined %}
+                <div class="form-item">
+                    <div class="form-checkbox">{% include 'checkbox.html.twig' with { 'name': item.name, 'label': item.content | trans } %}</div>
+                </div>
+            {% elseif item.type == 'checkbox_custom' and item.name is defined %}
+                <div class="form-item">
+                    {% if item.content is not empty %}
+                        {% if item.class is defined %}
+                            <div class="form-checkbox-custom">{% include 'checkbox_custom.html.twig' with { 'name': item.name, 'label': item.content, 'label_class': item.class } %}</div>
+                        {% else %}
+                            <div class="form-checkbox-custom">{% include 'checkbox_custom.html.twig' with { 'name': item.name, 'label': item.content } %}</div>
+                        {% endif %}
+                    {% else %}
+                        <div class="form-checkbox-custom">{% include 'checkbox_custom.html.twig' with { 'name': item.name } %}</div>
+                    {% endif %}
+                </div>
+            {% elseif item.type == 'radio' and item.name is defined and (not readonly or (prefilled_data[item.name] is defined and prefilled_data[item.name] == item.content | lower)) %}
+                <div class="form-radio">{% include 'radio.html.twig' with { 'name': item.name, 'value': item.content | lower, 'label': item.content | trans } %}</div>
+            {% elseif item.type == 'radio_custom' and item.name is defined and (not readonly or prefilled_data[item.name] is not defined or prefilled_data[item.name] is empty) %}
+                <div class="form-radio-custom">{% include 'radio_custom.html.twig' with { 'name': item.name } %}</div>
+            {% endif %}
+        {% endif %}
+
+    {% endif %}
+{% endmacro %}
