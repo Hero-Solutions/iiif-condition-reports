@@ -600,14 +600,14 @@ window.onload = function() {
         window.printCheckboxes = {};
         var printSelection = document.getElementById("print-selection");
         var forms = {
-            "Report reason": "reason-form",
-            "Object identification": "basic-info-form",
-            "Involved actors": "actors-form",
-            "Physical characteristics": "material-form",
-            "Condition and conservation": "condition-form",
-            "Recommendations": "recommendations-form",
-            "Annotations": "annotate-form",
-            "Signatures": "signatures-form"
+            "{{ 'Report reason' | trans }}": "reason-form",
+            "{{ 'Object identification' | trans }}": "basic-info-form",
+            "{{ 'Involved actors' | trans }}": "actors-form",
+            "{{ 'Physical characteristics' | trans }}": "material-form",
+            "{{ 'Condition and conservation' | trans }}": "condition-form",
+            "{{ 'Recommendations' | trans }}": "recommendations-form",
+            "{{ 'Annotations' | trans }}": "annotate-form",
+            "{{ 'Signatures' | trans }}": "signatures-form"
         };
         for (const [name, formId] of Object.entries(forms)) {
             var form = document.getElementById(formId);
