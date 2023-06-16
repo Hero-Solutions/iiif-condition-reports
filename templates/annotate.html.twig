@@ -596,6 +596,125 @@ window.onload = function() {
                 groupDiv.appendChild(nextSibling);
             }
         }
+
+        window.printCheckboxes = {};
+        var printSelection = document.getElementById("print-selection");
+        var reportFormDivs = document.getElementsByClassName("form-group");
+        var a = 0;
+        var b = 0;
+        if(reportFormDivs !== null) {
+            for(var c = 0; c < reportFormDivs.length; c++ ) {
+                var childDiv = reportFormDivs[c];
+                var parentDiv = childDiv.parentElement;
+                var show = true;
+                for(var j = 0; j < 1000; j++) {
+                    if(parentDiv.className.includes("hidden")) {
+                        show = false;
+                        break;
+                    }
+                    if(parentDiv.parentElement.id === "report-form") {
+                        break;
+                    } else {
+                        parentDiv = parentDiv.parentElement;
+                    }
+                }
+                if(!show) {
+                    continue;
+                }
+                var prevSibling = childDiv.previousElementSibling;
+                if(prevSibling !== null && prevSibling.className === "report-header") {
+                    b = 0;
+                    a++;
+                    addPrintCheckbox(a, 0, true, printSelection, childDiv.parentElement, prevSibling.innerHTML, "");
+                }
+                var header = childDiv.getElementsByClassName("report-header-2");
+                if(header !== null && header.length > 0) {
+                    b++;
+                    addPrintCheckbox(a, b, false, printSelection, childDiv, header[0].innerHTML, "print-selection-indent");
+                }
+            }
+        }
+        addPrintCheckbox(a, 0, true, printSelection, document.getElementById("annotation-form"), "{{ 'Annotations' | trans }}", "");
+        a++;
+        var signaturesForm = document.getElementById("signatures-form");
+        if(signaturesForm !== null) {
+            addPrintCheckbox(a, 0, true, printSelection, signaturesForm, "{{ 'Signatures' | trans }}", "");
+            a++;
+        }
+
+        function addPrintCheckbox(mainIndex, subIndex, isMain, printSelection, formElement, text, className) {
+
+            var wrapDiv = document.createElement("div");
+            wrapDiv.className = className;
+            var printCheckbox = document.createElement("input");
+            printCheckbox.type = "checkbox";
+            printCheckbox.checked = true;
+            wrapDiv.appendChild(printCheckbox);
+            if(isMain) {
+                window.printCheckboxes[mainIndex] = { main: printCheckbox, children: {} };
+                formElement.classList.add("print-main-form-group-" + mainIndex);
+            } else if(window.printCheckboxes[mainIndex] !== null) {
+                window.printCheckboxes[mainIndex].children[subIndex] = printCheckbox;
+                formElement.classList.add("print-form-group-" + mainIndex + "-" + subIndex);
+            }
+
+            var span = document.createElement("span");
+            span.innerHTML = text;
+            wrapDiv.appendChild(span);
+
+            printSelection.appendChild(wrapDiv);
+
+            printCheckbox.onchange = function() {
+                if(printCheckbox.checked) {
+                    formElement.classList.remove("no-print");
+                    if (isMain) {
+                        for (const [index, checkbox] of Object.entries(window.printCheckboxes[mainIndex].children)) {
+                            const eles = document.getElementsByClassName("print-form-group-" + mainIndex + "-" + index);
+                            if (eles !== null) {
+                                eles[0].classList.remove("no-print");
+                            }
+                            checkbox.checked = true;
+                        }
+                    } else {
+                        if (window.printCheckboxes[mainIndex] !== null) {
+                            const eles = document.getElementsByClassName("print-main-form-group-" + mainIndex);
+                            if (eles !== null) {
+                                eles[0].classList.remove("no-print");
+                            }
+                            window.printCheckboxes[mainIndex].main.checked = true;
+                        }
+                    }
+                } else {
+                    formElement.classList.add("no-print");
+                    if(isMain) {
+                        for (const [index, checkbox] of Object.entries(window.printCheckboxes[mainIndex].children)) {
+                            const eles = document.getElementsByClassName("print-form-group-" + mainIndex + "-" + index);
+                            if (eles !== null) {
+                                eles[0].classList.add("no-print");
+                            }
+                            checkbox.checked = false;
+                        }
+                    } else {
+                        if (window.printCheckboxes[mainIndex] !== null) {
+                            var noneChecked = true;
+                            for (const [index, checkbox] of Object.entries(window.printCheckboxes[mainIndex].children)) {
+                                if (checkbox.checked) {
+                                    noneChecked = false;
+                                    break;
+                                }
+                            }
+                            if (noneChecked) {
+                                const eles = document.getElementsByClassName("print-main-form-group-" + mainIndex);
+                                if (eles !== null) {
+                                    eles[0].classList.add("no-print");
+                                }
+                                window.printCheckboxes[mainIndex].main.checked = false;
+                            }
+                        }
+                    }
+                }
+            };
+        }
     {% endif %}
 };
 
