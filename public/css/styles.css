@@ -515,6 +515,10 @@ textarea {
     margin-left: 30px;
 }
 
+.print-selection-indent-2 {
+    margin-left: 60px;
+}
+
 #report-navigation .print {
     margin-left: 5px;
 }

@@ -599,50 +599,82 @@ window.onload = function() {
 
         window.printCheckboxes = {};
         var printSelection = document.getElementById("print-selection");
-        var reportFormDivs = document.getElementsByClassName("form-group");
-        var a = 0;
-        var b = 0;
-        if(reportFormDivs !== null) {
-            for(var c = 0; c < reportFormDivs.length; c++ ) {
-                var childDiv = reportFormDivs[c];
-                var parentDiv = childDiv.parentElement;
-                var show = true;
-                for(var j = 0; j < 1000; j++) {
-                    if(parentDiv.className.includes("hidden")) {
-                        show = false;
-                        break;
+        var forms = {
+            "Report reason": "reason-form",
+            "Object identification": "basic-info-form",
+            "Involved actors": "actors-form",
+            "Physical characteristics": "material-form",
+            "Condition and conservation": "condition-form",
+            "Recommendations": "recommendations-form",
+            "Annotations": "annotate-form",
+            "Signatures": "signatures-form"
+        };
+        for (const [name, formId] of Object.entries(forms)) {
+            var form = document.getElementById(formId);
+            if(form !== null) {
+                var a = 0;
+                var b = 0;
+                addPrintCheckbox(formId, 0, 0, "main", form, name, "");
+                printSelection.appendChild(window.printCheckboxes[formId].div);
+
+                var reportFormDivs = form.getElementsByClassName("form-group");
+                if (reportFormDivs !== null) {
+                    for (var d = 0; d < reportFormDivs.length; d++) {
+                        const childDiv = reportFormDivs[d];
+                        if(isHiddenForm(childDiv)) {
+                            continue;
+                        }
+                        var prevSibling = childDiv.previousElementSibling;
+                        if (prevSibling !== null && prevSibling.className === "report-header") {
+                            b = 0;
+                            a++;
+                            addPrintCheckbox(formId, a, 0, "sub", childDiv.parentElement, prevSibling.innerHTML, "print-selection-indent");
+                        }
+                        var header = childDiv.getElementsByClassName("report-header-2");
+                        if (header !== null && header.length > 0) {
+                            b++;
+                            addPrintCheckbox(formId, a, b, "", childDiv, header[0].innerHTML, "print-selection-indent-2");
+                        }
                     }
-                    if(parentDiv.parentElement.id === "report-form") {
-                        break;
-                    } else {
-                        parentDiv = parentDiv.parentElement;
+                }
+                var display = false;
+                for (const ele of Object.values(window.printCheckboxes[formId].children)) {
+                    if (Object.keys(ele.children).length > 1) {
+                        ele.display = true;
+                        display = true;
                     }
                 }
-                if(!show) {
-                    continue;
-                }
-                var prevSibling = childDiv.previousElementSibling;
-                if(prevSibling !== null && prevSibling.className === "report-header") {
-                    b = 0;
-                    a++;
-                    addPrintCheckbox(a, 0, true, printSelection, childDiv.parentElement, prevSibling.innerHTML, "");
-                }
-                var header = childDiv.getElementsByClassName("report-header-2");
-                if(header !== null && header.length > 0) {
-                    b++;
-                    addPrintCheckbox(a, b, false, printSelection, childDiv, header[0].innerHTML, "print-selection-indent");
+
+                if(display || Object.keys(window.printCheckboxes[formId].children).length > 1) {
+                    for (const ele of Object.values(window.printCheckboxes[formId].children)) {
+                        printSelection.appendChild(ele.div);
+                        if (ele.display || Object.keys(ele.children).length > 1) {
+                            for (const childElement of Object.values(ele.children)) {
+                                printSelection.appendChild(childElement.div);
+                            }
+                        }
+                    }
                 }
             }
         }
-        addPrintCheckbox(a, 0, true, printSelection, document.getElementById("annotation-form"), "{{ 'Annotations' | trans }}", "");
-        a++;
-        var signaturesForm = document.getElementById("signatures-form");
-        if(signaturesForm !== null) {
-            addPrintCheckbox(a, 0, true, printSelection, signaturesForm, "{{ 'Signatures' | trans }}", "");
-            a++;
+
+        function isHiddenForm(form) {
+            var hidden = false;
+            for (var j = 0; j < 1000; j++) {
+                if (form.className.includes("hidden")) {
+                    hidden = true;
+                    break;
+                }
+                if (form.parentElement.id === "report-form") {
+                    break;
+                } else {
+                    form = form.parentElement;
+                }
+            }
+            return hidden;
         }
 
-        function addPrintCheckbox(mainIndex, subIndex, isMain, printSelection, formElement, text, className) {
+        function addPrintCheckbox(formId, subIndex, childIndex, type, formElement, text, className) {
 
             var wrapDiv = document.createElement("div");
             wrapDiv.className = className;
@@ -650,65 +682,163 @@ window.onload = function() {
             printCheckbox.type = "checkbox";
             printCheckbox.checked = true;
             wrapDiv.appendChild(printCheckbox);
-            if(isMain) {
-                window.printCheckboxes[mainIndex] = { main: printCheckbox, children: {} };
-                formElement.classList.add("print-main-form-group-" + mainIndex);
-            } else if(window.printCheckboxes[mainIndex] !== null) {
-                window.printCheckboxes[mainIndex].children[subIndex] = printCheckbox;
-                formElement.classList.add("print-form-group-" + mainIndex + "-" + subIndex);
+            if(type === "main") {
+                window.printCheckboxes[formId] = { div: wrapDiv, checkbox: printCheckbox, children: {} };
+                formElement.classList.add("print-main-form-group-" + formId);
+            } else if(type === "sub") {
+                if(window.printCheckboxes[formId] !== null) {
+                    window.printCheckboxes[formId].children[subIndex] = { div: wrapDiv, checkbox: printCheckbox, children: {} };
+                    formElement.classList.add("print-sub-form-group-" + formId + "-" + subIndex);
+                }
+            } else {
+                if(window.printCheckboxes[formId] !== null && window.printCheckboxes[formId].children[subIndex] !== null) {
+                    window.printCheckboxes[formId].children[subIndex].children[childIndex] = { div: wrapDiv, checkbox: printCheckbox };
+                    formElement.classList.add("print-form-group-" + formId + "-" + subIndex + "-" + childIndex);
+                }
             }
 
             var span = document.createElement("span");
             span.innerHTML = text;
             wrapDiv.appendChild(span);
 
-            printSelection.appendChild(wrapDiv);
-
             printCheckbox.onchange = function() {
                 if(printCheckbox.checked) {
                     formElement.classList.remove("no-print");
-                    if (isMain) {
-                        for (const [index, checkbox] of Object.entries(window.printCheckboxes[mainIndex].children)) {
-                            const eles = document.getElementsByClassName("print-form-group-" + mainIndex + "-" + index);
+                    if (type === "main") {
+                        //Check all boxes at lower levels
+                        for (const [subIndex, element] of Object.entries(window.printCheckboxes[formId].children)) {
+                            const eles = document.getElementsByClassName("print-sub-form-group-" + formId + "-" + subIndex);
                             if (eles !== null) {
                                 eles[0].classList.remove("no-print");
                             }
-                            checkbox.checked = true;
+                            element.checkbox.checked = true;
+                            for(const [childIndex, childElement] of Object.entries(element.children)) {
+                                const eles = document.getElementsByClassName("print-form-group-" + formId + "-" + subIndex + "-" + childIndex);
+                                if (eles !== null) {
+                                    eles[0].classList.remove("no-print");
+                                }
+                                childElement.checkbox.checked = true;
+                            }
+                        }
+                    } else if(type === "sub") {
+                        if (window.printCheckboxes[formId] !== null) {
+                            //Check the box at the upper level
+                            const eles = document.getElementsByClassName("print-main-form-group-" + formId);
+                            if (eles !== null) {
+                                eles[0].classList.remove("no-print");
+                            }
+                            window.printCheckboxes[formId].checkbox.checked = true;
+
+                            //Check all boxes at lower level
+                            if (window.printCheckboxes[formId].children[subIndex] !== null) {
+                                for(const [childIndex, childElement] of Object.entries(window.printCheckboxes[formId].children[subIndex].children)) {
+                                    const eles = document.getElementsByClassName("print-form-group-" + formId + "-" + subIndex + "-" + childIndex);
+                                    if (eles !== null) {
+                                        eles[0].classList.remove("no-print");
+                                    }
+                                    childElement.checkbox.checked = true;
+                                }
+                            }
                         }
                     } else {
-                        if (window.printCheckboxes[mainIndex] !== null) {
-                            const eles = document.getElementsByClassName("print-main-form-group-" + mainIndex);
+                        if (window.printCheckboxes[formId] !== null) {
+                            //Check the box at the upper level
+                            const eles = document.getElementsByClassName("print-main-form-group-" + formId);
                             if (eles !== null) {
                                 eles[0].classList.remove("no-print");
                             }
-                            window.printCheckboxes[mainIndex].main.checked = true;
+                            window.printCheckboxes[formId].checkbox.checked = true;
+
+                            //Check the box one level higher
+                            if (window.printCheckboxes[formId].children[subIndex] !== null) {
+                                const eles = document.getElementsByClassName("print-sub-form-group-" + formId + "-" + subIndex);
+                                if (eles !== null) {
+                                    eles[0].classList.remove("no-print");
+                                }
+                                window.printCheckboxes[formId].children[subIndex].checkbox.checked = true;
+                            }
                         }
                     }
                 } else {
                     formElement.classList.add("no-print");
-                    if(isMain) {
-                        for (const [index, checkbox] of Object.entries(window.printCheckboxes[mainIndex].children)) {
-                            const eles = document.getElementsByClassName("print-form-group-" + mainIndex + "-" + index);
+                    if(type === "main") {
+                        //Uncheck all boxes at lower levels
+                        for (const [subIndex, element] of Object.entries(window.printCheckboxes[formId].children)) {
+                            const eles = document.getElementsByClassName("print-sub-form-group-" + formId + "-" + subIndex);
                             if (eles !== null) {
                                 eles[0].classList.add("no-print");
                             }
-                            checkbox.checked = false;
-                        }
-                    } else {
-                        if (window.printCheckboxes[mainIndex] !== null) {
-                            var noneChecked = true;
-                            for (const [index, checkbox] of Object.entries(window.printCheckboxes[mainIndex].children)) {
-                                if (checkbox.checked) {
-                                    noneChecked = false;
-                                    break;
-                                }
-                            }
-                            if (noneChecked) {
-                                const eles = document.getElementsByClassName("print-main-form-group-" + mainIndex);
+                            element.checkbox.checked = false;
+                            for(const [childIndex, childElement] of Object.entries(element.children)) {
+                                const eles = document.getElementsByClassName("print-form-group-" + formId + "-" + subIndex + "-" + childIndex);
                                 if (eles !== null) {
                                     eles[0].classList.add("no-print");
                                 }
-                                window.printCheckboxes[mainIndex].main.checked = false;
+                                childElement.checkbox.checked = false;
+                            }
+                        }
+                    } else if(type === "sub") {
+                        if (window.printCheckboxes[formId] !== null) {
+                            //Uncheck all boxes at lower level
+                            if (window.printCheckboxes[formId].children[subIndex] !== null) {
+                                for(const [childIndex, childElement] of Object.entries(window.printCheckboxes[formId].children[subIndex].children)) {
+                                    const eles = document.getElementsByClassName("print-form-group-" + formId + "-" + subIndex + "-" + childIndex);
+                                    if (eles !== null) {
+                                        eles[0].classList.add("no-print");
+                                    }
+                                    childElement.checkbox.checked = false;
+                                }
+                            }
+                            //Uncheck the box at the upper level if all boxes at this level are unchecked
+                            var allUnchecked = true;
+                            for (const element of Object.values(window.printCheckboxes[formId].children)) {
+                                if(element.checkbox.checked) {
+                                    allUnchecked = false;
+                                    break;
+                                }
+                            }
+                            if(allUnchecked) {
+                                const eles = document.getElementsByClassName("print-main-form-group-" + formId);
+                                if (eles !== null) {
+                                    eles[0].classList.remove("no-print");
+                                }
+                                window.printCheckboxes[formId].checkbox.checked = false;
+                            }
+                        }
+                    } else {
+                        //Uncheck the box at the higher level if all boxes at this level are unchecked
+                        if (window.printCheckboxes[formId] !== null) {
+                            if (window.printCheckboxes[formId].children[subIndex] !== null) {
+                                var allUnchecked1 = true;
+                                for (const element of Object.values(window.printCheckboxes[formId].children[subIndex].children)) {
+                                    if (element.checkbox.checked) {
+                                        allUnchecked1 = false;
+                                        break;
+                                    }
+                                }
+                                if (allUnchecked1) {
+                                    const eles = document.getElementsByClassName("print-sub-form-group-" + formId + "-" + subIndex);
+                                    if (eles !== null) {
+                                        eles[0].classList.remove("no-print");
+                                    }
+                                    window.printCheckboxes[formId].children[subIndex].checkbox.checked = false;
+
+                                    //Uncheck the box at the upper level if all boxes at the higher level are unchecked
+                                    var allUnchecked2 = true;
+                                    for (const element of Object.values(window.printCheckboxes[formId].children)) {
+                                        if(element.checkbox.checked) {
+                                            allUnchecked2 = false;
+                                            break;
+                                        }
+                                    }
+                                    if(allUnchecked2) {
+                                        const eles = document.getElementsByClassName("print-main-form-group-" + formId);
+                                        if (eles !== null) {
+                                            eles[0].classList.remove("no-print");
+                                        }
+                                        window.printCheckboxes[formId].checkbox.checked = false;
+                                    }
+                                }
                             }
                         }
                     }
