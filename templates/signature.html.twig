@@ -2,9 +2,16 @@
     <p class="signature-name">{{ prefilled_data[rep ~ '_rep_name'] }} ({{ prefilled_data[rep ~ '_name'] }} - {{ rep_name | trans }})</p>
     <div class="signature-pad" id="signature-pad-{{ rep }}">
         {% if signatures[rep] is defined %}
-            <p>{{ signatures[rep].timestamp | date("Y-m-d H:i:s") }}</p>
+            <div>
+                <input type="checkbox" name="signature-checkbox-{{ rep }}" checked disabled/>
+                <label for="signature-checkbox-{{ rep }}">{{ 'Read and approved on' | trans }} {{ signatures[rep].timestamp | date("Y-m-d H:i e") }}</label>
+            </div>
             <img src="{{ signatures[rep].filename }}" alt="{{ signatures[rep].name }}"/>
         {% else %}
+            <div>
+                <input type="checkbox" name="signature-checkbox-{{ rep }}" id="signature-checkbox-{{ rep }}"/>
+                <label for="signature-checkbox-{{ rep }}">{{ 'Read and approved on' | trans }} {{ "now" | date("Y-m-d H:i e") }}</label>
+            </div>
             <div class="signature-pad--body">
                 <canvas class="signature-canvas" id="signature-canvas-{{ rep }}" width="380" style="touch-action: none; user-select: none;" height="200"></canvas>
             </div>
@@ -44,10 +51,16 @@
                 save{{ rep }}Button.onclick = function() {
                     var data = signaturePad{{ rep }}.toData();
                     if (data && data.length > 0) {
-                        if (confirm('{{ 'Is this signature from' | trans }} {{ prefilled_data[rep ~ '_rep_name'] }} {{ 'correct' | trans }}?')) {
-                            signatureCanvas{{ rep }}.toBlob(function (blob) {
-                                saveSignature(blob, signatureFile{{ rep }}, '{{ prefilled_data[rep ~ '_rep_name'] }}', '{{ rep }}');
-                            });
+                        var checkbox = document.getElementById("signature-checkbox-{{ rep }}");
+                        if(checkbox !== null) {
+                            if(!checkbox.checked) {
+                                alert('{{ 'You need to check the \"Read and approved\" checkbox before signing' | trans | raw }}.');
+                            } else if (confirm('{{ 'Is this signature from' | trans }} {{ prefilled_data[rep ~ '_rep_name'] }} {{ 'correct' | trans }}?')) {
+                                signatureCanvas{{ rep }}.toBlob(function (blob) {
+                                    saveSignature(blob, signatureFile{{ rep }}, '{{ prefilled_data[rep ~ '_rep_name'] }}', '{{ rep }}');
+                                });
+                            }
+
                         }
                     }
                 };

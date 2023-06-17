@@ -42,6 +42,8 @@ Signed by all parties: Door alle partijen ondertekend
 Signed by: Ondertekend door
 parties: partijen
 Not yet signed: Nog niet ondertekend
+Read and approved on: Gelezen en goedgekeurd op
+You need to check the "Read and approved" checkbox before signing: U dient het vinkje bij "Gelezen en goedgekeurd" aan te vinken alvorens te ondertekenen
 signatures required: handtekeningen vereist
 Is this signature from: Is deze handtekening van
 correct: correct
@@ -253,8 +255,10 @@ No results found: Geen resultaten gevonden
 No inventory numbers found: Geen inventarisnummers gevonden
 No reports found: Geen rapporten gevonden
 Create report: Rapport aanmaken
-View report: Rapport bekijken
+Print report: Rapport afdrukken
+Select the items to print: Selecteer de onderdelen om af te drukken
 Print: Afdrukken
+View report: Rapport bekijken
 Save: Opslaan
 
 Reason: Aanleiding

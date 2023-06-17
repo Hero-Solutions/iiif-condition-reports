@@ -677,7 +677,9 @@ window.onload = function() {
         function addPrintCheckbox(formId, subIndex, childIndex, type, formElement, text, className) {
 
             var wrapDiv = document.createElement("div");
-            wrapDiv.className = className;
+            if(className !== null && className.length > 0) {
+                wrapDiv.className = className;
+            }
             var printCheckbox = document.createElement("input");
             printCheckbox.type = "checkbox";
             printCheckbox.checked = true;
