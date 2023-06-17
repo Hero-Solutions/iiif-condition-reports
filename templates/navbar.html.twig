@@ -5,13 +5,13 @@
                 <li{% if current_page is defined and (current_page == 'reports' or current_page == 'login') %} class="active"{% endif %}>
                     <a class="nav-li-a" href="{{ path('main') }}">{{ 'Reports' | trans }}</a>
                 </li>
-                <li class="nav-admin{% if current_page is defined and (current_page == 'loan_projects' or current_page == 'organisations' or current_page == 'representatives' or current_page == 'users') %} active{% endif %}">
+                <li class="nav-admin{% if current_page is defined and (current_page == 'organisations' or current_page == 'representatives' or current_page == 'loan_projects' or current_page == 'users') %} active{% endif %}">
                     <div id="admin-select">
                         <div id="admin-select-selected" onclick="clickedAdminButton(this)"><i id="admin-select-button"></i>{{ 'Administration' | trans }}</div>
                         <div id="admin-select-items" class="admin-select-hide">
-                            <div onclick="window.location.href = '{{ path('loan_projects') }}'">{{ 'Loan projects' | trans }}</div>
                             <div onclick="window.location.href = '{{ path('organisations') }}'">{{ 'Organisations' | trans }}</div>
                             <div onclick="window.location.href = '{{ path('representatives') }}'">{{ 'Representatives' | trans }}</div>
+                            <div onclick="window.location.href = '{{ path('loan_projects') }}'">{{ 'Loan projects' | trans }}</div>
                             {% if is_granted('ROLE_ADMIN') %}
                             <div onclick="window.location.href = '{{ path('users') }}'">{{ 'Users' | trans }}</div>
                             {% endif %}
