@@ -56,6 +56,12 @@
                             <div>{{ result.reason }}</div>
                         </div>
                     {% endif %}
+                    {% if result.editor is defined and result.editor is not null %}
+                        <div class="reports-row-reason">
+                            <div>{{ 'Last editor' | trans }}:</div>
+                            <div>{{ result.editor }}</div>
+                        </div>
+                    {% endif %}
                 </div>
                 <div class="reports-row-actions">
                     <div>

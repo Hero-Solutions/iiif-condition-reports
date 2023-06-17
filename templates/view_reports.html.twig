@@ -38,6 +38,12 @@
                             <div>{{ 'Reason' | trans }}:</div>
                             <div>{{ result.reason }}</div>
                         </div>
+                        {% if result.editor is defined and result.editor is not null %}
+                            <div class="reports-row-reason">
+                                <div>{{ 'Editor' | trans }}:</div>
+                                <div>{{ result.editor }}</div>
+                            </div>
+                        {% endif %}
                         {% if result.signature_message is not null %}
                             <div class="reports-row-signatures">
                                 <div>{{ 'Signatures' | trans }}:</div>

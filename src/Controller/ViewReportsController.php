@@ -6,6 +6,7 @@ use App\Entity\DatahubData;
 use App\Entity\InventoryNumber;
 use App\Entity\Report;
 use App\Entity\Signature;
+use App\Entity\User;
 use App\Utils\IIIFUtil;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -47,10 +48,11 @@ class ViewReportsController extends AbstractController
 
         $searchResults = array();
         $reportData = $em->createQueryBuilder()
-            ->select('r.id, r.inventoryId, r.timestamp, r.reason, r.signaturesRequired, i.inventoryNumber, d.name, d.value')
+            ->select('r.id, r.inventoryId, r.timestamp, r.reason, r.signaturesRequired, i.inventoryNumber, d.name, d.value, u.fullName')
             ->from(Report::class, 'r')
             ->leftJoin(InventoryNumber::class, 'i', 'WITH', 'i.id = r.inventoryId')
             ->leftJoin(DatahubData::class, 'd', 'WITH', 'd.id = r.inventoryId')
+            ->leftJoin(User::class, 'u', 'WITH', 'u.id = r.editor')
             ->where('r.baseId = :id')
             ->setParameter('id', $baseId)
             ->orderBy('r.timestamp', 'DESC')
@@ -76,6 +78,7 @@ class ViewReportsController extends AbstractController
                     'title_nl' => '',
                     'creator_nl' => '',
                     'reason' => $reason,
+                    'editor' => $data['fullName'],
                     'signatures_required' => $data['signaturesRequired'],
                     'signatures' => array(),
                     'signature_message' => null

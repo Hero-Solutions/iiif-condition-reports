@@ -8,6 +8,7 @@ use App\Entity\Report;
 use App\Entity\ReportData;
 use App\Entity\ReportHistory;
 use App\Entity\Search;
+use App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -104,10 +105,11 @@ class MainController extends AbstractController
         }
 
         $queryBuilder = $em->createQueryBuilder()
-            ->select('r.id, r.baseId, r.inventoryId, r.timestamp, r.reason, i.inventoryNumber, d.name, d.value')
+            ->select('r.id, r.baseId, r.inventoryId, r.timestamp, r.reason, i.inventoryNumber, d.name, d.value, u.fullName')
             ->from(Report::class, 'r')
             ->leftJoin(InventoryNumber::class, 'i', 'WITH', 'i.id = r.inventoryId')
-            ->leftJoin(DatahubData::class, 'd', 'WITH', 'd.id = r.inventoryId');
+            ->leftJoin(DatahubData::class, 'd', 'WITH', 'd.id = r.inventoryId')
+            ->leftJoin(User::class, 'u', 'WITH', 'u.id = r.editor');
         if($searchParameter != null) {
             $queryBuilder = $queryBuilder->where('i.inventoryNumber ' . ($matchType == '0' ? '=' : 'LIKE') . ' :inventory_number')
                 ->setParameter('inventory_number', $searchParameter);
@@ -141,6 +143,7 @@ class MainController extends AbstractController
                 }
             }
             $searchResults[$id]['reason'] = $reason;
+            $searchResults[$id]['editor'] = $data['fullName'];
             $searchResults[$id][$data['name']] = $data['value'];
         }
         foreach($searchResults as $id => $data) {

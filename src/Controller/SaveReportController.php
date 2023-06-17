@@ -95,6 +95,7 @@ class SaveReportController extends AbstractController
 
                 $report = new Report();
                 $report->setInventoryId($inventoryId);
+                $report->setEditor($this->getUser()->getId());
                 $report->setTimestamp(new DateTime());
                 $report->setReason($reason);
                 $report->setSignaturesRequired($signaturesRequired);

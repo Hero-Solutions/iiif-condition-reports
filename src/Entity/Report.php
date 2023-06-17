@@ -25,6 +25,11 @@ class Report
     /**
      * @ORM\Column(type="integer")
      */
+    private $editor;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
     private $inventoryId;
 
     /**
@@ -60,6 +65,16 @@ class Report
     public function setBaseId($baseId)
     {
         $this->baseId = $baseId;
+    }
+
+    public function getEditor()
+    {
+        return $this->editor;
+    }
+
+    public function setEditor($editor)
+    {
+        $this->editor = $editor;
     }
 
     public function getInventoryId()
