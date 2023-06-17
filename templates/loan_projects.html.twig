@@ -1,0 +1,46 @@
+{% include 'header.html.twig' %}
+<!--<h1>Beheer organisaties</h1>-->
+<div class="loans">
+    <div class="loans-header">
+        <div class="header">{{ 'Loan projects' | trans }}</div>
+        <a class="button" href="{{ path('loan_project', { type : 'new' }) }}">
+            <i class="fas fa-plus"></i>
+            {{ 'Add loan project' | trans }}
+        </a>
+    </div>
+    {% for loan_project in loan_projects %}
+        <div class="loans-row">
+            <div class="loans-row-metadata">
+                <div class="loans-row-alias">
+                    <div>{{ 'Alias' | trans }}:</div>
+                    <div>{{ loan_project.alias }}</div>
+                </div>
+                <div class="loans-row-name">
+                    <div>{{ 'Titel' | trans }}:</div>
+                    <div>{{ loan_project.title }}</div>
+                </div>
+                <div class="loans-row-role">
+                </div>
+            </div>
+            <div class="loans-row-actions">
+                <a class="button" href="{{ path('loan_project', { id: loan_project.id }) }}">
+                    <!--Edit-->
+                    <i class="fas fa-pencil-alt"></i>
+                </a>
+                <button type="button" class="admin-trash-button" onclick="confirmDeleteLoan('{{ loan_project.alias }}', '{{ path('loan_project', { id: loan_project.id, action: 'delete' }) }}')">
+                    <!--Delete-->
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
+        </div>
+    {% endfor %}
+    <script>
+        function confirmDeleteLoan(alias, url) {
+            const text = "{% if app.request.locale == 'nl' %}Bent u zeker dat u het bruikleenproject " + alias + " wilt verwijderen?{% else %}Are you sure you want to delete the loan project " + alias + "?{% endif %}";
+            if(confirm(text)) {
+                window.location.href = url;
+            }
+        }
+    </script>
+</div>
+{% include 'footer.html.twig' %}

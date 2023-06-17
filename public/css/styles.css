@@ -124,6 +124,7 @@ textarea {
 }
 
 .reports,
+.loans,
 .orgs,
 .reps,
 .users,
@@ -149,6 +150,7 @@ textarea {
 }
 
 .reports-row,
+.loans-row,
 .orgs-row,
 .reps-row,
 .users-row {
@@ -161,6 +163,7 @@ textarea {
 }
 
 :not(.reports-row) + .reports-row,
+:not(.loans-row) + .loans-row,
 :not(.orgs-row) + .orgs-row,
 :not(.reps-row) + .reps-row,
 :not(.users-row) + .users.row {
@@ -185,6 +188,7 @@ textarea {
 }
 
 .reports-row-thumbnail,
+.loans-row-thumbnail,
 .orgs-row-thumbnail,
 .object-row-thumbnail {
     width: 180px;
@@ -194,12 +198,14 @@ textarea {
 }
 
 .reports-row-thumbnail img,
+.loans-row-thumbnail img,
 .orgs-row-thumbnail img,
 .object-row-thumbnail img {
     max-width: 150px;
 }
 
 .reports-row-metadata,
+.loans-row-metadata,
 .orgs-row-metadata,
 .reps-row-metadata,
 .users-row-metadata,
@@ -208,6 +214,7 @@ textarea {
 }
 
 .reports-row-metadata > div,
+.loans-row-metadata > div,
 .orgs-row-metadata > div,
 .reps-row-metadata > div,
 .users-row-metadata > div,
@@ -217,6 +224,7 @@ textarea {
 }
 
 .reports-row-metadata > div:last-child,
+.loans-row-metadata > div:last-child,
 .orgs-row-metadata > div:last-child,
 .reps-row-metadata > div:last-child,
 .users-row-metadata > div:last-child,
@@ -225,6 +233,7 @@ textarea {
 }
 
 .reports-row-metadata div div,
+.loans-row-metadata div div,
 .orgs-row-metadata div div,
 .reps-row-metadata div div,
 .users-row-metadata div div,
@@ -233,6 +242,7 @@ textarea {
 }
 
 .reports-row-metadata div div:first-child,
+.loans-row-metadata div div:first-child,
 .orgs-row-metadata div div:first-child,
 .reps-row-metadata div div:first-child,
 .users-row-metadata div div:first-child,
@@ -246,6 +256,7 @@ textarea {
 }
 
 .reports-row-actions,
+.loans-row-actions,
 .orgs-row-actions,
 .reps-row-actions,
 .users-row-actions {
@@ -256,12 +267,14 @@ textarea {
 }
 
 .reports-row-actions div,
+.loans-row-actions div,
 .orgs-row-actions div,
 .reps-row-actions div,
 .users-row-actions div {
     margin-bottom: 15px;
 }
 
+.loans .loans-header,
 .orgs .orgs-header,
 .reps .reps-header,
 .users .users-header {
@@ -270,6 +283,7 @@ textarea {
 }
 
 .reports-row-actions .button,
+.loans .button,
 .orgs .button,
 .reps .button,
 .users .button {
@@ -278,6 +292,7 @@ textarea {
     display: inline-block;
 }
 
+.loans .loans-header .button,
 .orgs .orgs-header .button,
 .reps .reps-header .button,
 .users .users-header .button {
@@ -288,15 +303,27 @@ textarea {
     padding: 11px 12px;
 }
 
+.loans .loans-header .button:hover,
 .orgs .orgs-header .button:hover,
 .reps .reps-header .button:hover,
 .users .users-header .button:hover {
     background-color: #464b6b;
 }
 
+.admin-trash-button {
+    border: none;
+    background: transparent;
+}
+
+.admin-trash-button:hover {
+    cursor: pointer;
+}
+
+.loans .loans-header .button .fas,
 .orgs .orgs-header .button .fas,
 .reps .reps-header .button .fas,
 .users .users-header .button .fas,
+.loans .loans-header .button .far,
 .orgs .orgs-header .button .far,
 .reps .reps-header .button .far,
 .users .users-header .button .far {
@@ -306,10 +333,12 @@ textarea {
 }
 
 .reports .reports-row-actions .fas,
+.loans .loans-row-actions .fas,
 .orgs .orgs-row-actions .fas,
 .reps .reps-row-actions .fas,
 .users .users-row-actions .fas,
 .reports .reports-row-actions .far,
+.loans .loans-row-actions .far,
 .orgs .orgs-row-actions .far,
 .reps .reps-row-actions .far,
 .users .users-row-actions .far {
@@ -320,23 +349,28 @@ textarea {
     color: #747db3;
 }
 
+.admin-trash-button:hover .fas,
 .reports .reports-row-actions .button:hover .fas,
+.loans .loans-row-actions .button:hover .fas,
 .orgs .orgs-row-actions .button:hover .fas,
 .reps .reps-row-actions .button:hover .fas,
 .users .users-row-actions .button:hover .fas,
 .reports .reports-row-actions .button:hover .far,
+.loans .loans-row-actions .button:hover .far,
 .orgs .orgs-row-actions .button:hover .far,
 .reps .reps-row-actions .button:hover .far,
 .users .users-row-actions .button:hover .far {
     color: #464b6b;
 }
 
+.loans .loans-header .button:hover .fas,
 .orgs .orgs-header .button:hover .fas,
-.reps .orgs-header .button:hover .fas,
-.users .orgs-header .button:hover .fas,
+.reps .reps-header .button:hover .fas,
+.users .users-header .button:hover .fas,
+.loans .loans-header .button:hover .far,
 .orgs .orgs-header .button:hover .far,
-.reps .orgs-header .button:hover .far,
-.users .orgs-header .button:hover .far {
+.reps .reps-header .button:hover .far,
+.users .users-header .button:hover .far {
     color: white;
 }
 
@@ -676,7 +710,7 @@ textarea {
 }
 
 #wrap .readonly-header button:hover,
-#wrap button:hover,
+#wrap #print-button:hover,
 #report-navigation .save button:hover,
 #object-type-select-div .save button:hover,
 #report-form #annotation-images #add-image-url-button:hover,
@@ -705,6 +739,7 @@ textarea {
 }
 
 #report-form,
+#loan-project-form,
 #organisation-form,
 #representative-form,
 #user-form,
@@ -716,6 +751,7 @@ textarea {
     border: 1px solid #dbdbdb;
 }
 
+#loan-project-form,
 #organisation-form,
 #representative-form,
 #user-form {
@@ -732,6 +768,7 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
 
 #report-form > .form-tab > .form-group > .form-subgroup,
 #report-form > .form-tab > .form-group > .measurements-subgroup > .form-subgroup,
+#loan-project-form > .form-group > .form-subgroup,
 #organisation-form > .form-group > .form-subgroup,
 #representative-form > .form-group > .form-subgroup,
 #user-form > .form-group > .form-subgroup {
@@ -740,6 +777,7 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
 
 #report-form > .form-tab > .form-group > .form-subgroup > .form-item,
 #report-form > .form-tab > .form-group > .measurements-subgroup > .form-subgroup > .form-item,
+#loan-project-form > .form-group > .form-subgroup > div,
 #organisation-form > .form-group > .form-subgroup > div,
 #representative-form > .form-group > .form-subgroup > div,
 #user-form > .form-group > .form-subgroup > div {
@@ -749,6 +787,7 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
 
 #report-form > .form-tab > .form-group > .form-subgroup > .form-item:first-child,
 #report-form > .form-tab > .form-group > .measurements-subgroup > .form-subgroup > .form-item:first-child,
+#loan-project-form > .form-group > .form-subgroup > div:first-child,
 #organisation-form > .form-group > .form-subgroup > div:first-child,
 #representative-form > .form-group > .form-subgroup > div:first-child,
 #user-form > .form-group > .form-subgroup > div:first-child {
@@ -792,6 +831,7 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
 }
 
 #report-form label,
+#loan-project-form label,
 #organisation-form label,
 #representative-form label,
 #user-form label,
@@ -816,6 +856,9 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
 #report-form select,
 #report-form input,
 #report-form textarea,
+#loan-project-form select,
+#loan-project-form input,
+#loan-project-form textarea,
 #organisation-form select,
 #organisation-form input,
 #organisation-form textarea,
@@ -839,11 +882,13 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
 }
 
 #report-form input[type=checkbox],
+#loan-project-form input[type=checkbox],
 #organisation-form input[type=checkbox],
 #representative-form input[type=checkbox],
 #user-form input[type=checkbox],
 #object-type-select-div-div input[type=checkbox],
 #report-form input[type=radio],
+#loan-project-form input[type=radio],
 #organisation-form input[type=radio],
 #representative-form input[type=radio],
 #user-form input[type=radio],
@@ -924,6 +969,7 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
 }
 
 #report-form .report-header,
+#loan-project-form .report-header,
 #organisation-form .report-header,
 #representative-form .report-header,
 #user-form .report-header {
@@ -934,6 +980,7 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
 }
 
 #report-form .report-header:first-child,
+#loan-project-form .report-header:first-child,
 #organisation-form .report-header:first-child,
 #representative-form .report-header:first-child,
 #user-form .report-header:first-child {
@@ -1416,6 +1463,7 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
 
 #report-form .previous-button button,
 #report-form .next-button button,
+#loan-project-form #form_submit,
 #organisation-form #form_submit,
 #representative-form #form_submit,
 #user-form #form_submit,
@@ -1437,6 +1485,7 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
 
 #report-form .previous-button button:hover,
 #report-form .next-button button:hover,
+#loan-project-form #form_submit:hover,
 #organisation-form #form_submit:hover,
 #representative-form #form_submit:hover,
 #user-form #form_submit:hover,
@@ -1499,6 +1548,12 @@ nav li.active a {
     border-bottom: 3px solid white;
 }
 
+nav li.nav-admin.active,
+nav li.nav-user.active {
+    border-bottom: 3px solid white;
+    height: 48.5px;
+}
+
 nav .fa-user,
 nav .fa-sign-out-alt {
     color: white;
@@ -1511,6 +1566,7 @@ nav .fa-sign-out-alt {
     margin-right: 8px;
 }
 
+#admin-select,
 #user-select {
     position: relative;
     font-family: Arial;
@@ -1521,12 +1577,24 @@ nav .fa-sign-out-alt {
     margin-right: 6px;
 }
 
+#admin-select-selected,
 #lang-select-selected,
 #user-select-selected {
     margin: 15px;
     inline-size: max-content;
     background-color: #747db3;
     padding-right: 10px !important;
+}
+
+#admin-select-selected:after {
+    position: absolute;
+    content: "";
+    top: 10px;
+    margin-left: 5px;
+    width: 0;
+    height: 0;
+    border: 6px solid transparent;
+    border-color: #fff transparent transparent transparent;
 }
 
 #lang-select-selected:after,
@@ -1541,17 +1609,29 @@ nav .fa-sign-out-alt {
     border-color: #fff transparent transparent transparent;
 }
 
+#admin-select-selected.admin-select-arrow-active:after {
+    border-color: transparent transparent #fff transparent;
+    top: 3px;
+}
+
 #lang-select-selected.lang-select-arrow-active:after,
 #user-select-selected.user-select-arrow-active:after {
     border-color: transparent transparent #fff transparent;
     top: 0;
 }
 
+.admin-select-hide,
 .lang-select-hide,
 .user-select-hide {
     display: none;
 }
 
+#admin-select-items {
+    width: fit-content;
+}
+
+#admin-select-items div,
+#admin-select-selected,
 #lang-select-items div,
 #lang-select-selected,
 #user-select-items div,
@@ -1562,6 +1642,12 @@ nav .fa-sign-out-alt {
     user-select: none;
 }
 
+#admin-select-selected {
+    font-size: 17px;
+    margin-top: 11px;
+}
+
+#admin-select-items div,
 #lang-select-items div,
 #user-select-items div {
     background-color: white;
@@ -1575,26 +1661,32 @@ nav .fa-sign-out-alt {
     text-align: center;
 }
 
-#lang-select-items div:first-of-type,
-#user-select-items div:first-of-type {
-    margin-top: 15px;
-}
-
+#admin-select-selected,
 #lang-select-selected,
 #user-select-selected {
     padding: 0;
+}
+
+#admin-select-items {
+    position: absolute;
+    background-color: #747db3;
+    top: 40px;
+    left: 0;
+    right: 0;
+    z-index: 99;
 }
 
 #lang-select-items,
 #user-select-items {
     position: absolute;
     background-color: #747db3;
-    top: 100%;
+    top: 36px;
     left: 0;
     right: 0;
     z-index: 99;
 }
 
+#admin-select-items div:hover,
 #lang-select-items div:hover,
 #user-select-items div:hover {
     background-color: #f8f8f8;

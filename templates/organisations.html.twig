@@ -20,23 +20,26 @@
                     <div>{{ 'Name' | trans }}:</div>
                     <div>{{ organisation.name }}</div>
                 </div>
-                <div class="orgs-row-role">
-                    <div>{{ 'Role' | trans }}:</div>
-                    <div>{{ organisation.role | trans }}</div>
-                </div>
             </div>
             <div class="orgs-row-actions">
                 <a class="button" href="{{ path('organisation', { id: organisation.id }) }}">
-                    <!--Wijzig-->
+                    <!--Edit-->
                     <i class="fas fa-pencil-alt"></i>
                 </a>
-                <a class="button" href="{{ path('organisation', { id: organisation.id, action: 'delete' }) }}"
-                   onclick="return confirm('{% if app.request.locale == 'nl' %}Bent u zeker dat u de organisatie {{ organisation.alias }} wilt verwijderen?{% else %}Are you sure you want to delete the organisation {{ organisation.alias }}?{% endif %}')">
-                    <!--Verwijder-->
+                <button type="button" class="admin-trash-button" onclick="confirmDeleteOrg('{{ organisation.alias }}', '{{ path('organisation', { id: organisation.id, action: 'delete' }) }}')">
+                    <!--Delete-->
                     <i class="fas fa-trash-alt"></i>
-                </a>
+                </button>
             </div>
         </div>
     {% endfor %}
+    <script>
+        function confirmDeleteOrg(alias, url) {
+            const text = "{% if app.request.locale == 'nl' %}Bent u zeker dat u de organisatie " + alias + " wilt verwijderen?{% else %}Are you sure you want to delete the organisation " + alias + "?{% endif %}";
+            if(confirm(text)) {
+                window.location.href = url;
+            }
+        }
+    </script>
 </div>
 {% include 'footer.html.twig' %}

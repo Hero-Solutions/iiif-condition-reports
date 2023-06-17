@@ -6,9 +6,9 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\OrganisationRepository")
- * @ORM\Table(name="organisations")
+ * @ORM\Table(name="loan_projects")
  */
-class Organisation
+class LoanProject
 {
     /**
      * @ORM\Id
@@ -18,6 +18,16 @@ class Organisation
     public $id;
 
     /**
+     * @ORM\Column(type="integer")
+     */
+    public $organisation;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    public $representative;
+
+    /**
      * @ORM\Column(type="string", length=255)
      */
     public $alias;
@@ -25,17 +35,7 @@ class Organisation
     /**
      * @ORM\Column(type="string", length=255)
      */
-    public $name;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    public $logo;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    public $vat;
+    public $title;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -65,26 +65,6 @@ class Organisation
     /**
      * @ORM\Column(type="string", length=255)
      */
-    public $email;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    public $website;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    public $phone;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    public $mobile;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
     public $notes;
 
     public function getId()
@@ -97,6 +77,26 @@ class Organisation
         $this->id = $id;
     }
 
+    public function getOrganisation()
+    {
+        return $this->organisation;
+    }
+
+    public function setOrganisation($organisation)
+    {
+        $this->organisation = $organisation;
+    }
+
+    public function getRepresentative()
+    {
+        return $this->representative;
+    }
+
+    public function setRepresentative($representative)
+    {
+        $this->representative = $representative;
+    }
+
     public function getAlias()
     {
         return $this->alias;
@@ -107,34 +107,14 @@ class Organisation
         $this->alias = $alias;
     }
 
-    public function getName()
+    public function getTitle()
     {
-        return $this->name;
+        return $this->title;
     }
 
-    public function setName($name)
+    public function setTitle($title)
     {
-        $this->name = $name;
-    }
-
-    public function getLogo()
-    {
-        return $this->logo;
-    }
-
-    public function setLogo($logo)
-    {
-        $this->logo = $logo;
-    }
-
-    public function getVat()
-    {
-        return $this->vat;
-    }
-
-    public function setVat($vat)
-    {
-        $this->vat = $vat;
+        $this->title = $title;
     }
 
     public function getAddress()
@@ -185,46 +165,6 @@ class Organisation
     public function setCountry($country)
     {
         $this->country = $country;
-    }
-
-    public function getEmail()
-    {
-        return $this->email;
-    }
-
-    public function setEmail($email)
-    {
-        $this->email = $email;
-    }
-
-    public function getWebsite()
-    {
-        return $this->website;
-    }
-
-    public function setWebsite($website)
-    {
-        $this->website = $website;
-    }
-
-    public function getPhone()
-    {
-        return $this->phone;
-    }
-
-    public function setPhone($phone)
-    {
-        $this->phone = $phone;
-    }
-
-    public function getMobile()
-    {
-        return $this->mobile;
-    }
-
-    public function setMobile($mobile)
-    {
-        $this->mobile = $mobile;
     }
 
     public function getNotes()

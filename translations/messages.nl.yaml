@@ -1,6 +1,8 @@
 Reports: Rapporten
+Administration: Beheer
 Organisations: Organisaties
 Representatives: Vertegenwoordigers
+Loan projects: Bruikleenprojecten
 Recommendations: Aanbevelingen
 Users: Gebruikers
 Profile: Profiel
@@ -61,6 +63,7 @@ Organisation: Organisatie
 Institution / organisation: Instelling / organisatie
 Representative: Vertegenwoordiger
 Choose a role: Kies een rol
+Loan project: Bruikleenproject
 
 Select the object category: Selecteer de objectcategorie
 Fill in another object category ...: Vul een andere objectcategorie in ...
@@ -202,6 +205,8 @@ Add organisation: Organisatie toevoegen
 Alter organisation: Organisatie wijzigen
 Add representative: Vertegenwoordiger toevoegen
 Alter representative: Vertegenwoordiger wijzigen
+Add loan project: Bruikleenproject toevoegen
+Alter loan project: Bruikleenproject wijzigen
 Add user: Gebruiker toevoegen
 Alter user: Gebruiker wijzigen
 

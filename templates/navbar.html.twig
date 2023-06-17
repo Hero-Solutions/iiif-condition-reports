@@ -5,22 +5,24 @@
                 <li{% if current_page is defined and (current_page == 'reports' or current_page == 'login') %} class="active"{% endif %}>
                     <a class="nav-li-a" href="{{ path('main') }}">{{ 'Reports' | trans }}</a>
                 </li>
-                <li{% if current_page == 'organisations' %} class="active"{% endif %}>
-                    <a class="nav-li-a" href="{{ path('organisations') }}">{{ 'Organisations' | trans }}</a>
-                </li>
-                <li{% if current_page == 'representatives' %} class="active"{% endif %}>
-                    <a class="nav-li-a" href="{{ path('representatives') }}">{{ 'Representatives' | trans }}</a>
-                </li>
-            {% endif %}
-            {% if is_granted('ROLE_ADMIN') %}
-                <li{% if current_page == 'users' %} class="active"{% endif %}>
-                    <a class="nav-li-a" href="{{ path('users') }}">{{ 'Users' | trans }}</a>
+                <li class="nav-admin{% if current_page is defined and (current_page == 'loan_projects' or current_page == 'organisations' or current_page == 'representatives' or current_page == 'users') %} active{% endif %}">
+                    <div id="admin-select">
+                        <div id="admin-select-selected" onclick="clickedAdminButton(this)"><i id="admin-select-button"></i>{{ 'Administration' | trans }}</div>
+                        <div id="admin-select-items" class="admin-select-hide">
+                            <div onclick="window.location.href = '{{ path('loan_projects') }}'">{{ 'Loan projects' | trans }}</div>
+                            <div onclick="window.location.href = '{{ path('organisations') }}'">{{ 'Organisations' | trans }}</div>
+                            <div onclick="window.location.href = '{{ path('representatives') }}'">{{ 'Representatives' | trans }}</div>
+                            {% if is_granted('ROLE_ADMIN') %}
+                            <div onclick="window.location.href = '{{ path('users') }}'">{{ 'Users' | trans }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
                 </li>
             {% endif %}
         </ul>
         <ul class="nav-right">
             {% if is_granted('ROLE_USER') %}
-                <li class="nav-user">
+                <li class="nav-user{% if current_page is defined and current_page == 'profile' %} active{% endif %}">
                     <div id="user-select">
                         <div id="user-select-selected" onclick="clickedUserButton(this)"><i id="user-select-button" class="fas fa-user"></i>{{ app.user.fullName }}</div>
                         <div id="user-select-items" class="user-select-hide">
@@ -48,6 +50,29 @@
                   </div>
                 </div>
                 <script>
+                    function clickedAdminButton(ele) {
+                        var adminSelectItem = document.getElementById('admin-select-items');
+                        if(adminSelectItem != null) {
+                            adminSelectItem.classList.toggle('admin-select-hide');
+                        }
+                        var adminSelectSelected = document.getElementById('admin-select-selected');
+                        if(adminSelectSelected != null) {
+                            adminSelectSelected.classList.toggle('admin-select-arrow-active');
+                        }
+                    }
+
+                    function closeAdminSelect(ele) {
+                        var adminSelectSelected = document.getElementById('admin-select-selected');
+                        if (adminSelectSelected != null && (ele == null || ele.target == null || ele.target !== adminSelectSelected)) {
+                            adminSelectSelected.classList.remove('admin-select-arrow-active');
+                            var adminSelectItems = document.getElementById('admin-select-items');
+                            if(adminSelectItems != null) {
+                                adminSelectItems.classList.add('admin-select-hide');
+                            }
+                        }
+                    }
+                    document.addEventListener("click", closeAdminSelect);
+
                     function clickedLangButton(ele) {
                         var langSelectItem = document.getElementById('lang-select-items');
                         if(langSelectItem != null) {

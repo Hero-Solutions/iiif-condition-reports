@@ -8,31 +8,19 @@
 </script>
 {{ form_start(form) }}
 	<div id="wrap">
-		<div class="header">{% if new %}{{ 'Add organisation' | trans }}{% else %}{{ 'Alter organisation' | trans }}{% endif %}</div>
-	    <div id="organisation-form">
+		<div class="header">{% if new %}{{ 'Add loan project' | trans }}{% else %}{{ 'Alter loan project' | trans }}{% endif %}</div>
+	    <div id="loan-project-form">
 	        <div class="form-group">
 	            <div class="form-subgroup">
 	                {{ form_row(form.alias) }}
-	                {{ form_row(form.name) }}
+	                {{ form_row(form.title) }}
 				</div>
-	            <div class="form-subgroup">
-	                {{ form_row(form.logo) }}
-	                {{ form_row(form.vat) }}
-	            </div>
 	            <div class="form-subgroup">
 	                {{ form_row(form.address) }}
 	                {{ form_row(form.postal) }}
 	                {{ form_row(form.city) }}
 	                {{ form_row(form.state_province) }}
 	                {{ form_row(form.country) }}
-	            </div>
-	            <div class="form-subgroup">
-	                {{ form_row(form.email) }}
-	                {{ form_row(form.website) }}
-	            </div>
-	            <div class="form-subgroup">
-	                {{ form_row(form.phone) }}
-	                {{ form_row(form.mobile) }}
 	            </div>
 	            <div class="form-subgroup">
 	                {{ form_row(form.notes) }}

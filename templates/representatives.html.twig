@@ -41,17 +41,24 @@
                 </div>
             </div>
             <div class="reps-row-actions">
-                <a class="table-cell" href="{{ path('representative', { id: representative.id }) }}">
-                    <!--Wijzig-->
+                <a class="button" href="{{ path('representative', { id: representative.id }) }}">
+                    <!--Edit-->
                     <i class="fas fa-pencil-alt"></i>
                 </a>
-                <a class="table-cell" href="{{ path('representative', { id: representative.id, action: 'delete' }) }}"
-                   onclick="return confirm('{% if app.request.locale == 'nl' %}Bent u zeker dat u de vertegenwoordiger {{ representative.alias }} wilt verwijderen?{% else %}Are you sure you want to delete the representative {{ representative.alias }}?{% endif %}')">
-                    <!--Verwijder-->
+                <button type="button" class="admin-trash-button" onclick="confirmDeleteRep('{{ representative.alias }}', '{{ path('representative', { id: representative.id, action: 'delete' }) }}')">
+                    <!--Delete-->
                     <i class="fas fa-trash-alt"></i>
-                </a>
+                </button>
             </div>
         </div>
     {% endfor %}
+    <script>
+        function confirmDeleteRep(alias, url) {
+            const text = "{% if app.request.locale == 'nl' %}Bent u zeker dat u de vertegenwoordiger " + alias + " wilt verwijderen?{% else %}Are you sure you want to delete the representative " + alias + "?{% endif %}";
+            if(confirm(text)) {
+                window.location.href = url;
+            }
+        }
+    </script>
 </div>
 {% include 'footer.html.twig' %}

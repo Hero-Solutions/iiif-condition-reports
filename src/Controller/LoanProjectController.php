@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Entity\Organisation;
+use App\Entity\LoanProject;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class OrganisationController extends AbstractController
+class LoanProjectController extends AbstractController
 {
     private $translator;
 
@@ -21,15 +21,15 @@ class OrganisationController extends AbstractController
     }
 
     /**
-     * @Route("/{_locale}/organisation/{id}/{action}", name="organisation", defaults={ "id"="", "action"="" })
+     * @Route("/{_locale}/loan_project/{id}/{action}", name="loan_project", defaults={ "id"="", "action"="" })
      */
-    public function organisation(Request $request, $id, $action)
+    public function loanProject(Request $request, $id, $action)
     {
         $locale = $request->get('_locale');
         $locales = $this->getParameter('locales');
         //Set default locale if locale is missing
         if($locale === null || !in_array($locale, $locales)) {
-            return $this->redirectToRoute('organisation', array('_locale' => $locales[0], 'id' => $id, 'action' => $action));
+            return $this->redirectToRoute('loan_project', array('_locale' => $locales[0], 'id' => $id, 'action' => $action));
         }
         if(!$this->getUser()) {
             return $this->redirectToRoute('main');
@@ -41,65 +41,59 @@ class OrganisationController extends AbstractController
 
         $em = $this->container->get('doctrine')->getManager();
 
-        $organisation = new Organisation();
+        $loanProject = new LoanProject();
         if (!empty($id)) {
-            $organisation = null;
-            $organisations = $em->createQueryBuilder()
-                ->select('o')
-                ->from(Organisation::class, 'o')
-                ->where('o.id = :id')
+            $loanProject = null;
+            $loanProjects = $em->createQueryBuilder()
+                ->select('l')
+                ->from(LoanProject::class, 'l')
+                ->where('l.id = :id')
                 ->setParameter('id', $id)
-                ->orderBy('o.alias')
+                ->orderBy('l.alias')
                 ->getQuery()
                 ->getResult();
-            foreach ($organisations as $org) {
-                $organisation = $org;
+            foreach ($loanProjects as $loan) {
+                $loanProject = $loan;
             }
         }
-        if($action == 'delete' && !empty($id) && $organisations != null) {
-            $em->remove($organisation);
+        if($action == 'delete' && !empty($id) && $loanProject != null) {
+            $em->remove($loanProject);
             $em->flush();
-            return $this->redirectToRoute('organisations');
+            return $this->redirectToRoute('loan_projects');
         } else {
             $t = $this->translator;
-            $form = $this->createFormBuilder($organisation)
+            $form = $this->createFormBuilder($loanProject)
                 ->add('alias', TextType::class, ['required' => false, 'label' => $t->trans('Alias'), 'attr' => ['placeholder' => $t->trans('Alias of your choice (optional)')]])
-                ->add('name', TextType::class, ['label' => $t->trans('Name'), 'attr' => ['placeholder' => $t->trans('Name of the organisation')]])
-                ->add('logo', TextType::class, ['required' => false, 'label' => $t->trans('Logo'), 'attr' => ['placeholder' => $t->trans('URL of company logo')]])
-                ->add('vat', TextType::class, ['required' => false, 'label' => $t->trans('VAT number'), 'attr' => ['placeholder' => 'BE0xxx.xxx.xxx']])
+                ->add('title', TextType::class, ['label' => $t->trans('Title'), 'attr' => ['placeholder' => $t->trans('Title of the loan project')]])
                 ->add('address', TextType::class, ['required' => false, 'label' => $t->trans('Address'), 'attr' => ['placeholder' => $t->trans('Street + house number')]])
                 ->add('postal', TextType::class, ['required' => false, 'label' => $t->trans('Postal code'), 'attr' => ['placeholder' => $t->trans('Ex. 9000')]])
                 ->add('city', TextType::class, ['required' => false, 'label' => $t->trans('City'), 'attr' => ['placeholder' => $t->trans('Ex. Ghent')]])
                 ->add('state_province', TextType::class, ['required' => false, 'label' => $t->trans('Province or state'), 'attr' => ['placeholder' => $t->trans('Ex. East Flanders')]])
                 ->add('country', TextType::class, ['required' => false, 'label' => $t->trans('Country'), 'attr' => ['placeholder' => $t->trans('Ex. Belgium')]])
-                ->add('email', TextType::class, ['required' => false, 'label' => $t->trans('General e-mail address'), 'attr' => ['placeholder' => $t->trans('contact@example.com')]])
-                ->add('website', TextType::class, ['required' => false, 'label' => $t->trans('Website'), 'attr' => ['placeholder' => $t->trans('https://www.example.com')]])
-                ->add('phone', TextType::class, ['required' => false, 'label' => $t->trans('Telephone'), 'attr' => ['placeholder' => '+32 xxx xx.xx.xx']])
-                ->add('mobile', TextType::class, ['required' => false, 'label' => $t->trans('Cell phone'), 'attr' => ['placeholder' => '+32 xxxx xx.xx.xx']])
-                ->add('notes', TextareaType::class, ['required' => false, 'label' => $t->trans('Notes'), 'attr' => ['placeholder' => $t->trans('Own notes about this organisation'), 'oninput' => 'fixTextareaheight()']])
+                ->add('notes', TextareaType::class, ['required' => false, 'label' => $t->trans('Notes'), 'attr' => ['placeholder' => $t->trans('Own notes about this loan project'), 'oninput' => 'fixTextareaheight()']])
                 ->add('submit', SubmitType::class, ['label' => $t->trans('Save')])
                 ->getForm();
             $form->handleRequest($request);
             if ($form->isSubmitted() && $form->isValid()) {
                 $formData = $form->getData();
                 if (empty($formData->getAlias())) {
-                    $formData->setAlias($formData->getName());
+                    $formData->setAlias($formData->getTitle());
                 }
                 $em->persist($formData);
                 $em->flush();
-                return $this->redirectToRoute('organisations');
+                return $this->redirectToRoute('loan_projects');
             } else {
                 $translatedRoutes = array();
                 foreach($locales as $l) {
                     $translatedRoutes[] = array(
                         'lang' => $l,
-                        'url' => $this->generateUrl('organisation', array('_locale' => $l, 'id' => $id, 'action' => $action)),
+                        'url' => $this->generateUrl('loan_project', array('_locale' => $l, 'id' => $id, 'action' => $action)),
                         'active' => $l === $locale
                     );
                 }
 
-                return $this->render('organisation.html.twig', [
-                    'current_page' => 'organisations',
+                return $this->render('loan_project.html.twig', [
+                    'current_page' => 'loan_projects',
                     'new' => empty($id),
                     'form' => $form->createView(),
                     'translated_routes' => $translatedRoutes
