@@ -67,16 +67,16 @@
                     <div>
                         {% if result.id is not empty %}
                             <a href="{{ path('create_existing', { baseId: result.base_id }) }}" class="button">
-                                <!--Breid uit-->
+                                <!--Edit-->
                                 <i class="fas fa-pencil-alt"></i>
                             </a>
                             <a href="{{ path('view_reports', { baseId: result.base_id }) }}" class="button">
-                                <!--Bekijk-->
+                                <!--View-->
                                 <i class="far fa-eye"></i>
                             </a>
                         {% else %}
                             <a href="{{ path('create_blank', { id: result.inventory_id }) }}" class="button">
-                                <!--Maak nieuw-->
+                                <!--New-->
                                 <i class="fas fa-plus"></i>
                             </a>
                         {% endif %}

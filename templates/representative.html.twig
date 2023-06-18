@@ -1,28 +1,23 @@
 {% include 'header.html.twig' %}
-<script>
-    function fixTextareaheight() {
-        var ele = document.getElementById('form_notes');
-        ele.style.height = "16px";
-        ele.style.height = (ele.scrollHeight + 2) + "px";
-    }
-
-    window.onload = function() {
-        fixTextareaheight();
-        document.getElementById("form_organisation").options[0].selected = true;
-    };
-</script>
 {{ form_start(form) }}
     <div id="wrap">
         <div class="header">{% if new %}{{ 'Add representative' | trans }}{% else %}{{ 'Alter representative' | trans }}{% endif %}</div>
         <div id="representative-form">
             <div class="form-group">
                 <div class="form-subgroup">
-                    {{ form_row(form.organisation) }}
+                    <div class="flex">
+                        <div class="flex-1">
+                            {{ form_row(form.organisation) }}
+                        </div>
+                        <div id="custom-org-name-div" class="flex-1 left-margin-item{% if org_name is null or organisations[org_name] is defined%} hidden{% endif %}">
+                            {{ form_row(form.organisation_name) }}
+                        </div>
+                    </div>
                     {{ form_row(form.alias) }}
                     {{ form_row(form.name) }}
-                    {{ form_row(form.role) }}
                 </div>
                 <div class="form-subgroup">
+                    {{ form_row(form.role) }}
                     {{ form_row(form.email) }}
                     {{ form_row(form.phone) }}
                 </div>
@@ -37,3 +32,32 @@
     </div>
 {{ form_end(form) }}
 {% include 'footer.html.twig' %}
+<script>
+    window.onload = function() {
+        fixTextareaheight();
+        const orgDropdownEle = document.getElementById("form_organisation");
+        if(orgDropdownEle !== null) {
+            {% if org_name is not null and organisations[org_name] is not defined%}
+            orgDropdownEle.value = "customOption";
+            {% endif %}
+            orgDropdownEle.onchange = function () {
+                const customEleOrg = document.getElementById("custom-org-name-div");
+                const customEleOrgInput = document.getElementById("form_organisation_name");
+                if (customEleOrg !== null && customEleOrgInput !== null) {
+                    customEleOrgInput.value = '';
+                    if (orgDropdownEle.options[orgDropdownEle.selectedIndex].value === 'customOption') {
+                        customEleOrg.classList.remove("hidden");
+                        customEleOrg.focus();
+                    } else {
+                        customEleOrg.classList.add("hidden");
+                    }
+                }
+            };
+        }
+    };
+    function fixTextareaheight() {
+        var ele = document.getElementById('form_notes');
+        ele.style.height = "16px";
+        ele.style.height = (ele.scrollHeight + 2) + "px";
+    }
+</script>

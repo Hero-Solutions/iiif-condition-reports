@@ -1,5 +1,4 @@
 {% include 'header.html.twig' %}
-<!--<h1>Beheer organisaties</h1>-->
 <div class="loans">
     <div class="loans-header">
         <div class="header">{{ 'Loan projects' | trans }}</div>
@@ -11,16 +10,100 @@
     {% for loan_project in loan_projects %}
         <div class="loans-row">
             <div class="loans-row-metadata">
-                <div class="loans-row-alias">
+                <div>
                     <div>{{ 'Alias' | trans }}:</div>
                     <div>{{ loan_project.alias }}</div>
                 </div>
-                <div class="loans-row-name">
-                    <div>{{ 'Titel' | trans }}:</div>
+                <div>
+                    <div>{{ 'Title' | trans }}:</div>
                     <div>{{ loan_project.title }}</div>
                 </div>
-                <div class="loans-row-role">
+                <div>
+                    <div>{{ 'Organising institution' | trans }}:</div>
+                    {% if loan_project.organisationName is defined %}
+                        <div>{{ loan_project.organisationName }}</div>
+                    {% elseif organisation_names[loan_project.organisation] is defined %}
+                        <div>{{ organisation_names[loan_project.organisation] }}</div>
+                    {% else %}
+                        <div></div>
+                    {% endif %}
                 </div>
+                {% if loan_project.address is not empty or loan_project.postal is not empty or loan_project.city is not empty or loan_project.stateProvince is not empty or loan_project.country is not empty %}
+                    <div>
+                        <div>{{ 'Venue address' | trans }}:</div>
+                        {% set first = true %}
+                        <div>{% if loan_project.address is not empty %}{{ loan_project.address }}{% set first = false %}{% endif %}{% if loan_project.postal is not empty %}{% if not first %}, {% endif %}{{ loan_project.postal }}{% set first = false %}{% endif %}{% if loan_project.city is not empty %}{% if not first %}, {% endif %}{{ loan_project.city }}{% set first = false %}{% endif %}{% if loan_project.stateProvince is not empty %}{% if not first %}, {% endif %}{{ loan_project.stateProvince }}{% set first = false %}{% endif %}{% if loan_project.country is not empty %}{% if not first %}, {% endif %}{{ loan_project.country }}{% endif %}</div>
+                    </div>
+                {% endif %}
+                {% if loan_project.url is not empty %}
+                    <div>
+                        <div>{{ 'Website' | trans }}:</div>
+                        <div>{{ loan_project.url }}</div>
+                    </div>
+                {% endif %}
+                {% if loan_project.startDate is not empty or loan_project.endDate is not empty %}
+                    <div>
+                        <div>{{ 'Period' | trans }}:</div>
+                        {% if loan_project.startDate is not empty and loan_project.endDate is not empty %}
+                            <div>{{ loan_project.startDate | date("d/m/Y") }} - {{ loan_project.endDate | date("d/m/Y") }}</div>
+                        {% elseif loan_project.startDate is not empty %}
+                            <div>{{ loan_project.startDate | date("d/m/Y") }} ({{ 'Start date' | trans }})</div>
+                        {% elseif loan_project.endDate is not empty %}
+                            <div>{{ loan_project.endDate | date("d/m/Y") }} ({{ 'End date' | trans }})</div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+                {% if loan_project.startDateInsured is not empty or loan_project.endDateInsured is not empty %}
+                    <div>
+                        <div>{{ 'Period covered by insurance' | trans }}:</div>
+                        {% if loan_project.startDateInsured is not empty and loan_project.endDateInsured is not empty %}
+                            <div>{{ loan_project.startDateInsured | date("d/m/Y") }} - {{ loan_project.endDateInsured | date("d/m/Y") }}</div>
+                        {% elseif loan_project.startDateInsured is not empty %}
+                            <div>{{ loan_project.startDateInsured | date("d/m/Y") }} ({{ 'Start date' | trans }})</div>
+                        {% elseif loan_project.endDateInsured is not empty %}
+                            <div>{{ loan_project.endDateInsured | date("d/m/Y") }} ({{ 'End date' | trans }})</div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+                {% if loan_project.loanNumber is not empty %}
+                    <div>
+                        <div>{{ 'Loan number or dossier number' | trans }}:</div>
+                        <div>{{ loan_project.loanNumber }}</div>
+                    </div>
+                {% endif %}
+                <div>
+                    <div>{{ 'Responsible loan project' | trans }}:</div>
+                    {% set role = '' %}
+                    {% if loan_project.representativeRole is not empty %}
+                        {% set role = loan_project.representativeRole | trans %}
+                        {% set role = ' (' ~ role ~ ')' %}
+                    {% endif %}
+                    {% if loan_project.representativeName is defined %}
+                        <div>{{ loan_project.representativeName }}{{ role }}</div>
+                    {% elseif representative_names[loan_project.representative] is defined %}
+                        <div>{{ representative_names[loan_project.representative] }}{{ role }}</div>
+                    {% else %}
+                        <div></div>
+                    {% endif %}
+                </div>
+                {% if loan_project.representativeEmail is not empty %}
+                    <div>
+                        <div>{{ 'E-mail' | trans }}:</div>
+                        <div>{{ loan_project.representativeEmail }}</div>
+                    </div>
+                {% endif %}
+                {% if loan_project.representativePhone is not empty %}
+                    <div>
+                        <div>{{ 'Telephone' | trans }}:</div>
+                        <div>{{ loan_project.representativePhone }}</div>
+                    </div>
+                {% endif %}
+                {% if loan_project.notes is not empty %}
+                    <div>
+                        <div>{{ 'Notes' | trans }}:</div>
+                        <div><pre>{{ loan_project.notes }}</pre></div>
+                    </div>
+                {% endif %}
             </div>
             <div class="loans-row-actions">
                 <a class="button" href="{{ path('loan_project', { id: loan_project.id }) }}">
@@ -34,13 +117,13 @@
             </div>
         </div>
     {% endfor %}
-    <script>
-        function confirmDeleteLoan(alias, url) {
-            const text = "{% if app.request.locale == 'nl' %}Bent u zeker dat u het bruikleenproject " + alias + " wilt verwijderen?{% else %}Are you sure you want to delete the loan project " + alias + "?{% endif %}";
-            if(confirm(text)) {
-                window.location.href = url;
-            }
-        }
-    </script>
 </div>
 {% include 'footer.html.twig' %}
+<script>
+    function confirmDeleteLoan(alias, url) {
+        const text = "{% if app.request.locale == 'nl' %}Bent u zeker dat u het bruikleenproject " + alias + " wilt verwijderen?{% else %}Are you sure you want to delete the loan project " + alias + "?{% endif %}";
+        if(confirm(text)) {
+            window.location.href = url;
+        }
+    }
+</script>

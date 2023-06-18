@@ -1,11 +1,4 @@
 {% include 'header.html.twig' %}
-<script>
-	function fixTextareaheight() {
-		var ele = document.getElementById('form_notes');
-		ele.style.height = "16px";
-		ele.style.height = (ele.scrollHeight + 2) + "px";
-	}
-</script>
 {{ form_start(form) }}
 	<div id="wrap">
 		<div class="header">{% if new %}{{ 'Add loan project' | trans }}{% else %}{{ 'Alter loan project' | trans }}{% endif %}</div>
@@ -15,13 +8,62 @@
 	                {{ form_row(form.alias) }}
 	                {{ form_row(form.title) }}
 				</div>
-	            <div class="form-subgroup">
+				<div class="form-subgroup">
+					<div class="flex">
+						<div class="flex-1">
+							{{ form_row(form.organisation) }}
+						</div>
+						<div id="custom-org-name-div" class="flex-1 left-margin-item{% if org_name is null or organisations[org_name] is defined%} hidden{% endif %}">
+							{{ form_row(form.organisation_name) }}
+						</div>
+					</div>
+				</div>
+				<label>{{ 'Venue of the project' | trans }}</label>
+	            <div class="form-subgroup subgroup-with-border">
 	                {{ form_row(form.address) }}
 	                {{ form_row(form.postal) }}
 	                {{ form_row(form.city) }}
 	                {{ form_row(form.state_province) }}
 	                {{ form_row(form.country) }}
 	            </div>
+				<div class="form-subgroup">
+					{{ form_row(form.url) }}
+				</div>
+				<div class="form-subgroup">
+					{{ form_row(form.start_date) }}
+					{{ form_row(form.end_date) }}
+				</div>
+				<div class="form-subgroup">
+					{{ form_row(form.start_date_insured) }}
+					{{ form_row(form.end_date_insured) }}
+				</div>
+				<div class="form-subgroup">
+					{{ form_row(form.loan_number) }}
+				</div>
+				<label>{{ 'Responsible loan project' | trans }}</label>
+				<div class="subgroup-with-border">
+					<div class="form-subgroup flex-1">
+						<div class="flex">
+							<div class="flex-1">
+								{{ form_row(form.representative) }}
+							</div>
+							<div id="custom-rep-name-div" class="flex-1 left-margin-item{% if rep_name is null or representatives[rep_name] is defined%} hidden{% endif %}">
+								{{ form_row(form.representative_name) }}
+							</div>
+						</div>
+					</div>
+					<div class="form-subgroup flex">
+						<div class="flex-1">
+							{{ form_row(form.representative_role) }}
+						</div>
+						<div class="flex-1 left-margin-item">
+							{{ form_row(form.representative_email) }}
+						</div>
+						<div class="flex-1 left-margin-item">
+							{{ form_row(form.representative_phone) }}
+						</div>
+					</div>
+				</div>
 	            <div class="form-subgroup">
 	                {{ form_row(form.notes) }}
 	            </div>
@@ -33,3 +75,51 @@
     </div>
 {{ form_end(form) }}
 {% include 'footer.html.twig' %}
+<script>
+	window.onload = function() {
+		fixTextareaheight();
+		const orgDropdownEle = document.getElementById("form_organisation");
+		if(orgDropdownEle !== null) {
+			{% if org_name is not null and organisations[org_name] is not defined%}
+			orgDropdownEle.value = "customOption";
+			{% endif %}
+			orgDropdownEle.onchange = function () {
+				const customEleOrg = document.getElementById("custom-org-name-div");
+				const customEleOrgInput = document.getElementById("form_organisation_name");
+				if (customEleOrg !== null && customEleOrgInput !== null) {
+					customEleOrgInput.value = '';
+					if (orgDropdownEle.options[orgDropdownEle.selectedIndex].value === 'customOption') {
+						customEleOrg.classList.remove("hidden");
+						customEleOrg.focus();
+					} else {
+						customEleOrg.classList.add("hidden");
+					}
+				}
+			};
+		}
+		const repDropdownEle = document.getElementById("form_representative");
+		if(repDropdownEle !== null) {
+			{% if rep_name is not null and representatives[rep_name] is not defined%}
+			repDropdownEle.value = "customOption";
+			{% endif %}
+			repDropdownEle.onchange = function () {
+				var customEleRep = document.getElementById("custom-rep-name-div");
+				var customEleRepInput = document.getElementById("form_representative_name");
+				if (customEleRep !== null && customEleRepInput !== null) {
+					customEleRepInput.value = '';
+					if (repDropdownEle.options[repDropdownEle.selectedIndex].value === 'customOption') {
+						customEleRep.classList.remove("hidden");
+						customEleRep.focus();
+					} else {
+						customEleRep.classList.add("hidden");
+					}
+				}
+			};
+		}
+	};
+	function fixTextareaheight() {
+		var ele = document.getElementById('form_notes');
+		ele.style.height = "16px";
+		ele.style.height = (ele.scrollHeight + 2) + "px";
+	}
+</script>

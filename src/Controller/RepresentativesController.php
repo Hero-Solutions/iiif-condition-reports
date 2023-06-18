@@ -49,7 +49,7 @@ class RepresentativesController extends AbstractController
         $representatives = $em->createQueryBuilder()
             ->select('r')
             ->from(Representative::class, 'r')
-            ->orderBy('r.organisation, r.alias')
+            ->orderBy('r.organisationName, r.organisation, r.alias')
             ->getQuery()
             ->getResult();
         foreach ($representatives as $representative) {

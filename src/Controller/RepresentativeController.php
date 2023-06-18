@@ -10,6 +10,8 @@ use App\Entity\Representative;
 use App\Utils\IIIFUtil;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -48,8 +50,10 @@ class RepresentativeController extends AbstractController
         $em = $this->container->get('doctrine')->getManager();
 
         $representative = new Representative();
+        $organisationName = null;
         if (!empty($id)) {
             $representative = null;
+            /* @var $representatives Representative[] */
             $representatives = $em->createQueryBuilder()
                 ->select('r')
                 ->from(Representative::class, 'r')
@@ -60,6 +64,7 @@ class RepresentativeController extends AbstractController
                 ->getResult();
             foreach ($representatives as $rep) {
                 $representative = $rep;
+                $organisationName = $rep->getOrganisationName();
             }
         }
 
@@ -68,9 +73,8 @@ class RepresentativeController extends AbstractController
             $em->flush();
             return $this->redirectToRoute('representatives');
         } else {
-            $organisationNames = [
-                '' => ''
-            ];
+            $organisationNames = [];
+            $organisations = [];
             $orgs = $em->createQueryBuilder()
                 ->select('o')
                 ->from(Organisation::class, 'o')
@@ -79,11 +83,16 @@ class RepresentativeController extends AbstractController
                 ->getResult();
             foreach ($orgs as $org) {
                 $organisationNames[$org->alias] = $org->id;
+                $organisations[$org->id] = $org->alias;
             }
 
             $t = $this->translator;
+
+            $organisationNames[$t->trans('Other')] = 'customOption';
+
             $form = $this->createFormBuilder($representative)
-                ->add('organisation', ChoiceType::class, ['choices' => $organisationNames, 'label' => $t->trans('Organisatie')])
+                ->add('organisation', ChoiceType::class, ['required' => false, 'choices' => $organisationNames, 'label' => $t->trans('Organisation')])
+                ->add('organisation_name', TextType::class, ['required' => false, 'label' => ' ', 'label_attr' => ['class' => 'hidden-form-label-with-space']])
                 ->add('alias', TextType::class, ['required' => false, 'label' => $t->trans('Alias'), 'attr' => ['placeholder' => $t->trans('Alias of your choice (optional)')]])
                 ->add('name', TextType::class, ['label' => $t->trans('Name'), 'attr' => ['placeholder' => $t->trans('Name of the representative')]])
                 ->add('role', TextType::class, ['required' => false, 'label' => $t->trans('Role'), 'attr' => ['placeholder' => $t->trans('Ex. restorer, courier ...')]])
@@ -97,6 +106,9 @@ class RepresentativeController extends AbstractController
                 $formData = $form->getData();
                 if (empty($formData->getAlias())) {
                     $formData->setAlias($formData->getName());
+                }
+                if(!empty($formData->getOrganisation()) && array_key_exists($formData->getOrganisation(), $organisations)) {
+                    $formData->setOrganisationName($organisations[$formData->getOrganisation()]);
                 }
                 $em->persist($formData);
                 $em->flush();
@@ -113,6 +125,8 @@ class RepresentativeController extends AbstractController
 
                 return $this->render('representative.html.twig', [
                     'current_page' => 'representatives',
+                    'organisations' => $organisationNames,
+                    'org_name' => $organisationName,
                     'new' => empty($id),
                     'form' => $form->createView(),
                     'translated_routes' => $translatedRoutes

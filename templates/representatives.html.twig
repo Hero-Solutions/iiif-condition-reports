@@ -1,5 +1,4 @@
 {% include 'header.html.twig' %}
-<!--<h1>Beheer vertegenwoordigers</h1>-->
 <div class="reps">
     <div class="reps-header">
         <div class="header">{{ 'Representatives' | trans }}</div>
@@ -11,34 +10,48 @@
     {% for representative in representatives %}
         <div class="reps-row">
             <div class="reps-row-metadata">
-                <div class="reps-row-org">
+                <div>
                     <div>{{ 'Organisation' | trans }}:</div>
-                    {% if organisation_names[representative.organisation] is defined %}
+                    {% if representative.organisationName is defined %}
+                        <div>{{ representative.organisationName }}</div>
+                    {% elseif organisation_names[representative.organisation] is defined %}
                         <div>{{ organisation_names[representative.organisation] }}</div>
                     {% else %}
                         <div></div>
                     {% endif %}
                 </div>
-                <div class="reps-row-alias">
+                <div>
                     <div>{{ 'Alias' | trans }}:</div>
                     <div>{{ representative.alias }}</div>
                 </div>
-                <div class="reps-row-name">
+                <div>
                     <div>{{ 'Name' | trans }}:</div>
                     <div>{{ representative.name }}</div>
                 </div>
-                <div class="reps-row-role">
-                    <div>{{ 'Role' | trans }}:</div>
-                    <div>{{ representative.role }}</div>
-                </div>
-                <div class="reps-row-email">
-                    <div>{{ 'E-mail' | trans }}:</div>
-                    <div>{{ representative.email }}</div>
-                </div>
-                <div class="reps-row-phone">
-                    <div>{{ 'Telephone' | trans }}:</div>
-                    <div>{{ representative.phone }}</div>
-                </div>
+                {% if representative.role is not empty %}
+                    <div>
+                        <div>{{ 'Role' | trans }}:</div>
+                        <div>{{ representative.role }}</div>
+                    </div>
+                {% endif %}
+                {% if representative.email is not empty %}
+                    <div>
+                        <div>{{ 'E-mail' | trans }}:</div>
+                        <div>{{ representative.email }}</div>
+                    </div>
+                {% endif %}
+                {% if representative.phone is not empty %}
+                    <div>
+                        <div>{{ 'Telephone' | trans }}:</div>
+                        <div>{{ representative.phone }}</div>
+                    </div>
+                {% endif %}
+                {% if representative.notes is not empty %}
+                    <div>
+                        <div>{{ 'Notes' | trans }}:</div>
+                        <div><pre>{{ representative.notes }}</pre></div>
+                    </div>
+                {% endif %}
             </div>
             <div class="reps-row-actions">
                 <a class="button" href="{{ path('representative', { id: representative.id }) }}">

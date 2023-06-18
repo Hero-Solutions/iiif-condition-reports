@@ -1,5 +1,4 @@
 {% include 'header.html.twig' %}
-<!--<h1>Beheer Gebruikers</h1>-->
 <div class="users">
     <div class="users-header">
         <div class="header">{{ 'Users' | trans }}</div>
@@ -22,16 +21,23 @@
             </div>
             <div class="users-row-actions">
                 <a class="table-cell" href="{{ path('user', { id: user.id }) }}">
-                    <!--Wijzig-->
+                    <!--Edit-->
                     <i class="fas fa-pencil-alt"></i>
                 </a>
-                <a class="table-cell" href="{{ path('user', { id: user.id, action: 'delete' }) }}"
-                   onclick="return confirm('{% if app.request.locale == 'nl' %}Bent u zeker dat u de gebruiker {{ user.email }} wilt verwijderen?{% else %}Are you sure you want to delete the user {{ user.email }}?{% endif %}')">
-                    <!--Verwijder-->
+                <button type="button" class="admin-trash-button" onclick="confirmDeleteUser('{{ user.email }}', '{{ path('user', { id: user.id, action: 'delete' }) }}')">
+                    <!--Delete-->
                     <i class="fas fa-trash-alt"></i>
-                </a>
+                </button>
             </div>
         </div>
     {% endfor %}
 </div>
 {% include 'footer.html.twig' %}
+<script>
+    function confirmDeleteUser(email, url) {
+        const text = "{% if app.request.locale == 'nl' %}Bent u zeker dat u de gebruiker " + email + " wilt verwijderen?{% else %}Are you sure you want to delete the user " + email + "?{% endif %}";
+        if(confirm(text)) {
+            window.location.href = url;
+        }
+    }
+</script>

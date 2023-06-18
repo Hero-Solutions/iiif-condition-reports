@@ -7,6 +7,7 @@ use App\Entity\InventoryNumber;
 use App\Entity\LoanProject;
 use App\Entity\Organisation;
 use App\Entity\Report;
+use App\Entity\Representative;
 use App\Utils\IIIFUtil;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -35,6 +36,26 @@ class LoanProjectsController extends AbstractController
 
         $em = $this->container->get('doctrine')->getManager();
 
+        $organisationNames = [];
+        $orgs = $em->createQueryBuilder()
+            ->select('o')
+            ->from(Organisation::class, 'o')
+            ->getQuery()
+            ->getResult();
+        foreach ($orgs as $org) {
+            $organisationNames[$org->id] = $org->alias;
+        }
+
+        $representativeNames = [];
+        $reps = $em->createQueryBuilder()
+            ->select('r')
+            ->from(Representative::class, 'r')
+            ->getQuery()
+            ->getResult();
+        foreach ($reps as $rep) {
+            $representativeNames[$rep->id] = $rep->alias;
+        }
+
         $searchResults = array();
         $loanProjects = $em->createQueryBuilder()
             ->select('l')
@@ -58,6 +79,8 @@ class LoanProjectsController extends AbstractController
         return $this->render('loan_projects.html.twig', [
             'current_page' => 'loan_projects',
             'loan_projects' => $searchResults,
+            'organisation_names' => $organisationNames,
+            'representative_names' => $representativeNames,
             'translated_routes' => $translatedRoutes
         ]);
 

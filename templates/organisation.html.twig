@@ -1,5 +1,6 @@
 {% include 'header.html.twig' %}
 <script>
+	window.onload = fixTextareaheight;
 	function fixTextareaheight() {
 		var ele = document.getElementById('form_notes');
 		ele.style.height = "16px";

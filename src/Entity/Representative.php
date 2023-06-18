@@ -25,6 +25,11 @@ class Representative
     /**
      * @ORM\Column(type="string", length=255)
      */
+    public $organisationName;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
     public $alias;
 
     /**
@@ -70,6 +75,16 @@ class Representative
     public function setOrganisation($organisation)
     {
         $this->organisation = $organisation;
+    }
+
+    public function getOrganisationName()
+    {
+        return $this->organisationName;
+    }
+
+    public function setOrganisationName($organisationName)
+    {
+        $this->organisationName = $organisationName;
     }
 
     public function getAlias()

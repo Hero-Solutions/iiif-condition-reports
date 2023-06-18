@@ -12,14 +12,57 @@
         <div class="orgs-row">
             <div class="orgs-row-thumbnail"><img src="{{  organisation.logo }}" alt="" /></div>
             <div class="orgs-row-metadata">
-                <div class="orgs-row-alias">
+                <div>
                     <div>{{ 'Alias' | trans }}:</div>
                     <div>{{ organisation.alias }}</div>
                 </div>
-                <div class="orgs-row-name">
+                <div>
                     <div>{{ 'Name' | trans }}:</div>
                     <div>{{ organisation.name }}</div>
                 </div>
+                {% if organisation.vat is not empty %}
+                    <div>
+                        <div>{{ 'VAT number' | trans }}:</div>
+                        <div>{{ organisation.vat }}</div>
+                    </div>
+                {% endif %}
+                {% if organisation.address is not empty or organisation.postal is not empty or organisation.city is not empty or organisation.stateProvince is not empty or organisation.country is not empty %}
+                    <div>
+                        <div>{{ 'Address' | trans }}:</div>
+                        {% set first = true %}
+                        <div>{% if organisation.address is not empty %}{{ organisation.address }}{% set first = false %}{% endif %}{% if organisation.postal is not empty %}{% if not first %}, {% endif %}{{ organisation.postal }}{% set first = false %}{% endif %}{% if organisation.city is not empty %}{% if not first %}, {% endif %}{{ organisation.city }}{% set first = false %}{% endif %}{% if organisation.stateProvince is not empty %}{% if not first %}, {% endif %}{{ organisation.stateProvince }}{% set first = false %}{% endif %}{% if organisation.country is not empty %}{% if not first %}, {% endif %}{{ organisation.country }}{% endif %}</div>
+                    </div>
+                {% endif %}
+                {% if organisation.email is not empty %}
+                    <div>
+                        <div>{{ 'E-mail' | trans }}:</div>
+                        <div>{{ organisation.email }}</div>
+                    </div>
+                {% endif %}
+                {% if organisation.website is not empty %}
+                    <div>
+                        <div>{{ 'Website' | trans }}:</div>
+                        <div>{{ organisation.website }}</div>
+                    </div>
+                {% endif %}
+                {% if organisation.phone is not empty %}
+                    <div>
+                        <div>{{ 'Telephone' | trans }}:</div>
+                        <div>{{ organisation.phone }}</div>
+                    </div>
+                {% endif %}
+                {% if organisation.mobile is not empty %}
+                    <div>
+                        <div>{{ 'Cell phone' | trans }}:</div>
+                        <div>{{ organisation.mobile }}</div>
+                    </div>
+                {% endif %}
+                {% if organisation.notes is not empty %}
+                    <div>
+                        <div>{{ 'Notes' | trans }}:</div>
+                        <div><pre>{{ organisation.notes }}</pre></div>
+                    </div>
+                {% endif %}
             </div>
             <div class="orgs-row-actions">
                 <a class="button" href="{{ path('organisation', { id: organisation.id }) }}">
@@ -33,13 +76,13 @@
             </div>
         </div>
     {% endfor %}
-    <script>
-        function confirmDeleteOrg(alias, url) {
-            const text = "{% if app.request.locale == 'nl' %}Bent u zeker dat u de organisatie " + alias + " wilt verwijderen?{% else %}Are you sure you want to delete the organisation " + alias + "?{% endif %}";
-            if(confirm(text)) {
-                window.location.href = url;
-            }
-        }
-    </script>
 </div>
 {% include 'footer.html.twig' %}
+<script>
+    function confirmDeleteOrg(alias, url) {
+        const text = "{% if app.request.locale == 'nl' %}Bent u zeker dat u de organisatie " + alias + " wilt verwijderen?{% else %}Are you sure you want to delete the organisation " + alias + "?{% endif %}";
+        if(confirm(text)) {
+            window.location.href = url;
+        }
+    }
+</script>

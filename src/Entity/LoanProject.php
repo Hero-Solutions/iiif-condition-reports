@@ -18,16 +18,6 @@ class LoanProject
     public $id;
 
     /**
-     * @ORM\Column(type="integer")
-     */
-    public $organisation;
-
-    /**
-     * @ORM\Column(type="integer")
-     */
-    public $representative;
-
-    /**
      * @ORM\Column(type="string", length=255)
      */
     public $alias;
@@ -36,6 +26,16 @@ class LoanProject
      * @ORM\Column(type="string", length=255)
      */
     public $title;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    public $organisation;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    public $organisationName;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -65,6 +65,61 @@ class LoanProject
     /**
      * @ORM\Column(type="string", length=255)
      */
+    public $url;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    public $startDate;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    public $endDate;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    public $startDateInsured;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    public $endDateInsured;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    public $loanNumber;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    public $representative;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    public $representativeName;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    public $representativeRole;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    public $representativeEmail;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    public $representativePhone;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
     public $notes;
 
     public function getId()
@@ -75,26 +130,6 @@ class LoanProject
     public function setId($id)
     {
         $this->id = $id;
-    }
-
-    public function getOrganisation()
-    {
-        return $this->organisation;
-    }
-
-    public function setOrganisation($organisation)
-    {
-        $this->organisation = $organisation;
-    }
-
-    public function getRepresentative()
-    {
-        return $this->representative;
-    }
-
-    public function setRepresentative($representative)
-    {
-        $this->representative = $representative;
     }
 
     public function getAlias()
@@ -115,6 +150,26 @@ class LoanProject
     public function setTitle($title)
     {
         $this->title = $title;
+    }
+
+    public function getOrganisation()
+    {
+        return $this->organisation;
+    }
+
+    public function setOrganisation($organisation)
+    {
+        $this->organisation = $organisation;
+    }
+
+    public function getOrganisationName()
+    {
+        return $this->organisationName;
+    }
+
+    public function setOrganisationName($organisationName)
+    {
+        $this->organisationName = $organisationName;
     }
 
     public function getAddress()
@@ -165,6 +220,116 @@ class LoanProject
     public function setCountry($country)
     {
         $this->country = $country;
+    }
+
+    public function getUrl()
+    {
+        return $this->url;
+    }
+
+    public function setUrl($url)
+    {
+        $this->url = $url;
+    }
+
+    public function getStartDate()
+    {
+        return $this->startDate;
+    }
+
+    public function setStartDate($startDate)
+    {
+        $this->startDate = $startDate;
+    }
+
+    public function getEndDate()
+    {
+        return $this->endDate;
+    }
+
+    public function setEndDate($endDate)
+    {
+        $this->endDate = $endDate;
+    }
+
+    public function getStartDateInsured()
+    {
+        return $this->startDateInsured;
+    }
+
+    public function setStartDateInsured($startDateInsured)
+    {
+        $this->startDateInsured = $startDateInsured;
+    }
+
+    public function getEndDateInsured()
+    {
+        return $this->endDateInsured;
+    }
+
+    public function setEndDateInsured($endDateInsured)
+    {
+        $this->endDateInsured = $endDateInsured;
+    }
+
+    public function getLoanNumber()
+    {
+        return $this->loanNumber;
+    }
+
+    public function setLoanNumber($loanNumber)
+    {
+        $this->loanNumber = $loanNumber;
+    }
+
+    public function getRepresentative()
+    {
+        return $this->representative;
+    }
+
+    public function setRepresentative($representative)
+    {
+        $this->representative = $representative;
+    }
+
+    public function getRepresentativeName()
+    {
+        return $this->representativeName;
+    }
+
+    public function setRepresentativeName($representativeName)
+    {
+        $this->representativeName = $representativeName;
+    }
+
+    public function getRepresentativeRole()
+    {
+        return $this->representativeRole;
+    }
+
+    public function setRepresentativeRole($representativeRole)
+    {
+        $this->representativeRole = $representativeRole;
+    }
+
+    public function getRepresentativeEmail()
+    {
+        return $this->representativeEmail;
+    }
+
+    public function setRepresentativeEmail($representativeEmail)
+    {
+        $this->representativeEmail = $representativeEmail;
+    }
+
+    public function getRepresentativePhone()
+    {
+        return $this->representativePhone;
+    }
+
+    public function setRepresentativePhone($representativePhone)
+    {
+        $this->representativePhone = $representativePhone;
     }
 
     public function getNotes()

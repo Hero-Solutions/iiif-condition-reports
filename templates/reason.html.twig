@@ -112,10 +112,9 @@
                 </div>
 
                 {% if not readonly or prefilled_data.exhibition_insured_date_start is defined or prefilled_data.exhibition_insured_date_end is defined %}
-                    <label>{{ 'Loan period covered by the insurance' | trans }}</label>
-                    <div class="form-subgroup subgroup-with-border">
-                        <div class="form-item">{% include 'date_input.html.twig' with { 'name': 'exhibition_insured_date_start', 'label': 'Start date' | trans } %}</div>
-                        <div class="form-item">{% include 'date_input.html.twig' with { 'name': 'exhibition_insured_date_end', 'label': 'End date' | trans } %}</div>
+                    <div class="form-subgroup">
+                        <div class="form-item">{% include 'date_input.html.twig' with { 'name': 'exhibition_insured_date_start', 'label': 'Start date insurance coverage' | trans } %}</div>
+                        <div class="form-item">{% include 'date_input.html.twig' with { 'name': 'exhibition_insured_date_end', 'label': 'End date insurance coverage' | trans } %}</div>
                     </div>
                 {% endif %}
 
