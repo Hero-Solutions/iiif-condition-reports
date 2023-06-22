@@ -9,5 +9,5 @@
         <span class="readonly-input">{{ prefilled_data[name ~ '_radio_date'] }}</span>
     {% endif %}
 {% else %}
-    <input name="{{ name ~ '_radio_date' }}" type="date" value="{% if prefilled_data[name ~ '_radio_date'] is defined %}{{ prefilled_data[name ~ '_radio_date'] }}{% endif %}"/>
+    <input name="{{ name ~ '_radio_date' }}" type="date" class="radio-date" value="{% if prefilled_data[name ~ '_radio_date'] is defined %}{{ prefilled_data[name ~ '_radio_date'] }}{% endif %}"/>
 {% endif %}
