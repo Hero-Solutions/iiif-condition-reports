@@ -7,7 +7,7 @@
         function fix{{ name }}textareaheight() {
             var ele = document.getElementById('textarea_{{ name }}');
             ele.style.height = "16px";
-            ele.style.height = (ele.scrollHeight + 2) + "px";
+            ele.style.height = (ele.scrollHeight + 5) + "px";
         }
         document.addEventListener("DOMContentLoaded", fix{{ name }}textareaheight);
         if(typeof eventsToTrigger === 'undefined') {

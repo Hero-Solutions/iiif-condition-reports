@@ -90,7 +90,7 @@
                         {% set with_data = with_data|merge({ 'label_class': item.class }) %}
                     {% endif %}
                     {% if item.placeholder is defined %}
-                        {% set with_data = with_data|merge({ 'placeholder': item.placeholder }) %}
+                        {% set with_data = with_data|merge({ 'placeholder': item.placeholder | trans }) %}
                     {% endif %}
                     <div class="form-checkbox-custom">{% include 'checkbox_custom.html.twig' with with_data %}</div>
                 </div>

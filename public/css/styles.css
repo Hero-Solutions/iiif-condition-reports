@@ -815,6 +815,10 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
     border: 1px solid rgb(204 204 204);
 }
 
+.report-header-subgroup-with-border {
+    padding-top: 10px;
+}
+
 #report-form .form-group {
     padding: 5px 15px 15px 15px;
     border: 1px solid #dbdbdb;
@@ -823,6 +827,10 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
 }
 
 #report-form :not(.form-group) + .form-group {
+    margin-top: 0;
+}
+
+#report-form .form-group.hidden + .form-group {
     margin-top: 0;
 }
 
@@ -888,13 +896,20 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
 #object-type-select-div-div input,
 #login-form input {
     margin-top: 2px;
-    padding: 6px;
+    padding: 0 6px;
     border-radius: 4px;
     border: 1px solid rgb(204, 204, 204);
     width: 100%;
     box-sizing: border-box;
-    height: 35px;
+    height: 29px;
     background-color: #f8f8f8;
+}
+
+#report-form textarea,
+#organisation-form textarea,
+#representative-form textarea,
+#user-form textarea {
+    padding-top: 3px;
 }
 
 #report-form input[type=checkbox],
@@ -959,6 +974,10 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
     padding-top: 0;
 }
 
+.checkbox-custom-with-label {
+    margin-right: 10px;
+}
+
 .top-margin-subgroup {
     margin-top: 10px !important;
 }
@@ -1001,6 +1020,21 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
 #representative-form .report-header:first-child,
 #user-form .report-header:first-child {
     padding-top: 0;
+}
+
+#report-form .report-block,
+#organisation-form .report-block,
+#representative-form .report-block,
+#user-form .report-block {
+    padding-top: 30px;
+}
+
+#report-form .report-block:first-child {
+    padding-top: 0;
+}
+
+#report-form .report-header + .report-block:first-child {
+    padding-top: 30px;
 }
 
 #report-form .report-header-2,
@@ -1833,10 +1867,33 @@ form {
     padding: 15px;
 }
 
+.readonly #report-form .report-block {
+    padding-top: 0;
+}
+
+.readonly .top-margin-subgroup {
+    margin-top: 0 !important;
+}
+
 .readonly #report-form .form-group .report-header-2,
 .readonly #report-form .form-group .report-header-3 {
-    padding-top: 0;
+    padding-top: 10px;
     padding-bottom: 10px;
+}
+
+.readonly #report-form .form-group .report-header-2:first-of-type,
+.readonly #report-form .form-group .report-header-3:first-of-type {
+    padding-top: 0;
+}
+
+.readonly #report-form .form-group .form-subgroup + .form-subgroup .report-header-2:first-of-type,
+.readonly #report-form .form-group .form-subgroup + .form-subgroup .report-header-3:first-of-type {
+    padding-top: 10px;
+}
+
+.readonly #report-form .form-group .form-subgroup + .form-subgroup .subgroup-with-border div:first-of-type .report-header-2,
+.readonly #report-form .form-group .form-subgroup + .form-subgroup .subgroup-with-border div:first-of-type .report-header-3:first-of-type {
+    padding-top: 0;
 }
 
 .readonly #report-form #recommendations-form .form-group .report-row {
@@ -1965,6 +2022,10 @@ form {
 .readonly .subgroup-with-border {
     padding: 5px;
     margin-bottom: 10px;
+}
+
+.readonly .subgroup-with-border:last-child {
+    margin-bottom: 0;
 }
 
 .readonly .signatures .signatures-row {

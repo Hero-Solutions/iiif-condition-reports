@@ -1,6 +1,4 @@
-{% set report_types = [ 'Basic report', 'Extensive reporting' ] %}
-
-{% if not readonly or prefilled_data.reason is defined or prefilled_data.reason_custom is defined or prefilled_data.report_type is defined or prefilled_data.exhibition_title is defined or prefilled_data.exhibition_url is defined or prefilled_data.exhibition_date is defined or prefilled_data.exhibition_id is defined or prefilled_data.exhibition_info is defined or prefilled_data.exhibition_rep_name is defined or prefilled_data.receipt is defined %}
+{% if not readonly or prefilled_data.reason is defined or prefilled_data.reason_custom is defined or prefilled_data.exhibition_title is defined or prefilled_data.exhibition_url is defined or prefilled_data.exhibition_date is defined or prefilled_data.exhibition_id is defined or prefilled_data.exhibition_info is defined or prefilled_data.exhibition_rep_name is defined or prefilled_data.receipt is defined %}
 <div id="reason-form"{% if not readonly %} class="form-tab"{% endif %}>
     {% if not readonly %}
     <div class="report-header">{{ 'Identification of the reason for the report' | trans }}</div>
@@ -60,19 +58,6 @@
                         {% endfor %}
                     {% endfor %}
                 {% endif %}
-            </div>
-        </div>
-    </div>
-    {% endif %}
-
-    {% if not readonly or prefilled_data.report_type is defined %}
-    <div class="report-header">{{ 'Report type' | trans }}</div>
-    <div class="form-group">
-        <div class="form-subgroup">
-            <div class="form-item">
-                {% for report_type in report_types %}
-                    <div class="form-radio">{% include 'radio.html.twig' with { 'name': 'report_type', 'value': 'report_type_' ~ report_type, 'label': report_type | trans } %}</div>
-                {% endfor %}
             </div>
         </div>
     </div>

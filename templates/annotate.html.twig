@@ -103,7 +103,7 @@
                         </div>
                         <div id="layer-checkboxes">
                             <div class="layer-checkbox-div"><input type="checkbox" id="layer-carrier" onchange="checkLayerCheckbox(this)" autocomplete="off"/><label for="layer-carrier">{{ 'Carrier' | trans }}</label></div>
-                            <div class="layer-checkbox-div"><input type="checkbox" id="layer-paint-layer" onchange="checkLayerCheckbox(this)" autocomplete="off"/><label for="layer-paint-layer">{{ 'Paint layer' | trans }}</label></div>
+                            <div class="layer-checkbox-div"><input type="checkbox" id="layer-paint-layer" onchange="checkLayerCheckbox(this)" autocomplete="off"/><label for="layer-paint-layer">{{ 'Pictorial layer' | trans }}</label></div>
                             <div class="layer-checkbox-div"><input type="checkbox" id="layer-finishing-layer" onchange="checkLayerCheckbox(this)" autocomplete="off"/><label for="layer-finishing-layer">{{ 'Finishing layer' | trans }}</label></div>
                             <div class="layer-checkbox-div"><input type="checkbox" id="layer-frame" onchange="checkLayerCheckbox(this)" autocomplete="off"/><label for="layer-frame">{{ 'Frame' | trans }}</label></div>
                         </div>
@@ -1558,7 +1558,7 @@ function addLayersToDiv(layers, div) {
             layerDiv.appendChild(nameSpan);
             switch(layers[i]) {
                 case 'condition-red': {
-                    nameSpan.innerHTML = '{{ 'Paint layer' | trans }}';
+                    nameSpan.innerHTML = '{{ 'Pictorial layer' | trans }}';
                     var finishingLayer = div.querySelector('.condition-green');
                     if (finishingLayer != null) {
                         div.insertBefore(layerDiv, finishingLayer);

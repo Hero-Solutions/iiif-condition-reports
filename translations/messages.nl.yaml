@@ -299,6 +299,7 @@ Presentation: Presentatie
 Setup plan / guidelines: Opstellingsplan / richtlijnen
 Present: Aanwezig
 Not present: Niet aanwezig
+Absent: Afwezig
 Not necessary: Niet noodzakelijk
 Tools needed for setup: Hulpmiddelen nodig bij opstelling
 Unclear: Onduidelijk
@@ -377,13 +378,25 @@ Are you sure you want to delete this image and its annotations?: Bent u zeker da
 Deleted: Verwijderd
 deleted: verwijderd
 Select layer: Selecteer laag
-Paint layer: Verflaag
+Pictorial layer: Picturale laag
+Paint layer: Picturale laag
 Combinations: Combinaties
-Carrier + paint layer: Drager + verflaag
+Carrier + pictorial layer: Drager + picturale laag
 Carrier + finishing layer: Drager + afwerklaag
-Paint layer + finishing layer: Verflaag + afwerklaag
+Pictorial layer + finishing layer: Picturale laag + afwerklaag
 Carrier + paint + finishing layer: Drager + verf + afwerklaag
 Select damage type: Selecteer soort schade
+
+Support: Drager
+Canvas: Doek
+Wood: Hout
+Metal: Metaal
+Cardboard: Karton
+Material: Materiaal
+Remarks on the painting techniques: Specificaties bij de schildertechniek
+Varnish layer: Vernislaag
+Complete: Volledig aanwezig
+Local: Plaatselijk aanwezig
 
 stone: Steen
 metal: Metaal
@@ -404,7 +417,7 @@ Original: Origineel
 not_original: Niet origineel
 Not original: Niet origineel
 
-absent: Niet aanwezig
+absent: Afwezig
 glaze: Glazuur
 varnish: Vernis
 wax_layer: Waslaag
@@ -426,14 +439,57 @@ screws: Schroeven
 nails: Nagels
 bolts: Bouten
 
+Type of frame: Soort lijst
+Ornament frame: Ornament lijst
+Tight or modern frame: Strakke lijst
+Picture frame: Wissellijst
+Historical frame: Historische lijst
+Modern or recent frame: Moderne of recente lijst
+Frame with inner frame: Lijst met binnenlijst
+Original frame: Originele lijst
+
+Gypsum: Gips
+Ex. papier-mâché, tortoise shell, veneer …: Bv. papier-maché, schildpad, fineer …
+
+Inner frame: Binnenlijst
+Textile: Textiel
+
+Framing: Inlijsting
+Frame present: Lijst aanwezig
+Frame absent: Lijst afwezig
+If present: Indien aanwezig
+Painting fixed in frame with: Bevestiging van schilderij in lijst
+Clips: Lijstveren
+Metal plates: Metalen plaatjes
+Wooden plates: Houten plaatjes
+Material in rabbet: Materiaal in sponning
+Felt: Vilt
+Filling material in rabbet: Vulmateriaal in sponning
+Balsa wood: Balsa hout
+Curvuture profiles: Kromming in de sponning
+Back frame build-up (BFBU): Opbouw rugzijde
+Back protection: Achterkantbescherming
+Kapaline: Kapaline plaat
+Labels: Etiketten
+Glass: Glas
+Glazed: Glas
+Type of glass: Glassoort
+Museum glass: Museumglas
+Glass taped: Glas getaped
+Taped: Getaped
+Not taped: Niet getaped
+Climate box (incorporated in frame): Klimaatbox (verwerkt in lijst)
+Hanging system: Ophangsysteem
+ICN with loose screw eye: ICN met schroefoog
+Large suspension brace: Grote ophangbeugel
+Plain screw eye: Gewone schroefoog
+Picture hanger (hook): Schilderijhanger (haak)
+
 good: Goed
 reasonable: Redelijk
 bad: Slecht
 not_transportable: Niet vervoerbaar
 not_displayable: Niet tentoonstelbaar
-
-Basic report: Basisrapportage
-Extensive reporting: Uitgebreide rapportage
 
 surface_dirt: Oppervlaktevuil
 crusted_dirt: Geïncrusteerd vuil
@@ -491,18 +547,26 @@ material_technical_research: Materiaaltechnisch onderzoek
 analysis: Analyse
 necessary_background_information: Noodzakelijke achtergrondinformatie bij het werk / kunsthistorisch onderzoek
 
-abrasions: Afslijten
+abrasions: Geschaafd
+acid: Algemene verzuring
 accretion: Accretie
+adheasion: Hechting
 adhesive_tape: Plakband
 animal_glue: Dierlijke lijm
-blanching: Blancheren
-blisters: Blaren
+blanching: Blindgeslagen
+bleaching: Gebleekt
+blisters: Blazen
 bloom: Waas, vochtaanslag
 blur: Wazigheid
 bowing: Kromtrekking
+broken_glass: Gebroken glas
+broken_parts: Afgebroken stukken
+browning: Verbruining (papier/vernis)
+changes: Vormveranderingen
+climate_box_sealed: Klimaatbox goed gesealed
 condensation: Condenseren
 consolidated: Verstevigen
-crackle: Craquelures
+crackle: Craquelé
 creases: Plooien
 crizzling: Ziek (glas)
 cupping: Schotelvorming
@@ -538,3 +602,21 @@ wax_resin: Washars
 wear: Slijtage
 wood_borers: Houtboorders
 wrinkles: Plooivorming
+
+Adhesion: Hechting
+The joining of two surfaces by means of a generally viscous, sticky composition such as an adhesive or through physical or chemical force.: Het samenvoegen van twee oppervlakken met behulp van een in het algemeen kleverig, plakkerig mengsel zoals een kleefstof, of door middel van fysieke of chemische kracht.
+Blanching: "Blindgeslagen: Te onderscheiden van 'waas' dat algemeen wordt gebruikt om aan te geven dat allerlei oppervlakken er anders zijn gaan uitzien als gevolg van de inwerking van waterdamp of vocht uit de atmosfeer."
+Bleaching: Bleken, gebleekt
+The process of whitening or lightening the color of a material by means of oxidation through the use of chemicals or exposure to sunlight.: Een materiaal wit of lichter van kleur maken door oxydatie met behulp van chemicaliën of door blootstelling aan zonlicht.
+Blisters: Blazen
+Swellings on a surface, often bubble-shaped, frequently caused by nonadherence or by separation of an applied substance.: Opstuwing aan een oppervlak, vaak in de vorm van een blaasje, meestal veroorzaakt doordat een aangebrachte stof loslaat of niet hecht.
+Broken: Gebroken
+Splitting into pieces or smashing into parts or fragments, typically by a blow or stress and with suddenness or violence.: Het in stukjes uiteensplijten of in delen of scherven uiteenspatten, meestal plotseling en hevig, als gevolg van een klap of drukuitoefening.
+An amorphous, inorganic substance made by fusing silica (silicon dioxide) with a basic oxide; generally transparent but often translucent or opaque. Its characteristic properties are its hardness and rigidity at ordinary temperatures, its capacity for plastic working at elevated temperatures, and its resistance to weathering and to most chemicals except hydrofluoric acid. Used for both utilitarian and decorative purposes, it can be formed into various shapes, colored or decorated. Glass originated as a glaze in Mesopotamia in about 3500 BCE and the first objects made wholly of glass date to about 2500 BCE.: Een amorfe, anorganische substantie die wordt gemaakt door silica (siliciumdioxide) te fuseren met een basisoxide, meestal transparant maar vaak ook doorschijnend of ondoorschijnend. Kenmerkende eigenschappen zijn de hardheid en stijfheid bij normale temperaturen, de plastische eigenschappen bij verhoogde temperaturen en de weersbestendigheid en bestendigheid tegen de meeste chemische stoffen, behalve waterstoffluoride. Het wordt gebruikt voor zowel gebruiksdoeleinden als decoratieve doeleinden, en kan worden gemaakt in diverse vormen, gekleurd en gedecoreerd. Glas is ontstaan als glazuur in Mesopotamië in ongeveer 3500 v. Chr. De eerste voorwerpen die geheel van glas zijn vervaardigd, dateren van ongeveer 2500 v. Chr.
+Changes (additions, altered pieces…): Vormveranderingen (toevoegingen, ingezette stukken…)
+Consolidated: Verstevigen
+Stabilizing degraded or weakened areas by introducing or attaching materials capable of holding them together.: Beschadigde of verzwakte delen verduurzamen door het inbrengen of aanhechten van materialen met behulp waarvan ze bijeen gehouden kunnen worden.
+Corrosion: Corrosie
+The deterioration of metal or other substances by chemical or electrochemical reaction resulting from exposure to weathering, moisture, chemicals, or other agents.: De aantasting van metaal of ander materiaal door chemische of elektrochemische reacties die het gevolg zijn van blootstelling aan verwering, vochtigheid, chemicaliën of andere agentia.
+Crackle: Craquelé
+A network of fine fracture lines in a coating layer, such as a ground, paint layer, varnish, or glaze.: Een netwerk van fijne breuklijnen in een deklaag, bijvoorbeeld (grond)verf, vernis of glazuur.
