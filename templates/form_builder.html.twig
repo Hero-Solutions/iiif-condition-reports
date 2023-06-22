@@ -69,6 +69,9 @@
                 {% if item.max is defined %}
                     {% set with_data = with_data|merge({ 'max': item.max }) %}
                 {% endif %}
+                {% if item.placeholder is defined %}
+                    {% set with_data = with_data|merge({ 'placeholder': item.max }) %}
+                {% endif %}
                 <div class="form-item{% if item.class is defined %} {{ item.class }}{% endif %}">{% include 'number.html.twig' with with_data %}</div>
             {% elseif item.type == 'checkbox' and item.name is defined %}
                 <div class="form-item">
