@@ -1,0 +1,13 @@
+{% if onclick is defined %}
+    {% include 'radio.html.twig' with { 'name': name, 'label': label, 'value': 'custom', 'onclick': onclick } %}
+{% else %}
+    {% include 'radio.html.twig' with { 'name': name, 'label': label, 'value': 'custom' } %}
+{% endif %}
+
+{% if readonly %}
+    {% if prefilled_data[name ~ '_radio_date'] is defined and prefilled_data[name ~ '_radio_date'] is not empty %}
+        <span class="readonly-input">{{ prefilled_data[name ~ '_radio_date'] }}</span>
+    {% endif %}
+{% else %}
+    <input name="{{ name ~ '_radio_date' }}" type="date" value="{% if prefilled_data[name ~ '_radio_date'] is defined %}{{ prefilled_data[name ~ '_radio_date'] }}{% endif %}"/>
+{% endif %}
