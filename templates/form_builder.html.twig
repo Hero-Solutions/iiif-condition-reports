@@ -1,10 +1,12 @@
 {% for object_type, content in form %}
-    {% for item in content %}
-        {{ _self.build(this_object_type, object_type, item, readonly, prefilled_data, id, true) }}
-    {% endfor %}
+    <div{% if this_object_type is defined and this_object_type != object_type %} class="hidden"{% endif %} id="{{ id }}-{{ object_type }}">
+        {% for item in content %}
+            {{ _self.build(this_object_type, object_type, item, readonly, prefilled_data) }}
+        {% endfor %}
+    </div>
 {% endfor %}
 
-{% macro build(this_object_type, object_type, item, readonly, prefilled_data, id, top_div) %}
+{% macro build(this_object_type, object_type, item, readonly, prefilled_data) %}
     {% if item.type is defined and item.content is defined %}
 
         {% set do_show = not readonly or item.type == 'div_text' %}
@@ -45,18 +47,10 @@
 
         {% if do_show %}
             {% if item.type == 'div' %}
-                {% if top_div %}
-                    {% if item.class is defined %}
-                        <div class="{{ item.class  }}{% if this_object_type is defined and this_object_type != object_type %} hidden{% endif %}" id="{{ id }}-{{ object_type }}">
-                    {% else %}
-                        <div{% if this_object_type is defined and this_object_type != object_type %} class="hidden"{% endif %} id="{{ id }}-{{ object_type }}">
-                    {% endif %}
-                {% else %}
-                    <div{% if item.class is defined %} class="{{ item.class  }}"{% endif %}{% if top_div %} id="{{ id }}" {% endif %}>
-                {% endif %}
-                {% for subitem in item.content %}
-                    {{ _self.build(this_object_type, object_type, subitem, readonly, prefilled_data, id, false) }}
-                {% endfor %}
+                <div{% if item.class is defined %} class="{{ item.class  }}"{% endif %}>
+                    {% for subitem in item.content %}
+                        {{ _self.build(this_object_type, object_type, subitem, readonly, prefilled_data) }}
+                    {% endfor %}
                 </div>
             {% elseif item.type == 'div_text' %}
                 <div{% if item.class is defined %} class="{{ item.class  }}"{% endif %}>{{ item.content | trans }}</div>
