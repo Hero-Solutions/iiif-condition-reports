@@ -90,6 +90,8 @@
                 </div>
             {% elseif item.type == 'radio' and item.name is defined and (not readonly or (prefilled_data[item.name] is defined and prefilled_data[item.name] == item.content | lower)) %}
                 <div class="form-radio">{% include 'radio.html.twig' with { 'name': item.name, 'value': item.content | lower, 'label': item.content | trans } %}</div>
+            {% elseif item.type == 'radio_date' and item.name is defined and (not readonly or (prefilled_data[item.name] is defined and prefilled_data[item.name] == item.content | lower)) %}
+                <div class="form-radio">{% include 'radio_date.html.twig' with { 'name': item.name, 'value': item.content | lower, 'label': item.content | trans } %}</div>
             {% elseif item.type == 'radio_custom' and item.name is defined and (not readonly or prefilled_data[item.name] is not defined or prefilled_data[item.name] is empty) %}
                 <div class="form-radio-custom">{% include 'radio_custom.html.twig' with { 'name': item.name } %}</div>
             {% endif %}
