@@ -7,7 +7,7 @@
         name="{{ name }}"
         id="{{ name }}"
         autocomplete="off"
-        {% if onclick is defined %} onclick="{{ onclick }}"{% endif %}
+        {% if onclick is defined and onclick is not empty %} onclick="{{ onclick }}"{% endif %}
         {% if prefilled_data[name] is defined and prefilled_data[name] is not empty %} checked{% endif %}
         {% if disabled is defined and disabled %} disabled{% endif %}
     />

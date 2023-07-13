@@ -53,6 +53,30 @@
                     }
                 }
             }
+
+            function unselectNextItems(checkbox) {
+                if(!checkbox.checked) {
+                    var parentElement = checkbox.parentElement;
+                    if(parentElement !== null) {
+                        parentElement = parentElement.parentElement;
+                        if(parentElement !== null && parentElement.classList.contains("form-item")) {
+                            const nextElementSibling = parentElement.nextElementSibling;
+                            if(nextElementSibling !== null && nextElementSibling.classList.contains("checkbox-subgroup")) {
+                                for (let i = 0; i < nextElementSibling.children.length; i++) {
+                                    const inputs = nextElementSibling.children[i].getElementsByTagName("input");
+                                    for(let j = 0; j < inputs.length; j++) {
+                                        if(inputs[j].type === 'checkbox' || inputs[j].type === 'radio') {
+                                            inputs[j].checked = false;
+                                        } else if(inputs[j].type === 'text' || inputs[j].type === 'date') {
+                                            inputs[j].value = '';
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         </script>
     {% endif %}
 </div>

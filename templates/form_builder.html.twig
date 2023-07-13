@@ -1,12 +1,16 @@
 {% for object_type, content in form %}
     <div{% if this_object_type is defined and this_object_type != object_type %} class="hidden"{% endif %} id="{{ id }}-{{ object_type }}">
         {% for item in content %}
-            {{ _self.build(this_object_type, object_type, item, readonly, prefilled_data, null) }}
+            {% set next = false %}
+            {% if not loop.last %}
+                {% set next = content[loop.index] %}
+            {% endif %}
+            {{ _self.build(this_object_type, object_type, item, readonly, prefilled_data, null, next) }}
         {% endfor %}
     </div>
 {% endfor %}
 
-{% macro build(this_object_type, object_type, item, readonly, prefilled_data, parent) %}
+{% macro build(this_object_type, object_type, item, readonly, prefilled_data, parent, next_item) %}
     {% if item.type is defined and item.content is defined %}
 
         {% set do_show = not readonly or item.type == 'div_text' %}
@@ -50,6 +54,8 @@
                 and item.type in [ 'checkbox', 'checkbox_custom', 'radio', 'radio_date', 'radio_custom' ]  %}
                 {% set onclick = 'selectPreviousCheckbox(this)' %}
                 {% set oninput = 'selectPreviousCheckbox(input)' %}
+            {% elseif item.type == 'checkbox' and next_item and next_item.type == 'div' and next_item.class is defined and 'checkbox-subgroup' in next_item.class %}
+                {% set onclick = 'unselectNextItems(this)' %}
             {% endif %}
         {% endif %}
 
@@ -57,7 +63,11 @@
             {% if item.type == 'div' %}
                 <div{% if item.class is defined %} class="{{ item.class  }}"{% endif %}>
                     {% for subitem in item.content %}
-                        {{ _self.build(this_object_type, object_type, subitem, readonly, prefilled_data, item) }}
+                        {% set next = false %}
+                        {% if not loop.last %}
+                            {% set next = item.content[loop.index] %}
+                        {% endif %}
+                        {{ _self.build(this_object_type, object_type, subitem, readonly, prefilled_data, item, next) }}
                     {% endfor %}
                 </div>
             {% elseif item.type == 'div_text' %}
@@ -86,6 +96,8 @@
                     {% set with_data = { 'name': item.name, 'label': item.content | trans } %}
                     {% if item.onclick is defined %}
                         {% set with_data = with_data|merge({ 'onclick': item.onclick }) %}
+                    {% elseif onclick is not null %}
+                        {% set with_data = with_data|merge({ 'onclick': onclick }) %}
                     {% endif %}
                     <div class="form-checkbox">{% include 'checkbox.html.twig' with with_data %}</div>
                 </div>
