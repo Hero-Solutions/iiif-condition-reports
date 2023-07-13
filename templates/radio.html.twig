@@ -1,7 +1,26 @@
 {% if readonly %}
     {% if prefilled_data[name] is defined and prefilled_data[name] == value %}
-        <input name="{{ name }}" id="radio_{{ name }}_{{ value }}" value="{{ value }}" type="radio" checked disabled />{% if label is defined %}<label for="radio_{{ value }}">{{ label }}</label>{% endif %}
+        <input type="radio"
+            name="{{ name }}"
+            value="{{ value }}"
+            checked disabled
+        />
+        {% if label is defined %}
+        <label>{{ label }}</label>
+        {% endif %}
     {% endif %}
 {% else %}
-    <input name="{{ name }}" id="radio_{{ name }}_{{ value }}" value="{{ value }}" type="radio"{% if prefilled_data[name] is defined and prefilled_data[name] == value %} checked{% endif %}{% if onclick is defined %} onclick="{{ onclick }}"{% endif %} autocomplete="off"/>{% if label is defined %}<label for="radio_{{ value }}">{{ label }}</label>{% endif %}
+    <input type="radio"
+        name="{{ name }}"
+        id="radio_{{ name }}_{{ value }}"
+        value="{{ value }}"
+        autocomplete="off"
+        {% if onclick is defined %} onclick="{{ onclick }}"{% endif %}
+        {% if prefilled_data[name] is defined and prefilled_data[name] == value %} checked{% endif %}
+    />
+    {% if label is defined %}
+        <label for="radio_{{ name }}_{{ value }}">
+            {{ label }}
+        </label>
+    {% endif %}
 {% endif %}

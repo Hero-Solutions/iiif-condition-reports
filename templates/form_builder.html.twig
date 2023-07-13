@@ -1,15 +1,17 @@
 {% for object_type, content in form %}
     <div{% if this_object_type is defined and this_object_type != object_type %} class="hidden"{% endif %} id="{{ id }}-{{ object_type }}">
         {% for item in content %}
-            {{ _self.build(this_object_type, object_type, item, readonly, prefilled_data) }}
+            {{ _self.build(this_object_type, object_type, item, readonly, prefilled_data, null) }}
         {% endfor %}
     </div>
 {% endfor %}
 
-{% macro build(this_object_type, object_type, item, readonly, prefilled_data) %}
+{% macro build(this_object_type, object_type, item, readonly, prefilled_data, parent) %}
     {% if item.type is defined and item.content is defined %}
 
         {% set do_show = not readonly or item.type == 'div_text' %}
+        {% set onclick = null %}
+        {% set oninput = null %}
         {% if readonly %}
             {% if item.type == 'div' %}
                 {# Check if the content of this div is empty by looping through all of its children; if empty, do not display in readonly version #}
@@ -43,13 +45,19 @@
                     {% set do_show = true %}
                 {% endif %}
             {% endif %}
+        {% else %}
+            {% if parent is not null and parent.class is defined and 'checkbox-subgroup' in parent.class
+                and item.type in [ 'checkbox', 'checkbox_custom', 'radio', 'radio_date', 'radio_custom' ]  %}
+                {% set onclick = 'selectPreviousCheckbox(this)' %}
+                {% set oninput = 'selectPreviousCheckbox(input)' %}
+            {% endif %}
         {% endif %}
 
         {% if do_show %}
             {% if item.type == 'div' %}
                 <div{% if item.class is defined %} class="{{ item.class  }}"{% endif %}>
                     {% for subitem in item.content %}
-                        {{ _self.build(this_object_type, object_type, subitem, readonly, prefilled_data) }}
+                        {{ _self.build(this_object_type, object_type, subitem, readonly, prefilled_data, item) }}
                     {% endfor %}
                 </div>
             {% elseif item.type == 'div_text' %}
@@ -75,7 +83,11 @@
                 <div class="form-item{% if item.class is defined %} {{ item.class }}{% endif %}">{% include 'number.html.twig' with with_data %}</div>
             {% elseif item.type == 'checkbox' and item.name is defined %}
                 <div class="form-item">
-                    <div class="form-checkbox">{% include 'checkbox.html.twig' with { 'name': item.name, 'label': item.content | trans } %}</div>
+                    {% set with_data = { 'name': item.name, 'label': item.content | trans } %}
+                    {% if item.onclick is defined %}
+                        {% set with_data = with_data|merge({ 'onclick': item.onclick }) %}
+                    {% endif %}
+                    <div class="form-checkbox">{% include 'checkbox.html.twig' with with_data %}</div>
                 </div>
             {% elseif item.type == 'checkbox_custom' and item.name is defined %}
                 <div class="form-item">
@@ -89,14 +101,37 @@
                     {% if item.placeholder is defined %}
                         {% set with_data = with_data|merge({ 'placeholder': item.placeholder | trans }) %}
                     {% endif %}
+                    {% if item.onclick is defined %}
+                        {% set with_data = with_data|merge({ 'onclick': item.onclick, 'oninput': '' }) %}
+                    {% elseif onclick is not null %}
+                        {% set with_data = with_data|merge({ 'onclick': onclick }) %}
+                    {% endif %}
                     <div class="form-checkbox-custom">{% include 'checkbox_custom.html.twig' with with_data %}</div>
                 </div>
             {% elseif item.type == 'radio' and item.name is defined and (not readonly or (prefilled_data[item.name] is defined and prefilled_data[item.name] == item.content | lower)) %}
-                <div class="form-radio">{% include 'radio.html.twig' with { 'name': item.name, 'value': item.content | lower, 'label': item.content | trans } %}</div>
+                {% set with_data = { 'name': item.name, 'value': item.content | lower, 'label': item.content | trans } %}
+                {% if item.onclick is defined %}
+                    {% set with_data = with_data|merge({ 'onclick': item.onclick }) %}
+                {% elseif onclick is not null %}
+                    {% set with_data = with_data|merge({ 'onclick': onclick }) %}
+                {% endif %}
+                <div class="form-radio">{% include 'radio.html.twig' with with_data %}</div>
             {% elseif item.type == 'radio_date' and item.name is defined and (not readonly or (prefilled_data[item.name] is defined and prefilled_data[item.name] == item.content | lower)) %}
-                <div class="form-radio form-radio-date">{% include 'radio_date.html.twig' with { 'name': item.name, 'value': item.content | lower, 'label': item.content | trans } %}</div>
+                {% set with_data = { 'name': item.name, 'value': item.content | lower, 'label': item.content | trans } %}
+                {% if item.onclick is defined %}
+                    {% set with_data = with_data|merge({ 'onclick': item.onclick }) %}
+                {% elseif onclick is not null %}
+                    {% set with_data = with_data|merge({ 'onclick': onclick }) %}
+                {% endif %}
+                <div class="form-radio form-radio-date">{% include 'radio_date.html.twig' with with_data %}</div>
             {% elseif item.type == 'radio_custom' and item.name is defined and (not readonly or prefilled_data[item.name] is not defined or prefilled_data[item.name] is empty) %}
-                <div class="form-radio form-radio-custom">{% include 'radio_custom.html.twig' with { 'name': item.name } %}</div>
+                {% set with_data = { 'name': item.name } %}
+                {% if item.onclick is defined %}
+                    {% set with_data = with_data|merge({ 'onclick': item.onclick }) %}
+                {% elseif onclick is not null %}
+                    {% set with_data = with_data|merge({ 'onclick': onclick }) %}
+                {% endif %}
+                <div class="form-radio form-radio-custom">{% include 'radio_custom.html.twig' with with_data %}</div>
             {% endif %}
         {% endif %}
 

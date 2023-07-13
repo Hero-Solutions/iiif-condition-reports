@@ -23,5 +23,36 @@
         {% if has_signatures %}
             {% include 'signatures.html.twig' with { 'reps': reps } %}
         {% endif %}
+    {% else %}
+        <script>
+            function selectPreviousCheckbox(checkbox) {
+                if(checkbox.checked) {
+                    var parentElement = checkbox.parentElement;
+                    if(parentElement !== null) {
+                        parentElement = parentElement.parentElement;
+                        if(parentElement !== null) {
+                            var previousElementSibling = null;
+                            if(parentElement.classList.contains("checkbox-subgroup")) {
+                                previousElementSibling = parentElement.previousElementSibling;
+                            } else {
+                                parentElement = parentElement.parentElement;
+                                if(parentElement !== null) {
+                                    previousElementSibling = parentElement.previousElementSibling;
+                                }
+                            }
+                            if(previousElementSibling !== null) {
+                                var firstElementChild = previousElementSibling.firstElementChild;
+                                if(firstElementChild !== null) {
+                                    var inputElements = firstElementChild.getElementsByTagName("input");
+                                    if(inputElements.length > 0) {
+                                        inputElements[0].checked = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        </script>
     {% endif %}
 </div>
