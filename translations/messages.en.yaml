@@ -52,7 +52,7 @@ fingerprints: Fingerprints
 old_restoration: Old restoration
 salts: Slats
 insect_damage: Insect damage
-mold: Mold
+mould: Mould
 water_damage: Water damage
 corrosion: Corrosion
 gaps: Gaps
@@ -72,11 +72,13 @@ delamination: Delamination
 missing_parts: Missing parts
 removable_parts: Removable parts
 brittle: Brittle
+packing_packing: Packing
+other_materials: Other materials
 
 removing_dust: Removing dust
 superficial_cleaning: Superficial cleaning
 insect_repellent_treatment: Insect repellent treatment
-removing_mold_spores: Removing mold spores
+removing_mold_spores: Removing mould spores
 reinforcing: Reinforcing
 regluing_loose_parts: Regluing loose parts
 fixating_loose_parts: Fixating loose parts
@@ -100,6 +102,10 @@ setup_method: Setup method
 material_technical_research: Material technical research
 analysis: Analysis
 necessary_background_information: Necessary background information
+
+support_carrier: Stretcher
+paint_layer: Paint layer
+condition_blanching: Blanching
 
 abrasions: Abrasions
 acid: Acid

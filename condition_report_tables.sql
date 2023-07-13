@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS `report_history` (
 
 CREATE TABLE IF NOT EXISTS `report_data` (
   `id` INT UNSIGNED NOT NULL,
-  `name` VARCHAR(100) NOT NULL,
+  `name` VARCHAR(255) NOT NULL,
   `value` TEXT NOT NULL,
   PRIMARY KEY (`id`,`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

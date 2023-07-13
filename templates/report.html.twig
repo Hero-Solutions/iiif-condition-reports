@@ -41,7 +41,7 @@
                     </div>
                 </div>
                 <div id="print-wrap">
-                    <span>{{ 'Select the items to print' | trans }}</span>
+                    <div class="print-selection-header">{{ 'Select the items to print' | trans }}</div>
                     <div id="print-selection"></div>
                     <button id="print-button" type="button" onclick="window.print()">
                         <i class="fas fa-print"></i>
@@ -193,6 +193,7 @@
                 }
                 var divs = [
                     'number-of-parts', 'measurements', 'materials', 'finishing-layer', 'connections',
+                    'condition', 'recommendations',
                     'damages', 'conservation-treatment', 'restoration-treatment', 'research',
                     'annotation-select'
                 ];

@@ -558,11 +558,11 @@ textarea {
 }
 
 .print-selection-indent {
-    margin-left: 30px;
+    margin-left: 23px;
 }
 
 .print-selection-indent-2 {
-    margin-left: 60px;
+    margin-left: 46px;
 }
 
 #report-navigation .print {
@@ -687,6 +687,11 @@ textarea {
     padding: 11px 12px;
     border: 1px solid #dbdbdb;
     border-radius: 4px;
+}
+
+#print-wrap #print-button {
+    margin-top: 15px;
+    margin-bottom: 0;
 }
 
 .signatures button {
@@ -815,11 +820,12 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
     border: 1px solid rgb(204 204 204);
 }
 
-.report-header-subgroup-with-border {
+.report-header-standard-layout {
     padding-top: 10px;
 }
 
-#report-form .form-group {
+#report-form .form-group,
+#print-selection {
     padding: 5px 15px 15px 15px;
     border: 1px solid #dbdbdb;
     margin-top: 20px;
@@ -830,6 +836,7 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
     margin-top: 0;
 }
 
+#print-selection,
 #report-form .form-group.hidden + .form-group {
     margin-top: 0;
 }
@@ -906,9 +913,26 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
 }
 
 #report-form textarea,
+#loan-project-form textarea,
 #organisation-form textarea,
 #representative-form textarea,
 #user-form textarea {
+    padding-top: 3px;
+}
+
+#report-form .textarea-div {
+    line-height: 0;
+}
+
+#report-form .textarea-div label {
+    line-height: 1.5;
+}
+
+#report-form .condition-hours.empty-label label {
+    margin-right: 0;
+}
+
+#report-form .textarea-div.empty-label label {
     padding-top: 3px;
 }
 
@@ -949,6 +973,11 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
     padding-top: 10px;
 }
 
+#report-form .form-radio-date {
+    padding-top: 0;
+}
+
+#print-selection input[type=checkbox],
 #report-form .form-checkbox input[type=checkbox],
 #report-form .form-checkbox-custom input[type=checkbox],
 #report-form .form-checkbox-conservation input[type=checkbox],
@@ -972,6 +1001,39 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
 #report-form .form-radio label,
 #report-form .form-radio-custom label {
     padding-top: 0;
+}
+
+#report-form .form-checkbox-custom input:first-of-type {
+    margin-top: 13px !important;
+}
+
+#report-form .form-checkbox-custom input:last-of-type {
+    margin-top: 5px !important;
+}
+
+#report-form div:has(.form-checkbox-custom) + div > div.form-checkbox:first-of-type {
+    padding-top: 5px !important;
+}
+
+#report-form div:has(.form-checkbox-custom) + div > div.form-radio:first-of-type {
+    padding-top: 5px !important;
+}
+
+#report-form .form-radio-date label {
+    padding-top: 10px;
+    margin-right: 10px;
+}
+
+#report-form .form-radio-date input:first-of-type {
+    margin-top: 13px;
+}
+
+#report-form .form-radio-date input:last-of-type {
+    margin-top: 5px !important;
+}
+
+#report-form .form-radio-date + div:not(.form-radio-date) {
+    padding-top: 5px !important;
 }
 
 .checkbox-custom-with-label {
@@ -1003,6 +1065,7 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
     padding-right: 10px;
 }
 
+#print-wrap .print-selection-header,
 #report-form .report-header,
 #loan-project-form .report-header,
 #organisation-form .report-header,
@@ -1014,6 +1077,7 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
     font-weight: bold;
 }
 
+#print-wrap .print-selection-header,
 #report-form .report-header:first-child,
 #loan-project-form .report-header:first-child,
 #organisation-form .report-header:first-child,
@@ -1023,6 +1087,7 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
 }
 
 #report-form .report-block,
+#loan-project-form .report-block,
 #organisation-form .report-block,
 #representative-form .report-block,
 #user-form .report-block {
@@ -1031,6 +1096,10 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
 
 #report-form .report-block:first-child {
     padding-top: 0;
+}
+
+#report-form #materials-painting .report-block:first-child {
+    padding-top: 30px;
 }
 
 #report-form .report-header + .report-block:first-child {
@@ -1047,6 +1116,40 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
 #report-form .report-header-3 {
     font-size: 14px;
     font-style: italic;
+}
+
+#report-form .condition-hours {
+    display: flex;
+    flex-grow: 1;
+}
+
+#report-form .condition-hours-container {
+    display: flex;
+}
+
+#report-form .hours-label {
+    margin-top: 10px;
+    margin-left: 10px;
+}
+
+#report-form .condition-hours input {
+    margin-top: 5px !important;
+}
+
+#report-form .condition-hours-container + div:not(.condition-hours) > div:first-of-type {
+    padding-top: 5px !important;
+}
+
+#report-form .condition-hours-container + div:not(.condition-hours) > div.textarea-div {
+    padding-top: 0 !important;
+}
+
+#report-form .condition-hours-container + div:not(.condition-hours) > div.textarea-div:first-of-type > label {
+    padding-top: 5px !important;
+}
+
+#report-form .condition-hours label {
+    margin-right: 10px;
 }
 
 #report-form .report-legend {
@@ -1863,12 +1966,25 @@ form {
     padding-top: 0;
 }
 
-.readonly #report-form .form-group {
+.readonly #report-form .form-group,
+#print-selection {
     padding: 15px;
 }
 
 .readonly #report-form .report-block {
     padding-top: 0;
+}
+
+.readonly #report-form .report-header-2 + .report-header-standard-layout,
+.readonly #report-form .report-header-3 + .report-header-standard-layout,
+.readonly #report-form .report-header-2 + div .report-header-standard-layout,
+.readonly #report-form .report-header-3 + div .report-header-standard-layout {
+    padding-top: 0;
+}
+
+.readonly #report-form .report-header-2 + div + div .report-header-standard-layout,
+.readonly #report-form .report-header-3 + div + div .report-header-standard-layout {
+    padding-top: 10px;
 }
 
 .readonly .top-margin-subgroup {
@@ -1887,12 +2003,14 @@ form {
 }
 
 .readonly #report-form .form-group .form-subgroup + .form-subgroup .report-header-2:first-of-type,
-.readonly #report-form .form-group .form-subgroup + .form-subgroup .report-header-3:first-of-type {
+.readonly #report-form .form-group .form-subgroup + .form-subgroup .report-header-3:first-of-type,
+.readonly #report-form .form-group .form-subgroup .report-header-3:first-of-type {
     padding-top: 10px;
 }
 
 .readonly #report-form .form-group .form-subgroup + .form-subgroup .subgroup-with-border div:first-of-type .report-header-2,
-.readonly #report-form .form-group .form-subgroup + .form-subgroup .subgroup-with-border div:first-of-type .report-header-3:first-of-type {
+.readonly #report-form .form-group .form-subgroup + .form-subgroup .subgroup-with-border div:first-of-type .report-header-3:first-of-type,
+.readonly #report-form .form-group .form-subgroup .subgroup-with-border div:first-of-type .report-header-3:first-of-type {
     padding-top: 0;
 }
 
@@ -1985,6 +2103,38 @@ form {
     margin-top: 2px;
 }
 
+.readonly #report-form .form-checkbox-custom input:first-of-type {
+    margin-top: 3px !important;
+}
+
+.readonly #report-form div:has(.form-checkbox-custom) + div > div.form-checkbox:first-of-type {
+    padding-top: 0 !important;
+}
+
+.readonly #report-form div:has(.form-checkbox-custom) + div > div.form-radio:first-of-type {
+    padding-top: 0 !important;
+}
+
+.readonly #report-form .form-radio-date input:last-of-type {
+    margin-top: 0 !important;
+}
+
+.readonly #report-form .form-radio-date + div:not(.form-radio-date) {
+    padding-top: 0 !important;
+}
+
+.readonly #report-form .condition-hours-container + div:not(.condition-hours) > div:first-of-type {
+    padding-top: 0 !important;
+}
+
+.readonly #report-form .condition-hours {
+    flex-grow: initial;
+}
+
+.readonly #report-form .hours-label {
+    margin-left: 5px;
+}
+
 .readonly #report-form .form-checkbox-conservation-custom {
     flex-grow: 1;
 }
@@ -2001,6 +2151,10 @@ form {
 .readonly #report-form .no-spaces {
     margin-top: 10px;
     display: flex;
+}
+
+.readonly #report-form .textarea-div {
+    margin-top: 0;
 }
 
 .readonly #report-form .no-spaces .readonly-input {

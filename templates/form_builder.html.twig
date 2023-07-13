@@ -57,7 +57,7 @@
             {% elseif item.type == 'textfield' and item.name is defined %}
                 <div class="form-item">{% include 'textfield.html.twig' with { 'name': item.name, 'label': item.content | trans } %}</div>
             {% elseif item.type == 'textarea' and item.name is defined %}
-                <div class="no-spaces">{% include 'textarea.html.twig' with { 'name': item.name, 'label': item.content | trans } %}</div>
+                <div class="no-spaces textarea-div{% if item.class is defined %} {{ item.class }}{% endif %}">{% include 'textarea.html.twig' with { 'name': item.name, 'label': item.content | trans } %}</div>
             {% elseif item.type == 'number' and item.name is defined %}
                 {% set with_data = { 'name': item.name, 'id': item.name, 'label': item.content | trans } %}
                 {% if prefilled_data[item.name] is defined %}
@@ -70,7 +70,7 @@
                     {% set with_data = with_data|merge({ 'max': item.max }) %}
                 {% endif %}
                 {% if item.placeholder is defined %}
-                    {% set with_data = with_data|merge({ 'placeholder': item.placeholder }) %}
+                    {% set with_data = with_data|merge({ 'placeholder': item.placeholder | trans }) %}
                 {% endif %}
                 <div class="form-item{% if item.class is defined %} {{ item.class }}{% endif %}">{% include 'number.html.twig' with with_data %}</div>
             {% elseif item.type == 'checkbox' and item.name is defined %}

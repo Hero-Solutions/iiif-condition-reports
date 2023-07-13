@@ -173,9 +173,259 @@ General condition: Algemene conditie
 Specific condition of the object: Specifieke toestand van het object
 Specifications: Specificaties
 Conservation: Conservatie
-Conservation for transport needed: Conservering voor transport nodig
+Conservation for transport needed: Conservatie voor transport nodig
+Good: Goed
+Average: Redelijk
+Bad: Slecht
+Not transportable: Niet vervoerbaar
+Not displayable: Niet tentoonstelbaar
 Yes: Ja
 No: Nee
+Condition support: Toestand drager
+Support type: Soort drager
+Water damage: Waterschade
+Fungi: Schimmelsporen
+Backside: Rugzijde
+Dirt: Vuil
+Spots: Vlekken
+Seals: Zegels
+Inscriptions: Inscripties
+Moisture barrier at reverse / impregnation: Vochtbarrière aan de achterkant / impregnatie
+Wax-resin: Was-hars
+Paint: Verf
+Other remarks: Andere opmerkingen
+Condition canvas: Conditie doek
+Not lined: Niet gedoubleerd
+Lined: Gedoubleerd
+Strip-lining: Randbedoeking
+Patches: Herstellappen
+Changes (additions, altered pieces, …): Vormveranderingen (toevoegingen, ingezette stukken, …)
+Tension: Spanning
+Slack: Slap
+Deformations: Deformaties
+Stretching marks: Spanguirlandes
+Dents: Deuken
+Seam: Naad
+Tears/holes (see picture): Scheuren/gaten (zie foto)
+Edges: (Omslag)randen
+Oxidation: Weefsel geoxideerd
+Dirt between canvas and stretcher: Vuil tussen raam en doek
+support_carrier: Ondersteunende drager
+Condition stretcher: Conditie ondersteunende drager
+Stretcher: Spieraam
+Strainer: Spanraam
+Keys (complete and secured): Spieën (compleet en gezekerd)
+Insufficient/open corner joints: Onvoldoende/open hoekverbindingen
+Not stable: Instabiel
+Splits: Barsten
+Woodworm: Houtworm
+Active: Actief
+Old: Oud
+Panel: Paneel
+Condition panel: Conditie paneel
+Number of panels: Aantal planken
+Grain direction: Nerfrichting
+Horizontal: Horizontaal
+Vertical: Verticaal
+Cradle: Parket
+Blocked: Geblokkeerd
+Not blocked: Niet geblokkeerd
+Reinforcements (clamps, dovetails, etc.): Verstevigingen (klampen, zwaluwstaarten, …)
+Joints (open, repared, strengthened, …): Voegen (open, hersteld, verstevigd, …)
+Splits (position/length, see picture): Barsten (positie/lengte, zie foto)
+Deformations (convex, concave, wrapped, …): Deformaties (convex, concaaf, scheluw, …)
+Holes: Gaten
+Damaged edges: Beschadigde randen
+Condition metal: Conditie metaal
+Corrosion: Corrosie
+Deformations (dents, undulations, …): Deformaties (deuken, golvingen, …)
+Tears: Scheuren
+Missing parts: Ontbrekende delen
+Weakened: Verzwakt
+Broken parts: Afgebroken stukken
+Scratches: Krassen
+paint_layer: Verflaag
+Condition paint layer: Conditie verflaag
+Scratches/dents: Krassen/deuken
+Crackle (pronounced, irregular, micro, bump/pressure craquelure, youth cracks,...): Craquelé (sterk, onregelmatig, micro, stoot/drukcraquelé, jeugdbarsten, …)
+Cupping: Schotelvorming/cupping
+Flaking: Schilfering
+Degraded medium: Poederende/loskomende verf
+"Blisters/flaking paint (checked and stable): see picture": "Opstuwingen/blazen (gecontroleerd en stabiel): zie foto"
+Losses (see picture): Lacunes (zie foto)
+Old fillings: Oude vullingen
+Discolored retouches: Verkleurde retouches
+Overpaints: Overschildering
+condition_blanching: Blind geslagen
+Fire damage: Brandschade
+Flattened paint: Geplette verf
+Abraded/abrasion: Sleets
+Surface dirt: Oppervlaktevuil
+Insect feces: Insektenpoep
+Fingerprints: Vingerafdrukken
+Condition varnish layer: Conditie vernislaag
+Varnish: Vernis
+Glossy: Glanzend
+Matte: Mat
+Irregular: Ongelijkmatig
+Yellowed: Vergeeld
+Drips or drip marks: Druppels of druipsporen
+Milky/hazy: Blauw/wazig
+Blanched: Blind geslagen
+Degraded: Gecrepeerd
+Scratches/wipes: Krassen/vegen
+Crackle: Craquelé
+Impurities in varnish (dust, brush hairs, ...): Onzuiverheden in vernis (stof, penseelharen, ...)
+Condition frame: Conditie lijst
+Open joints: Open verbindingen
+Weak corner connections: Zwakke hoekverbindingen
+Missing / loose parts or ornaments: Ontbrekende / losse delen of ornamenten
+Losses in the finishing layer (eg. gilding, paint coating, wood, etc.): Lacunes in de afwerklaag (bijv. vergulding, verflaag, hout,  …)
+Adhesion of the finishing coat (e.g., tortoise shell, veneer, etc.): Hechting van de afwerklaag (bijv. schildpad, fineer, …)
+Abrasions: Schaafplekken
+Oxidation of sheet metal: Oxidatie van bladmetaal
+Fungi//moisture spots: Schimmel/vochtplekken
+Discolored retouchings: Verkleurde retouches
+Sufficiently fixed: Voldoende gefixeerd
+Climate box sealed: Klimaatbox goed gesealed
+Dirt between glass and artwork: Vuil tussen glas en werk
+Broken glass: Glasbreuk
+Scratches or stains in the glass or plexi: Krassen of vlekken in het glas of de plexi
+Daylight opening correct: Dagmaat passend
+Preferable: Wenselijk
+Necessary: Noodzakelijk
+Happened: Gebeurd
+Not happened yet: Nog niet gebeurd
+Condition description: Conditiebeschrijving
+Consolidation: Consolidatie
+Surface cleaning, dusting and framing: Oppervlaktereiniging, afstoffen en uitlijsten
+Structural treatment: Structurele behandeling
+Filling of losses: Vullen van lacunes
+Retouching: Retoucheren
+Varnishing or corrections of the varnish: Vernissen of correcties van vernis
+Other/additional interventions: Andere/bijkomende ingrepen
+Treatment of the frame: Behandeling van de lijst
+"Framing: BFBU/climate box, …": "Inlijsting: BFBU/ klimaatbox, …"
+Report and documentation: Rapport en documentatie
+Number of hours: Aantal uren
+hour(s): uur
+hours: uur
+hour: uur
+Brittle: Broos
+Fiber degradation: Vezelaantasting/geschaafd
+Delamination / flaking / losening in composite support: Delaminatie / blazen / loskomen in samengestelde drager
+Holes / lacunae  / perforations: Gaten / lacunes / perforaties
+Damaged or missing corners and edges: Afgebroken of ontbrekende hoeken en randen
+Folds, wrinkles, dents: Plooien, kreuken, deuken
+Undulations/Wrinkling / tensions: Golvingen en spanningen
+Little: Licht
+Strong: Sterk
+Acidification: Algemene verzuring
+Yellowing: Vergeling
+Browning: Verbruining
+Amount of foxing: Mate van foxing
+Bleaching: Verbleking
+Water damage (tideline): Vochtschade (vochtkring)
+Insect damage and damage by microorganisms: Insectenschade en micro-organismen
+Silverfish: Zilvervisje
+Wood worm/wood borers: Boekenworm/houtboorders
+Mould: Schimmel/vochtplekken
+Old restorations: Oude restauraties
+Encrusted dirt, stains or impurities in the paper fiber: Ingedrongen vuil, vlekken of onzuiverheden in de papiervezel
+Residue of glue: Lijmresten
+(Remains of) adhesive tape: Plakband(resten)
+Condition pictorial layer: Conditie picturale laag
+Surface dirt/dust/stains/spots: Oppervlakte vuil, stof, vlekken
+Dusty: Stoffig
+Rust: Roest
+Excrements of insects: Insectenuitwerpselen
+Ink corrosion: Inktvraat
+Exfoliation: Afschilferen
+Blisters/flaking paint: Opstuwingen/blazen/blaren
+Checked: Gecontroleerd
+Stable: Stabiel
+Losses: Lacunes
+(Discolored) retouches/overpaints: (Verkleurde) retouches/overschildering
+Eg. tidelines, smeared, drips, condensation, ...: Vb. kringen, uitgelopen, druppels, condens, …
+Remains of other materials: Restanten van andere materialen
+Smudged: Uitgeveegd
+Discoloration: Verkleuring
+Protective layer: Beschermlaag
+Condition protective layer: Conditie beschermlaag
+Frame, passe-partout and mounting: Lijst, passe-partout en montage
+Condition passe-partout and external support: Conditie passe-partout en externe drager
+To be replaced: Te vervangen
+Mounting in passe-partout: Montage in passe-partout
+Mounting on external support: Montage op externe drager
+Mounting in frame: Montage in lijst
+Adhesion of the finishing layer (e.g., tortoise shell, veneer, etc.): Hechting van de afwerklaag (bijv. schildpad, fineer, …)
+Condition framing: Conditie inlijsting
+Dry cleaning: Droge reiniging
+Wet cleaning: Natte reiniging
+Local treatment stains/stain reduction: Plaatselijke behandeling vlekken
+Local treatment tidelines: Plaatselijke behandeling waterkringen
+Hinge, tape and adhesive removal: Verwijderen oude lijmresten en tapes
+Removal of old interventions/restorations: Verwijderen oude storende restauraties
+Consolidation of paint and/or finishing layers: Fixatie van picturale en/of afwerkingslagen
+Disassembling: Demontage
+New assembly: Hermonteren
+Mounting on new support: Bevestigen op nieuwe drager
+Mount/Matting: Passe-partout
+Reframing: Opnieuw inlijsten
+Restoration frame: Restauratie lijst
+Security conditions: Veiligheidsvoorwaarden
+Barriers: Afstandhouders/barrière
+Showcase: Vitrine
+Alarm specifications: Alarmspecificaties
+Security screws: Veiligheidsschroeven
+Security device required: Beveiliging aanbrengen
+E.g., pedestal, extra support at the bottom needed, hooks, interior or exterior wall, type of wall, etc.: Bijv. sokkel, draagsteunen, haken, binnen- of buitenwand, soort wand, …
+Environmental and climatic conditions during storage, transport and presentations: Omgevings- en klimaatvoorwaarden bij stockage, transport en presentatie
+Guidelines temperature (temp): Richtlijnen temperatuur (temp)
+Guidelines relative humidity (RH): Richtlijnen relatieve vochtigheid (RH)
+Guidelines brightness (Lux): Richtlijnen lichtsterkte (Lux)
+Guidelines ultraviolet light (UV): Richtlijnen ultraviolet licht (UV)
+How long to acclimatize before unpacking?: Hoelang acclimatiseren alvorens te ontpakken?
+24 h: 24 uur
+Maximum exhibition duration: Maximale tentoonstellingsduur
+Remarks: Opmerkingen
+Qualified museum staff: Gekwalificeerd museumpersoneel
+Please wear gloves when manipulating the art piece: Gebruik handschoenen bij de art handling
+Car with pneumatic tires: Kar met luchtbanden
+Air suspended truck: Luchtgeveerde vrachtwagen
+Air-conditioned truck: Geklimatiseerde vrachtwagen
+Direct transport required (no other artwork to pick up): Rechtstreeks transport vereist (geen andere werken oppikken)
+Points of attention with transport: Aandachtspunten bij vervoer
+No respect for direction of travel: Reisrichting niet respecteren
+Stacking allowed: Stapelen toegelaten
+General remarks: Algemene opmerking
+'General remark: It’s important that the packing material doesn’t touch the paint layer': Bijkomend verpakkingsmateriaal mag de verflaag niet raken
+Face down: Dag naar beneden
+Face up: Dag naar boven
+Datalogger in the crate: Datalogger in de kist
+Please do tape the glass: Glas afplakken
+Other materials: Bijkomende verpakking
+Ribbon: Lint
+Lexan envelope: Lexaan enveloppe
+Polyethylene film/foil: Polyethyleenfolie
+Sealed with tape: Gesealed met tape
+Not sealed: Niet gesealed
+Bubble wrap: Bubbelplastic
+Soft packing: Softverpakking
+Climate box/double crate: Klimaatkist/dubbele kist
+Special made crate: Maatkist
+At your disposal: Ter beschikking
+Should be made: Dient gemaakt
+Hired crate: Huurkist
+Collecting crate: Verzamelkist
+Vibrometer on the crate: Trillingsmeter op de kist
+Tilt and shockmeter on the crate: Kantel- en schokmeter op de kist
+Lying: Liggend
+Pack lying down (powdery medium): Liggend (poederig medium)
+Buffered: Gebufferd
+Unbuffered: Ongebufferd
+packing_packing: Inpakken
+other_materials: Andere materialen
 
 Incoming object (depacking): Inkomend object (depacking)
 Acquisition (collection donor / seller / ...): Verwerving (collectie schenker / verkoper / ...)
@@ -345,8 +595,8 @@ Lashing straps: Spanbanden
 Packing: Verpakking
 Advice: Advies
 Supporting construction needed: Steunconstructie nodig
-Pack upright: Staand inpakken
-Pack lying down: Liggend inpakken
+Pack upright: Staand
+Pack lying down: Liggend
 Datalogger: Datalogger
 Outer packing: Buitenverpakking
 Pallet: Pallet
@@ -603,20 +853,13 @@ wear: Slijtage
 wood_borers: Houtboorders
 wrinkles: Plooivorming
 
-Adhesion: Hechting
-The joining of two surfaces by means of a generally viscous, sticky composition such as an adhesive or through physical or chemical force.: Het samenvoegen van twee oppervlakken met behulp van een in het algemeen kleverig, plakkerig mengsel zoals een kleefstof, of door middel van fysieke of chemische kracht.
+"Adhesion: The joining of two surfaces by means of a generally viscous, sticky composition such as an adhesive or through physical or chemical force.": "Hechting: Het samenvoegen van twee oppervlakken met behulp van een in het algemeen kleverig, plakkerig mengsel zoals een kleefstof, of door middel van fysieke of chemische kracht."
 Blanching: "Blindgeslagen: Te onderscheiden van 'waas' dat algemeen wordt gebruikt om aan te geven dat allerlei oppervlakken er anders zijn gaan uitzien als gevolg van de inwerking van waterdamp of vocht uit de atmosfeer."
-Bleaching: Bleken, gebleekt
-The process of whitening or lightening the color of a material by means of oxidation through the use of chemicals or exposure to sunlight.: Een materiaal wit of lichter van kleur maken door oxydatie met behulp van chemicaliën of door blootstelling aan zonlicht.
-Blisters: Blazen
-Swellings on a surface, often bubble-shaped, frequently caused by nonadherence or by separation of an applied substance.: Opstuwing aan een oppervlak, vaak in de vorm van een blaasje, meestal veroorzaakt doordat een aangebrachte stof loslaat of niet hecht.
-Broken: Gebroken
-Splitting into pieces or smashing into parts or fragments, typically by a blow or stress and with suddenness or violence.: Het in stukjes uiteensplijten of in delen of scherven uiteenspatten, meestal plotseling en hevig, als gevolg van een klap of drukuitoefening.
-An amorphous, inorganic substance made by fusing silica (silicon dioxide) with a basic oxide; generally transparent but often translucent or opaque. Its characteristic properties are its hardness and rigidity at ordinary temperatures, its capacity for plastic working at elevated temperatures, and its resistance to weathering and to most chemicals except hydrofluoric acid. Used for both utilitarian and decorative purposes, it can be formed into various shapes, colored or decorated. Glass originated as a glaze in Mesopotamia in about 3500 BCE and the first objects made wholly of glass date to about 2500 BCE.: Een amorfe, anorganische substantie die wordt gemaakt door silica (siliciumdioxide) te fuseren met een basisoxide, meestal transparant maar vaak ook doorschijnend of ondoorschijnend. Kenmerkende eigenschappen zijn de hardheid en stijfheid bij normale temperaturen, de plastische eigenschappen bij verhoogde temperaturen en de weersbestendigheid en bestendigheid tegen de meeste chemische stoffen, behalve waterstoffluoride. Het wordt gebruikt voor zowel gebruiksdoeleinden als decoratieve doeleinden, en kan worden gemaakt in diverse vormen, gekleurd en gedecoreerd. Glas is ontstaan als glazuur in Mesopotamië in ongeveer 3500 v. Chr. De eerste voorwerpen die geheel van glas zijn vervaardigd, dateren van ongeveer 2500 v. Chr.
+"Bleaching: The process of whitening or lightening the color of a material by means of oxidation through the use of chemicals or exposure to sunlight.": "Bleken, gebleekt: Een materiaal wit of lichter van kleur maken door oxydatie met behulp van chemicaliën of door blootstelling aan zonlicht."
+"Blisters: Swellings on a surface, often bubble-shaped, frequently caused by nonadherence or by separation of an applied substance.": "Blazen: Opstuwing aan een oppervlak, vaak in de vorm van een blaasje, meestal veroorzaakt doordat een aangebrachte stof loslaat of niet hecht."
+"Broken: Splitting into pieces or smashing into parts or fragments, typically by a blow or stress and with suddenness or violence.": "Gebroken: Het in stukjes uiteensplijten of in delen of scherven uiteenspatten, meestal plotseling en hevig, als gevolg van een klap of drukuitoefening."
+"Glass: An amorphous, inorganic substance made by fusing silica (silicon dioxide) with a basic oxide; generally transparent but often translucent or opaque. Its characteristic properties are its hardness and rigidity at ordinary temperatures, its capacity for plastic working at elevated temperatures, and its resistance to weathering and to most chemicals except hydrofluoric acid. Used for both utilitarian and decorative purposes, it can be formed into various shapes, colored or decorated. Glass originated as a glaze in Mesopotamia in about 3500 BCE and the first objects made wholly of glass date to about 2500 BCE.": "Glas: Een amorfe, anorganische substantie die wordt gemaakt door silica (siliciumdioxide) te fuseren met een basisoxide, meestal transparant maar vaak ook doorschijnend of ondoorschijnend. Kenmerkende eigenschappen zijn de hardheid en stijfheid bij normale temperaturen, de plastische eigenschappen bij verhoogde temperaturen en de weersbestendigheid en bestendigheid tegen de meeste chemische stoffen, behalve waterstoffluoride. Het wordt gebruikt voor zowel gebruiksdoeleinden als decoratieve doeleinden, en kan worden gemaakt in diverse vormen, gekleurd en gedecoreerd. Glas is ontstaan als glazuur in Mesopotamië in ongeveer 3500 v. Chr. De eerste voorwerpen die geheel van glas zijn vervaardigd, dateren van ongeveer 2500 v. Chr."
 Changes (additions, altered pieces…): Vormveranderingen (toevoegingen, ingezette stukken…)
-Consolidated: Verstevigen
-Stabilizing degraded or weakened areas by introducing or attaching materials capable of holding them together.: Beschadigde of verzwakte delen verduurzamen door het inbrengen of aanhechten van materialen met behulp waarvan ze bijeen gehouden kunnen worden.
-Corrosion: Corrosie
-The deterioration of metal or other substances by chemical or electrochemical reaction resulting from exposure to weathering, moisture, chemicals, or other agents.: De aantasting van metaal of ander materiaal door chemische of elektrochemische reacties die het gevolg zijn van blootstelling aan verwering, vochtigheid, chemicaliën of andere agentia.
-Crackle: Craquelé
-A network of fine fracture lines in a coating layer, such as a ground, paint layer, varnish, or glaze.: Een netwerk van fijne breuklijnen in een deklaag, bijvoorbeeld (grond)verf, vernis of glazuur.
+"Consolidated: Stabilizing degraded or weakened areas by introducing or attaching materials capable of holding them together.": "Verstevigen: Beschadigde of verzwakte delen verduurzamen door het inbrengen of aanhechten van materialen met behulp waarvan ze bijeen gehouden kunnen worden."
+"Corrosion: The deterioration of metal or other substances by chemical or electrochemical reaction resulting from exposure to weathering, moisture, chemicals, or other agents.": "Corrosie: De aantasting van metaal of ander materiaal door chemische of elektrochemische reacties die het gevolg zijn van blootstelling aan verwering, vochtigheid, chemicaliën of andere agentia."
+"Crackle: A network of fine fracture lines in a coating layer, such as a ground, paint layer, varnish, or glaze.": "Craquelé: Een netwerk van fijne breuklijnen in een deklaag, bijvoorbeeld (grond)verf, vernis of glazuur."
