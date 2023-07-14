@@ -20,7 +20,7 @@
                 </div>
                 <div>
                     <div>{{ 'Organising institution' | trans }}:</div>
-                    {% if loan_project.organisationName is defined %}
+                    {% if loan_project.organisationName is defined and loan_project.organisationName is not null %}
                         <div>{{ loan_project.organisationName }}</div>
                     {% elseif organisation_names[loan_project.organisation] is defined %}
                         <div>{{ organisation_names[loan_project.organisation] }}</div>
@@ -71,6 +71,12 @@
                         <div>{{ loan_project.loanNumber }}</div>
                     </div>
                 {% endif %}
+                {% if loan_project.notes is not empty %}
+                    <div>
+                        <div>{{ 'Notes' | trans }}:</div>
+                        <div><pre>{{ loan_project.notes }}</pre></div>
+                    </div>
+                {% endif %}
                 <div>
                     <div>{{ 'Responsible loan project' | trans }}:</div>
                     {% set role = '' %}
@@ -78,7 +84,7 @@
                         {% set role = loan_project.representativeRole | trans %}
                         {% set role = ' (' ~ role ~ ')' %}
                     {% endif %}
-                    {% if loan_project.representativeName is defined %}
+                    {% if loan_project.representativeName is defined and loan_project.representativeName is not null %}
                         <div>{{ loan_project.representativeName }}{{ role }}</div>
                     {% elseif representative_names[loan_project.representative] is defined %}
                         <div>{{ representative_names[loan_project.representative] }}{{ role }}</div>
@@ -96,12 +102,6 @@
                     <div>
                         <div>{{ 'Telephone' | trans }}:</div>
                         <div>{{ loan_project.representativePhone }}</div>
-                    </div>
-                {% endif %}
-                {% if loan_project.notes is not empty %}
-                    <div>
-                        <div>{{ 'Notes' | trans }}:</div>
-                        <div><pre>{{ loan_project.notes }}</pre></div>
                     </div>
                 {% endif %}
             </div>

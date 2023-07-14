@@ -7,6 +7,7 @@ use App\Entity\DatahubData;
 use App\Entity\DeletedAnnotation;
 use App\Entity\Image;
 use App\Entity\InventoryNumber;
+use App\Entity\LoanProject;
 use App\Entity\Organisation;
 use App\Entity\Report;
 use App\Entity\ReportData;
@@ -22,6 +23,7 @@ class ReportTemplateData
         $data = self::getExistingReportData($em, $id, $baseUrl);
         unset($data['organisations']);
         unset($data['representatives']);
+        unset($data['loan_projects']);
         unset($data['current_page']);
         return $data;
     }
@@ -116,6 +118,7 @@ class ReportTemplateData
             'report_fields' => $reportFields,
             'organisations' => self::getOrganisations($em),
             'representatives' => self::getRepresentatives($em),
+            'loan_projects' => self::getLoanProjects($em),
             'readonly' => false,
             'pattern_size' => 20,
             'stroke_width' => 2,
@@ -248,7 +251,8 @@ class ReportTemplateData
             'annotations' => $annotations,
             'deleted_annotations' => $deletedAnnotations,
             'organisations' => self::getOrganisations($em),
-            'representatives' => self::getRepresentatives($em)
+            'representatives' => self::getRepresentatives($em),
+            'loan_projects' => self::getLoanProjects($em)
         ];
    }
 
@@ -362,5 +366,21 @@ class ReportTemplateData
             $representatives[$representative->getId()] = $representative;
         }
         return $representatives;
+    }
+
+    public static function getLoanProjects(EntityManager $em)
+    {
+        $loanProjects = array();
+        $loanProjectData = $em->createQueryBuilder()
+            ->select('l')
+            ->from(LoanProject::class, 'l')
+            ->orderBy('l.alias')
+            ->getQuery()
+            ->getResult();
+
+        foreach ($loanProjectData as $loanProject) {
+            $loanProjects[$loanProject->getId()] = $loanProject;
+        }
+        return $loanProjects;
     }
 }

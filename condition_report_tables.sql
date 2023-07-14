@@ -118,12 +118,12 @@ CREATE TABLE IF NOT EXISTS `loan_projects` (
 `start_date_insured` TIMESTAMP NULL DEFAULT NULL,
 `end_date_insured` TIMESTAMP NULL DEFAULT NULL,
 `loan_number` VARCHAR(255) DEFAULT NULL,
+`notes` TEXT DEFAULT NULL,
 `representative` INT UNSIGNED DEFAULT NULL,
 `representative_name` VARCHAR(255) DEFAULT NULL,
 `representative_role` VARCHAR(255) DEFAULT NULL,
 `representative_email` VARCHAR(255) DEFAULT NULL,
 `representative_phone` VARCHAR(255) DEFAULT NULL,
-`notes` TEXT DEFAULT NULL,
 PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

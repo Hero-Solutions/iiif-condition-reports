@@ -40,6 +40,9 @@
 				<div class="form-subgroup">
 					{{ form_row(form.loan_number) }}
 				</div>
+				<div class="form-subgroup">
+					{{ form_row(form.notes) }}
+				</div>
 				<label>{{ 'Responsible loan project' | trans }}</label>
 				<div class="subgroup-with-border">
 					<div class="form-subgroup flex-1">
@@ -64,9 +67,6 @@
 						</div>
 					</div>
 				</div>
-	            <div class="form-subgroup">
-	                {{ form_row(form.notes) }}
-	            </div>
 	            <div class="form-subgroup">
 	                {{ form_row(form.submit) }}
 	            </div>
@@ -118,7 +118,7 @@
 		}
 	};
 	function fixTextareaheight() {
-		var ele = document.getElementById('form_notes');
+		const ele = document.getElementById('form_notes');
 		ele.style.height = "16px";
 		ele.style.height = (ele.scrollHeight + 5) + "px";
 	}

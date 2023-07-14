@@ -1,0 +1,248 @@
+{% if not readonly
+    or prefilled_data.loan_project_title is defined
+    or prefilled_data.loan_project_organisationName is defined
+    or prefilled_data.loan_project_address is defined
+    or prefilled_data.loan_project_postal is defined
+    or prefilled_data.loan_project_city is defined
+    or prefilled_data.loan_project_stateProvince is defined
+    or prefilled_data.loan_project_country is defined
+    or prefilled_data.loan_project_url is defined
+    or prefilled_data.loan_project_startDate is defined
+    or prefilled_data.loan_project_endDate is defined
+    or prefilled_data.loan_project_startDateInsured is defined
+    or prefilled_data.loan_project_endDateInsured is defined
+    or prefilled_data.loan_project_loanNumber is defined
+%}
+    <div class="form-group">
+        {% if not readonly %}
+            <script>
+                const organisations = {{ organisations | json_encode | raw }};
+                const representatives = {{ representatives | json_encode | raw }};
+                const loanProjects = {{ loan_projects | json_encode | raw }};
+
+                function fillLoanProject(id) {
+                    for(var key in loanProjects[id]) {
+                        if (loanProjects[id][key] !== null) {
+                            var element = null;
+                            if (key === 'organisation') {
+                                element = document.querySelector("select[name='loan_project_organisation_id']");
+                                if (element != null) {
+                                    if (loanProjects[id][key] in organisations) {
+                                        element.value = loanProjects[id][key];
+                                        toggleCustomInput('loan_project_organisationName', element.options[element.selectedIndex].value, false, false);
+                                    } else {
+                                        element.value = 'customOption';
+                                        toggleCustomInput('loan_project_organisationName', element.options[element.selectedIndex].value, true, false);
+                                        if ('organisationName' in loanProjects[id]) {
+                                            element = document.querySelector("input[id='loan_project_organisationName']");
+                                            element.value = loanProjects[id]['organisationName'];
+                                        }
+                                    }
+                                }
+                            } else if (key === 'representative') {
+                                element = document.querySelector("select[name='loan_project_representative_id']");
+                                if (element != null) {
+                                    if (loanProjects[id][key] in representatives) {
+                                        element.value = loanProjects[id][key];
+                                        toggleCustomInput('loan_project_representativeName', element.options[element.selectedIndex].value, false, false);
+                                    } else {
+                                        element.value = 'customOption';
+                                        toggleCustomInput('loan_project_representativeName', element.options[element.selectedIndex].value, true, false);
+                                        if ('representativeName' in loanProjects[id]) {
+                                            element = document.querySelector("input[id='loan_project_representativeName']");
+                                            element.value = loanProjects[id]['representativeName'];
+                                        }
+                                    }
+                                }
+                            } else {
+                                element = document.querySelector("input[name='loan_project_" + key + "']");
+                                if (element != null) {
+                                    if (element.type === 'date') {
+                                        element.valueAsNumber = new Date(loanProjects[id][key].date);
+                                    } else {
+                                        element.value = loanProjects[id][key];
+                                    }
+                                } else {
+                                    element = document.querySelector("textarea[name='loan_project_" + key + "']");
+                                    if (element != null) {
+                                        element.value = loanProjects[id][key];
+                                        window["fixloan_project_" + key + "textareaheight"]();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                function fillLoanProjectOrganisation(id) {
+                    for(var key in organisations[id]) {
+                        if(key !== 'id') {
+                            var element = document.querySelector("input[name='loan_project_" + key + "']");
+                            if (element != null) {
+                                element.value = organisations[id][key];
+                            } else {
+                                element = document.querySelector("textarea[name='loan_project_" + key + "']");
+                                if (element != null) {
+                                    element.value = organisations[id][key];
+                                    window["fix" + key + "textareaheight"]();
+                                }
+                            }
+                        }
+                    }
+                }
+
+                function fillLoanProjectRepresentative(id) {
+                    for(var key in representatives[id]) {
+                        if(key !== 'id') {
+                            var element = document.querySelector("input[name='loan_project_" + key + "']");
+                            if (element != null) {
+                                element.value = representatives[id][key];
+                            } else {
+                                element = document.querySelector("textarea[name='loan_project_" + key + "']");
+                                if (element != null) {
+                                    element.value = representatives[id][key];
+                                    window["fix" + key + "textareaheight"]();
+                                }
+                            }
+                        }
+                    }
+                }
+            </script>
+            <div class="form-subgroup">
+                <div class="form-item">
+                    <label>{{ 'Title exhibition / loan project / restoration project / ...' | trans }}</label>
+                    <div class="flex">
+                        <select
+                                id="loan_project_id"
+                                name="loan_project_id"
+                                onchange="toggleCustomInput('loan_project_title', this.options[this.selectedIndex].value, this.options[this.selectedIndex].value === 'customOption'); fillLoanProject(this.options[this.selectedIndex].value)"
+                                autocomplete="off">
+                            <option></option>
+                            {% for loan_project in loan_projects %}
+                                <option value="{{ loan_project.id }}">{{ loan_project.alias }}</option>
+                            {% endfor %}
+                            <option value="customOption"{% if prefilled_data['loan_project_title'] is defined %} selected{% endif %}>{{ 'Other' | trans }}</option>
+                            <input type="text" class="custom-input" id="loan_project_title" placeholder="{{ 'Fill in another title ...' | trans }}" name="loan_project_title"
+                                   {% if prefilled_data['loan_project_title'] is defined %}value="{{ prefilled_data['loan_project_title'] }}" {% else %}style="display: none;"{% endif %} autocomplete="off">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <label>{{ 'Name of the organising institution' | trans }}</label>
+            <div class="flex">
+                <select
+                        id="loan_project_organisation_id"
+                        name="loan_project_organisation_id"
+                        onchange="toggleCustomInput('loan_project_organisationName', this.options[this.selectedIndex].value, this.options[this.selectedIndex].value === 'customOption'); fillLoanProjectOrganisation(this.options[this.selectedIndex].value)"
+                        autocomplete="off">
+                    <option></option>
+                    {% for organisation in organisations %}
+                        <option value="{{ organisation.id }}">{{ organisation.alias }}</option>
+                    {% endfor %}
+                    <option value="customOption"{% if prefilled_data['loan_project_organisationName'] is defined %} selected{% endif %}>{{ 'Other' | trans }}</option>
+                    <input type="text" class="custom-input" id="loan_project_organisationName" placeholder="{{ 'Fill in another name ...' | trans }}" name="loan_project_organisationName"
+                           {% if prefilled_data['loan_project_organisationName'] is defined %}value="{{ prefilled_data['loan_project_organisationName'] }}" {% else %}style="display: none;"{% endif %} autocomplete="off">
+                </select>
+            </div>
+        {% else %}
+            <div class="form-subgroup">
+                <div class="form-item">
+                    {% include 'textfield.html.twig' with { 'name': 'loan_project_title', 'label': 'Title exhibition / loan project / restoration project / ...' | trans } %}
+                </div>
+                <div class="form-item">
+                    {% include 'textfield.html.twig' with { 'name': 'loan_project_organisationName', 'label': 'Name of the organising institution' | trans } %}
+                </div>
+            </div>
+        {% endif %}
+        {% if not readonly
+            or prefilled_data.loan_project_address is defined
+            or prefilled_data.laon_project_postal is defined
+            or prefilled_data.loan_project_city is defined
+            or prefilled_data.loan_project_stateProvince is defined
+            or prefilled_data.loan_project_country is defined
+        %}
+            <label>{{ 'Venue of the project' | trans }}</label>
+            <div class="form-subgroup subgroup-with-border">
+                <div class="form-item">
+                    {% include 'textfield.html.twig' with { 'name': 'loan_project_address', 'label': 'Address' | trans } %}
+                </div>
+                <div class="form-item">
+                    {% include 'textfield.html.twig' with { 'name': 'loan_project_postal', 'label': 'Postal code' | trans } %}
+                </div>
+                <div class="form-item">
+                    {% include 'textfield.html.twig' with { 'name': 'loan_project_city', 'label': 'City' | trans } %}
+                </div>
+                <div class="form-item">
+                    {% include 'textfield.html.twig' with { 'name': 'loan_project_stateProvince', 'label': 'Province or state' | trans } %}
+                </div>
+                <div class="form-item">
+                    {% include 'textfield.html.twig' with { 'name': 'loan_project_country', 'label': 'Country' | trans } %}
+                </div>
+            </div>
+        {% endif %}
+        <div class="form-subgroup">
+            <div class="form-item">{% include 'textfield.html.twig' with { 'name': 'loan_project_url', 'label': 'Link to webpage if applicable' | trans, 'is_url': true } %}</div>
+        </div>
+        <div class="form-subgroup">
+            <div class="form-item">{% include 'date_input.html.twig' with { 'name': 'loan_project_startDate', 'label': 'Start date loan' | trans } %}</div>
+            <div class="form-item">{% include 'date_input.html.twig' with { 'name': 'loan_project_endDate', 'label': 'End date loan' | trans } %}</div>
+        </div>
+        <div class="form-subgroup">
+            <div class="form-item">{% include 'date_input.html.twig' with { 'name': 'loan_project_startDateInsured', 'label': 'Start date insurance coverage' | trans } %}</div>
+            <div class="form-item">{% include 'date_input.html.twig' with { 'name': 'loan_project_startDateInsured', 'label': 'End date insurance coverage' | trans } %}</div>
+        </div>
+        <div class="form-subgroup">
+            <div class="form-item">{% include 'textfield.html.twig' with { 'name': 'loan_project_loanNumber', 'label': 'Loan number or dossier number' | trans } %}</div>
+        </div>
+        <div class="form-subgroup">
+            <div class="form-item">{% include 'textarea.html.twig' with { 'name': 'loan_project_notes', 'label': 'Notes' | trans } %}</div>
+        </div>
+    </div>
+{% endif %}
+
+{% if not readonly
+    or prefilled_data.loan_project_representativeName is defined
+    or prefilled_data.loan_project_representativeRole is defined
+    or prefilled_data.loan_project_representativeEmail is defined
+    or prefilled_data.loan_project_representativePhone is defined
+%}
+    <div class="form-group">
+        <div class="report-header-2">{{ 'Responsible loan project' | trans }}</div>
+        <div class="form-subgroup">
+            {% if not readonly %}
+                <div class="form-item">
+                    <label>{{ 'Name' | trans }}</label>
+                    <div class="flex">
+                        <select id="loan_project_representative_id"
+                                name="loan_project_representative_id"
+                                onchange="toggleCustomInput('loan_project_representativeName', this.options[this.selectedIndex].value, this.options[this.selectedIndex].value === 'customOption'); fillLoanProjectRepresentative(this.options[this.selectedIndex].value)"
+                                autocomplete="off">
+                            <option></option>
+                            {% for representative in representatives %}
+                                <option value="{{ representative.id }}">{{ representative.alias }}</option>
+                            {% endfor %}
+                            <option value="customOption"{% if prefilled_data['loan_project_representativeName'] is defined %} selected{% endif %}>{{ 'Other' | trans }}</option>
+                            <input type="text" class="custom-input" id="loan_project_representativeName" placeholder="{{ 'Fill in another name ...' | trans }}" name="loan_project_representativeName"
+                                   {% if prefilled_data['loan_project_representativeName'] is defined %}value="{{ prefilled_data['loan_project_representativeName'] }}" {% else %}style="display: none;"{% endif %} autocomplete="off">
+                        </select>
+                    </div>
+                </div>
+            {% else %}
+                <div class="form-item">
+                    {% include 'textfield.html.twig' with { 'name': 'loan_project_representativeName', 'label': 'Role' | trans } %}
+                </div>
+            {% endif %}
+            <div class="form-item">
+                {% include 'textfield.html.twig' with { 'name': 'loan_project_representativeRole', 'label': 'Role' | trans } %}
+            </div>
+        </div>
+        <div class="form-subgroup">
+            <div class="form-item">
+                {% include 'textfield.html.twig' with { 'name': 'loan_project_representativeEmail', 'label': 'E-mail' | trans } %}
+            </div>
+            <div class="form-item">
+                {% include 'textfield.html.twig' with { 'name': 'loan_project_representativePhone', 'label': 'Telephone' | trans } %}
+            </div>
+        </div>
+    </div>
+{% endif %}

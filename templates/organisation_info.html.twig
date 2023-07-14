@@ -17,26 +17,12 @@
                 }
             }
         }
-
-        function toggleCustomOrg(customOrgId, value, show) {
-            var customOrg = document.getElementById(customOrgId);
-            if(customOrg != null) {
-                if(show) {
-                    customOrg.value = '';
-                    customOrg.style = 'display: block';
-                    customOrg.focus();
-                } else {
-                    customOrg.style = 'display: none';
-                    customOrg.value = value;
-                }
-            }
-        }
     </script>
     <div class="form-subgroup">
         <div class="form-item">
             <label>{{ 'Name' | trans }}</label>
             <div class="flex">
-                <select id="{{ type }}-id" name="{{ type }}_org_id" onchange="toggleCustomOrg('{{ type }}-name', this.options[this.selectedIndex].value, this.options[this.selectedIndex].value === 'customOption'); fill{{  type }}Organisation(this.options[this.selectedIndex].value)" autocomplete="off">
+                <select id="{{ type }}-id" name="{{ type }}_org_id" onchange="toggleCustomInput('{{ type }}-name', this.options[this.selectedIndex].value, this.options[this.selectedIndex].value === 'customOption'); fill{{  type }}Organisation(this.options[this.selectedIndex].value)" autocomplete="off">
                     <option></option>
                     {% for organisation in organisations %}
                         <option value="{{ organisation.id }}">{{ organisation.alias }}</option>
@@ -51,9 +37,14 @@
             {% include 'textfield.html.twig' with { 'name': type ~ '_vat', 'label': 'VAT number' | trans } %}
         </div>
     </div>
-{% elseif prefilled_data[type ~ '_name'] is defined %}
-    <div class="form-item">
-        {% include 'textfield.html.twig' with { 'name': type ~ '_name', 'label': 'Name' | trans } %}
+{% else %}
+    <div class="form-subgroup">
+        <div class="form-item">
+            {% include 'textfield.html.twig' with { 'name': type ~ '_name', 'label': 'Name' | trans } %}
+        </div>
+        <div class="form-item">
+            {% include 'textfield.html.twig' with { 'name': type ~ '_vat', 'label': 'VAT number' | trans } %}
+        </div>
     </div>
 {% endif %}
 <div class="form-subgroup">
@@ -67,7 +58,7 @@
         {% include 'textfield.html.twig' with { 'name': type ~ '_city', 'label': 'City' | trans } %}
     </div>
     <div class="form-item">
-        {% include 'textfield.html.twig' with { 'name': type ~ '_state_province', 'label': 'Province or state' | trans } %}
+        {% include 'textfield.html.twig' with { 'name': type ~ '_stateProvince', 'label': 'Province or state' | trans } %}
     </div>
     <div class="form-item">
         {% include 'textfield.html.twig' with { 'name': type ~ '_country', 'label': 'Country' | trans } %}

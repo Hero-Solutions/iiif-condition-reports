@@ -1,43 +1,28 @@
 <div class="report-header-2">{% if representative_title is defined %}{{ representative_title | trans }}{% else %}{{ 'Representative' | trans }}{% endif %}</div>
-{% if not readonly %}
-    <script>
-        var {{ type }}Representatives = {{ representatives | json_encode | raw }};
+    <div class="form-subgroup">
+    {% if not readonly %}
+        <script>
+            var {{ type }}Representatives = {{ representatives | json_encode | raw }};
 
-        function fill{{ type }}Representative(id) {
-            for(var key in {{ type }}Representatives[id]) {
-                var element = document.querySelector("input[name='{{ type }}_" + key + "']");
-                if(element != null) {
-                    element.value = {{ type }}Representatives[id][key];
-                } else {
-                    element = document.querySelector("textarea[name='{{ type }}_" + key + "']");
+            function fill{{ type }}Representative(id) {
+                for(var key in {{ type }}Representatives[id]) {
+                    var element = document.querySelector("input[name='{{ type }}_" + key + "']");
                     if(element != null) {
                         element.value = {{ type }}Representatives[id][key];
-                        window["fix{{ type }}_" + key + "textareaheight"]();
+                    } else {
+                        element = document.querySelector("textarea[name='{{ type }}_" + key + "']");
+                        if(element != null) {
+                            element.value = {{ type }}Representatives[id][key];
+                            window["fix{{ type }}_" + key + "textareaheight"]();
+                        }
                     }
                 }
             }
-        }
-
-        function toggleCustomRep(customRepId, value, show) {
-            console.log(value);
-            var customRep = document.getElementById(customRepId);
-            if(customRep != null) {
-                if(show) {
-                    customRep.value = '';
-                    customRep.style = 'display: block';
-                    customRep.focus();
-                } else {
-                    customRep.style = 'display: none';
-                    customRep.value = value;
-                }
-            }
-        }
-    </script>
-    <div class="form-subgroup">
+        </script>
         <div class="form-item">
             <label>{{ 'Name' | trans }}</label>
             <div class="flex">
-                <select id="rep-dropdown" name="{{ type }}_rep_id" onchange="toggleCustomRep('{{ type }}-name', this.options[this.selectedIndex].value, this.options[this.selectedIndex].value === 'customOption'); fill{{  type }}Representative(this.options[this.selectedIndex].value)" autocomplete="off">
+                <select id="rep-dropdown" name="{{ type }}_rep_id" onchange="toggleCustomInput('{{ type }}-name', this.options[this.selectedIndex].value, this.options[this.selectedIndex].value === 'customOption'); fill{{  type }}Representative(this.options[this.selectedIndex].value)" autocomplete="off">
                     <option></option>
                     {% for representative in representatives %}
                         <option value="{{ representative.id }}">{{ representative.alias }}</option>
@@ -46,17 +31,17 @@
                     <input type="text" class="custom-input" id="{{ type }}-name" placeholder="{{ 'Fill in another name ...' | trans }}" name="{{ type }}_name"
                        {% if prefilled_data[type ~ '_name'] is defined %}value="{{ prefilled_data[type ~ '_name'] }}" {% else %}style="display: none;" {% endif %} autocomplete="off">
                 </select>
-                </div>
+            </div>
         </div>
+    {% else %}
         <div class="form-item">
-            {% include 'textfield.html.twig' with { 'name': type ~ '_role', 'label': 'Role' | trans } %}
+            {% include 'textfield.html.twig' with { 'name': type ~ '_name', 'label': 'Name' | trans } %}
         </div>
-    </div>
-{% elseif prefilled_data[type ~ '_name'] is defined %}
+    {% endif %}
     <div class="form-item">
-        {% include 'textfield.html.twig' with { 'name': type ~ '_name', 'label': 'Name' | trans } %}
+        {% include 'textfield.html.twig' with { 'name': type ~ '_role', 'label': 'Role' | trans } %}
     </div>
-{% endif %}
+</div>
 <div class="form-subgroup">
     <div class="form-item">
         {% include 'textfield.html.twig' with { 'name': type ~ '_email', 'label': 'E-mail' | trans } %}

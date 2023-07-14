@@ -77,6 +77,22 @@
                     }
                 }
             }
+
+            function toggleCustomInput(customInputId, value, show, focus = true) {
+                var customInput = document.getElementById(customInputId);
+                if(customInput != null) {
+                    if(show) {
+                        customInput.value = '';
+                        customInput.style = 'display: block';
+                        if(focus) {
+                            customInput.focus();
+                        }
+                    } else {
+                        customInput.style = 'display: none';
+                        customInput.value = value;
+                    }
+                }
+            }
         </script>
     {% endif %}
 </div>
