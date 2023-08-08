@@ -194,12 +194,14 @@ class IIIFUtil
                 'width'  => $imageData['width'],
                 'items'  => array($annotationPage)
             );
-            if(array_key_exists($image->hash, $annotationData)) {
-                foreach($annotationData->{$image->hash} as $id => $annotation) {
-                    $anno = clone $annotation;
-                    $anno->id = $serviceUrl . $reportId . '/annotation/p1/' . substr($anno->id, 1);
-                    $anno->target->source = $imageData['image_url'];
-                    $annotations[] = $anno;
+            if(!empty($annotationData)) {
+                if (array_key_exists($image->hash, $annotationData)) {
+                    foreach ($annotationData->{$image->hash} as $id => $annotation) {
+                        $anno = clone $annotation;
+                        $anno->id = $serviceUrl . $reportId . '/annotation/p1/' . substr($anno->id, 1);
+                        $anno->target->source = $imageData['image_url'];
+                        $annotations[] = $anno;
+                    }
                 }
             }
         }

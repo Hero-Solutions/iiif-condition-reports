@@ -1,6 +1,7 @@
 {% set measurements = { 'default': [] } %}
 
 {% set these_measurements = measurements.default %}
+{% set number_of_parts = 1 %}
 
 {% for object_type in object_types %}
     {% if report_fields.measurements[object_type] is defined %}
@@ -10,6 +11,9 @@
     {% endif %}
     {% if this_object_type is defined and this_object_type == object_type %}
         {% set these_measurements = measurements[object_type] %}
+        {% if prefilled_data['number_of_parts_' ~ object_type] is defined %}
+            {% set number_of_parts = prefilled_data['number_of_parts_' ~ object_type] %}
+        {% endif %}
     {% endif %}
 {% endfor %}
 
@@ -20,168 +24,152 @@
     {% endif %}
 {% endfor %}
 
-{% if prefilled_data.number_of_parts is defined %}
-    {% if not readonly %}
-        <script>
-            window.numberOfParts = parseInt({{ prefilled_data.number_of_parts }});
-        </script>
-    {% endif %}
-    {% for i in 1..prefilled_data.number_of_parts %}
-        {% for measurement_part in these_measurements.repeat %}
-            {% for item, label in measurement_part.items %}
-                {% if prefilled_data[item ~ '_' ~ i] is defined %}
-                    {% set has_measurement = true %}
-                {% endif %}
-            {% endfor %}
-        {% endfor %}
-    {% endfor %}
-{% else %}
+{% if not readonly %}
     <script>
-        window.numberOfParts = 1;
+        window.numberOfParts = parseInt({{ number_of_parts }});
     </script>
 {% endif %}
 
-{% set number_of_parts = 1 %}
-{% if prefilled_data.number_of_parts is defined %}
-    {% set number_of_parts = prefilled_data.number_of_parts %}
-{% endif %}
+{% for i in 1..number_of_parts %}
+    {% for measurement_part in these_measurements.repeat %}
+        {% for item, label in measurement_part.items %}
+            {% if prefilled_data[item ~ '_' ~ i] is defined %}
+                {% set has_measurement = true %}
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+{% endfor %}
 
 <div id="material-form"{% if not readonly %} class="form-tab"{% endif %}>
-{% if not readonly or prefilled_data.number_of_parts is defined or prefilled_data.parts_fixed_loose is defined or has_measurement %}
-    {% if not readonly or prefilled_data.number_of_parts is defined or prefilled_data.parts_fixed_loose is defined %}
-        <div class="report-header">{{ 'Parts' | trans }}</div>
-        <div class="form-group">
-            {% if not readonly or prefilled_data.number_of_parts is defined %}
-                <div class="form-subgroup">
-                    {% for object_type in object_types %}
-                        {% if not readonly or this_object_type == object_type %}
-                            {% set label = 'Number of parts' %}
-                            {% if report_fields.number_of_parts[object_type] is defined %}
-                                {% set label = report_fields.number_of_parts[object_type] %}
-                            {% endif %}
-                            <div class="form-item no-left-margin-item{% if this_object_type != object_type %} hidden{% endif %}" id="number-of-parts-{{ object_type }}">{% include 'number.html.twig' with { 'name': 'number_of_parts_' ~ object_type, 'id': 'number-of-parts-input-' ~ object_type, 'value': number_of_parts, 'min': 1, 'max': 1000, 'label': label | trans } %}</div>
-                        {% endif %}
-                    {% endfor %}
-                    {% if not readonly %}
-                        <script>
-                            function changeNumberOfPartsInputs(element) {
-                                var amount = parseInt(element.value);
-                                if(amount >= 1 && amount <= 1000) {
-                                    {% for object_type in object_types %}
-                                        var inputElement = document.getElementById("number-of-parts-input-{{ object_type }}");
-                                        if(inputElement !== null && inputElement !== element) {
-                                            inputElement.value = element.value;
-                                        }
-                                    {% endfor %}
-                                    if(amount > window.numberOfParts) {
-                                        {% for object_type in object_types %}
-                                            var parentElement = document.getElementById("measurements-{{ object_type }}");
-                                            for(var i = window.numberOfParts + 1; i <= amount; i++) {
-                                                var partHeader = document.createElement("div");
-                                                partHeader.className = "report-header-2";
-                                                partHeader.id = "measurements-div-header-{{ object_type }}-" + i;
-                                                partHeader.innerHTML = "{{ 'Part' | trans }} " + i;
-                                                parentElement.appendChild(partHeader);
-                                                var partBlock = document.createElement("div");
-                                                partBlock.className = "measurements-subgroup subgroup-with-border";
-                                                partBlock.id = "measurements-div-item-{{ object_type }}-" + i;
-                                                {% for part_name, measurement_part in measurements[object_type].repeat %}
-                                                    {% if measurement_part.header is not empty %}
-                                                        var header = document.createElement("div");
-                                                        header.className = "report-header-3";
-                                                        header.id = "measurements-div-header-{{ object_type }}-{{ part_name }}-" + i;
-                                                        header.innerHTML = "{{ measurement_part.header | trans }}";
-                                                        partBlock.appendChild(header);
-                                                    {% endif %}
-                                                    var itemSubgroup = document.createElement("div");
-                                                    itemSubgroup.className = "form-subgroup";
-                                                    {% for item, label in measurement_part.items %}
-                                                        var formItemDiv = document.createElement("div");
-                                                        formItemDiv.className = "form-item";
-                                                        var formItemLabel = document.createElement("label");
-                                                        formItemLabel.setAttribute("for", "{{ item }}");
-                                                        formItemLabel.innerHTML = "{{ label | trans }}";
-                                                        formItemDiv.appendChild(formItemLabel);
-                                                        var formItemInput = document.createElement("input");
-                                                        formItemInput.name = "{{ item }}";
-                                                        formItemInput.type = "text";
-                                                        formItemDiv.appendChild(formItemInput);
-                                                        itemSubgroup.appendChild(formItemDiv);
-                                                    {% endfor %}
-                                                    partBlock.appendChild(itemSubgroup);
-                                                {% endfor %}
-
-                                                parentElement.appendChild(partBlock);
-                                            }
-                                        {% endfor %}
-                                    } else if(amount < window.numberOfParts) {
-                                        {% for object_type in object_types %}
-                                            var parentElement = document.getElementById('measurements-{{ object_type }}');
-                                            for(var i = amount + 1; i <= window.numberOfParts; i++) {
-                                                var divHeader = document.getElementById('measurements-div-header-{{ object_type }}-' + i);
-                                                if(divHeader !== null) {
-                                                    parentElement.removeChild(divHeader);
-                                                }
-                                                var divItem = document.getElementById('measurements-div-item-{{ object_type }}-' + i);
-                                                if(divItem !== null) {
-                                                    parentElement.removeChild(divItem);
-                                                }
-                                            }
-                                        {% endfor %}
-                                    }
-                                    window.numberOfParts = amount;
-                                }
-                            }
-                            {% for object_type in object_types %}
-                                document.getElementById('number-of-parts-input-{{ object_type }}').setAttribute("onchange", "changeNumberOfPartsInputs(this);");
-                                document.getElementById('number-of-parts-input-{{ object_type }}').setAttribute("onkeyup", "changeNumberOfPartsInputs(this);");
-                            {% endfor %}
-                        </script>
+    <div class="report-header">{{ 'Parts' | trans }}</div>
+    <div class="form-group">
+        <div class="form-subgroup">
+            {% for object_type in object_types %}
+                {% if not readonly or this_object_type == object_type %}
+                    {% set label = 'Number of parts' %}
+                    {% if report_fields.number_of_parts[object_type] is defined %}
+                        {% set label = report_fields.number_of_parts[object_type] %}
                     {% endif %}
-                </div>
-            {% endif %}
-            {% if not readonly or prefilled_data.parts_specifications is defined %}
-                <div class="form-subgroup">
-                    <div class="form-item">{% include 'textfield.html.twig' with { 'name': 'parts_specifications', 'label': 'Specification' | trans } %}</div>
-                </div>
-            {% endif %}
-            {% if not readonly or prefilled_data.parts_fixed_loose is defined %}
-                <div class="form-subgroup">
-                    <div class="form-item">
-                        <div class="form-radio">{% include 'radio.html.twig' with { 'name': 'parts_fixed_loose', 'value': 'fixed', 'label': 'Fixed' | trans } %}</div>
-                        <div class="form-radio">{% include 'radio.html.twig' with { 'name': 'parts_fixed_loose', 'value': 'loose', 'label': 'Loose' | trans } %}</div>
-                    </div>
-                </div>
+                    <div class="form-item no-left-margin-item{% if this_object_type != object_type %} hidden{% endif %}" id="number-of-parts-{{ object_type }}">{% include 'number.html.twig' with { 'name': 'number_of_parts_' ~ object_type, 'id': 'number-of-parts-input-' ~ object_type, 'value': number_of_parts, 'min': 1, 'max': 1000, 'label': label | trans } %}</div>
+                {% endif %}
+            {% endfor %}
+            {% if not readonly %}
+                <script>
+                    function changeNumberOfPartsInputs(element) {
+                        var amount = parseInt(element.value);
+                        if(amount >= 1 && amount <= 1000) {
+                            {% for object_type in object_types %}
+                                var inputElement = document.getElementById("number-of-parts-input-{{ object_type }}");
+                                if(inputElement !== null && inputElement !== element) {
+                                    inputElement.value = element.value;
+                                }
+                            {% endfor %}
+                            if(amount > window.numberOfParts) {
+                                {% for object_type in object_types %}
+                                    var parentElement = document.getElementById("measurements-{{ object_type }}");
+                                    for(var i = window.numberOfParts + 1; i <= amount; i++) {
+                                        var partHeader = document.createElement("div");
+                                        partHeader.className = "report-header-2";
+                                        partHeader.id = "measurements-div-header-{{ object_type }}-" + i;
+                                        partHeader.innerHTML = "{{ 'Part' | trans }} " + i;
+                                        parentElement.appendChild(partHeader);
+                                        var partBlock = document.createElement("div");
+                                        partBlock.className = "measurements-subgroup subgroup-with-border";
+                                        partBlock.id = "measurements-div-item-{{ object_type }}-" + i;
+                                        {% for part_name, measurement_part in measurements[object_type].repeat %}
+                                            {% if measurement_part.header is not empty %}
+                                                var header = document.createElement("div");
+                                                header.className = "report-header-3";
+                                                header.id = "measurements-div-header-{{ object_type }}-{{ part_name }}-" + i;
+                                                header.innerHTML = "{{ measurement_part.header | trans }}";
+                                                partBlock.appendChild(header);
+                                            {% endif %}
+                                            var itemSubgroup = document.createElement("div");
+                                            itemSubgroup.className = "form-subgroup";
+                                            {% for item, label in measurement_part.items %}
+                                                var formItemDiv = document.createElement("div");
+                                                formItemDiv.className = "form-item";
+                                                var formItemLabel = document.createElement("label");
+                                                formItemLabel.setAttribute("for", "{{ item }}");
+                                                formItemLabel.innerHTML = "{{ label | trans }}";
+                                                formItemDiv.appendChild(formItemLabel);
+                                                var formItemInput = document.createElement("input");
+                                                formItemInput.name = "{{ item }}";
+                                                formItemInput.type = "text";
+                                                formItemDiv.appendChild(formItemInput);
+                                                itemSubgroup.appendChild(formItemDiv);
+                                            {% endfor %}
+                                            partBlock.appendChild(itemSubgroup);
+                                        {% endfor %}
+
+                                        parentElement.appendChild(partBlock);
+                                    }
+                                {% endfor %}
+                            } else if(amount < window.numberOfParts) {
+                                {% for object_type in object_types %}
+                                    var parentElement = document.getElementById('measurements-{{ object_type }}');
+                                    for(var i = amount + 1; i <= window.numberOfParts; i++) {
+                                        var divHeader = document.getElementById('measurements-div-header-{{ object_type }}-' + i);
+                                        if(divHeader !== null) {
+                                            parentElement.removeChild(divHeader);
+                                        }
+                                        var divItem = document.getElementById('measurements-div-item-{{ object_type }}-' + i);
+                                        if(divItem !== null) {
+                                            parentElement.removeChild(divItem);
+                                        }
+                                    }
+                                {% endfor %}
+                            }
+                            window.numberOfParts = amount;
+                        }
+                    }
+                    {% for object_type in object_types %}
+                        document.getElementById('number-of-parts-input-{{ object_type }}').setAttribute("onchange", "changeNumberOfPartsInputs(this);");
+                        document.getElementById('number-of-parts-input-{{ object_type }}').setAttribute("onkeyup", "changeNumberOfPartsInputs(this);");
+                    {% endfor %}
+                </script>
             {% endif %}
         </div>
-    {% endif %}
+        {% if not readonly or prefilled_data.parts_specifications is defined %}
+            <div class="form-subgroup">
+                <div class="form-item">{% include 'textfield.html.twig' with { 'name': 'parts_specifications', 'label': 'Specification' | trans } %}</div>
+            </div>
+        {% endif %}
+        {% if not readonly or prefilled_data.parts_fixed_loose is defined %}
+            <div class="form-subgroup">
+                <div class="form-item">
+                    <div class="form-radio">{% include 'radio.html.twig' with { 'name': 'parts_fixed_loose', 'value': 'fixed', 'label': 'Fixed' | trans } %}</div>
+                    <div class="form-radio">{% include 'radio.html.twig' with { 'name': 'parts_fixed_loose', 'value': 'loose', 'label': 'Loose' | trans } %}</div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
 
     {% if not readonly or has_measurement %}
         <div class="report-header">{{ 'Measurements and weight' | trans }}</div>
         {% for object_type in object_types %}
             {% if not readonly or this_object_type == object_type %}
                 <div class="form-group{% if this_object_type != object_type %} hidden{% endif %}" id="measurements-{{ object_type }}">
+                    {% set has_measurement_main = false %}
                     {% set has_measurement_item = false %}
                     {% if this_object_type == object_type %}
                         {% for item, label in measurements[object_type].items %}
                             {% if prefilled_data[item] is defined %}
-                                {% set has_measurement_item = true %}
+                                {% set has_measurement_main = true %}
                             {% endif %}
                         {% endfor %}
-                        {% if prefilled_data.number_of_parts is defined %}
-                            {% for i in 1..prefilled_data.number_of_parts %}
-                                {% for measurement_part in measurements[object_type].repeat %}
-                                    {% for item, label in measurement_part.items %}
-                                        {% if prefilled_data[item ~ '_' ~ i] is defined %}
-                                            {% set has_measurement_item = true %}
-                                        {% endif %}
-                                    {% endfor %}
+                        {% for i in 1..number_of_parts %}
+                            {% for measurement_part in measurements[object_type].repeat %}
+                                {% for item, label in measurement_part.items %}
+                                    {% if prefilled_data[item ~ '_' ~ i] is defined %}
+                                        {% set has_measurement_item = true %}
+                                    {% endif %}
                                 {% endfor %}
                             {% endfor %}
-                        {% endif %}
+                        {% endfor %}
                     {% endif %}
 
-                    {% if not readonly or has_measurement_item %}
+                    {% if not readonly or has_measurement_main %}
                         {% if measurements[object_type].header is not empty %}
                             <div class="report-header-2">{{ measurements[object_type].header | trans }}</div>
                         {% endif %}
@@ -190,38 +178,61 @@
                                 <div class="form-item">{% include 'textfield.html.twig' with { 'name': item, 'label': label | trans, 'disabled': this_object_type != object_type } %}</div>
                             {% endfor %}
                         </div>
+                    {% endif %}
+                    {% if not readonly or has_measurement_item %}
                         {% for i in 1..number_of_parts %}
-                            <div class="report-header-2" id="measurements-div-header-{{ object_type }}-{{ i }}">{{ 'Part' | trans ~ ' ' ~ i }}</div>
-                            <div class="measurements-subgroup subgroup-with-border" id="measurements-div-item-{{ object_type }}-{{ i }}">
+                            {% set has_item = false %}
+                            {% if readonly %}
                                 {% for part_name, measurement_part in measurements[object_type].repeat %}
-                                    {% if measurement_part.header is not empty %}
-                                        <div class="report-header-3">{{ measurement_part.header | trans }}</div>
-                                    {% endif %}
-                                    <div class="form-subgroup">
-                                        {% for item, label in measurement_part.items %}
-                                            <div class="form-item">{% include 'textfield.html.twig' with { 'name': item, 'label': label | trans, 'disabled': this_object_type != object_type } %}</div>
-                                        {% endfor %}
-                                    </div>
+                                    {% for item, label in measurement_part.items %}
+                                        {% if prefilled_data[item ~ '_' ~ i] is defined %}
+                                            {% set has_item = true %}
+                                        {% endif %}
+                                    {% endfor %}
                                 {% endfor %}
-                            </div>
+                            {% endif %}
+                            {% if not readonly or has_item %}
+                                <div class="report-header-2" id="measurements-div-header-{{ object_type }}-{{ i }}">{{ 'Part' | trans ~ ' ' ~ i }}</div>
+                                <div class="measurements-subgroup subgroup-with-border" id="measurements-div-item-{{ object_type }}-{{ i }}">
+                                    {% for part_name, measurement_part in measurements[object_type].repeat %}
+                                        {% if readonly %}
+                                            {% set has_item = false %}
+                                            {% for item, label in measurement_part.items %}
+                                                {% if prefilled_data[item ~ '_' ~ i] is defined %}
+                                                    {% set has_item = true %}
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+                                        {% if not readonly or has_item %}
+                                            {% if measurement_part.header is not empty %}
+                                                <div class="report-header-3">{{ measurement_part.header | trans }}</div>
+                                            {% endif %}
+                                            <div class="form-subgroup">
+                                                {% for item, label in measurement_part.items %}
+                                                    <div class="form-item">{% include 'textfield.html.twig' with { 'name': item ~ '_' ~ i, 'label': label | trans, 'disabled': this_object_type != object_type } %}</div>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
                         {% endfor %}
                     {% endif %}
                 </div>
             {% endif %}
         {% endfor %}
     {% endif %}
-{% endif %}
 
-{% include 'form_builder.html.twig' with { 'form': report_fields.materials, 'id': 'materials' } %}
+    {% include 'form_builder.html.twig' with { 'form': report_fields.materials, 'id': 'materials' } %}
 
-{% if not readonly %}
-    <div class="buttons">
-        <div class="previous-button">
-            <button type="button" onclick="showDiv('actors-form', true)">{{ 'Previous' | trans }}</button>
+    {% if not readonly %}
+        <div class="buttons">
+            <div class="previous-button">
+                <button type="button" onclick="showDiv('actors-form', true)">{{ 'Previous' | trans }}</button>
+            </div>
+            <div class="next-button">
+                <button type="button" onclick="showDiv('condition-form', true)">{{ 'Next' | trans }}</button>
+            </div>
         </div>
-        <div class="next-button">
-            <button type="button" onclick="showDiv('condition-form', true)">{{ 'Next' | trans }}</button>
-        </div>
-    </div>
-{% endif %}
+    {% endif %}
 </div>

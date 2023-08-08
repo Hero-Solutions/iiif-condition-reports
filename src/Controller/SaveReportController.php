@@ -164,10 +164,12 @@ class SaveReportController extends AbstractController
                     sort($previousIds);
 
                     $newAnnotations = array();
-                    foreach($annotationData as $image => $annos) {
-                        $newAnnotations[$image] = array();
-                        foreach($annos as $annotation) {
-                            $newAnnotations[$image][$annotation->id] = json_encode($annotation);
+                    if(!empty($annotationData)) {
+                        foreach ($annotationData as $image => $annos) {
+                            $newAnnotations[$image] = array();
+                            foreach ($annos as $annotation) {
+                                $newAnnotations[$image][$annotation->id] = json_encode($annotation);
+                            }
                         }
                     }
 

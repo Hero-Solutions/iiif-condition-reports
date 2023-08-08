@@ -237,6 +237,8 @@
                 const reasonDropdown = document.getElementById('reason-dropdown');
                 if(reasonDropdown.value.length === 0) {
                     showDiv('reason-form', false);
+                } else {
+                    document.body.onbeforeunload = null;
                 }
             }
         </script>

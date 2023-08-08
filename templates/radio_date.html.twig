@@ -1,7 +1,7 @@
 {% if onclick is defined %}
-    {% include 'radio.html.twig' with { 'name': name, 'label': label, 'value': 'custom', 'onclick': onclick } %}
+    {% include 'radio.html.twig' with { 'name': name, 'label': label, 'value': value, 'onclick': onclick } %}
 {% else %}
-    {% include 'radio.html.twig' with { 'name': name, 'label': label, 'value': 'custom' } %}
+    {% include 'radio.html.twig' with { 'name': name, 'label': label, 'value': value } %}
 {% endif %}
 
 {% if readonly %}

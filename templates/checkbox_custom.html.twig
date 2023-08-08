@@ -1,14 +1,20 @@
 {% if readonly %}
-    {% if prefilled_data[name] is defined and prefilled_data[name] is not empty %}
-        <input id="{{ name }}_checkbox_custom" name="{{ name }}_checkbox" type="checkbox" checked disabled/>
-        {% if label is defined %}<span class="readonly-label">{{ label }}: </span>{% endif %}
-        <span class="readonly-input">{{ prefilled_data[name] }}</span>
+    {% if prefilled_data[name] is defined or (prefilled_data[name ~ '_text'] is defined and prefilled_data[name ~ '_text'] is not empty) %}
+        <input id="{{ name }}" name="{{ name }}" type="checkbox" checked disabled/>
+        {% if prefilled_data[name ~ '_text'] is defined and prefilled_data[name ~ '_text'] is not empty %}
+            {% if label is defined %}
+                <span class="readonly-label">{{ label }}: </span>
+            {% endif %}
+            <span class="readonly-input">{{ prefilled_data[name ~ '_text'] }}</span>
+        {% elseif label is defined %}
+            <span class="readonly-label">{{ label }}</span>
+        {% endif %}
     {% endif %}
 {% else %}
     <input type="checkbox"
-           name="{{ name }}_checkbox"
-           id="{{ name }}_checkbox_custom"
-           onclick="if(!this.checked) { this.parentElement.querySelectorAll('#{{ name }}_checkbox_custom_text')[0].value = ''; }{% if onclick is defined %} {{ onclick }}{% endif %}"
+           name="{{ name }}"
+           id="{{ name }}"
+           onclick="if(!this.checked) { this.parentElement.querySelectorAll('#{{ name }}_text')[0].value = ''; }{% if onclick is defined %} {{ onclick }}{% endif %}"
            autocomplete="off"
            {% if prefilled_data[name] is defined and prefilled_data[name] is not empty %} checked{% endif %}
            {% if disabled is defined and disabled %} disabled{% endif %}
@@ -20,10 +26,10 @@
         </label>
     {% endif %}
     <input type="text"
-           name="{{ name }}"
-           id="{{ name }}_checkbox_custom_text"
-           value="{% if prefilled_data[name] is defined and prefilled_data[name] is not empty %}{{ prefilled_data[name] }}{% endif %}"
-           oninput="const input = this.parentElement.querySelectorAll('#{{ name }}_checkbox_custom')[0]; input.checked = this.value !== '';{% if oninput is defined %} {{ oninput }}{% endif %}"
+           name="{{ name }}_text"
+           id="{{ name }}_text"
+           value="{% if prefilled_data[name ~ '_text'] is defined and prefilled_data[name ~ '_text'] is not empty %}{{ prefilled_data[name ~ '_text'] }}{% endif %}"
+           oninput="const input = this.parentElement.querySelectorAll('#{{ name }}')[0]; input.checked = this.value !== '';{% if oninput is defined %} {{ oninput }}{% endif %}"
            autocomplete="off"
            {% if placeholder is defined%} placeholder="{{ placeholder }}"{% endif%}
            {% if disabled is defined and disabled %} disabled{% endif %}
