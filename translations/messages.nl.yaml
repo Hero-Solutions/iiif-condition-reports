@@ -355,6 +355,8 @@ Condition protective layer: Conditie beschermlaag
 Frame, passe-partout and mounting: Lijst, passe-partout en montage
 Condition passe-partout and external support: Conditie passe-partout en externe drager
 To be replaced: Te vervangen
+Fixed in frame with: Bevestiging in lijst
+Mounting paper in mount: Montage papier in de passe-partout
 Mounting in passe-partout: Montage in passe-partout
 Mounting on external support: Montage op externe drager
 Mounting in frame: Montage in lijst
@@ -369,6 +371,8 @@ Removal of old interventions/restorations: Verwijderen oude storende restauratie
 Consolidation of paint and/or finishing layers: Fixatie van picturale en/of afwerkingslagen
 Disassembling: Demontage
 New assembly: Hermonteren
+Historical mount: Historische passe-partout
+Recent mount: Recente passe-partout
 Mounting on new support: Bevestigen op nieuwe drager
 Mount/Matting: Passe-partout
 Reframing: Opnieuw inlijsten
@@ -643,6 +647,7 @@ Canvas: Doek
 Wood: Hout
 Metal: Metaal
 Cardboard: Karton
+Acid-free cardboard: Zuurvrij karton
 Material: Materiaal
 Remarks on the painting techniques: Specificaties bij de schildertechniek
 Varnish layer: Vernislaag
