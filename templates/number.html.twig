@@ -1,9 +1,30 @@
 {% if readonly %}
     {% if prefilled_data[name] is defined %}
-        <span class="readonly-label">{{ label }}: </span>
+        {% if label is not empty %}
+            <span class="readonly-label">{{ label }}: </span>
+        {% endif %}
         <span class="readonly-input">{{ prefilled_data[name] }}</span>
+        {% if label_after is defined and label_after is not empty %}
+            <span{% if label_after_class is defined %} class="{{ label_after_class }}"{% endif %}>{{ label_after }}</span>
+        {% endif %}
+    {% else %}
+        <span class="readonly-input"><br/></span>
     {% endif %}
 {% else %}
-    <label for="{{ name }}">{{ label }}</label>
-    <input name="{{ name }}" type="number"{% if min is defined %} min="{{ min }}"{% endif %}{% if max is defined %} max="{{ max }}"{% endif %}{% if placeholder is defined %} placeholder="{{ placeholder }}"{% endif %}{% if prefilled_data[name] is defined %} value="{{ prefilled_data[name] }}"{% elseif value is defined %} value="{{ value }}"{% endif %}{% if id is defined %} id="{{ id }}"{% endif %}{% if class is defined %} class="{{ class }}"{% endif %}{% if disabled is defined and disabled %} disabled{% endif %}/>
+    {% if label is not empty %}
+        <label for="{{ name }}">{{ label }}</label>
+    {% endif %}
+    <input type="number"
+        name="{{ name }}"
+        {% if id is defined %} id="{{ id }}"{% endif %}
+        {% if class is defined %} class="{{ class }}"{% endif %}
+        {% if min is defined %} min="{{ min }}"{% endif %}
+        {% if max is defined %} max="{{ max }}"{% endif %}
+        {% if placeholder is defined %} placeholder="{{ placeholder }}"{% endif %}
+        {% if prefilled_data[name] is defined %} value="{{ prefilled_data[name] }}"{% elseif value is defined %} value="{{ value }}"{% endif %}
+        {% if disabled is defined and disabled %} disabled{% endif %}
+    />
+    {% if label_after is defined and label_after is not empty %}
+        <span{% if label_after_class is defined %} class="{{ label_after_class }}"{% endif %}>{{ label_after }}</span>
+    {% endif %}
 {% endif %}

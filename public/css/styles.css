@@ -624,6 +624,14 @@ textarea {
     margin-left: 10px;
 }
 
+.float-left {
+    float: left;
+}
+
+.padding-left-3 {
+    padding-left: 3px;
+}
+
 .flex {
     display: flex;
 }
@@ -928,14 +936,6 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
     line-height: 1.5;
 }
 
-#report-form .condition-hours.empty-label label {
-    margin-right: 0;
-}
-
-#report-form .textarea-div.empty-label label {
-    padding-top: 3px;
-}
-
 #report-form input[type=checkbox],
 #loan-project-form input[type=checkbox],
 #organisation-form input[type=checkbox],
@@ -1022,6 +1022,10 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
 #report-form .form-radio-date label {
     padding-top: 10px;
     margin-right: 10px;
+}
+
+#report-form .padding-top-label {
+    padding-top: 10px;
 }
 
 #report-form .form-radio-date input:first-of-type {
@@ -1121,10 +1125,22 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
 #report-form .condition-hours {
     display: flex;
     flex-grow: 1;
+    padding-left: 10px;
+}
+
+#report-form .condition-hours-number {
+    display: flex;
+    flex-grow: 1;
 }
 
 #report-form .condition-hours-container {
     display: flex;
+    flex-grow: 1;
+}
+
+#report-form .condition-hours-subgroup {
+    display: flex;
+    flex-grow: 1;
 }
 
 #report-form .hours-label {
@@ -1962,6 +1978,18 @@ form {
     padding-top: 30px;
 }
 
+.readonly .readonly-padding-top-label {
+    padding-top: 10px;
+}
+
+.readonly .readonly-no-padding-top {
+    padding-top: 0 !important;
+}
+
+.readonly #report-form #materials-painting .report-block:first-child {
+    padding-top: 0;
+}
+
 .readonly #report-form > div:first-child > .nobreak:first-child > .report-header {
     padding-top: 0;
 }
@@ -1985,10 +2013,6 @@ form {
 .readonly #report-form .report-header-2 + div + div .report-header-standard-layout,
 .readonly #report-form .report-header-3 + div + div .report-header-standard-layout {
     padding-top: 10px;
-}
-
-.readonly .top-margin-subgroup {
-    margin-top: 0 !important;
 }
 
 .readonly #report-form .form-group .report-header-2,
@@ -2115,8 +2139,12 @@ form {
     padding-top: 0 !important;
 }
 
+.readonly #report-form .form-radio-date label {
+    padding-top: 0 !important;
+}
+
 .readonly #report-form .form-radio-date input:last-of-type {
-    margin-top: 0 !important;
+    margin-top: 3px !important;
 }
 
 .readonly #report-form .form-radio-date + div:not(.form-radio-date) {

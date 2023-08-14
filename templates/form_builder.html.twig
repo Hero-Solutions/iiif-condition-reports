@@ -13,7 +13,7 @@
 {% macro build(this_object_type, object_type, item, readonly, prefilled_data, parent, next_item) %}
     {% if item.type is defined and item.content is defined %}
 
-        {% set do_show = not readonly or item.type == 'div_text' %}
+        {% set do_show = not readonly or item.type == 'div_text' or item.always_visible is defined and item.always_visible %}
         {% set onclick = null %}
         {% set oninput = null %}
         {% if readonly %}
@@ -90,7 +90,15 @@
                 {% if item.placeholder is defined %}
                     {% set with_data = with_data|merge({ 'placeholder': item.placeholder | trans }) %}
                 {% endif %}
-                <div class="form-item{% if item.class is defined %} {{ item.class }}{% endif %}">{% include 'number.html.twig' with with_data %}</div>
+                {% if item.label_after is defined %}
+                    {% set with_data = with_data|merge({ 'label_after': item.label_after | trans }) %}
+                    {% if item.label_after_class is defined %}
+                        {% set with_data = with_data|merge({ 'label_after_class': item.label_after_class }) %}
+                    {% endif %}
+                {% endif %}
+                <div class="form-item{% if item.class is defined %} {{ item.class }}{% endif %}">
+                    {% include 'number.html.twig' with with_data %}
+                </div>
             {% elseif item.type == 'checkbox' and item.name is defined %}
                 <div class="form-item">
                     {% set with_data = { 'name': item.name, 'label': item.content | trans } %}

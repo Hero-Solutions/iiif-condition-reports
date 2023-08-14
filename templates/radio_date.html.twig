@@ -5,9 +5,15 @@
 {% endif %}
 
 {% if readonly %}
-    {% if prefilled_data[name ~ '_radio_date'] is defined and prefilled_data[name ~ '_radio_date'] is not empty %}
-        <span class="readonly-input">{{ prefilled_data[name ~ '_radio_date'] }}</span>
+    {% if prefilled_data[name ~ '_' ~ value ~ '_date'] is defined and prefilled_data[name ~ '_' ~ value ~ '_date'] is not empty %}
+        <span class="readonly-input">{{ prefilled_data[name ~ '_' ~ value ~ '_date'] }}</span>
     {% endif %}
 {% else %}
-    <input name="{{ name ~ '_radio_date' }}" type="date" class="radio-date" value="{% if prefilled_data[name ~ '_radio_date'] is defined %}{{ prefilled_data[name ~ '_radio_date'] }}{% endif %}"/>
+    <input type="date"
+        name="{{ name ~ '_' ~ value ~ '_date' }}"
+        id="{{ name ~ '_' ~ value ~ '_date' }}"
+        class="radio-date"
+        {% if prefilled_data[name ~ '_' ~ value ~ '_date'] is defined %} value="{{ prefilled_data[name ~ '_' ~ value ~ '_date'] }}"{% endif %}
+        oninput="document.getElementById('radio_{{ name }}_{{ value }}').checked = this.value !== '';{% if oninput is defined %} {{ oninput }}{% endif %}"
+    />
 {% endif %}

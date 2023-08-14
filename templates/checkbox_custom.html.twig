@@ -20,16 +20,15 @@
            {% if disabled is defined and disabled %} disabled{% endif %}
     />
     {% if label is defined %}
-        <label for="{{ name }}_checkbox_custom"
-        {% if label_class is defined %} class="{{ label_class }}"{% endif %}>
+        <label for="{{ name }}"{% if label_class is defined %} class="{{ label_class }}"{% endif %}>
             {{ label }}
         </label>
     {% endif %}
     <input type="text"
            name="{{ name }}_text"
            id="{{ name }}_text"
-           value="{% if prefilled_data[name ~ '_text'] is defined and prefilled_data[name ~ '_text'] is not empty %}{{ prefilled_data[name ~ '_text'] }}{% endif %}"
-           oninput="const input = this.parentElement.querySelectorAll('#{{ name }}')[0]; input.checked = this.value !== '';{% if oninput is defined %} {{ oninput }}{% endif %}"
+           {% if prefilled_data[name ~ '_text'] is defined and prefilled_data[name ~ '_text'] is not empty %} value="{{ prefilled_data[name ~ '_text'] }}"{% endif %}
+           oninput="this.parentElement.querySelectorAll('#{{ name }}')[0].checked = this.value !== '';{% if oninput is defined %} {{ oninput }}{% endif %}"
            autocomplete="off"
            {% if placeholder is defined%} placeholder="{{ placeholder }}"{% endif%}
            {% if disabled is defined and disabled %} disabled{% endif %}

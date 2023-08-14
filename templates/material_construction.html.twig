@@ -192,7 +192,7 @@
                                 {% endfor %}
                             {% endif %}
                             {% if not readonly or has_item %}
-                                <div class="report-header-2" id="measurements-div-header-{{ object_type }}-{{ i }}">{{ 'Part' | trans ~ ' ' ~ i }}</div>
+                                <div class="report-header-2 top-margin-subgroup" id="measurements-div-header-{{ object_type }}-{{ i }}">{{ 'Part' | trans ~ ' ' ~ i }}</div>
                                 <div class="measurements-subgroup subgroup-with-border" id="measurements-div-item-{{ object_type }}-{{ i }}">
                                     {% for part_name, measurement_part in measurements[object_type].repeat %}
                                         {% if readonly %}
