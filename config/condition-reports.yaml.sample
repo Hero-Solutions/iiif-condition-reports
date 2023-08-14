@@ -159,9 +159,9 @@ parameters:
       default:
         - type: div
           content:
-          - type: div_text
-            class: 'report-header'
-            content: 'Material type'
+            - type: div_text
+              class: 'report-header'
+              content: 'Material type'
           # TODO implement
       painting:
         - type: div
@@ -298,7 +298,7 @@ parameters:
                       placeholder: 'Ex. papier-mâché, tortoise shell, veneer …'
                 - type: div
                   class: 'form-subgroup top-margin-subgroup'
-                  content:    
+                  content:
                     - type: div_text
                       class: 'report-header-2'
                       content: 'Inner frame'
@@ -953,7 +953,7 @@ parameters:
                               content:
                                 - type: checkbox
                                   name: 'material_paper_frame_framing_back_protection_cardboard_acid_free'
-                                  content: 'Acid-free (corrugated) board'  
+                                  content: 'Acid-free (corrugated) board'
                             - type: checkbox_custom
                               name: 'material_paper_frame_framing_back_protection_custom'
                               content: ''
@@ -1079,9 +1079,9 @@ parameters:
       default:
         - type: div
           content:
-          - type: div_text
-            class: 'report-header'
-            content: 'Condition of the object'
+            - type: div_text
+              class: 'report-header'
+              content: 'Condition of the object'
           # TODO implement
       painting:
         - type: div
@@ -2025,6 +2025,14 @@ parameters:
                           content:
                             - type: div_text
                               class: 'report-header-3'
+                              content: 'Further explanation'
+                            - type: textarea
+                              name: 'condition_painting_transport_further_specifications'
+                              content: ''
+                        - type: div
+                          content:
+                            - type: div_text
+                              class: 'report-header-3'
                               content: 'Further specifications'
                             - type: div
                               content:
@@ -2047,19 +2055,19 @@ parameters:
                                       name: 'condition_painting_specific_condition_conservation_treatment_happened_radio'
                                       content: 'Not happened yet'
                             - type: div
-                              content:      
-                                - type: div
-                                  class: 'condition-hours-container'
-                                  content:
-                                    - type: number
-                                      name: 'condition_painting_specific_condition_conservation_description'
-                                      min: 0
-                                      class: 'condition-hours report-title'
-                                      content: 'Condition description'
-                                      placeholder: 'Number of hours'
-                                    - type: div_text
-                                      class: 'hours-label'
-                                      content: 'hour(s)'
+                              content:
+                                - type: div_text
+                                  class: 'padding-top-label float-left'
+                                  content: 'Condition description'
+                                - type: number
+                                  always_visible: true
+                                  name: 'condition_painting_specific_condition_conservation_description'
+                                  min: 0
+                                  class: 'condition-hours-container condition-hours readonly-padding-top-label'
+                                  content: ''
+                                  placeholder: 'Number of hours'
+                                  label_after: 'hour(s)'
+                                  label_after_class: 'padding-left-3 readonly-input padding-top-label readonly-no-padding-top'
                                 - type: div
                                   class: 'form-subgroup checkbox-subgroup'
                                   content:
@@ -2077,18 +2085,18 @@ parameters:
                                       content: 'Not happened yet'
                             - type: div
                               content:
-                                - type: div
-                                  class: 'condition-hours-container'
-                                  content:
-                                    - type: number
-                                      name: 'condition_painting_specific_condition_consolidation'
-                                      min: 0
-                                      class: 'condition-hours report-title'
-                                      content: 'Consolidation'
-                                      placeholder: 'Number of hours'
-                                    - type: div_text
-                                      class: 'hours-label'
-                                      content: 'hour(s)'
+                                - type: div_text
+                                  class: 'padding-top-label float-left'
+                                  content: 'Consolidation'
+                                - type: number
+                                  always_visible: true
+                                  name: 'condition_painting_specific_condition_consolidation'
+                                  min: 0
+                                  class: 'condition-hours-container condition-hours readonly-padding-top-label'
+                                  content: ''
+                                  placeholder: 'Number of hours'
+                                  label_after: 'hour(s)'
+                                  label_after_class: 'padding-left-3 readonly-input padding-top-label readonly-no-padding-top'
                                 - type: div
                                   class: 'form-subgroup checkbox-subgroup'
                                   content:
@@ -2106,18 +2114,18 @@ parameters:
                                       content: 'Not happened yet'
                             - type: div
                               content:
-                                - type: div
-                                  class: 'condition-hours-container'
-                                  content:
-                                    - type: number
-                                      name: 'condition_painting_specific_condition_dusting'
-                                      min: 0
-                                      class: 'condition-hours report-title'
-                                      content: 'Surface cleaning, dusting and framing'
-                                      placeholder: 'Number of hours'
-                                    - type: div_text
-                                      class: 'hours-label'
-                                      content: 'hour(s)'
+                                - type: div_text
+                                  class: 'padding-top-label float-left'
+                                  content: 'Surface cleaning, dusting and framing'
+                                - type: number
+                                  always_visible: true
+                                  name: 'condition_painting_specific_condition_dusting'
+                                  min: 0
+                                  class: 'condition-hours-container condition-hours readonly-padding-top-label'
+                                  content: ''
+                                  placeholder: 'Number of hours'
+                                  label_after: 'hour(s)'
+                                  label_after_class: 'padding-left-3 readonly-input padding-top-label readonly-no-padding-top'
                                 - type: div
                                   class: 'form-subgroup checkbox-subgroup'
                                   content:
@@ -2135,18 +2143,18 @@ parameters:
                                       content: 'Not happened yet'
                             - type: div
                               content:
-                                - type: div
-                                  class: 'condition-hours-container'
-                                  content:
-                                    - type: number
-                                      name: 'condition_painting_specific_condition_structural_treatment'
-                                      min: 0
-                                      class: 'condition-hours report-title'
-                                      content: 'Structural treatment'
-                                      placeholder: 'Number of hours'
-                                    - type: div_text
-                                      class: 'hours-label'
-                                      content: 'hour(s)'
+                                - type: div_text
+                                  class: 'padding-top-label float-left'
+                                  content: 'Structural treatment'
+                                - type: number
+                                  always_visible: true
+                                  name: 'condition_painting_specific_condition_structural_treatment'
+                                  min: 0
+                                  class: 'condition-hours-container condition-hours readonly-padding-top-label'
+                                  content: ''
+                                  placeholder: 'Number of hours'
+                                  label_after: 'hour(s)'
+                                  label_after_class: 'padding-left-3 readonly-input padding-top-label readonly-no-padding-top'
                                 - type: div
                                   class: 'form-subgroup checkbox-subgroup'
                                   content:
@@ -2164,18 +2172,18 @@ parameters:
                                       content: 'Not happened yet'
                             - type: div
                               content:
-                                - type: div
-                                  class: 'condition-hours-container'
-                                  content:
-                                    - type: number
-                                      name: 'condition_painting_specific_condition_filling'
-                                      min: 0
-                                      class: 'condition-hours report-title'
-                                      content: 'Filling of losses'
-                                      placeholder: 'Number of hours'
-                                    - type: div_text
-                                      class: 'hours-label'
-                                      content: 'hour(s)'
+                                - type: div_text
+                                  class: 'padding-top-label float-left'
+                                  content: 'Filling of losses'
+                                - type: number
+                                  always_visible: true
+                                  name: 'condition_painting_specific_condition_filling'
+                                  min: 0
+                                  class: 'condition-hours-container condition-hours readonly-padding-top-label'
+                                  content: ''
+                                  placeholder: 'Number of hours'
+                                  label_after: 'hour(s)'
+                                  label_after_class: 'padding-left-3 readonly-input padding-top-label readonly-no-padding-top'
                                 - type: div
                                   class: 'form-subgroup checkbox-subgroup'
                                   content:
@@ -2193,18 +2201,18 @@ parameters:
                                       content: 'Not happened yet'
                             - type: div
                               content:
-                                - type: div
-                                  class: 'condition-hours-container'
-                                  content:
-                                    - type: number
-                                      name: 'condition_painting_specific_condition_retouching'
-                                      min: 0
-                                      class: 'condition-hours report-title'
-                                      content: 'Retouching'
-                                      placeholder: 'Number of hours'
-                                    - type: div_text
-                                      class: 'hours-label'
-                                      content: 'hour(s)'
+                                - type: div_text
+                                  class: 'padding-top-label float-left'
+                                  content: 'Retouching'
+                                - type: number
+                                  always_visible: true
+                                  name: 'condition_painting_specific_condition_retouching'
+                                  min: 0
+                                  class: 'condition-hours-container condition-hours readonly-padding-top-label'
+                                  content: ''
+                                  placeholder: 'Number of hours'
+                                  label_after: 'hour(s)'
+                                  label_after_class: 'padding-left-3 readonly-input padding-top-label readonly-no-padding-top'
                                 - type: div
                                   class: 'form-subgroup checkbox-subgroup'
                                   content:
@@ -2222,18 +2230,18 @@ parameters:
                                       content: 'Not happened yet'
                             - type: div
                               content:
-                                - type: div
-                                  class: 'condition-hours-container'
-                                  content:
-                                    - type: number
-                                      name: 'condition_painting_specific_condition_varnishing'
-                                      min: 0
-                                      class: 'condition-hours report-title'
-                                      content: 'Varnishing or corrections of the varnish'
-                                      placeholder: 'Number of hours'
-                                    - type: div_text
-                                      class: 'hours-label'
-                                      content: 'hour(s)'
+                                - type: div_text
+                                  class: 'padding-top-label float-left'
+                                  content: 'Varnishing or corrections of the varnish'
+                                - type: number
+                                  always_visible: true
+                                  name: 'condition_painting_specific_condition_varnishing'
+                                  min: 0
+                                  class: 'condition-hours-container condition-hours readonly-padding-top-label'
+                                  content: ''
+                                  placeholder: 'Number of hours'
+                                  label_after: 'hour(s)'
+                                  label_after_class: 'padding-left-3 readonly-input padding-top-label readonly-no-padding-top'
                                 - type: div
                                   class: 'form-subgroup checkbox-subgroup'
                                   content:
@@ -2251,18 +2259,18 @@ parameters:
                                       content: 'Not happened yet'
                             - type: div
                               content:
-                                - type: div
-                                  class: 'condition-hours-container'
-                                  content:
-                                    - type: number
-                                      name: 'condition_painting_specific_condition_other'
-                                      min: 0
-                                      class: 'condition-hours report-title'
-                                      content: 'Other/additional interventions'
-                                      placeholder: 'Number of hours'
-                                    - type: div_text
-                                      class: 'hours-label'
-                                      content: 'hour(s)'
+                                - type: div_text
+                                  class: 'padding-top-label float-left'
+                                  content: 'Other/additional interventions'
+                                - type: number
+                                  always_visible: true
+                                  name: 'condition_painting_specific_condition_other'
+                                  min: 0
+                                  class: 'condition-hours-container condition-hours readonly-padding-top-label'
+                                  content: ''
+                                  placeholder: 'Number of hours'
+                                  label_after: 'hour(s)'
+                                  label_after_class: 'padding-left-3 readonly-input padding-top-label readonly-no-padding-top'
                                 - type: div
                                   class: 'form-subgroup checkbox-subgroup'
                                   content:
@@ -2280,18 +2288,18 @@ parameters:
                                       content: 'Not happened yet'
                             - type: div
                               content:
-                                - type: div
-                                  class: 'condition-hours-container'
-                                  content:
-                                    - type: number
-                                      name: 'condition_painting_specific_condition_treatment_frame'
-                                      min: 0
-                                      class: 'condition-hours report-title'
-                                      content: 'Treatment of the frame'
-                                      placeholder: 'Number of hours'
-                                    - type: div_text
-                                      class: 'hours-label'
-                                      content: 'hour(s)'
+                                - type: div_text
+                                  class: 'padding-top-label float-left'
+                                  content: 'Treatment of the frame'
+                                - type: number
+                                  always_visible: true
+                                  name: 'condition_painting_specific_condition_treatment_frame'
+                                  min: 0
+                                  class: 'condition-hours-container condition-hours readonly-padding-top-label'
+                                  content: ''
+                                  placeholder: 'Number of hours'
+                                  label_after: 'hour(s)'
+                                  label_after_class: 'padding-left-3 readonly-input padding-top-label readonly-no-padding-top'
                                 - type: div
                                   class: 'form-subgroup checkbox-subgroup'
                                   content:
@@ -2309,18 +2317,18 @@ parameters:
                                       content: 'Not happened yet'
                             - type: div
                               content:
-                                - type: div
-                                  class: 'condition-hours-container'
-                                  content:
-                                    - type: number
-                                      name: 'condition_painting_specific_condition_framing'
-                                      min: 0
-                                      class: 'condition-hours report-title'
-                                      content: 'Framing: BFBU/climate box, …'
-                                      placeholder: 'Number of hours'
-                                    - type: div_text
-                                      class: 'hours-label'
-                                      content: 'hour(s)'
+                                - type: div_text
+                                  class: 'padding-top-label float-left'
+                                  content: 'Framing: BFBU/climate box, ...'
+                                - type: number
+                                  always_visible: true
+                                  name: 'condition_painting_specific_condition_framing'
+                                  min: 0
+                                  class: 'condition-hours-container condition-hours readonly-padding-top-label'
+                                  content: ''
+                                  placeholder: 'Number of hours'
+                                  label_after: 'hour(s)'
+                                  label_after_class: 'padding-left-3 readonly-input padding-top-label readonly-no-padding-top'
                                 - type: div
                                   class: 'form-subgroup checkbox-subgroup'
                                   content:
@@ -2338,18 +2346,18 @@ parameters:
                                       content: 'Not happened yet'
                             - type: div
                               content:
-                                - type: div
-                                  class: 'condition-hours-container'
-                                  content:
-                                    - type: number
-                                      name: 'condition_painting_specific_condition_report'
-                                      min: 0
-                                      class: 'condition-hours report-title'
-                                      content: 'Report and documentation'
-                                      placeholder: 'Number of hours'
-                                    - type: div_text
-                                      class: 'hours-label'
-                                      content: 'hour(s)'
+                                - type: div_text
+                                  class: 'padding-top-label float-left'
+                                  content: 'Report and documentation'
+                                - type: number
+                                  always_visible: true
+                                  name: 'condition_painting_specific_condition_report'
+                                  min: 0
+                                  class: 'condition-hours-container condition-hours readonly-padding-top-label'
+                                  content: ''
+                                  placeholder: 'Number of hours'
+                                  label_after: 'hour(s)'
+                                  label_after_class: 'padding-left-3 readonly-input padding-top-label readonly-no-padding-top'
                                 - type: div
                                   class: 'form-subgroup checkbox-subgroup'
                                   content:
@@ -3001,11 +3009,19 @@ parameters:
                           content:
                             - type: div_text
                               class: 'report-header-3'
+                              content: 'Further explanation'
+                            - type: textarea
+                              name: 'condition_work_on_paper_transport_further_specifications'
+                              content: ''
+                        - type: div
+                          content:
+                            - type: div_text
+                              class: 'report-header-3'
                               content: 'Further specifications'
                             - type: div
                               content:
                                 - type: div_text
-                                  class: 'report-header-standard-layout'
+                                  class: 'report-header-standard-layout condition-hours-container readonly-padding-top'
                                   content: 'Conservation treatment'
                                 - type: div
                                   class: 'form-subgroup checkbox-subgroup'
@@ -3024,18 +3040,18 @@ parameters:
                                       content: 'Not happened yet'
                             - type: div
                               content:
-                                - type: div
-                                  class: 'condition-hours-container'
-                                  content:
-                                    - type: number
-                                      name: 'condition_work_on_paper_specific_condition_conservation_description'
-                                      min: 0
-                                      class: 'condition-hours report-title'
-                                      content: 'Condition description'
-                                      placeholder: 'Number of hours'
-                                    - type: div_text
-                                      class: 'hours-label'
-                                      content: 'hour(s)'
+                                - type: div_text
+                                  class: 'padding-top-label float-left'
+                                  content: 'Condition description'
+                                - type: number
+                                  always_visible: true
+                                  name: 'condition_work_on_paper_specific_condition_conservation_description'
+                                  min: 0
+                                  class: 'condition-hours-container condition-hours readonly-padding-top-label'
+                                  content: ''
+                                  placeholder: 'Number of hours'
+                                  label_after: 'hour(s)'
+                                  label_after_class: 'padding-left-3 readonly-input padding-top-label readonly-no-padding-top'
                                 - type: div
                                   class: 'form-subgroup checkbox-subgroup'
                                   content:
@@ -3053,18 +3069,18 @@ parameters:
                                       content: 'Not happened yet'
                             - type: div
                               content:
-                                - type: div
-                                  class: 'condition-hours-container'
-                                  content:
-                                    - type: number
-                                      name: 'condition_work_on_paper_specific_condition_consolidation'
-                                      min: 0
-                                      class: 'condition-hours report-title'
-                                      content: 'Consolidation'
-                                      placeholder: 'Number of hours'
-                                    - type: div_text
-                                      class: 'hours-label'
-                                      content: 'hour(s)'
+                                - type: div_text
+                                  class: 'padding-top-label float-left'
+                                  content: 'Consolidation'
+                                - type: number
+                                  always_visible: true
+                                  name: 'condition_work_on_paper_specific_condition_consolidation'
+                                  min: 0
+                                  class: 'condition-hours-container condition-hours readonly-padding-top-label'
+                                  content: ''
+                                  placeholder: 'Number of hours'
+                                  label_after: 'hour(s)'
+                                  label_after_class: 'padding-left-3 readonly-input padding-top-label readonly-no-padding-top'
                                 - type: div
                                   class: 'form-subgroup checkbox-subgroup'
                                   content:
@@ -3082,18 +3098,19 @@ parameters:
                                       content: 'Not happened yet'
                             - type: div
                               content:
-                                - type: div
-                                  class: 'condition-hours-container'
-                                  content:
-                                    - type: number
-                                      name: 'condition_work_on_paper_specific_condition_dusting'
-                                      min: 0
-                                      class: 'condition-hours report-title'
-                                      content: 'Surface cleaning, dusting and framing'
-                                      placeholder: 'Number of hours'
-                                    - type: div_text
-                                      class: 'hours-label'
-                                      content: 'hour(s)'
+                                - type: div_text
+                                  float: true
+                                  class: 'padding-top-label float-left'
+                                  content: 'Surface cleaning, dusting and framing'
+                                - type: number
+                                  always_visible: true
+                                  name: 'condition_work_on_paper_specific_condition_dusting'
+                                  min: 0
+                                  class: 'condition-hours-container condition-hours readonly-padding-top-label'
+                                  content: ''
+                                  placeholder: 'Number of hours'
+                                  label_after: 'hour(s)'
+                                  label_after_class: 'padding-left-3 readonly-input padding-top-label readonly-no-padding-top'
                                 - type: div
                                   class: 'form-subgroup checkbox-subgroup'
                                   content:
@@ -3254,18 +3271,18 @@ parameters:
                                                   content: 'Not happened yet'
                             - type: div
                               content:
-                                - type: div
-                                  class: 'condition-hours-container'
-                                  content:
-                                    - type: number
-                                      name: 'condition_work_on_paper_specific_condition_structural_treatment'
-                                      min: 0
-                                      class: 'condition-hours report-title'
-                                      content: 'Structural treatment'
-                                      placeholder: 'Number of hours'
-                                    - type: div_text
-                                      class: 'hours-label'
-                                      content: 'hour(s)'
+                                - type: div_text
+                                  class: 'padding-top-label float-left'
+                                  content: 'Structural treatment'
+                                - type: number
+                                  always_visible: true
+                                  name: 'condition_work_on_paper_specific_condition_structural_treatment'
+                                  min: 0
+                                  class: 'condition-hours-container condition-hours readonly-padding-top-label'
+                                  content: ''
+                                  placeholder: 'Number of hours'
+                                  label_after: 'hour(s)'
+                                  label_after_class: 'padding-left-3 readonly-input padding-top-label readonly-no-padding-top'
                                 - type: div
                                   class: 'form-subgroup checkbox-subgroup'
                                   content:
@@ -3283,18 +3300,18 @@ parameters:
                                       content: 'Not happened yet'
                             - type: div
                               content:
-                                - type: div
-                                  class: 'condition-hours-container'
-                                  content:
-                                    - type: number
-                                      name: 'condition_work_on_paper_specific_condition_filling'
-                                      min: 0
-                                      class: 'condition-hours report-title'
-                                      content: 'Filling of losses'
-                                      placeholder: 'Number of hours'
-                                    - type: div_text
-                                      class: 'hours-label'
-                                      content: 'hour(s)'
+                                - type: div_text
+                                  class: 'padding-top-label float-left'
+                                  content: 'Filling of losses'
+                                - type: number
+                                  always_visible: true
+                                  name: 'condition_work_on_paper_specific_condition_filling'
+                                  min: 0
+                                  class: 'condition-hours-container condition-hours readonly-padding-top-label'
+                                  content: ''
+                                  placeholder: 'Number of hours'
+                                  label_after: 'hour(s)'
+                                  label_after_class: 'padding-left-3 readonly-input padding-top-label readonly-no-padding-top'
                                 - type: div
                                   class: 'form-subgroup checkbox-subgroup'
                                   content:
@@ -3312,18 +3329,18 @@ parameters:
                                       content: 'Not happened yet'
                             - type: div
                               content:
-                                - type: div
-                                  class: 'condition-hours-container'
-                                  content:
-                                    - type: number
-                                      name: 'condition_work_on_paper_specific_condition_retouching'
-                                      min: 0
-                                      class: 'condition-hours report-title'
-                                      content: 'Retouching'
-                                      placeholder: 'Number of hours'
-                                    - type: div_text
-                                      class: 'hours-label'
-                                      content: 'hour(s)'
+                                - type: div_text
+                                  class: 'padding-top-label float-left'
+                                  content: 'Retouching'
+                                - type: number
+                                  always_visible: true
+                                  name: 'condition_work_on_paper_specific_condition_retouching'
+                                  min: 0
+                                  class: 'condition-hours-container condition-hours readonly-padding-top-label'
+                                  content: ''
+                                  placeholder: 'Number of hours'
+                                  label_after: 'hour(s)'
+                                  label_after_class: 'padding-left-3 readonly-input padding-top-label readonly-no-padding-top'
                                 - type: div
                                   class: 'form-subgroup checkbox-subgroup'
                                   content:
@@ -3341,18 +3358,18 @@ parameters:
                                       content: 'Not happened yet'
                             - type: div
                               content:
-                                - type: div
-                                  class: 'condition-hours-container'
-                                  content:
-                                    - type: number
-                                      name: 'condition_work_on_paper_specific_condition_disassembling'
-                                      min: 0
-                                      class: 'condition-hours report-title'
-                                      content: 'Disassembling'
-                                      placeholder: 'Number of hours'
-                                    - type: div_text
-                                      class: 'hours-label'
-                                      content: 'hour(s)'
+                                - type: div_text
+                                  class: 'padding-top-label float-left'
+                                  content: 'Disassembling'
+                                - type: number
+                                  always_visible: true
+                                  name: 'condition_work_on_paper_specific_condition_disassembling'
+                                  min: 0
+                                  class: 'condition-hours-container condition-hours readonly-padding-top-label'
+                                  content: ''
+                                  placeholder: 'Number of hours'
+                                  label_after: 'hour(s)'
+                                  label_after_class: 'padding-left-3 readonly-input padding-top-label readonly-no-padding-top'
                                 - type: div
                                   class: 'form-subgroup checkbox-subgroup'
                                   content:
@@ -3370,18 +3387,18 @@ parameters:
                                       content: 'Not happened yet'
                             - type: div
                               content:
-                                - type: div
-                                  class: 'condition-hours-container'
-                                  content:
-                                    - type: number
-                                      name: 'condition_work_on_paper_specific_condition_new_assembly'
-                                      min: 0
-                                      class: 'condition-hours report-title'
-                                      content: 'New assembly'
-                                      placeholder: 'Number of hours'
-                                    - type: div_text
-                                      class: 'hours-label'
-                                      content: 'hour(s)'
+                                - type: div_text
+                                  class: 'padding-top-label float-left'
+                                  content: 'New assembly'
+                                - type: number
+                                  always_visible: true
+                                  name: 'condition_work_on_paper_specific_condition_new_assembly'
+                                  min: 0
+                                  class: 'condition-hours-container condition-hours readonly-padding-top-label'
+                                  content: ''
+                                  placeholder: 'Number of hours'
+                                  label_after: 'hour(s)'
+                                  label_after_class: 'padding-left-3 readonly-input padding-top-label readonly-no-padding-top'
                                 - type: div
                                   class: 'form-subgroup checkbox-subgroup'
                                   content:
@@ -3399,18 +3416,18 @@ parameters:
                                       content: 'Not happened yet'
                             - type: div
                               content:
-                                - type: div
-                                  class: 'condition-hours-container'
-                                  content:
-                                    - type: number
-                                      name: 'condition_work_on_paper_specific_condition_mounting_new_support'
-                                      min: 0
-                                      class: 'condition-hours report-title'
-                                      content: 'Mounting on new support'
-                                      placeholder: 'Number of hours'
-                                    - type: div_text
-                                      class: 'hours-label'
-                                      content: 'hour(s)'
+                                - type: div_text
+                                  class: 'padding-top-label float-left'
+                                  content: 'Mounting on new support'
+                                - type: number
+                                  always_visible: true
+                                  name: 'condition_work_on_paper_specific_condition_mounting_new_support'
+                                  min: 0
+                                  class: 'condition-hours-container condition-hours readonly-padding-top-label'
+                                  content: ''
+                                  placeholder: 'Number of hours'
+                                  label_after: 'hour(s)'
+                                  label_after_class: 'padding-left-3 readonly-input padding-top-label readonly-no-padding-top'
                                 - type: div
                                   class: 'form-subgroup checkbox-subgroup'
                                   content:
@@ -3428,25 +3445,26 @@ parameters:
                                       content: 'Not happened yet'
                             - type: div
                               content:
-                                - type: div
-                                  class: 'condition-hours-container'
-                                  content:
-                                    - type: number
-                                      name: 'condition_work_on_paper_specific_condition_treatment_frame'
-                                      min: 0
-                                      class: 'condition-hours report-title'
-                                      content: 'Treatment of the frame'
-                                      placeholder: 'Number of hours'
-                                    - type: div_text
-                                      class: 'hours-label'
-                                      content: 'hour(s)'
+                                - type: div_text
+                                  class: 'padding-top-label float-left'
+                                  content: 'Treatment of the frame'
+                                - type: number
+                                  always_visible: true
+                                  name: 'condition_work_on_paper_specific_condition_treatment_frame'
+                                  min: 0
+                                  class: 'condition-hours-container condition-hours readonly-padding-top-label'
+                                  content: ''
+                                  placeholder: 'Number of hours'
+                                  label_after: 'hour(s)'
+                                  label_after_class: 'padding-left-3 readonly-input padding-top-label readonly-no-padding-top'
                                 - type: div
                                   class: 'form-subgroup checkbox-subgroup'
                                   content:
+                                    - type: div_text
+                                      content: 'Mount/Matting'
                                     - type: textarea
                                       name: 'condition_work_on_paper_specific_condition_treatment_frame_mount'
-                                      content: 'Mount/Matting'
-                                      class: 'report-title'
+                                      content: ''
                                     - type: div
                                       class: 'form-subgroup checkbox-subgroup'
                                       content:
@@ -3462,9 +3480,14 @@ parameters:
                                         - type: radio
                                           name: 'condition_work_on_paper_specific_condition_treatment_frame_mount_happened_radio'
                                           content: 'Not happened yet'
+                                - type: div
+                                  class: 'form-subgroup checkbox-subgroup'
+                                  content:
+                                    - type: div_text
+                                      content: 'Reframing'
                                     - type: textarea
                                       name: 'condition_work_on_paper_specific_condition_treatment_frame_reframing'
-                                      content: 'Reframing'
+                                      content: ''
                                       class: 'report-title'
                                     - type: div
                                       class: 'form-subgroup checkbox-subgroup'
@@ -3505,35 +3528,31 @@ parameters:
                                             - type: radio
                                               name: 'condition_work_on_paper_specific_condition_treatment_frame_reframing_restoration_frame_happened_radio'
                                               content: 'Not happened yet'
-                                    - type: div
-                                      class: 'condition-hours-container'
-                                      content:
-                                        - type: number
-                                          name: 'condition_work_on_paper_specific_condition_treatment_frame_number_of_hours'
-                                          min: 0
-                                          class: 'condition-hours empty-label'
-                                          content: ''
-                                          placeholder: 'Number of hours'
-                                        - type: div_text
-                                          class: 'hours-label'
-                                          content: 'hour(s)'
+                                    - type: number
+                                      always_visible: true
+                                      name: 'condition_work_on_paper_specific_condition_treatment_frame_number_of_hours'
+                                      min: 0
+                                      class: 'condition-hours-container condition-hours readonly-padding-top-label'
+                                      content: ''
+                                      placeholder: 'Number of hours'
+                                      label_after: 'hour(s)'
+                                      label_after_class: 'padding-left-3 readonly-input padding-top-label readonly-no-padding-top'
                             - type: div
                               content:
-                                - type: div
-                                  class: 'condition-hours-container'
-                                  content:
-                                    - type: number
-                                      name: 'condition_work_on_paper_specific_condition_other'
-                                      min: 0
-                                      class: 'condition-hours report-title'
-                                      content: 'Other/additional interventions'
-                                      placeholder: 'Number of hours'
-                                    - type: div_text
-                                      class: 'hours-label'
-                                      content: 'hour(s)'
+                                - type: div_text
+                                  class: 'padding-top-label float-left'
+                                  content: 'Other/additional interventions'
+                                - type: number
+                                  always_visible: true
+                                  name: 'condition_work_on_paper_specific_condition_other'
+                                  min: 0
+                                  class: 'condition-hours-container condition-hours readonly-padding-top-label'
+                                  content: ''
+                                  placeholder: 'Number of hours'
+                                  label_after: 'hour(s)'
+                                  label_after_class: 'padding-left-3 readonly-input padding-top-label readonly-no-padding-top'
                                 - type: textarea
                                   name: 'condition_work_on_paper_specific_condition_other_specification'
-                                  class: 'empty-label'
                                   content: ''
                                 - type: div
                                   class: 'form-subgroup checkbox-subgroup'
@@ -3552,18 +3571,18 @@ parameters:
                                       content: 'Not happened yet'
                             - type: div
                               content:
-                                - type: div
-                                  class: 'condition-hours-container'
-                                  content:
-                                    - type: number
-                                      name: 'condition_work_on_paper_specific_condition_report'
-                                      min: 0
-                                      class: 'condition-hours report-title'
-                                      content: 'Report and documentation'
-                                      placeholder: 'Number of hours'
-                                    - type: div_text
-                                      class: 'hours-label'
-                                      content: 'hour(s)'
+                                - type: div_text
+                                  class: 'padding-top-label float-left'
+                                  content: 'Report and documentation'
+                                - type: number
+                                  always_visible: true
+                                  name: 'condition_work_on_paper_specific_condition_report'
+                                  min: 0
+                                  class: 'condition-hours-container condition-hours readonly-padding-top-label'
+                                  content: ''
+                                  placeholder: 'Number of hours'
+                                  label_after: 'hour(s)'
+                                  label_after_class: 'padding-left-3 readonly-input padding-top-label readonly-no-padding-top'
                                 - type: div
                                   class: 'form-subgroup checkbox-subgroup'
                                   content:
@@ -3583,9 +3602,9 @@ parameters:
       default:
         - type: div
           content:
-          - type: div_text
-            class: 'report-header'
-            content: 'Presentation'
+            - type: div_text
+              class: 'report-header'
+              content: 'Presentation'
           # TODO implement
       painting:
         - type: div
