@@ -2018,7 +2018,7 @@ form {
 .readonly #report-form .form-group .report-header-2,
 .readonly #report-form .form-group .report-header-3 {
     padding-top: 10px;
-    padding-bottom: 10px;
+    padding-bottom: 5px;
 }
 
 .readonly #report-form .form-group .report-header-2:first-of-type,

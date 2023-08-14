@@ -3529,7 +3529,6 @@ parameters:
                                               name: 'condition_work_on_paper_specific_condition_treatment_frame_reframing_restoration_frame_happened_radio'
                                               content: 'Not happened yet'
                                     - type: number
-                                      always_visible: true
                                       name: 'condition_work_on_paper_specific_condition_treatment_frame_number_of_hours'
                                       min: 0
                                       class: 'condition-hours-container condition-hours readonly-padding-top-label'
