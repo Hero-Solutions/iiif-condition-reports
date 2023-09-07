@@ -66,7 +66,7 @@
                                     element = document.querySelector("textarea[name='loan_project_" + key + "']");
                                     if (element != null) {
                                         element.value = loanProjects[id][key];
-                                        window["fixloan_project_" + key + "textareaheight"]();
+                                        window["fixTextAreaHeight"]("loan_project_" + key);
                                     }
                                 }
                             }
@@ -84,7 +84,7 @@
                                 element = document.querySelector("textarea[name='loan_project_" + key + "']");
                                 if (element != null) {
                                     element.value = organisations[id][key];
-                                    window["fix" + key + "textareaheight"]();
+                                    window["fixTextAreaHeight"]("loan_project_" + key);
                                 }
                             }
                         }
@@ -94,14 +94,15 @@
                 function fillLoanProjectRepresentative(id) {
                     for(var key in representatives[id]) {
                         if(key !== 'id') {
-                            var element = document.querySelector("input[name='loan_project_" + key + "']");
+                            const keyUC = key.charAt(0).toUpperCase() + key.slice(1);
+                            var element = document.querySelector("input[name='loan_project_representative" + keyUC + "']");
                             if (element != null) {
                                 element.value = representatives[id][key];
                             } else {
-                                element = document.querySelector("textarea[name='loan_project_" + key + "']");
+                                element = document.querySelector("textarea[name='loan_project_representative" + keyUC + "']");
                                 if (element != null) {
                                     element.value = representatives[id][key];
-                                    window["fix" + key + "textareaheight"]();
+                                    window["fixTextAreaHeight"]("loan_project_representative" + keyUC);
                                 }
                             }
                         }
