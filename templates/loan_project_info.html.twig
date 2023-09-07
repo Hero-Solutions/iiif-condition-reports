@@ -116,15 +116,51 @@
                         <select
                                 id="loan_project_id"
                                 name="loan_project_id"
-                                onchange="toggleCustomInput('loan_project_title', this.options[this.selectedIndex].value, this.options[this.selectedIndex].value === 'customOption'); fillLoanProject(this.options[this.selectedIndex].value)"
+                                onchange="
+                                    toggleCustomInput(
+                                        'loan_project_title',
+                                        this.options[this.selectedIndex].value,
+                                        this.options[this.selectedIndex].value === 'customOption'
+                                    );
+                                    fillLoanProject(this.options[this.selectedIndex].value);
+                                "
                                 autocomplete="off">
                             <option></option>
                             {% for loan_project in loan_projects %}
-                                <option value="{{ loan_project.id }}">{{ loan_project.alias }}</option>
+                                <option
+                                    value="{{ loan_project.id }}"
+                                    {% if prefilled_data['loan_project_id'] is defined and prefilled_data['loan_project_id'] == loan_project.id %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ loan_project.alias }}
+                                </option>
                             {% endfor %}
-                            <option value="customOption"{% if prefilled_data['loan_project_title'] is defined %} selected{% endif %}>{{ 'Other' | trans }}</option>
-                            <input type="text" class="custom-input" id="loan_project_title" placeholder="{{ 'Fill in another title ...' | trans }}" name="loan_project_title"
-                                   {% if prefilled_data['loan_project_title'] is defined %}value="{{ prefilled_data['loan_project_title'] }}" {% else %}style="display: none;"{% endif %} autocomplete="off">
+                            <option
+                                value="customOption"
+                                {% if prefilled_data['loan_projectName'] is defined
+                                   and prefilled_data['loan_project_id'] is defined
+                                   and prefilled_data['loan_project_id'] == 'customOption'
+                                %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ 'Other' | trans }}
+                            </option>
+                            <input type="text"
+                                   name="loan_project_title"
+                                   id="loan_project_title"
+                                   class="custom-input"
+                                   placeholder="{{ 'Fill in another title ...' | trans }}"
+                                   {% if prefilled_data['loan_projectName'] is defined
+                                      and prefilled_data['loan_project_id'] is defined
+                                      and prefilled_data['loan_project_id'] == 'customOption'
+                                   %}
+                                       value="{{ prefilled_data['loan_project_title'] }}"
+                                   {% else %}
+                                       style="display: none;"
+                                   {% endif %}
+                                   autocomplete="off">
                         </select>
                     </div>
                 </div>
@@ -134,15 +170,50 @@
                 <select
                         id="loan_project_organisation_id"
                         name="loan_project_organisation_id"
-                        onchange="toggleCustomInput('loan_project_organisationName', this.options[this.selectedIndex].value, this.options[this.selectedIndex].value === 'customOption'); fillLoanProjectOrganisation(this.options[this.selectedIndex].value)"
+                        onchange="toggleCustomInput(
+                              'loan_project_organisationName',
+                              this.options[this.selectedIndex].value,
+                              this.options[this.selectedIndex].value === 'customOption'
+                            );
+                           fillLoanProjectOrganisation(this.options[this.selectedIndex].value);
+                        "
                         autocomplete="off">
                     <option></option>
                     {% for organisation in organisations %}
-                        <option value="{{ organisation.id }}">{{ organisation.alias }}</option>
+                        <option
+                            value="{{ organisation.id }}"
+                            {% if prefilled_data['loan_project_organisation_id'] is defined and prefilled_data['loan_project_organisation_id'] == organisation.id %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ organisation.alias }}
+                        </option>
                     {% endfor %}
-                    <option value="customOption"{% if prefilled_data['loan_project_organisationName'] is defined %} selected{% endif %}>{{ 'Other' | trans }}</option>
-                    <input type="text" class="custom-input" id="loan_project_organisationName" placeholder="{{ 'Fill in another name ...' | trans }}" name="loan_project_organisationName"
-                           {% if prefilled_data['loan_project_organisationName'] is defined %}value="{{ prefilled_data['loan_project_organisationName'] }}" {% else %}style="display: none;"{% endif %} autocomplete="off">
+                    <option value="customOption"
+                            {% if prefilled_data['loan_project_organisationName'] is defined
+                               and prefilled_data['loan_project_organisation_id'] is defined
+                               and prefilled_data['loan_project_organisation_id'] == 'customOption'
+                            %}
+                                selected
+                            {% endif %}
+                    >
+                        {{ 'Other' | trans }}
+                    </option>
+                    <input type="text"
+                           name="loan_project_organisationName"
+                           id="loan_project_organisationName"
+                           class="custom-input"
+                           placeholder="{{ 'Fill in another name ...' | trans }}"
+                           {% if prefilled_data['loan_project_organisationName'] is defined
+                              and prefilled_data['loan_project_organisation_id'] is defined
+                              and prefilled_data['loan_project_organisation_id'] == 'customOption'
+                           %}
+                               value="{{ prefilled_data['loan_project_organisationName'] }}"
+                           {% else %}
+                               style="display: none;"
+                           {% endif %}
+                           autocomplete="off"
+                    />
                 </select>
             </div>
         {% else %}
@@ -220,11 +291,39 @@
                                 autocomplete="off">
                             <option></option>
                             {% for representative in representatives %}
-                                <option value="{{ representative.id }}">{{ representative.alias }}</option>
+                                <option
+                                    value="{{ representative.id }}"
+                                    {% if prefilled_data['loan_project_representative_id'] is defined and prefilled_data['loan_project_representative_id'] == representative.id %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ representative.alias }}
+                                </option>
                             {% endfor %}
-                            <option value="customOption"{% if prefilled_data['loan_project_representativeName'] is defined %} selected{% endif %}>{{ 'Other' | trans }}</option>
-                            <input type="text" class="custom-input" id="loan_project_representativeName" placeholder="{{ 'Fill in another name ...' | trans }}" name="loan_project_representativeName"
-                                   {% if prefilled_data['loan_project_representativeName'] is defined %}value="{{ prefilled_data['loan_project_representativeName'] }}" {% else %}style="display: none;"{% endif %} autocomplete="off">
+                            <option value="customOption"
+                                {% if prefilled_data['loan_project_representativeName'] is defined
+                                   and prefilled_data['loan_project_representative_id'] is defined
+                                   and prefilled_data['loan_project_representative_id'] == 'customOption'
+                                %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ 'Other' | trans }}
+                            </option>
+                            <input type="text"
+                                   name="loan_project_representativeName"
+                                   id="loan_project_representativeName"
+                                   class="custom-input"
+                                   placeholder="{{ 'Fill in another name ...' | trans }}"
+                                   {% if prefilled_data['loan_project_representativeName'] is defined
+                                      and prefilled_data['loan_project_representative_id'] is defined
+                                      and prefilled_data['loan_project_representative_id'] == 'customOption' %}
+                                       value="{{ prefilled_data['loan_project_representativeName'] }}"
+                                   {% else %}
+                                       style="display: none;"
+                                   {% endif %}
+                                   autocomplete="off"
+                            />
                         </select>
                     </div>
                 </div>
