@@ -1,6 +1,20 @@
 <div class="report-header-2">{% if representative_title is defined %}{{ representative_title | trans }}{% else %}{{ 'Representative' | trans }}{% endif %}</div>
     <div class="form-subgroup">
     {% if not readonly %}
+        <div class="form-item">
+            <label>{{ 'Name' | trans }}</label>
+            <div class="flex">
+                <select id="rep-dropdown" name="{{ type }}_rep_id" onchange="toggleCustomInput('{{ type }}-name', this.options[this.selectedIndex].value, this.options[this.selectedIndex].value === 'customOption'); fill{{  type }}Representative(this.options[this.selectedIndex].value)" autocomplete="off">
+                    <option></option>
+                    {% for representative in representatives %}
+                        <option value="{{ representative.id }}">{{ representative.alias }}</option>
+                    {% endfor %}
+                    <option value="customOption"{% if prefilled_data[type ~ '_name'] is defined %} selected{% endif %}>{{ 'Other' | trans }}</option>
+                    <input type="text" class="custom-input" id="{{ type }}-name" placeholder="{{ 'Fill in another name ...' | trans }}" name="{{ type }}_name"
+                       {% if prefilled_data[type ~ '_name'] is defined %}value="{{ prefilled_data[type ~ '_name'] }}" {% else %}style="display: none;" {% endif %} autocomplete="off">
+                </select>
+            </div>
+        </div>
         <script>
             var {{ type }}Representatives = {{ representatives | json_encode | raw }};
 
@@ -19,20 +33,6 @@
                 }
             }
         </script>
-        <div class="form-item">
-            <label>{{ 'Name' | trans }}</label>
-            <div class="flex">
-                <select id="rep-dropdown" name="{{ type }}_rep_id" onchange="toggleCustomInput('{{ type }}-name', this.options[this.selectedIndex].value, this.options[this.selectedIndex].value === 'customOption'); fill{{  type }}Representative(this.options[this.selectedIndex].value)" autocomplete="off">
-                    <option></option>
-                    {% for representative in representatives %}
-                        <option value="{{ representative.id }}">{{ representative.alias }}</option>
-                    {% endfor %}
-                    <option value="customOption"{% if prefilled_data[type ~ '_name'] is defined %} selected{% endif %}>{{ 'Other' | trans }}</option>
-                    <input type="text" class="custom-input" id="{{ type }}-name" placeholder="{{ 'Fill in another name ...' | trans }}" name="{{ type }}_name"
-                       {% if prefilled_data[type ~ '_name'] is defined %}value="{{ prefilled_data[type ~ '_name'] }}" {% else %}style="display: none;" {% endif %} autocomplete="off">
-                </select>
-            </div>
-        </div>
     {% else %}
         <div class="form-item">
             {% include 'textfield.html.twig' with { 'name': type ~ '_name', 'label': 'Name' | trans } %}
