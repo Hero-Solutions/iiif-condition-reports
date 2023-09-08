@@ -61,7 +61,17 @@
 
         {% if do_show %}
             {% if item.type == 'div' %}
-                <div{% if item.class is defined %} class="{{ item.class  }}"{% endif %}>
+                <div
+                    {% if item.class is defined %}
+                        class="{{ item.class  }}"
+                    {% endif %}
+                    {% if item.id is defined %}
+                        id="{{ item.id }}"
+                    {% endif %}
+                    {% if item.onclick is defined %}
+                        onclick="{{ item.onclick }}"
+                    {% endif %}
+                >
                     {% for subitem in item.content %}
                         {% set next = false %}
                         {% if not loop.last %}
@@ -70,6 +80,8 @@
                         {{ _self.build(this_object_type, object_type, subitem, readonly, prefilled_data, item, next) }}
                     {% endfor %}
                 </div>
+            {% elseif item.type == 'html' %}
+                {{ item.content | trans | raw }}
             {% elseif item.type == 'div_text' %}
                 <div{% if item.class is defined %} class="{{ item.class  }}"{% endif %}>{{ item.content | trans }}</div>
             {% elseif item.type == 'textfield' and item.name is defined %}

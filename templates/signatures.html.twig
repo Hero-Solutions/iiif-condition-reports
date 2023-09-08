@@ -42,6 +42,8 @@
 
         $(fileInputElement).simpleUpload('/{{ app.request.locale }}/save_signature/{{ report_id }}/' + name + '/' + role, {
 
+            maxFileSize: 10000000, //10MB in bytes
+
             start: function(file) {
             },
 

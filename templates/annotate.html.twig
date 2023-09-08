@@ -163,9 +163,9 @@
                             <option value="" selected disabled hidden>{{ 'Add image' | trans }}</option>
                             <option value="frame" id="add-image-frame"{% if this_object_type == 'sculpture' %} disabled hidden{% endif %}>{{ 'Simplified image of a frame' | trans }}</option>
                             <option value="backside" id="add-image-backside"{% if this_object_type == 'sculpture' %} disabled hidden{% endif %}>{{ 'Simplified image of a backside' | trans }}</option>
-                            <option value="camera">{{ 'Image through camera' | trans }}</option>
-                            <option value="device">{{ 'Image on device' | trans }}</option>
-                            <option value="url">{{ 'Image through URL' | trans }}</option>
+                            <option value="camera">{{ 'Image through camera' | trans }} (max 10MB)</option>
+                            <option value="device">{{ 'Image on device' | trans }} (max 10MB)</option>
+                            <option value="url">{{ 'Image through URL' | trans }} (max 10MB)</option>
                             <option value="iiif">{{ 'IIIF image through URL' | trans }}</option>
                         </select>
                         <div id="add-image-div">
@@ -215,6 +215,7 @@
 $('input#annotate-file').change(function() {
 
     $(this).simpleUpload('/{{ app.request.locale }}/upload', {
+        maxFileSize: 10000000, //10MB in bytes
 
         start: function(file) {
             document.getElementById('add-image-select').selectedIndex = 0;
@@ -249,6 +250,7 @@ $('input#annotate-file').change(function() {
 $('input#annotate-camera').change(function() {
 
     $(this).simpleUpload('/{{ app.request.locale }}/upload', {
+        maxFileSize: 10000000, //10MB in bytes
 
         start: function(file) {
             document.getElementById('add-image-select').selectedIndex = 0;
@@ -518,6 +520,21 @@ Annotorious.SelectorPack(window.anno, {});
 {% endif %}
 
 window.onload = function() {
+
+    {% for object_type in object_types %}
+        {% if prefilled_data['recommendations_' ~ object_type ~ '_presentation_guidelines_radio'] is defined
+            and prefilled_data['recommendations_' ~ object_type ~ '_presentation_guidelines_radio'] == 'present' %}
+            {% if not readonly %}
+                document.getElementById("setup_plan_{{ object_type }}_div").classList.remove("hidden");
+            {% endif %}
+            {% if prefilled_data['setup_plan_' ~ object_type ~ '_images'] is defined %}
+                {% for image in prefilled_data['setup_plan_' ~ object_type ~ '_images']|split(',') %}
+                    addSetupPlanImage('{{ object_type }}', '{{ image }}', {{ readonly }});
+                {% endfor %}
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+
 
     refreshAnnotations(window.anno, window.osd_anno, true);
 

@@ -26,11 +26,53 @@ class UploadController extends AbstractController
 
         $file = $request->files->get('annotate-file');
         if($file == null) {
-            $response = new Response(json_encode(array('hash' => null)));
-            $response->headers->set('Content-Type', 'application/json');
-            return $response;
+            $file = $request->files->get('setup-plan-default-input');
+            if($file == null) {
+                $file = $request->files->get('setup-plan-painting-input');
+            }
+            if($file == null) {
+                $file = $request->files->get('setup-plan-work-on-paper-input');
+            }
+            if($file == null) {
+                $file = $request->files->get('setup-plan-sculpture-input');
+            }
+            if($file == null) {
+                $response = new Response(json_encode(array('hash' => null, 'error' => 'Upload failed')));
+                $response->headers->set('Content-Type', 'application/json');
+                return $response;
+            } else {
+                $extension = $file->getClientOriginalExtension();
+                $type = null;
+                switch($extension) {
+                    case 'jpg':
+                    case 'JPG':
+                    case 'png':
+                    case 'PNG':
+                    case 'tif':
+                    case 'TIF':
+                        $type = 'image';
+                        break;
+                    case 'pdf':
+                    case 'PDF':
+                        $type = 'pdf';
+                        break;
+                }
+                if ($type == null) {
+                    $response = new Response(json_encode(array('image' => null, 'error' => 'File type not supported. Allowed types: JPG, PNG, TIF, PDF')));
+                    $response->headers->set('Content-Type', 'application/json');
+                    return $response;
+                } else {
+                    $folder = 'setup_plan_images';
+                    $filenameNoExt = round(microtime(true) * 1000);
+                    $file->move($folder, $filenameNoExt . '.' . $extension);
+
+                    $response = new Response(json_encode(array('image' => '/' . $folder . '/' . $filenameNoExt . '.' . $extension)));
+                    $response->headers->set('Content-Type', 'application/json');
+                    return $response;
+                }
+            }
         } else {
-            $extension = $file->guessClientExtension();
+            $extension = $file->getClientOriginalExtension();
             if ($extension == null) {
                 $extension = 'jpg';
             }
@@ -42,7 +84,7 @@ class UploadController extends AbstractController
             $image->setImage('/' . $filename);
             $thumbnail = $folder . '/' . $filenameNoExt . '_thm.jpg';
             $file->move($folder, $filenameNoExt . '.' . $extension);
-            IIIFUtil::generateThumbnail($filename, $thumbnail);
+            $thumbnail = IIIFUtil::generateThumbnail($filename, $thumbnail);
             $image->setThumbnail('/' . $thumbnail);
 
             $em = $this->container->get('doctrine')->getManager();

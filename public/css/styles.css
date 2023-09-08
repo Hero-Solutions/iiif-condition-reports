@@ -327,7 +327,8 @@ textarea {
     background: transparent;
 }
 
-.admin-trash-button:hover {
+.admin-trash-button:hover,
+.fa-upload:hover {
     cursor: pointer;
 }
 
@@ -1495,6 +1496,12 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
     left: 107px;
 }
 
+.trash-right-background-image {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
 .trash-icon {
     position: absolute;
     top: 16px;
@@ -1504,7 +1511,39 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
     font-size: 20px;
 }
 
-.delete-image-button {
+.trash-right-icon {
+    position: absolute;
+    top: 16px;
+    right: 0;
+    width: 35px;
+    line-height: 35px;
+    font-size: 20px;
+}
+
+.setup-plan-image-div {
+    margin-top: 15px;
+    position: relative;
+    width: fit-content;
+}
+
+.setup-plan-input-label {
+    width: fit-content;
+    height: fit-content;
+    padding: 2px 5px 2px 5px !important;
+    border: 1px solid black;
+    border-radius: 5px;
+}
+
+.setup-plan-input-label:hover {
+    cursor: pointer;
+}
+
+.setup-plan-img {
+    max-width: 100%;
+}
+
+.delete-image-button,
+.hover-pointer {
     cursor: pointer;
 }
 
