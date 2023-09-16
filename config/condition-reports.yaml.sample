@@ -152,7 +152,7 @@ parameters:
               weight: Weight
 
     # See templates/form_builder.html.twig for implementation
-    # Supported types: div, div_text, textfield, textarea, number, checkbox, checkbox_custom, radio, radio_date, radio_custom
+    # Supported types: div, html, div_text, textfield, textarea, number, checkbox, checkbox_custom, radio, radio_date, radio_custom
     # 'content' must always be a list or a string (the string may be empty)
     # 'name' must always be a non-empty string in a textfield, textarea, number, checkbox, checkbox_custom, radio, radio_date or radio_custom
     materials:
@@ -3653,12 +3653,17 @@ parameters:
                     - type: radio
                       name: 'recommendations_painting_presentation_guidelines_radio'
                       content: 'Present'
+                      onclick: '; document.getElementById("setup_plan_painting_div").classList.remove("hidden");'
                     - type: radio
                       name: 'recommendations_painting_presentation_guidelines_radio'
                       content: 'Absent'
+                      onclick: '; document.getElementById("setup_plan_painting_div").classList.add("hidden");'
                     - type: checkbox
                       name: 'recommendations_painting_presentation_guidelines_not_necessary'
                       content: 'Not necessary'
+                - type: html
+                  always_visible: true
+                  content: '<div id="setup_plan_painting_images_div"></div><div id="setup_plan_painting_div" class="hidden top-margin-subgroup"><input type="file" id="setup_plan_painting_input" name="setup-plan-painting-input" class="hidden" accept=".jpg,.png,.tif,.pdf" /><label for="setup_plan_painting_input" class="setup-plan-input-label">Upload file</label><p id="setup_plan_painting_input_error" class="hidden message-red"></p></div>'
                 - type: div
                   class: 'form-subgroup top-margin-subgroup'
                   content:
@@ -4034,12 +4039,17 @@ parameters:
                     - type: radio
                       name: 'recommendations_work_on_paper_presentation_guidelines_radio'
                       content: 'Present'
+                      onclick: '; document.getElementById("setup_plan_work_on_paper_div").classList.remove("hidden");'
                     - type: radio
                       name: 'recommendations_work_on_paper_presentation_guidelines_radio'
                       content: 'Absent'
+                      onclick: '; document.getElementById("setup_plan_work_on_paper_div").classList.add("hidden");'
                     - type: checkbox
                       name: 'recommendations_work_on_paper_presentation_guidelines_not_necessary'
                       content: 'Not necessary'
+                - type: html
+                  always_visible: true
+                  content: '<div id="setup_plan_work_on_paper_images_div"></div><div id="setup_plan_work_on_paper_div" class="hidden top-margin-subgroup"><input type="file" id="setup_plan_work_on_paper_input" name="setup-plan-work-on-paper-input" class="hidden" accept=".jpg,.png,.tif,.pdf" /><label for="setup_plan_work_on_paper_input" class="setup-plan-input-label">Upload file</label><p id="setup_plan_work_on_paper_input_error" class="hidden message-red"></p></div>'
                 - type: div
                   class: 'form-subgroup top-margin-subgroup'
                   content:
