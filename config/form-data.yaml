@@ -4107,7 +4107,7 @@ parameters:
                       content: ''
                 - type: html
                   always_visible: true
-                  content: '<div id="recommendation_image_work_on_paper_images_div"></div><div id="recommendation_image_work_on_paper_div" class="top-margin-subgroup"><input type="file" id="recommendation_image_work_on_paper_input" name="recommendation-image-work_on_paper-input" class="hidden" accept=".jpg,.png,.tif,.pdf" /><label for="recommendation_image_work_on_paper_input" class="recommendation-image-input-label">Upload file</label><p id="recommendation_image_work_on_paper_input_error" class="hidden message-red"></p></div>'
+                  content: '<div id="recommendation_image_work_on_paper_images_div"></div><div id="recommendation_image_work_on_paper_div" class="top-margin-subgroup"><input type="file" id="recommendation_image_work_on_paper_input" name="recommendation-image-work-on-paper-input" class="hidden" accept=".jpg,.png,.tif,.pdf" /><label for="recommendation_image_work_on_paper_input" class="recommendation-image-input-label">Upload file</label><p id="recommendation_image_work_on_paper_input_error" class="hidden message-red"></p></div>'
         - type: div
           class: 'report-block'
           content:
