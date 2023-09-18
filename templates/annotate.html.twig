@@ -529,9 +529,14 @@ window.onload = function() {
             {% endif %}
             {% if prefilled_data['setup_plan_' ~ object_type ~ '_images'] is defined %}
                 {% for image in prefilled_data['setup_plan_' ~ object_type ~ '_images']|split(',') %}
-                    addSetupPlanImage('{{ object_type }}', '{{ image }}', {{ readonly }});
+                    addUploadedImage('{{ object_type }}', '{{ image }}', {{ readonly | json_encode }}, 'setup_plan', 'setup-plan-image-div');
                 {% endfor %}
             {% endif %}
+        {% endif %}
+        {% if prefilled_data['recommendation_image_' ~ object_type ~ '_images'] is defined %}
+            {% for image in prefilled_data['recommendation_image_' ~ object_type ~ '_images']|split(',') %}
+                addUploadedImage('{{ object_type }}', '{{ image }}', {{ readonly | json_encode }}, 'recommendation_image', 'recommendation-image-div');
+            {% endfor %}
         {% endif %}
     {% endfor %}
 

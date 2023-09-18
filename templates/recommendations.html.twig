@@ -44,7 +44,7 @@
                             errorP.innerHTML = "Error: " + data.error;
                             errorP.classList.remove("hidden");
                         } else {
-                            addSetupPlanImage('{{ object_type}}', data.image, {{ readonly }});
+                            addUploadedImage('{{ object_type}}', data.image, {{ readonly | json_encode }}, 'setup_plan', 'setup-plan-image-div');
                         }
                     },
 
@@ -58,9 +58,45 @@
                     }
                 });
             });
+            $('input#recommendation_image_{{ object_type }}_input').change(function() {
+                $(this).simpleUpload('/{{ app.request.locale }}/upload', {
+                    maxFileSize: 10000000, //10MB in bytes
+                    start: function (file) {
+                        const errorP = document.getElementById("recommendation_image_{{ object_type }}_input_error");
+                        errorP.innerHTML = "";
+                        if(!errorP.classList.contains("hidden")) {
+                            errorP.classList.add("hidden");
+                        }
+                    },
+
+                    progress: function (progress) {
+                        console.log('upload progress: ' + Math.round(progress) + '%');
+                    },
+
+                    success: function (data) {
+                        console.log('upload successful!');
+                        console.log(data);
+
+                        if(data.hasOwnProperty('error')) {
+                            const errorP = document.getElementById("recommendation_image_{{ object_type }}_input_error");
+                            errorP.innerHTML = "Error: " + data.error;
+                            errorP.classList.remove("hidden");
+                        } else {
+                            addUploadedImage('{{ object_type}}', data.image, {{ readonly | json_encode }}, 'recommendation_image', 'recommendation-image-div');
+                        }
+                    },
+
+                    error: function (error) {
+                        console.log('upload error: ' + error.name + ': ' + error.message);
+                        const errorP = document.getElementById("recommendation_image_{{ object_type }}_input_error");
+                        errorP.innerHTML = "Error: " + error.message + (error.message.includes("file is too big") ? ". Max filesize is 10MB." : "");
+                        errorP.classList.remove("hidden");
+                    }
+                });
+            });
         {% endfor %}
 
-        function confirmDeleteSetupPlan(div, input, image) {
+        function confirmDeleteUploadedImage(div, input, image) {
             if(confirm('{{ 'Are you sure you want to delete this image?' | trans }}')) {
                 div.parentElement.removeChild(div);
                 input.value = input.value.replace(',' + image, '');
@@ -73,19 +109,19 @@
     </script>
     {% endif %}
     <script>
-        function addSetupPlanImage(objectType, image, readonly) {
+        function addUploadedImage(objectType, image, readonly, prefix, className) {
             if(image !== null) {
                 const newDiv = document.createElement('div');
-                newDiv.className = "setup-plan-image-div";
-                var input = document.getElementById("setup_plan_" + objectType + "_images");
+                newDiv.className = className;
+                var input = document.getElementById(prefix + "_" + objectType + "_images");
                 if(!readonly) {
                     if (input == null) {
                         input = document.createElement('input');
                         input.type = "hidden";
-                        input.id = "setup_plan_" + objectType + "_images";
-                        input.name = "setup_plan_" + objectType + "_images";
+                        input.id = prefix + "_" + objectType + "_images";
+                        input.name = prefix + "_" + objectType + "_images";
                         input.value = image;
-                        document.getElementById("setup_plan_" + objectType + "_div").appendChild(input);
+                        document.getElementById(prefix + "_" + objectType + "_div").appendChild(input);
                     } else {
                         input.value = input.value + "," + image;
                     }
@@ -102,7 +138,7 @@
                             const deleteButton = document.createElement('div');
                             deleteButton.className = 'delete-image-button';
                             deleteButton.onclick = function () {
-                                confirmDeleteSetupPlan(newDiv, input, image);
+                                confirmDeleteUploadedImage(newDiv, input, image);
                             };
                             deleteButton.innerHTML = '<svg class="trash-right-background-image" height="33" width="33"><rect width="33" height="33" rx="4" fill="white"></rect></svg><i class="fas fa-trash-alt trash-right-icon"></i>';
                             newDiv.appendChild(deleteButton);
@@ -119,16 +155,25 @@
                     function renderPage(pageNumber, canvas) {
                         thePdf.getPage(pageNumber).then(function(page) {
                             viewport = page.getViewport({ scale: scale });
+                            var w = viewport.width;
+                            var h = viewport.height;
+                            if(w > 1100) {
+                                scale = 1100 / w;
+                                viewport = page.getViewport({ scale: scale });
+                                w = viewport.width;
+                                h = viewport.height;
+                                scale = 1;
+                            }
 
                             // Support HiDPI-screens.
                             var outputScale = window.devicePixelRatio || 1;
 
                             var context = canvas.getContext('2d');
 
-                            canvas.width = Math.floor(viewport.width * outputScale);
-                            canvas.height = Math.floor(viewport.height * outputScale);
-                            canvas.style.width = Math.floor(viewport.width) + "px";
-                            canvas.style.height =  Math.floor(viewport.height) + "px";
+                            canvas.width = Math.floor(w * outputScale);
+                            canvas.height = Math.floor(h * outputScale);
+                            canvas.style.width = Math.floor(w) + "px";
+                            canvas.style.height =  Math.floor(h) + "px";
 
                             var transform = outputScale !== 1
                                 ? [outputScale, 0, 0, outputScale, 0, 0]
@@ -145,7 +190,7 @@
 
                 } else {
                     const newImg = document.createElement('img');
-                    newImg.className = "setup-plan-img";
+                    newImg.className = "uploaded-image-img";
                     newImg.src = image;
                     newImg.alt = '';
 
@@ -153,14 +198,14 @@
                         const deleteButton = document.createElement('div');
                         deleteButton.className = 'delete-image-button';
                         deleteButton.onclick = function () {
-                            confirmDeleteSetupPlan(newDiv, input, image);
+                            confirmDeleteUploadedImage(newDiv, input, image);
                         };
                         deleteButton.innerHTML = '<svg class="trash-right-background-image" height="33" width="33"><rect width="33" height="33" rx="4" fill="white"></rect></svg><i class="fas fa-trash-alt trash-right-icon"></i>';
                         newDiv.appendChild(deleteButton);
                     }
                     newDiv.appendChild(newImg);
                 }
-                document.getElementById("setup_plan_" + objectType + "_images_div").appendChild(newDiv);
+                document.getElementById(prefix + "_" + objectType + "_images_div").appendChild(newDiv);
             }
         }
     </script>
