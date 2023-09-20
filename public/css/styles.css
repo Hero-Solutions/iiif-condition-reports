@@ -1520,13 +1520,15 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
     font-size: 20px;
 }
 
-.setup-plan-image-div {
+.setup-plan-image-div,
+.recommendation-image-div {
     margin-top: 15px;
     position: relative;
     width: fit-content;
 }
 
-.setup-plan-input-label {
+.setup-plan-input-label,
+.recommendation-image-input-label {
     width: fit-content;
     height: fit-content;
     padding: 2px 5px 2px 5px !important;
@@ -1534,11 +1536,12 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
     border-radius: 5px;
 }
 
-.setup-plan-input-label:hover {
+.setup-plan-input-label:hover,
+.recommendation-image-input-label:hover {
     cursor: pointer;
 }
 
-.setup-plan-img {
+.uploaded-image-img {
     max-width: 100%;
 }
 

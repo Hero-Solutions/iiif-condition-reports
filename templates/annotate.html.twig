@@ -243,6 +243,7 @@ $('input#annotate-file').change(function() {
             console.log(error);
 //            document.getElementById('annotate-file-progress').innerHTML = '';
             console.log('upload error: ' + error.name + ': ' + error.message);
+            window.alert("Error: " + error.message);
         }
     });
 });
@@ -278,6 +279,7 @@ $('input#annotate-camera').change(function() {
             console.log(error);
 //            document.getElementById('annotate-camera-progress').innerHTML = '';
             console.log('upload error: ' + error.name + ': ' + error.message);
+            window.alert("Error: " + error.message);
         }
     });
 });
@@ -529,9 +531,14 @@ window.onload = function() {
             {% endif %}
             {% if prefilled_data['setup_plan_' ~ object_type ~ '_images'] is defined %}
                 {% for image in prefilled_data['setup_plan_' ~ object_type ~ '_images']|split(',') %}
-                    addSetupPlanImage('{{ object_type }}', '{{ image }}', {{ readonly }});
+                    addUploadedImage('{{ object_type }}', '{{ image }}', {{ readonly | json_encode }}, 'setup_plan', 'setup-plan-image-div');
                 {% endfor %}
             {% endif %}
+        {% endif %}
+        {% if prefilled_data['recommendation_image_' ~ object_type ~ '_images'] is defined %}
+            {% for image in prefilled_data['recommendation_image_' ~ object_type ~ '_images']|split(',') %}
+                addUploadedImage('{{ object_type }}', '{{ image }}', {{ readonly | json_encode }}, 'recommendation_image', 'recommendation-image-div');
+            {% endfor %}
         {% endif %}
     {% endfor %}
 
@@ -1123,7 +1130,12 @@ function loadImage() {
         if (xhr.readyState === 4) {
             document.getElementById('add-image-url').placeholder = '';
             const response = JSON.parse(xhr.responseText);
-            addImage(response);
+            console.log(response);
+            if(response.hash == null && response.error != null) {
+                alert("Error: " + response.error);
+            } else {
+                addImage(response);
+            }
         }
     };
     xhr.open('GET', '/{{ app.request.locale }}/download?image=' + encodeURIComponent(document.getElementById('add-image-url').value));
