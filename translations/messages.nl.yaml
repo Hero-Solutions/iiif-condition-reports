@@ -807,8 +807,11 @@ analysis: Analyse
 necessary_background_information: Noodzakelijke achtergrondinformatie bij het werk / kunsthistorisch onderzoek
 
 abrasions: Geschaafd
+abrasions_note: Geschaafd
+Acid: Algemene verzuring
 acid: Algemene verzuring
 accretion: Accretie
+Adheasion: Hechting
 adheasion: Hechting
 adhesive_tape: Plakband
 animal_glue: Dierlijke lijm
@@ -819,6 +822,7 @@ bloom: Waas, vochtaanslag
 blur: Wazigheid
 bowing: Kromtrekking
 broken_glass: Gebroken glas
+broken_glass_note: Gebroken glas
 broken_parts: Afgebroken stukken
 browning: Verbruining (papier/vernis)
 changes: Vormveranderingen
@@ -826,6 +830,8 @@ climate_box_sealed: Klimaatbox goed gesealed
 condensation: Condenseren
 consolidated: Verstevigen
 crackle: Craquelé
+cracks_damage_type: Barsten
+Crusted dirt: Geïncrusteerd vuil
 creases: Plooien
 crizzling: Ziek (glas)
 cupping: Schotelvorming
@@ -869,6 +875,8 @@ Blanching: "Blindgeslagen: Te onderscheiden van 'waas' dat algemeen wordt gebrui
 "Broken: Splitting into pieces or smashing into parts or fragments, typically by a blow or stress and with suddenness or violence.": "Gebroken: Het in stukjes uiteensplijten of in delen of scherven uiteenspatten, meestal plotseling en hevig, als gevolg van een klap of drukuitoefening."
 "Glass: An amorphous, inorganic substance made by fusing silica (silicon dioxide) with a basic oxide; generally transparent but often translucent or opaque. Its characteristic properties are its hardness and rigidity at ordinary temperatures, its capacity for plastic working at elevated temperatures, and its resistance to weathering and to most chemicals except hydrofluoric acid. Used for both utilitarian and decorative purposes, it can be formed into various shapes, colored or decorated. Glass originated as a glaze in Mesopotamia in about 3500 BCE and the first objects made wholly of glass date to about 2500 BCE.": "Glas: Een amorfe, anorganische substantie die wordt gemaakt door silica (siliciumdioxide) te fuseren met een basisoxide, meestal transparant maar vaak ook doorschijnend of ondoorschijnend. Kenmerkende eigenschappen zijn de hardheid en stijfheid bij normale temperaturen, de plastische eigenschappen bij verhoogde temperaturen en de weersbestendigheid en bestendigheid tegen de meeste chemische stoffen, behalve waterstoffluoride. Het wordt gebruikt voor zowel gebruiksdoeleinden als decoratieve doeleinden, en kan worden gemaakt in diverse vormen, gekleurd en gedecoreerd. Glas is ontstaan als glazuur in Mesopotamië in ongeveer 3500 v. Chr. De eerste voorwerpen die geheel van glas zijn vervaardigd, dateren van ongeveer 2500 v. Chr."
 Changes (additions, altered pieces…): Vormveranderingen (toevoegingen, ingezette stukken…)
+"Sealing process: The action of closing a vessel, aperture, or package by placing a coating of material or a fastening on it that must be broken before access can be obtained.": "Dichten (procedé)"
 "Consolidated: Stabilizing degraded or weakened areas by introducing or attaching materials capable of holding them together.": "Verstevigen: Beschadigde of verzwakte delen verduurzamen door het inbrengen of aanhechten van materialen met behulp waarvan ze bijeen gehouden kunnen worden."
 "Corrosion: The deterioration of metal or other substances by chemical or electrochemical reaction resulting from exposure to weathering, moisture, chemicals, or other agents.": "Corrosie: De aantasting van metaal of ander materiaal door chemische of elektrochemische reacties die het gevolg zijn van blootstelling aan verwering, vochtigheid, chemicaliën of andere agentia."
 "Crackle: A network of fine fracture lines in a coating layer, such as a ground, paint layer, varnish, or glaze.": "Craquelé: Een netwerk van fijne breuklijnen in een deklaag, bijvoorbeeld (grond)verf, vernis of glazuur."
+"Cracks: Fissures or systems of fissures without complete separation into pieces. Eerder voor verflaag die gebarsten is.": "Barsten: Scheuren of patronen van scheuren zonder dat iets volledig uit elkaar valt."

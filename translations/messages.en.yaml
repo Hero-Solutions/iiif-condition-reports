@@ -108,6 +108,7 @@ paint_layer: Paint layer
 condition_blanching: Blanching
 
 abrasions: Abrasions
+abrasions_note: Abrasions
 acid: Acid
 accretion: Accretion
 adheasion: Adheasion
@@ -120,6 +121,7 @@ bloom: Bloom
 blur: Blur
 bowing: Bowing
 broken_glass: Broken glass
+broken_glass_note: Broken glass
 broken_parts: Broken parts
 browning: Browning
 changes: Changes
@@ -127,6 +129,7 @@ climate_box_sealed: Climate box sealed
 condensation: Condensation
 consolidated: Consolidated
 crackle: Crackle
+cracks_damage_type: Cracks or Splits
 creases: Creases
 crizzling: Crizzling
 cupping: Cupping
