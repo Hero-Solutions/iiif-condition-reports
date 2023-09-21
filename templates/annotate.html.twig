@@ -346,7 +346,7 @@ window.overlays = [];
 window.anno = OpenSeadragon.Annotorious(window.osd_anno, window.annoConf);
 
 window.osd_anno.addHandler('open', function(event) {
-    addNumberOverlays(window.osd_anno, true);
+    addNumberOverlays(window.osd_anno, window.currentImageHash, 'viewer', true);
 });
 
 window.anno.on('mouseEnterAnnotation', function(annotation, ele) {
@@ -576,7 +576,7 @@ window.anno.on('createAnnotation', function(annotation, ele) {
                     }
                 }
             }
-            addNumberOverlays(window.osd_anno, true);
+            addNumberOverlays(window.osd_anno, window.currentImageHash, 'viewer', true);
         }
     }
 });
@@ -643,7 +643,7 @@ window.anno.on('deleteAnnotation', function(annotation, ele) {
             }
         }
     }
-    addNumberOverlays(window.osd_anno, true);
+    addNumberOverlays(window.osd_anno, window.currentImageHash, 'viewer', true);
 });
 
 Annotorious.SelectorPack(window.anno, {});
@@ -664,7 +664,7 @@ Annotorious.SelectorPack(window.anno, {});
             ]
         });
         window.osdPrint{{ image.hash }}.addHandler('open', function(event) {
-            addNumberOverlays(window.osdPrint{{ image.hash }}, false);
+            addNumberOverlays(window.osdPrint{{ image.hash }}, '{{ image.hash }}', 'print', false);
         });
         window.annoPrint{{ image.hash }} = OpenSeadragon.Annotorious(window.osdPrint{{ image.hash }}, {});
     {% endfor %}
@@ -697,7 +697,7 @@ window.onload = function() {
     {% endfor %}
 
 
-    refreshAnnotations(window.anno, window.osd_anno, true);
+    refreshAnnotations(window.anno, window.osd_anno, window.currentImageHash, 'viewer', true);
 
     {% if not readonly %}
         document.forms[0].addEventListener('submit', function() {
@@ -754,7 +754,7 @@ window.onload = function() {
         var cur = window.currentImageHash;
         {% for image in images %}
             window.currentImageHash = '{{ image.hash }}';
-            refreshAnnotations(window.annoPrint{{ image.hash }}, window.osdPrint{{ image.hash }}, false);
+            refreshAnnotations(window.annoPrint{{ image.hash }}, window.osdPrint{{ image.hash }}, '{{ image.hash }}', 'print', false);
         {% endfor %}
         window.currentImageHash = cur;
 
@@ -1607,7 +1607,7 @@ function isAnnotationDeleted(id, imageHash) {
     return false;
 }
 
-function addNumberOverlays(osd, remove) {
+function addNumberOverlays(osd, imageHash, type, remove) {
     if(osd.world.getItemAt(0) === undefined) {
         return;
     }
@@ -1640,7 +1640,7 @@ function addNumberOverlays(osd, remove) {
                     width += 11;
                 }
 
-                var id = 'annotation-number-overlay-' + annoId;
+                var id = 'annotation-number-overlay-' + imageHash + '-' + type + '-' + annoId;
                 var bbox = annoEles[j].getBBox();
 
                 var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -1945,7 +1945,7 @@ function addLayersToDiv(layers, div) {
     return divsToAdd;
 }
 
-function refreshAnnotations(viewer, osd, remove) {
+function refreshAnnotations(viewer, osd, imageHash, type, remove) {
     var annotations = {};
     window.annotationNumber = 1;
     for (const id in window.annotationHistory[window.currentImageHash]) {
@@ -1967,7 +1967,7 @@ function refreshAnnotations(viewer, osd, remove) {
         annos.push(anno);
     }
     viewer.setAnnotations(annos);
-    addNumberOverlays(osd, remove);
+    addNumberOverlays(osd, imageHash, type, remove);
 }
 
 function toggleAnnotations(id) {
@@ -1991,7 +1991,7 @@ function toggleAnnotations(id) {
     }
     window.allAnnotationsVisible = allVisible;
     setShowHideAllButton();
-    refreshAnnotations(window.anno, window.osd_anno, true);
+    refreshAnnotations(window.anno, window.osd_anno, window.currentImageHash, 'viewer', true);
 }
 
 function setShowHideAllButton() {
@@ -2021,7 +2021,7 @@ function toggleNumberOverlays(osd) {
         numberOverlaysButton.classList.remove('hide');
         numberOverlaysButton.classList.add('show');
     }
-    addNumberOverlays(osd, true);
+    addNumberOverlays(osd, window.currentImageHash, 'viewer', true);
 }
 
 function resetAnnotations() {
@@ -2038,7 +2038,7 @@ function resetAnnotations() {
             showAllButton.classList.add('show');
         }
     }
-    refreshAnnotations(window.anno, window.osd_anno, true);
+    refreshAnnotations(window.anno, window.osd_anno, window.currentImageHash, 'viewer', true);
 }
 
 {% if not readonly %}
