@@ -51,8 +51,8 @@ class ReportTemplateData
         $data['report_reasons'] = $reportReasons;
         $data['object_types'] = $objectTypes;
         $data['report_fields'] = $reportFields;
-        $data['frame_picture'] = array('hash' => $pictures['frame']['hash'], 'image' => $imageRelPath . $pictures['frame']['image'], 'thumbnail' => $imageRelPath . $pictures['frame']['thumbnail']);
-        $data['backside_picture'] = array('hash' => $pictures['backside']['hash'], 'image' => $imageRelPath . $pictures['backside']['image'], 'thumbnail' => $imageRelPath . $pictures['backside']['thumbnail']);
+        $data['annotation_schema_images'] = $pictures;
+        $data['annotation_image_relative_path'] = $imageRelPath;
         $data['readonly'] = true;
         $data['pattern_size'] = 20;
         $data['stroke_width'] = 2;
@@ -70,8 +70,8 @@ class ReportTemplateData
         $data['report_reasons'] = $reportReasons;
         $data['object_types'] = $objectTypes;
         $data['report_fields'] = $reportFields;
-        $data['frame_picture'] = array('hash' => $pictures['frame']['hash'], 'image' => $imageRelPath . $pictures['frame']['image'], 'thumbnail' => $imageRelPath . $pictures['frame']['thumbnail']);
-        $data['backside_picture'] = array('hash' => $pictures['backside']['hash'], 'image' => $imageRelPath . $pictures['backside']['image'], 'thumbnail' => $imageRelPath . $pictures['backside']['thumbnail']);
+        $data['annotation_schema_images'] = $pictures;
+        $data['annotation_image_relative_path'] = $imageRelPath;
         $data['readonly'] = false;
         $data['pattern_size'] = 20;
         $data['stroke_width'] = 2;
@@ -112,8 +112,8 @@ class ReportTemplateData
             'annotations' => array(),
             'deleted_annotations' => array(),
             'report_reasons' => $reportReasons,
-            'frame_picture' => array('hash' => $pictures['frame']['hash'], 'image' => $imageRelPath . $pictures['frame']['image'], 'thumbnail' => $imageRelPath . $pictures['frame']['thumbnail']),
-            'backside_picture' => array('hash' => $pictures['backside']['hash'], 'image' => $imageRelPath . $pictures['backside']['image'], 'thumbnail' => $imageRelPath . $pictures['backside']['thumbnail']),
+            'annotation_schema_images' => $pictures,
+            'annotation_image_relative_path' => $imageRelPath,
             'object_types' => $objectTypes,
             'report_fields' => $reportFields,
             'organisations' => self::getOrganisations($em),

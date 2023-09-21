@@ -1012,6 +1012,11 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
     margin-top: 5px !important;
 }
 
+#report-form #same-damages-checkbox {
+    margin-top: 5px !important;
+    margin-left: 13px !important;
+}
+
 #report-form div:has(.form-checkbox-custom) + div > div.form-checkbox:first-of-type {
     padding-top: 5px !important;
 }
@@ -1421,6 +1426,14 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
     min-width: 200px;
 }
 
+#select-layer-div {
+    width: 180px;
+}
+
+#select-damage-type-div {
+    width: 260px;
+}
+
 #report-form #annotation-images {
     border-bottom: 1px solid #dbdbdb;
 }
@@ -1488,6 +1501,10 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
 .thumbnail-image {
     position: relative;
     width: 150px;
+}
+
+.thumbnail-image-img {
+    max-width: 150px;
 }
 
 .trash-background-image {
@@ -1558,8 +1575,7 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
 }
 
 .anno-hist-hover,
-.anno-hist:hover,
-.anno-hist-selected {
+.anno-hist:hover {
     background-color: #cccccc;
 }
 

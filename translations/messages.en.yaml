@@ -50,7 +50,7 @@ crusted_dirt: Crusted dirt
 spots: Spots
 fingerprints: Fingerprints
 old_restoration: Old restoration
-salts: Slats
+salts: Salts
 insect_damage: Insect damage
 mould: Mould
 water_damage: Water damage
@@ -136,6 +136,7 @@ cupping: Cupping
 cutting: Cutting
 missing_edges: Damaged and missing corners and edges
 damaged_edges: Damaged edges
+damaged_edges_note: Damaged edges
 dampness: Dampness
 darkening: Darkening
 daylight_opening_correct: Daylight opening correct
@@ -143,6 +144,7 @@ deformation: Deformation
 degradation: Degradation
 degradation_of_plastics: Degradation of plastics
 degraded: Degraded
+degraded_note: Degraded
 degraded_medium: Degraded medium
 delamination_type: Delamination
 dents_type: Dents
@@ -156,15 +158,18 @@ drips_or_dripmarks: Drips or dripmarks
 dust: Dust
 embrittlement: Embrittlement
 fiber_degradation: Fiber degradation
+fiber_degradation_note: Fiber degradation
 excrements: Excrements
 fading: Fading
 filling: Filling
 finger_marks: Finger marks
 fire_damage: Fire damage
+fixed_type: Fixed
 fixation: Fixation
-fixed: Fixed
+fixed_note: Fixed
 flaking_type: Flaking
 flattened_paint: Flattened paint
+flattened_paint_note: Flattened paint
 fly_out_openings: Fly out openings
 folds: Folds
 foxing: Foxing
@@ -175,6 +180,7 @@ hair_tears_cracks: Hair tears / Cracks
 impurities_in_the_paper_fiber: Impurities in the paper fiber
 impurities_in_varnish: Impurities in varnish
 ink_corrosion: Ink corrosion
+ink_corrosion_note: Ink corrosion
 inscriptions: Inscriptions
 insect_damage_type: Insect damage
 insect_feces: Insect feces
@@ -188,7 +194,6 @@ lined: Lined/Lining
 loose_parts: Loose parts
 losening_in_composite_support: Losening in composite support
 milky: Milky / hazy
-missing_parts: Missing parts
 impregnation: Moisture barrier at reverse / impregnation
 mold: Mold
 not_lined: Not lined
@@ -198,13 +203,12 @@ overpaint: Overpaint
 oxidation: Oxidation
 patches: Patches
 perforations: Perforations
-powdering: Powdering
 pitting: Pitting
+powdering_type: Powdering
 remains: Remains of other materials
 repairing: Repairing
 retouching_type: Retouching
 rodent_damage: Rodent damage
-salts: Salts
 seals: Seals
 seams: Seams
 silverfish: Silverfish
@@ -219,7 +223,6 @@ stretching_edges: Stretching edges
 stretching_marks: Stretching marks
 strip_lining: Strip-lining
 sugaring: Sugaring
-surface_dirt: Surface dirt
 tears: Tears
 tension: Tension/Stress
 tidelines: Tidelines

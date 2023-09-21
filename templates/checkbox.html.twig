@@ -8,7 +8,7 @@
         id="{{ name }}"
         autocomplete="off"
         {% if onclick is defined and onclick is not empty %} onclick="{{ onclick }}"{% endif %}
-        {% if prefilled_data[name] is defined and prefilled_data[name] is not empty %} checked{% endif %}
+        {% if (checked is defined and checked) or (prefilled_data[name] is defined and prefilled_data[name] is not empty and prefilled_data[name] != 'false') %} checked{% endif %}
         {% if disabled is defined and disabled %} disabled{% endif %}
     />
     <label for="{{ name }}">{{ label }}</label>

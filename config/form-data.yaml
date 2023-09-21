@@ -55,14 +55,62 @@ parameters:
         603: Damage claim
 
   pictures:
-    frame:
-      hash: 1a05c8366de4f7a23edffd0c72bc76bb89646799a6a85b4d8fe8f1fa142262fd
-      image: /annotation_images/frame.svg
-      thumbnail: /annotation_images/frame_150px.svg
-    backside:
-      hash: 227518a708732010213d949b38822c15ae14ee1c956d6e9d3b1b9d9a1c5d4954
-      image: /annotation_images/frame_back.svg
-      thumbnail: /annotation_images/frame_back_150px.svg
+    rectangle_portrait_front:
+      name: 'Rectangle (portrait)'
+      hash: f0cb750841386053f9101da5fee15f164eec5e3a72a2d87df53cd625534cd4fc
+      image: /annotation_images/rectangle_portrait_front.svg
+    rectangle_landscape_front:
+      name: 'Rectangle (landscape)'
+      hash: cb11c44f66df0e56914c7bc1fea2c673170aa365d563a22b33ed8a98608afb5b
+      image: /annotation_images/rectangle_landscape_front.svg
+    square_front:
+      name: 'Square'
+      hash: a3063387f9101dd3e989348ee1feee6aefcc1b4558c4231a4ae0005e9c4a08e2
+      image: /annotation_images/square_front.svg
+    oval_portrait_front:
+      name: 'Oval (portrait)'
+      hash: abcb5b054a46a8d7998c451dd5ad7b6573c837feafa55c7a492d50143ea05e7b
+      image: /annotation_images/oval_portrait_front.svg
+    oval_landscape_front:
+      name: 'Oval (landscape)'
+      hash: 81dd7d912f3d1440b53eea877d06e275f002d50cf0e2b2fa6750883b8498af0d
+      image: /annotation_images/oval_landscape_front.svg
+    circle_front:
+      name: 'Circle'
+      hash: 674af98ba91fe1f17260eab65fd6a97a8f7aa82aaad46d4bf4eed1393880f737
+      image: /annotation_images/circle_front.svg
+    diamond_front:
+      name: 'Diamond'
+      hash: c3d10b7efed2d15868918fdb39ad678920e01d6d4f8d7fa6c0dfcc8a41f875cb
+      image: /annotation_images/diamond_front.svg
+    rectangle_portrait_back:
+      name: 'Rectangle (portrait)'
+      hash: 555e70ba359a7aad18c44d0fa04a6406407b305ec2923d145aeec153deb071ad
+      image: /annotation_images/rectangle_portrait_back.svg
+    rectangle_landscape_back:
+      name: 'Rectangle (landscape)'
+      hash: 304f4ff0d2e5f12768845a86658b70aeff545aaf43899537ade0026717e48743
+      image: /annotation_images/rectangle_landscape_back.svg
+    square_back:
+      name: 'Square'
+      hash: 29ec20e9cbeac21f12eef2b4a06cc242e89f7c007c449bee832f74a3332519af
+      image: /annotation_images/square_back.svg
+    oval_portrait_back:
+      name: 'Oval (portrait)'
+      hash: aa259545834915a6f05f7529007a5cc73c27f3c650637377748870da37809cf6
+      image: /annotation_images/oval_portrait_back.svg
+    oval_landscape_back:
+      name: 'Oval (landscape)'
+      hash: 67fc3c45e2f32de14bdb11eeb0231cad89d6d16673e513081bb58592240e9e9e
+      image: /annotation_images/oval_landscape_back.svg
+    circle_back:
+      name: 'Circle'
+      hash: 856a5313c2d266a1f78b93080f183fc4ee4a12299591c0b8a07ecad95534de75
+      image: /annotation_images/circle_back.svg
+    diamond_back:
+      name: 'Diamond'
+      hash: f1b77336762102a17e092e17697e85bd8d760afc12c8ebc217cc70d8ac5ceddf
+      image: /annotation_images/diamond_back.svg
 
   # Do not forget to add the appropriate translations to messages.en.yaml and messages.nl.yaml when editing the report fields
   # Supported types: default, painting, work_on_paper and sculpture
@@ -4648,7 +4696,7 @@ parameters:
           - sculpture
           - frame
       damaged_edges:
-        note: "Damaged edges"
+        note: "damaged_edges_note"
         applies_to:
           - painting
           - work_on_paper
@@ -4688,7 +4736,7 @@ parameters:
         applies_to:
           - sculpture
       degraded:
-        note: "Degraded"
+        note: "degraded_note"
         applies_to:
           - painting
       degraded_medium:
@@ -4770,7 +4818,7 @@ parameters:
           - sculpture
           - frame
       fiber_degradation:
-        note: "Fiber degradation"
+        note: "fiber_degradation_note"
         applies_to:
           - painting
           - work_on_paper
@@ -4805,8 +4853,8 @@ parameters:
           - work_on_paper
           - sculpture
           - frame
-      fixed:
-        note: "Fixed"
+      fixed_type:
+        note: "fixed_note"
         applies_to:
           - painting
           - sculpture
@@ -4819,7 +4867,7 @@ parameters:
           - sculpture
           - frame
       flattened_paint:
-        note: "Flattened paint"
+        note: "flattened_paint_note"
         applies_to:
           - painting
           - work_on_paper
@@ -4879,7 +4927,7 @@ parameters:
         applies_to:
           - painting
       ink_corrosion:
-        note: "Ink corrosion"
+        note: "ink_corrosion_note"
         applies_to:
           - work_on_paper
       inscriptions:
@@ -4999,7 +5047,7 @@ parameters:
       open_joints:
         note:
           - "Open joints"
-          - "Joints: The apparatus used or the manner of joining two or more parts of an object or structure. In bookbinding, the term describes the flexing exterior junctions of the spine and covers of a book. Distinguished from ""hinges (fasteners)"", which use strips of fabric or paper placed between the two halves of an endpaper where the body of the book is fixed to its cover."
+          - "Joints: The apparatus used or the manner of joining two or more parts of an object or structure. In bookbinding, the term describes the flexing exterior junctions of the spine and covers of a book. Distinguished from 'hinges (fasteners)', which use strips of fabric or paper placed between the two halves of an endpaper where the body of the book is fixed to its cover."
         applies_to:
           - painting
           - work_on_paper
@@ -5029,7 +5077,7 @@ parameters:
         note: "Perforations"
         applies_to:
           - work_on_paper
-      powdering:
+      powdering_type:
         note: "Powdering"
         applies_to:
           - work_on_paper
