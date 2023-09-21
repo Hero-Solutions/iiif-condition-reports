@@ -19,6 +19,13 @@ public/annotation_images/*
 !public/annotation_images/oval_portrait_front.svg
 !public/annotation_images/oval_landscape_front.svg
 !public/annotation_images/circle_front.svg
+!public/annotation_images/rectangle_portrait_back.svg
+!public/annotation_images/rectangle_landscape_back.svg
+!public/annotation_images/square_back.svg
+!public/annotation_images/diamond_back.svg
+!public/annotation_images/oval_portrait_back.svg
+!public/annotation_images/oval_landscape_back.svg
+!public/annotation_images/circle_back.svg
 public/signature_images/
 public/setup_plan_images/
 public/recommendation_images/
