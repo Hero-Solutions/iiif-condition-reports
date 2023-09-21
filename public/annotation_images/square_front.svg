@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 21.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 711.1 711.1" style="enable-background:new 0 0 711.1 711.1;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:none;stroke:#000000;stroke-width:2.5;stroke-miterlimit:10;}
+	.st1{fill:none;stroke:#000000;stroke-width:2.5;stroke-miterlimit:10;stroke-dasharray:2.5806,2.5806;}
+	.st2{fill:none;stroke:#000000;stroke-width:2.5;stroke-miterlimit:10;stroke-dasharray:2.5012,2.5012;}
+	.st3{fill:none;stroke:#000000;stroke-width:2.5;stroke-miterlimit:10;stroke-dasharray:2.4959,2.4959;}
+</style>
+<g>
+	<rect x="57.9" y="57.9" class="st0" width="595.3" height="595.3"/>
+	<rect x="108" y="108" class="st0" width="495.3" height="495.1"/>
+	<rect x="118" y="118" class="st0" width="475" height="475"/>
+	<line class="st0" x1="653.3" y1="57.9" x2="593.1" y2="118"/>
+	<line class="st0" x1="653.3" y1="653.2" x2="593.1" y2="593"/>
+	<line class="st0" x1="58" y1="653.2" x2="118" y2="593"/>
+	<line class="st0" x1="58" y1="57.9" x2="118" y2="118"/>
+	<g>
+		<g>
+			<polyline class="st0" points="654.5,653.2 653.3,653.2 653.3,652 			"/>
+			<polyline class="st0" points="653.3,59.2 653.3,57.9 654.5,57.9 			"/>
+			<line class="st1" x1="657.1" y1="57.9" x2="707.4" y2="57.9"/>
+			<polyline class="st0" points="708.7,57.9 709.9,57.9 709.9,59.2 			"/>
+			<line class="st2" x1="709.9" y1="61.7" x2="709.9" y2="650.7"/>
+			<polyline class="st0" points="709.9,652 709.9,653.2 708.7,653.2 			"/>
+			<line class="st1" x1="706.1" y1="653.2" x2="655.8" y2="653.2"/>
+		</g>
+	</g>
+	<g>
+		<g>
+			<polyline class="st0" points="58.9,709.9 58,709.9 58,708.7 			"/>
+			<line class="st1" x1="58" y1="706" x2="58" y2="655.8"/>
+			<polyline class="st0" points="58,654.5 58,653.2 58.9,653.2 			"/>
+			<polyline class="st0" points="652.3,653.2 653.3,653.2 653.3,654.5 			"/>
+			<line class="st1" x1="653.3" y1="657" x2="653.3" y2="707.4"/>
+			<polyline class="st0" points="653.3,708.7 653.3,709.9 652.3,709.9 			"/>
+			<line class="st3" x1="650.4" y1="709.9" x2="59.8" y2="709.9"/>
+		</g>
+	</g>
+	<g>
+		<g>
+			<polyline class="st0" points="2.5,653.2 1.3,653.2 1.3,652 			"/>
+			<line class="st2" x1="1.3" y1="649.5" x2="1.3" y2="60.4"/>
+			<polyline class="st0" points="1.3,59.2 1.3,57.9 2.5,57.9 			"/>
+			<line class="st1" x1="5" y1="57.9" x2="55.3" y2="57.9"/>
+			<polyline class="st0" points="56.6,57.9 58,57.9 58,59.2 			"/>
+			<polyline class="st0" points="58,652 58,653.2 56.6,653.2 			"/>
+			<line class="st1" x1="54" y1="653.2" x2="3.8" y2="653.2"/>
+		</g>
+	</g>
+	<g>
+		<g>
+			<polyline class="st0" points="58.9,57.9 58,57.9 58,56.7 			"/>
+			<line class="st1" x1="58" y1="54" x2="58" y2="3.8"/>
+			<polyline class="st0" points="58,2.5 58,1.3 58.9,1.3 			"/>
+			<line class="st3" x1="60.7" y1="1.3" x2="651.4" y2="1.3"/>
+			<polyline class="st0" points="652.3,1.3 653.3,1.3 653.3,2.5 			"/>
+			<line class="st1" x1="653.3" y1="5.1" x2="653.3" y2="55.4"/>
+			<polyline class="st0" points="653.3,56.7 653.3,57.9 652.3,57.9 			"/>
+		</g>
+	</g>
+</g>
+</svg>
