@@ -810,8 +810,11 @@ analysis: Analyse
 necessary_background_information: Noodzakelijke achtergrondinformatie bij het werk / kunsthistorisch onderzoek
 
 abrasions: Geschaafd
+abrasions_note: Geschaafd
+Acid: Algemene verzuring
 acid: Algemene verzuring
 accretion: Accretie
+Adheasion: Hechting
 adheasion: Hechting
 adhesive_tape: Plakband
 animal_glue: Dierlijke lijm
@@ -822,6 +825,7 @@ bloom: Waas, vochtaanslag
 blur: Wazigheid
 bowing: Kromtrekking
 broken_glass: Gebroken glas
+broken_glass_note: Gebroken glas
 broken_parts: Afgebroken stukken
 browning: Verbruining (papier/vernis)
 changes: Vormveranderingen
@@ -829,41 +833,111 @@ climate_box_sealed: Klimaatbox goed gesealed
 condensation: Condenseren
 consolidated: Verstevigen
 crackle: Craquelé
+cracks_damage_type: Barsten
+Crusted dirt: Geïncrusteerd vuil
 creases: Plooien
 crizzling: Ziek (glas)
 cupping: Schotelvorming
+cutting: Snede
+missing_edges: Afgebroken of ontbrekende hoeken en randen
+damaged_edges: Randen beschadigd
 dampness: Vochtigheid
-darkening: Verdonkeren
+darkening: Verdonkeren (retouches)
+daylight_opening_correct: Dagmaat passend
 deformation: Deformatie
-degradation: Sleetsheid
+degradation: Degradatie
+degradation_of_plastics: Degradatie van kunststoffen
+degraded: Gecrepeerd
+degraded_medium: Poederende/loskomende verf
+delamination_type: Delamineren
+dents_type: Deuken
+dirt_between_canvas_and_stretcher: Vuil tussen raam en doek
+dirt_between_glass_and_artwork: Vuil tussen glas en werk
 deterioration: Degradatie
 discoloration: Verkleuring
+discolored_retouching: Verkleurde retouches
 distortion: Vervorming
+drips_or_dripmarks: Druppels of druipsporen
+dust: Stof
+embrittlement: Bros geworden
+fiber_degradation: Vezelaantasting
 excrements: Dierenuitwerpselen
 fading: Vervagen
 filling: Vulling
 finger_marks: Vingerafdrukken
-foxing: Roestbruine verkleuring
+fire_damage: Brandschade
+fixation: Gefixeerd (de materialen)
+fixed: Gefixeerd (de verschillende objectdelen)
+flaking_type: Afschilferen
+flattened_paint: Geplette verf
+fly_out_openings: Uitvliegopeningen
+folds: Vouwen
+foxing: Roestbruine verkleuring/Foxing
+fracture: Breuk
 frass: Houtpoeder
-joints: Joints
+glue_residues: Lijm(resten)
+hair_tears_cracks: Haarscheurtjes
+impurities_in_the_paper_fiber: Onzuiverheden in de papiervezel
+impurities_in_varnish: Onzuiverheden in vernis
+ink_corrosion: Inktvraat
+inscriptions: Inscripties
+insect_damage_type: Insectenvraat
+insect_feces: Insectenpoep
+instability: Instabiliteit
+joints: Voegen (open, hersteld, verstevigd)
 keys: Spieën
-labels: Labels of etiketten
+labels: Etiketten
+lacunae: Lacunes
 losses_lacunae: Lacunes
+lined: Gedoubleerd
+loose_parts: Losse delen
+losening_in_composite_support: Loskomen in samengestelde drager
+milky: Wazig
+missing_parts: Ontbrekende delen
+impregnation: Vochtbarrière aan de achterkant / impregnatie met verf
+mold: Schimmel
+not_lined: Niet gedoubleerd
+old_repairs: Oude ingrepen / restauraties
+open_joints: Open verbindingen
 overpaint: Overschildering
 oxidation: Oxideren
+patches: Herstellappen
+perforations: Perforaties
+powdering: Verpoederen
 pitting: Holtevorming
+remains: Restanten van andere materialen
 repairing: Herstelling
+retouching_type: Retouches
+rodent_damage: Knaagdiervraat
+salts: Zouten
+seals: Zegels
+seams: Naad
+silverfish: Zilvervisje
 silver_mirroring: Verzilvering
+smudged: Uitgeveegd
 stains: Vlekken
-stretchers: Spanramen
-strip_lining: Randdoublering
+stains_spots: Vlekken
+sticking_together: Verkleving
+strainers: Spanramen
+stretchers: Spieraam
+stretching_edges: Omslagranden
+stretching_marks: Spanguirlandes
+strip_lining: Strip-lining
+sugaring: Versuikeren
+surface_dirt: Oppervlaktevuil
 tears: Scheuren
+tension: Spanning
 tidelines: Vochtkringen
-warping: Kromtrekken
+undulation: Golving
+warping: Kromtrekking
+wax_residues: Wax(resten)
 wax_resin: Washars
+weak_corner_joints: Zwakke hoekverbindingen
 wear: Slijtage
 wood_borers: Houtboorders
+wrinkle: Plooivorming
 wrinkles: Plooivorming
+yellowing: Vergelen
 
 "Adhesion: The joining of two surfaces by means of a generally viscous, sticky composition such as an adhesive or through physical or chemical force.": "Hechting: Het samenvoegen van twee oppervlakken met behulp van een in het algemeen kleverig, plakkerig mengsel zoals een kleefstof, of door middel van fysieke of chemische kracht."
 Blanching: "Blindgeslagen: Te onderscheiden van 'waas' dat algemeen wordt gebruikt om aan te geven dat allerlei oppervlakken er anders zijn gaan uitzien als gevolg van de inwerking van waterdamp of vocht uit de atmosfeer."
@@ -872,6 +946,94 @@ Blanching: "Blindgeslagen: Te onderscheiden van 'waas' dat algemeen wordt gebrui
 "Broken: Splitting into pieces or smashing into parts or fragments, typically by a blow or stress and with suddenness or violence.": "Gebroken: Het in stukjes uiteensplijten of in delen of scherven uiteenspatten, meestal plotseling en hevig, als gevolg van een klap of drukuitoefening."
 "Glass: An amorphous, inorganic substance made by fusing silica (silicon dioxide) with a basic oxide; generally transparent but often translucent or opaque. Its characteristic properties are its hardness and rigidity at ordinary temperatures, its capacity for plastic working at elevated temperatures, and its resistance to weathering and to most chemicals except hydrofluoric acid. Used for both utilitarian and decorative purposes, it can be formed into various shapes, colored or decorated. Glass originated as a glaze in Mesopotamia in about 3500 BCE and the first objects made wholly of glass date to about 2500 BCE.": "Glas: Een amorfe, anorganische substantie die wordt gemaakt door silica (siliciumdioxide) te fuseren met een basisoxide, meestal transparant maar vaak ook doorschijnend of ondoorschijnend. Kenmerkende eigenschappen zijn de hardheid en stijfheid bij normale temperaturen, de plastische eigenschappen bij verhoogde temperaturen en de weersbestendigheid en bestendigheid tegen de meeste chemische stoffen, behalve waterstoffluoride. Het wordt gebruikt voor zowel gebruiksdoeleinden als decoratieve doeleinden, en kan worden gemaakt in diverse vormen, gekleurd en gedecoreerd. Glas is ontstaan als glazuur in Mesopotamië in ongeveer 3500 v. Chr. De eerste voorwerpen die geheel van glas zijn vervaardigd, dateren van ongeveer 2500 v. Chr."
 Changes (additions, altered pieces…): Vormveranderingen (toevoegingen, ingezette stukken…)
+"Sealing process: The action of closing a vessel, aperture, or package by placing a coating of material or a fastening on it that must be broken before access can be obtained.": "Dichten (procedé)"
 "Consolidated: Stabilizing degraded or weakened areas by introducing or attaching materials capable of holding them together.": "Verstevigen: Beschadigde of verzwakte delen verduurzamen door het inbrengen of aanhechten van materialen met behulp waarvan ze bijeen gehouden kunnen worden."
 "Corrosion: The deterioration of metal or other substances by chemical or electrochemical reaction resulting from exposure to weathering, moisture, chemicals, or other agents.": "Corrosie: De aantasting van metaal of ander materiaal door chemische of elektrochemische reacties die het gevolg zijn van blootstelling aan verwering, vochtigheid, chemicaliën of andere agentia."
 "Crackle: A network of fine fracture lines in a coating layer, such as a ground, paint layer, varnish, or glaze.": "Craquelé: Een netwerk van fijne breuklijnen in een deklaag, bijvoorbeeld (grond)verf, vernis of glazuur."
+"Cracks: Fissures or systems of fissures without complete separation into pieces. Eerder voor verflaag die gebarsten is.": "Barsten: Scheuren of patronen van scheuren zonder dat iets volledig uit elkaar valt."
+"Cupping: Formation of a concavity or cuplike hollow in a paint layer.": "Schotelvorming: Het ontstaan van een concave lijn of komvormige holte in een verflaag."
+"Cutting: Making incisions with a sharp-edged instrument, thus removing material or dividing something into parts.": "Snede, Gesneden: Ergens met een scherp instrument een snede in aanbrengen, waardoor materiaal wordt verwijderd wordt of een voorwerp in stukken wordt gedeeld."
+Damaged and missing corners and edges: Afgebroken of ontbrekende hoeken en randen
+Damaged edges: Randen beschadigd
+"Darkening: To make or become dark in shade, value, or color; a form of discoloration: the blackening or browning of materials due to such causes as chemical process, exposure to light, the passage of time.": "Verdonkeren: Donker maken of worden in tint, waarde of kleur. Het betreft een vorm van verkleuring: materialen die zwart of bruin worden door bijvoorbeeld een chemisch proces, blootstelling aan licht of het verstrijken van de tijd."
+Daylight opening correct (yes / no): Dagmaat passend (ja/nee)
+"Deformation: Any change of form, shape, or dimensions produced in a body by a stress or force without a breach of the continuity of its parts.": "Deformatie: Elke verandering van vorm, gedaante of dimensie in een lichaam door een spanning of kracht, zonder inbreuk te maken op de continuïteit van de ertoe behorende delen."
+"Degradation: Gradual loss of quality; can be without structural change.": "Degradatie: Geleidelijk verlies van kwaliteit; kan optreden zonder dat zich structurele veranderingen voordoen."
+Degradation of plastics: Degradatie van kunststoffen
+Degraded: "Gecrepeerd: kleine barstjes"
+Degraded medium: Poederende/loskomende verf
+"Delamination: Separation into constituent layers.": "Delamineren: Proces waarbij de verschillende lagen waaruit iets is opgebouwd, van elkaar loslaten."
+"Dents: Hollows or impressions in a surface, such as are made by a blow with a sharp or edged instrument.": "Deuken: Holtes of verlagingen in een oppervlak, zoals die worden gemaakt door een klap met een scherp of gerand object."
+Dirt between canvas and stretcher: Vuil tussen raam en doek
+Dirt between glass and artwork: Vuil tussen glas en werk
+"Discoloration: Any change in the color of an object.": "Verkleuring: Elke verandering in de kleur van een voorwerp."
+Discolored retouching: Verkleurde retouches
+"Retouching: Reworking small areas of a painting or photographic negative usually to cover damage or to mask unwanted features. For similar work done on paintings by conservators, use 'inpainting' or 'overpainting'.": "Retoucheren: Het opnieuw bewerken van kleine delen van een schilderij of fotonegatief meestal om beschadigingen te herstellen of om ongewenste kenmerken te camoufleren. Gebruik 'bijschilderen' of 'overschilderen' voor soortgelijke bewerkingen van schilderijen uitgevoerd door conservators."
+"Distortion: The quality or state in a painting or of an object due to the use of optical illusions, manipulated surfaces, or discordantly juxtaposed images.": "Vervorming: De kwaliteit of staat in een schilderij of van een object door het gebruik van optische illusie, gemanipuleerde oppervlakken of naast elkaar geplaatste strijdige afbeeldingen."
+Drips or dripmarks: Druppels of druipsporen
+"Dust: Fine, dry particles of matter regarded as the result of disintegration.": "Stof: Fijne, droge materiaaldeeltjes die als het resultaat van desintegratie worden beschouwd."
+"Embrittlement: Process of becoming brittle; includes the loss of flexibilty or elasticity.": "Bros geworden: Het broos worden, hetgeen tevens een vermindering van de buigzaamheid of de rekbaarheid veroorzaakt."
+Fiber degradation: Vezelaantasting
+"Filling: Inserting material into a hole, crack, or cavity. In the specific context of mosaic conservation, the application of mortar or other material into an area of loss of the mosaic surface.": "Vullen: Het inbrengen van materiaal in een gat, een scheur of een holte. In de specifieke context van mozaïekonderhoud het aanbrengen van mortel of een ander materiaal in een beschadigd gedeelte van het mozaïekoppervlak."
+"Finger Marks: The impression of the markings from the inner surface of the finger.": "Verwijst naar de afdruk van de tekening aan de binnenkant van de vingertoppen."
+"Fire damage: Damage caused by fire, including burning and ash residue.": "Brandschade: Schade als gevolg van vuur, door verbranding of door asresten."
+Fixation: "Gefixeerd (de materialen): Het materiaal (de verf, vergulding, afwerkingslaag, ...) vastzetten."
+Fixed: "Gefixeerd (de verschillende objectdelen): Het object vastzetten."
+"Flaking: Separating into thin flattened pieces or layers.": "Afschilferen: Het uiteenvallen in dunne, platte stukjes of laagjes."
+Flattened paint: "Geplette verf: Platgedrukte verf"
+"Folds: Parts of something that are folded, that is, where the object or material collapses onto itself. For ridges or grooves pressed into a material by folding, use 'creases'.": "Vouwen: Wordt gebruikt voor delen van een object of materiaal die gevouwen zijn, dat wil zeggen dat deze delen van het object of materiaal over elkaar heen vallen. Gebruik 'kreuken' voor randen of groeven die door middel van vouwen in een materiaal zijn aangebracht."
+"Foxing: Pale, brownish, diffuse spots that appear on paper or other surfaces, probably either from mold or fungus growth, metallic impurities in the paper, or other conditions in combination with dampness.": "Roestbruine Verkleuring/Foxing: Verspreide, vaalbruine vlekken op papier of andere materialen, waarschijnlijk als gevolg van schimmelvorming of metaalverontreiniging in het papier."
+Fly out openings: Uitvliegopeningen
+Fracture: Breuk
+"Frass: Powdered debris produced by insects in the course of feeding and boring, often including excrement and food remains.": "Houtpoeder: verpoederde restanten die door insecten worden geproduceerd tijdens het voeden en boren; vaak met uitwerpselen en etensresten erin."
+"Glue (residues): Adhesive comprising an impure protein obtained by hydrolysis of collagenous material such as skin, bone, and connective tissue by various methods.": "Lijm(resten): Een onzuivere proteïne verkregen door hydrolyse van collagene materialen zoals huid, been en bindweefsel, door verschillende methoden."
+Hair (tears) / Cracks: Haarscheurtjes
+Impurities in the paper fiber: Onzuiverheden in de papiervezel
+Impurities in varnish: Onzuiverheden in vernis
+Ink corrosion: "Inktvraat - ijzervraat: De zogenaamde ijzergallusinkt waarmee werd geschreven en getekend, vreet zich in de loop der tijd door het papier heen. Hierdoor gaat de leesbaarheid van de voorstelling maar ook de objecten zelf in kwaliteit achteruit en kunnen zelfs geheel verloren gaan. Inktvraat - kopervraat: Kopervraat heeft een vergelijkbare oorzaak als inktvraat. Inktvraat treedt op bij ijzerhoudende inkten (zie aldaar), terwijl kopervraat optreedt bij koperhoudende inkten (blauw/groen). (Definitie M Leuven)"
+"Inscriptions: Words, texts, lettering, or symbols marked on a work, including texts, legends, documentation notes, or commemoration. For standardized symbols or notations on objects that convey official information, use 'marks (symbols)'.": "Inscripties: Wordt gebruikt voor gegraveerde of gebeitelde opschriften, met name met documentatie of herdenking als doel. Bij afdrukken wordt de term gebruikt voor de inhoud van de inscriptie, die meestal geen deel uitmaakt van een langere tekst. Wanneer de term wordt gebruikt in verband met materiaal uit de oudheid, dan kan deze van toepassing zijn op de meeste bewaard gebleven geschreven stukken, ongeacht de lengte, met uitzondering van papyrusrollen. Gebruik 'merktekens' voor gestandaardiseerde symbolen of opschriften die officiële informatie bevatten."
+"Insect damage: Damage caused by insects.": "Insectenvraat: Wordt gebruikt voor de schade die door insecten wordt veroorzaakt."
+Insect feces: Insectenpoep
+"Instability: The quality or state of lacking stability, of tending toward changeability, or of readily decomposing or changing chemically.": "Instabiliteit: De eigenschap of toestand van het missen van stabiliteit, van het neigen naar veranderlijkheid of van gemakkelijk uiteenvallen of chemisch veranderen."
+Joints: Voegen
+"Keys (frame components): Wedges of wood set at the corners of frames.": "Spieën (frameonderdelen): Wordt gebruikt voor houten wiggen aan de hoeken van lijsten."
+"Labels: Pieces of paper, leather, fabric, or small tablets inscribed and affixed to something for identification or description. In the context of bookbinding, refers specifically to paper or other material separate from that used to cover a book, on which the author's name and the title are printed or engraved and glued to the spine or front board. For larger, more public identifying notices, use 'identification signs'.": "Etiketten: Stukken papier, leer, stof of kleine tabletten waarop is geschreven en die ergens aan zijn bevestigd ter identificatie of beschrijving. Verwijst in de context van boekbinden specifiek naar papier of ander materiaal, anders dan de kaft van een boek, waarop de naam van de auteur en de titel zijn afgedrukt, die zijn vastgelijmd aan de rug of voorkaft. Voor grotere, meer algemeen identificerende aankondigingen wordt 'herkenningsborden' gebruikt."
+"Lacunae: Blank spaces or missing portions of a written or printed text, of the media or support of a two-dimensional object, or of paint or a coating on a three dimensional object; objects subject to lacunae include paintings, mosaics, manuscripts, and painted sculptures. Lacunae result from damage or accidental omission; intentional omissions are not called 'lacunae'.": "Lacunes: Lege of ontbrekende gedeelten van een tekst of voorwerp, zoals een schilderij of manuscript, die gewoonlijk het gevolg zijn van beschadiging of onopzettelijke omissie."
+"Lined/Lining: The process of stregthening or stabilizing by use of an inner layer, usually using paper or fabric. In conservation and other contexts, the process of reinforcing a work by applying a paper or fabric lining with an adhesive, sewing, or another method; examples include lining applied to the support of a paper or canvas support of a work of art, or the lining applied to a garment as an inner layer of cloth.": "Gedoubleerd/doubleren: Wordt gebruikt voor het geven van een tweede, vaak binnenste, laag, zoals bijvoorbeeld het aanhechten van een extra ondersteunende laag op de primaire ondergrond van een kunstwerk op papier of stof. Wordt ook wel 'doubleren' genoemd."
+Loose parts: Losse delen
+Losening in composite support: Loskomen in samengestelde drager
+Milky / hazy: Wazig
+Moisture barrier at reverse / impregnation: Vochtbarrière aan de achterkant / impregnatie
+"Mold: Condition of having a conspicuous furry growth on the surface of organic materials, comprising a mass of mycelium (masses of vegetative filaments, or hyphae) and fruiting structures of various fungi. The most common species are of the genera Aspergillus (black, yellow, and orange) and Penicillium (green). Molds can excrete organic acids, such as citric, oxalic, gluconic, etc., that can damage the growth substrate, resulting in discoloration of dyed textiles, paper, and leather. They also produce colored bodies that discolor materials. Mold growth can be inhibited by fungicides or minimized by a clean environment that has sunlight, dry circulating air, and relatively low temperatures.": "Schimmel: Toestand waarbij er een opvallende harige groei zichtbaar is op het oppervlak van organische materialen. Het bestaat uit een massa van mycelium (massa's van vegetatieve filamenten of hyfen) en vruchtlichamen van verschillende schimmels. De meest voorkomende soorten zijn van de geslachten Aspergillus (zwart, geel en oranje) en Penicillium (groen). Schimmels kunnen organische zuren afscheiden, zoals citroenzuur, oxaalzuur en gluconzuur, die het groeisubstraat kunnen beschadigen. Dit resulteert in verkleuring van geverfd textiel, papier en leer. Ze produceren ook gekleurde lichamen die materialen verkleuren. Schimmelgroei kan worden afgeremd door schimmeldodende middelen of tot een minimum worden beperkt door een schone omgeving met zonlicht, een droge circulatielucht en relatief lage temperaturen."
+Old repairs / restoration: Oude ingrepen / restauraties
+"Joints: The apparatus used or the manner of joining two or more parts of an object or structure. In bookbinding, the term describes the flexing exterior junctions of the spine and covers of a book. Distinguished from ""hinges (fasteners)"", which use strips of fabric or paper placed between the two halves of an endpaper where the body of the book is fixed to its cover.": "Verbindingen: Wordt gebruikt voor het middel waarmee of de manier waarop twee of meer delen van een voorwerp of een constructie aan elkaar worden gevoegd. Ook gebruikt voor de buigzame verbindingen in de band van een boek waarmee de rug en de kaften aan elkaar worden genaaid. Te onderscheiden van 'scharnieren (bevestigingsmiddelen)', waarmee wordt verwezen naar de stroken van papier of van ander materiaal tussen de twee helften van een schutblad, op de plek waar het lichaam van het boek aan de kaft is vastgemaakt."
+"Overpaint: Paint applied to a painting over already dry areas. Sometimes used to include the original artist's glazes and scumbles; sometimes, especially in conservation, used to mean only later restorers' work. For restoration work that only fills in lost areas without covering original paint, use 'inpainting'.": "Overschildering: Verf aangebracht op een schilderij over de reeds opgedroogde oppervlakken. Wordt soms ook gebruikt voor het oorspronkelijke glazuurwerk en de lazuurkleuren die door de kunstenaar zijn gebruikt. In conservatie wordt de term meestal alleen gebruikt voor het latere restauratiewerk. Gebruik 'bijschilderen' voor restauratiewerk dat alleen verloren oppervlakken vult zonder de oorspronkelijke verf te bedekken."
+"Oxidation: The process or result of combining with oxygen; sometimes contributing to the degradation of a surface, such as in corrosion.": "Oxydatie: Wordt gebruikt om aan te geven dat iets met zuurstof in aanraking is geweest, maar ook om aan te geven waartoe dat contact heeft geleid. Soms draagt oxideren bij aan de aantasting van een oppervlak, zoals bij corrosie."
+Patches: Herstellappen
+Perforations: Perforaties
+Powdering: Verpoederen
+"Rodent damage: Damage caused by rodents, including chewing, nesting, and droppings.": "Knaagdiervraat: Het object vertoont gaten en in de randen zijn tandafdrukken van knaagdieren te herkennen. De omgeving van de gaten is niet verzwakt. Bij ernstige schade kunnen archiefstukken zodanig aangetast zijn dat grote delen tot snippers gevreten zijn. (definitie Mu.ZEE)"
+Salts: Zouten
+"Scratches: Surface damage produced by grinding contact; sharp-edged, narrow furrows often involving loss of surface material.": "Krassen: Schade aan het oppervlak van een object die veroorzaakt is door slijpend contact; scherpe, nauwe groeven, waarbij vaak sprake is van verlies van oppervlaktemateriaal."
+"Seals: Objects bearing designs, emblems, letters, names, words, etc. in intaglio that are used for stamping a flat surface or for making an impression in relief on some soft, tenacious substance such as clay or wax. They may be flat or cylindrical, the impression made by rolling the seal over the surface. Seals may be used to authenticate documents or for decoration.": "Zegels: Verwijst naar artefacten voorzien van monogrammen, teksten, getallen, symbolen of ontwerpen in intaglio waarmee een reliëfafdruk wordt gemaakt in klei of was, of een andere zachte, taaie substantie. Zegels kunnen vlak of cilindervormig zijn; in het laatste geval wordt de afdruk gemaakt door het zegel over het oppervlak te rollen. De term verwijst ook naar afdrukken die zijn gemaakt in was, klei of een ander zacht materiaal, door contact met een zegel of een ander hard, gegraveerd oppervlak. Zegels worden meestal gebruikt om de authenticiteit van documenten te bevestigen, of als decoratie."
+"Seams: Generally, the lines of junction formed by the abutment or attachment of two edges, especially the edges of two portions of a single object, such as a garment or metal cylinder.": "Naad: Wordt algemeen gebruikt voor de lijnen van een naad die is gevormd door de aangrenzen of aanhechting van twee uitersten, vooral de uitersten van twee delen van één voorwerp, zoals een kledingstuk of een metalen cilinder."
+"Silverfish (Lepisma saccharina): Species of slender, flat, wingless insect with three tail bristles and covered with silvery scales. It normally lives indoors, eating materials containing high percentages of starch, including paste, bookbindings, and wallpaper, causing damage to books and fabrics.": "Zilvervisje: Slanke, platte insecten zonder vleugels met drie staartstekels. Het lichaam is bedekt met zilverachtige schubben. De dieren leven gewoonlijk binnenshuis en eten materiaal met een hoog zetmeelgehalte, zoals plaksel van boekbanden en behang, en beschadigen zo het materiaal."
+"Stains/Spots: Discolorations produced by the penetration of foreign matter into a fabric, wood, or coating. This term designates material damage and is not to be confused with a substance that is used as a protective coating or colorant.": "Vlekken: Verkleuringen die ontstaan doordat er materiaal van buiten binnendringt in stof, hout of een deklaag."
+"Sticking together: The adhesion of loose parts as a result of dampness.": "Verkleving: Het aan elkaar vast gaan zitten van losse delen ten gevolge van vochtoverlast."
+"Strainers (framing and mounting equipment): Houten frames zonder verstelbare hoeken, die worden gebruikt voor het ondersteunen van canvas of ander textiel. Gebruik 'spanramen (benodigdheden voor inlijsten en monteren)' voor soortgelijke frames met verstelbare hoeken.": "Spanramen: Houten frames zonder verstelbare hoeken, die worden gebruikt voor het ondersteunen van canvas of ander textiel. Gebruik 'spanramen (benodigdheden voor inlijsten en monteren)' voor soortgelijke frames met verstelbare hoeken."
+"Stretchers: Devices or appliances for expanding a material making it taut, removing wrinkles, or the like; used especially with reference to frames upon which canvas or other textile is stretched for painting, having mitered corners that can be forced apart by wedges or some other device to firmly stretch the fabric. For frames that support canvas or other textile and do not have expandable corners, use 'strainers (framing and mounting equipment)'.": "Spieraam: Voorwerpen of apparaten die worden gebruikt voor het strekken van stof zodat deze wordt gespannen, de kreukels worden verwijderd en dergelijke. De benaming wordt vooral gebruikt om te verwijzen naar frames waarop canvas of ander textiel wordt gespannen om erop te schilderen, waarbij de verstek gezaagde hoeken uit elkaar kunnen worden geduwd door wiggen of andere voorwerpen om het textiel goed te kunnen strekken. Gebruik 'spanklemmen' voor frames die canvas of ander textiel ondersteunen, zonder verstelbare hoeken."
+Stretching edges: Omslagranden
+"Strip-lining: A painting conservation technique where a deteriorated canvas is strengthened by affixing a strip of canvas to its outside edge.": "Strip-lining: Wordt gebruikt voor de techniek om schilderijen te conserveren waarbij een beschadigd doek wordt verstevigd door aan de buitenrand ervan een strook schilderslinnen vast te hechten."
+Sugaring: Versuikeren
+"Tears: Separations in a flexible material caused by pulling or wrenching part from part.": "Scheuren: Scheidingen in een flexibel materiaal veroorzaakt door delen van elkaar te trekken of te rukken."
+"Tension/Stress: Resultant condition of applied force; condition existing in a body when its internal structure or surfaces resist a force that produces or tends to produce deformation in the body.": "Spanning: De toestand die het gevolg is van een toegepaste kracht; deze toestand bestaat in een voorwerp als de interne structuur of oppervlakte weerstand biedt tegen een kracht die een vervorming teweegbrengt of dat probeert."
+"Tidelines: Discolorations appearing as irregular dark lines on paper or board, created by a dried liquid. These lines indicate the limit of liquid migration. The visible lines are dirt transported by the liquid, which is embedded deeply into the paper fibers.": "Vochtkringen: Verkleuring in de vorm van onregelmatige, donkere lijnen op papier of karton, veroorzaakt door een opgedroogde vloeistof. Deze lijnen geven de grens van de vloeistofmigratie aan, en bestaan uit stof dat door de diep in de papiervezels verzonken vloeistof is meegevoerd."
+Undulation: Golving
+"Warping/Bowing (warping, surface or structural changes, ...): A type of warping usually associated with wood when one face of a length of lumber shrinks more than the other, resulting in a bowed curvature. Less commonly this process may occur in stone such as marble, due to residual stresses, anisotropic thermal expansion of calcitic grains, variation of fluid contents, and dissolution processes.": "Kromtrekking: Een vormverandering die vooral met hout wordt geassocieerd, wanneer een kant van een stuk hout meer krimpt dan de andere, zodat het geheel buigt. Minder vaak treedt dit proces ook op bij steensoorten zoals marmer, als gevolg van inwendige spanning, anisotrope warmte-uitzetting van kalkkorrels, variatie in vloeibare inhoud en ontbindingsprocessen."
+"Water damage: Damage caused by water. Usage often refers to water damaged library materials and buildings, and includes but is not limited to flood damage.": "Waterschade: Schade die door water is veroorzaakt. Vaak verwijst de term naar waterschade aan bibliotheekmaterialen en gebouwen. Deze kan optreden na een overstroming, maar de term wordt ook in andere gevallen gebruikt."
+Wax residues: "Waxresten. Wax: Aanduiding voor diverse materialen die, hoewel ze geen chemisch homogene groep vormen, bepaalde fysieke kenmerken gemeen hebben, en meestal vast en doorschijnend zijn en een laag smeltpunt hebben."
+Weak corner joints: Zwakke hoekverbindingen
+"Wear/Wearage: Damage or deterioration occurring gradually as a result of continuing use or exposure, usually a gradual diminishing from such actions as rubbing, scraping, or washing.": "Slijtage: Beschadiging of achteruitgang die zich geleidelijk manifesteert als gevolg van voortdurend gebruik of blootstelling; meestal een geleidelijke aantasting als gevolg van wrijven, schuren of wassen."
+"Wood borers: Wood boring beetles in their larval and adult states. As larvae, commonly known as woodworms. Termites, though wood eating, are not beetles and thus not wood borers.": "Houtboorders: Kevers die zich als larve en in hun volwassen vorm in hout ingraven. Als larven staan ze algemeen bekend als houtwormen. Termieten eten ook hout maar zijn geen kevers, en worden dus niet tot de houtboorders gerekend."
+"Wrinkle: Small ridges or furrows in a formerly smooth surface.": "Plooivorming: Kleine ribbels of groeven in een oorspronkelijk glad oppervlak."
+"Yellowing: The process or result of becoming yellow, such as in fabric or paper due to aging or environment.": "Vergelen: Het geel worden, zoals bij stof of papier ten gevolge van veroudering of de invloed van de omgeving."
