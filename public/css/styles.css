@@ -1501,6 +1501,7 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
 .thumbnail-image {
     position: relative;
     width: 150px;
+    min-width: 150px;
 }
 
 .thumbnail-image-img {
