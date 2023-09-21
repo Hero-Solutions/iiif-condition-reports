@@ -233,7 +233,7 @@
 </div>
 
 <script>
-console.log({{ annotation_schema_images | json_encode | raw }});
+
 {% if not readonly %}
 
 $('input#annotate-file').change(function() {
@@ -1223,8 +1223,6 @@ function selectedImageToAdd(selectElement) {
             addImageDivInput.classList.remove('load-new-image-button');
             selectElement.classList.remove('add-image-select-url');
             const images = {{ annotation_schema_images | json_encode | raw }};
-            console.log(images);
-            console.log(selectElement.options[selectElement.selectedIndex].value);
             if(images.hasOwnProperty(selectElement.options[selectElement.selectedIndex].value)) {
                 const image = images[selectElement.options[selectElement.selectedIndex].value];
                 addImage({ 'hash': image.hash, 'image': '{{ annotation_image_relative_path }}' + image.image, 'thumbnail': '{{ annotation_image_relative_path }}' + image.image });
