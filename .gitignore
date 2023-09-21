@@ -13,6 +13,8 @@ config/condition-reports.yaml
 .idea/
 public/annotation_images/*
 !public/annotation_images/rectangle_portrait_front.svg
+!public/annotation_images/rectangle_landscape_front.svg
+!public/annotation_images/square_front.svg
 public/signature_images/
 public/setup_plan_images/
 public/recommendation_images/
