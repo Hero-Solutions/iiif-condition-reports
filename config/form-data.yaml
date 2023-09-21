@@ -2512,7 +2512,7 @@ parameters:
                               content: 'Fiber degradation'
                             - type: checkbox
                               name: 'condition_work_on_paper_specific_condition_support_delamination'
-                              content: 'Delamination / flaking / losening in composite support'
+                              content: 'Delamination / flaking / loosening in composite support'
                             - type: checkbox_custom
                               name: 'condition_work_on_paper_specific_condition_support_holes'
                               class: 'checkbox-custom-with-label'
@@ -5003,8 +5003,8 @@ parameters:
           - work_on_paper
           - sculpture
           - frame
-      losening_in_composite_support:
-        note: "Losening in composite support"
+      loosening_in_composite_support:
+        note: "Loosening in composite support"
         applies_to:
           - painting
           - work_on_paper

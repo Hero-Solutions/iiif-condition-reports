@@ -192,7 +192,7 @@ lacunae: Lacunae
 losses_lacunae: Losses / lacunae
 lined: Lined/Lining
 loose_parts: Loose parts
-losening_in_composite_support: Losening in composite support
+loosening_in_composite_support: Loosening in composite support
 milky: Milky / hazy
 impregnation: Moisture barrier at reverse / impregnation
 mold: Mold
@@ -216,7 +216,7 @@ smudged: Smudged
 silver_mirroring: Silver mirroring
 stains: Stains
 stains_spots: Stains/Spots
-sticking_together: Sticking togehter
+sticking_together: Sticking together
 strainers: Strainers
 stretchers: Stretchers
 stretching_edges: Stretching edges
@@ -236,3 +236,123 @@ wood_borers: Wood borers
 wrinkle: Wrinkle
 wrinkles: Wrinkles
 yellowing: Yellowing
+
+# To translate from Dutch to English
+Geschaafd: Abrasions
+Algemene verzuring: Acid
+Accretie: Accretion
+Hechting: Adheasion
+Plakbank: Adhesive tape
+Dierlijke lijm: Animal glue
+Blindgeslagen: Blanching
+Gebleekt: Bleaching
+Blazen: Blisters
+Waas, vochtaanslag: Bloom
+Wazigheid: Blur
+Kromtrekking: Bowing
+Gebroken glas: Broken glass
+Afgebroken stukken: Broken parts
+Verbruining: Browning
+Verbruining (papier/vernis): Browning
+Vormveranderingen: Changes
+Klimaatbox goed gesealed: Climate box sealed
+Condenseren: Condensation
+Verstevigen: Consolidated
+Craquelé: Crackle
+Barsten: Cracks or Splits
+Geïncrusteerd vuil: Crusted dirt
+Plooien: Creases
+Ziek (glas): Crizzling
+Schotelvorming: Cupping
+Snede: Cutting
+Afgebroken of ontbrekende hoeken en randen: Damaged and missing corners and edges
+Randen beschadigd: Damaged edges
+Vochtigheid: Dampness
+Verdonkeren (retouches): Darkening
+Dagmaat passend: Daylight opening correct
+Deformatie: Deformation
+Degradatie: Degradation
+Degradatie van kunststoffen: Degradation of plastics
+Gecrepeerd: Degraded
+Poederende/loskomende verf: Degraded medium
+Delamineren: Delamination
+Deuken: Dents
+Vuil tussen raam en doek: Dirt between canvas and stretcher
+Vuil tussen glas en werk: Dirt between glass and artwork
+Verkleuring: Discoloration
+Verkleurde retouches: Discolored retouching
+Vervorming: Distortion
+Druppels of druipsporen: Drips or dripmarks
+Stof: Dust
+Bros geworden: Embrittlement
+Vezelaantasting: Fiber degradation
+Dierenuitwerpselen: Excrements
+Vervagen: Fading
+Vulling: Filling
+Vingerafdrukken: Finger marks
+Brandschade: Fire damage
+Gefixeerd (de materialen): Fixed
+Gefixeerd (de verschillende objectdelen): Fixation
+Afschilferen: Flaking
+Geplette verf: Flattened paint
+Uitvliegopeningen: Fly out openings
+Vouwen: Folds
+Roestbruine verkleuring/Foxing: Foxing
+Breuk: Fracture
+Houtpoeder: Frass
+Lijm(resten): Glue (residues)
+Haarscheurtjes: Hair tears / Cracks
+Onzuiverheden in de papiervezel: Impurities in the paper fiber
+Onzuiverheden in vernis: Impurities in varnish
+Inktvraat: Ink corrosion
+Inscripties: Inscriptions
+Insectenvraat: Insect damage
+Insectenpoep: Insect feces
+Instabiliteit: Instability
+Voegen (open, hersteld, verstevigd): Joints
+Spieën: Keys
+Etiketten: Labels
+Lacunes: Lacunae
+Gedoubleerd: Lined
+Losse delen: Loose parts
+Loskomen in samengestelde drager: Loosening in composite support
+Wazig: Milky
+Vochtbarrière aan de achterkant / impregnatie met verf: Impregnation
+Schimmel: Mold
+Niet gedoubleerd: Not lined
+Oude ingrepen / restauraties: Old repairs
+Open verbindingen: Open joints
+Overschildering: Overpaint
+Oxideren: Oxidation
+Herstellappen: Patches
+Perforaties: Perforations
+Verpoederen: Powdering
+Holtevorming: Pitting
+Restanten van andere materialen: Remains of other materials
+Herstelling: Repairing
+Retouches: Retouches
+Knaagdiervraat: Rodent damage
+Zegels: Seals
+Naad: Seams
+Zilvervisje: Silverfish
+Verzilvering: Silver mirroring
+Uitgeveegd: Smudged
+Vlekken: Stains/Spots
+Verkleving: Sticking together
+Spanramen: Strainers
+Spieraam: Stretchers
+Omslagranden: Stretching edges
+Spanguirlandes: Stretching marks
+Strip-lining: Strip-lining
+Versuikeren: Sugaring
+Scheuren: Tears
+Spanning: Tension
+Vochtkringen: Tidelines
+Golving: Undulation
+Wax(resten): Wax residues
+Washars: Wax resin
+Zwakke hoekverbindingen: Weak corner joints
+Slijtage: Wear
+Houtboorders: Wood borers
+Plooivorming: Wrinkles
+Vergelen: Yellowing

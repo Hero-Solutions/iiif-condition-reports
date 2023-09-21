@@ -132,8 +132,8 @@
                 {% endfor %}
                 </div>
                 <input type='hidden' value='false' name='group_same_damages'>
-                <div class="form-checkbox" id="same-damages-checkbox">{% include 'checkbox.html.twig' with { 'name': 'group_same_damages', 'label': 'Group same damages' | trans, 'onclick': 'groupUngroupSameDamages(this.checked);', 'checked': prefilled_data.group_same_damages is not defined } %}</div>
             {% endif %}
+            <div class="form-checkbox" id="same-damages-checkbox{% if readonly %}-readonly{% endif %}">{% include 'checkbox.html.twig' with { 'name': 'group_same_damages', 'label': 'Group same damages' | trans, 'onclick': 'groupUngroupSameDamages(this.checked);', 'checked': prefilled_data.group_same_damages is not defined, 'disabled': false } %}</div>
             {% if readonly and prefilled_data.manifest is defined %}
                 <a id="iiif-manifest-url" href="{{ prefilled_data.manifest }}">IIIF Manifest</a>
             {% endif %}
@@ -357,7 +357,7 @@ window.anno.on('mouseEnterAnnotation', function(annotation, ele) {
                 spans[i].classList.add('anno-hist-hover');
             }
         }
-        var number = window.annoIds.hasOwnProperty(annotation.id) ? window.annoIds[annotation.id].number : null;
+        var number = window.annoIds.hasOwnProperty(annotation.id) ? (window.groupSameDamages ? window.annoIds[annotation.id].groupedNumber : window.annoIds[annotation.id].ungroupedNumber) : null;
         if(number !== null) {
             const eles = document.getElementsByClassName('annotation-number-' + number);
             if (eles != null) {
@@ -377,7 +377,7 @@ window.anno.on('selectAnnotation', function(annotation, ele) {
                 spans[i].classList.add('anno-hist-hover');
             }
         }
-        var number = window.annoIds.hasOwnProperty(annotation.id) ? window.annoIds[annotation.id].number : null;
+        var number = window.annoIds.hasOwnProperty(annotation.id) ? (window.groupSameDamages ? window.annoIds[annotation.id].groupedNumber : window.annoIds[annotation.id].ungroupedNumber) : null;
         if(number !== null) {
             const eles = document.getElementsByClassName('annotation-number-' + number);
             if (eles != null) {
@@ -397,7 +397,7 @@ window.anno.on('mouseLeaveAnnotation', function(annotation, ele) {
                 spans[i].classList.remove('anno-hist-hover');
             }
         }
-        var number = window.annoIds.hasOwnProperty(annotation.id) ? window.annoIds[annotation.id].number : null;
+        var number = window.annoIds.hasOwnProperty(annotation.id) ? (window.groupSameDamages ? window.annoIds[annotation.id].groupedNumber : window.annoIds[annotation.id].ungroupedNumber) : null;
         if(number !== null) {
             const eles = document.getElementsByClassName('annotation-number-' + number);
             if (eles != null) {
@@ -430,22 +430,22 @@ window.anno.on('cancelSelected', function(annotation, ele) {
 });
 
 window.anno.on('updateAnnotation', function(annotation, ele) {
-    if(annotation != null) {
+    if(annotation != null && window.currentImageHash in window.addedAnnotations) {
 
         //Update the list of added annotations
-        if(window.currentImageHash in window.addedAnnotations) {
-            var annotationReportId = null;
-            for(reportId in window.addedAnnotations[window.currentImageHash]) {
-                for (const [annoId, anno] of Object.entries(window.addedAnnotations[window.currentImageHash][reportId])) {
-                    if(annoId === annotation.id) {
-                        annotationReportId = reportId;
-                        break;
-                    }
+        var annotationReportId = null;
+        for(reportId in window.addedAnnotations[window.currentImageHash]) {
+            for (const [annoId, anno] of Object.entries(window.addedAnnotations[window.currentImageHash][reportId])) {
+                if(annoId === annotation.id) {
+                    annotationReportId = reportId;
+                    break;
                 }
             }
-            if(annotationReportId !== null) {
-                window.addedAnnotations[window.currentImageHash][annotationReportId][annotation.id] = annotation;
-            }
+        }
+        if(annotationReportId !== null) {
+            window.addedAnnotations[window.currentImageHash][annotationReportId][annotation.id] = annotation;
+        } else {
+            annotationReportId = '999999999';
         }
 
         //No longer highlight the annotation we just updated
@@ -461,14 +461,54 @@ window.anno.on('updateAnnotation', function(annotation, ele) {
 
         //Update the text in the sidebar
         if(annotation.hasOwnProperty('body')) {
-            //TODO split into its own annotation group if the text is no longer the same
+            if(window.annoIds.hasOwnProperty(annotation.id)) {
+                var text = '';
+                for(var i = 0; i < annotation.body.length; i++) {
+                    if(annotation.body[i].hasOwnProperty('value') && annotation.body[i].value != null) {
+                        text += (text !== '' ? '<br/>' : '') + annotation.body[i].value;
+                    }
+                }
+                window.annoIds[annotation.id].text = text;
+
+                const groupedNumber = window.annoIds[annotation.id].groupedNumber;
+                var ungroup = false;
+                for (const [annoId, anno] of Object.entries(window.annoIds)) {
+                    if (annoId !== annotation.id && anno.reportId === annotationReportId && anno.groupedNumber === groupedNumber) {
+                        if (anno.text !== text) {
+                            ungroup = true;
+                            break;
+                        }
+                    }
+                }
+                if(ungroup) {
+                    var encounteredSelf = false;
+                    var encounteredOther = false;
+                    for (const [annoId, anno] of Object.entries(window.annoIds)) {
+                        if(annoId === annotation.id) {
+                            if(encounteredOther && !encounteredSelf) {
+                                window.annoIds[annoId].groupedNumber = window.annoIds[annoId].groupedNumber + 1;
+                            }
+                            encounteredSelf = true;
+                        } else if(anno.groupedNumber >= groupedNumber) {
+                            if(encounteredSelf && !encounteredOther) {
+                                window.annoIds[annoId].groupedNumber = window.annoIds[annoId].groupedNumber + 1;
+                            }
+                            encounteredOther = true;
+                        }
+                    }
+                }
+            }
+
+            clickedThumbnail(window.currentImageHash, window.currentImage);
+
+/*            //TODO split into its own annotation group if the text is no longer the same
             var spans = document.getElementsByClassName('anno-hist-' + annotation.id);
             if (spans !== null) {
                 var deleted = isAnnotationDeleted(annotation.id, window.currentImageHash);
                 for (var i = 0; i < spans.length; i++) {
                     spans[i].innerHTML = getHistorySpanText(annotation.body, number, deleted);
                 }
-            }
+            }*/
         }
     }
 });
@@ -482,16 +522,16 @@ window.anno.on('createAnnotation', function(annotation, ele) {
         if(!window.annoIds.hasOwnProperty(annotation.id)) {
             var damageAlreadyExists = false;
             var text = '';
-            if(annotation.hasOwnProperty('body')
-                && annotation.body.length > 0
-                && annotation.body[0].hasOwnProperty('value')
-                && annotation.body[0].value != null
-                && annotation.body[0].value !== '') {
-                text = annotation.body[0].value;
+            if(annotation.hasOwnProperty('body')) {
+                for(var i = 0; i < annotation.body.length; i++) {
+                    if(annotation.body[i].hasOwnProperty('value') && annotation.body[i].value != null) {
+                        text += (text !== '' ? '<br/>' : '') + annotation.body[i].value;
+                    }
+                }
             }
             var groupedNumber = 1;
             for(const [annoId, anno] of Object.entries(window.annoIds)) {
-                if(anno.text === text && anno.layers === styleClass) {
+                if(anno.reportId === '999999999' && anno.text === text && anno.layers === styleClass) {
                     groupedNumber = anno.groupedNumber;
                     damageAlreadyExists = true;
                     const spans = document.getElementsByClassName('anno-hist-' + annoId);
@@ -504,15 +544,20 @@ window.anno.on('createAnnotation', function(annotation, ele) {
                 }
             }
             var ungroupedNumber = groupedNumber;
+            var highestGroupedNumber = groupedNumber;
             for(const [annoId, anno] of Object.entries(window.annoIds)) {
                 if (anno.ungroupedNumber >= ungroupedNumber) {
                     ungroupedNumber = anno.ungroupedNumber + 1;
                 }
+                if (anno.groupedNumber >= highestGroupedNumber) {
+                    highestGroupedNumber = anno.groupedNumber + 1;
+                }
             }
             if(!damageAlreadyExists) {
-                groupedNumber = ungroupedNumber;
+                groupedNumber = highestGroupedNumber;
             }
             window.annoIds[annotation.id] = {
+                'reportId': '999999999',
                 'groupedNumber': groupedNumber,
                 'ungroupedNumber': ungroupedNumber,
                 'text': text,
@@ -575,7 +620,13 @@ window.anno.on('deleteAnnotation', function(annotation, ele) {
                     }
                     if(!alreadyIn) {
                         if(window.annoIds.hasOwnProperty(annotation.id)) {
-                            window.annoIds[annotation.id].groupedNumber = window.annoIds[annotation.id].ungroupedNumber;
+                            var highestGroupedNumber = 1;
+                            for(const [annoId, anno] of Object.entries(window.annoIds)) {
+                                if (anno.groupedNumber >= highestGroupedNumber) {
+                                    highestGroupedNumber = anno.groupedNumber + 1;
+                                }
+                            }
+                            window.annoIds[annotation.id].groupedNumber = highestGroupedNumber;
                         }
                         window.deletedAnnotations[window.currentImageHash]['999999999'].push(annotation.id);
                         clickedThumbnail(window.currentImageHash, window.currentImage);
@@ -1030,7 +1081,20 @@ for(const image in deletedAnnos) {
     }
 }
 
+//Translate the body of each annotation where possible
 var annotations = {{ annotations | json_encode | raw }};
+{% for image_hash, image in annotations %}
+{% for report_id, annotations in image %}
+{% for annotation_id, annotation in annotations %}
+{% if annotation.body is defined and annotation.body is not empty %}
+{% for index, body in annotation.body %}
+{% set translation = body.value | trans %}
+annotations['{{ image_hash }}']['{{ report_id }}']['{{ annotation_id }}'].body[{{ index }}].value = '{{ translation }}';
+{% endfor %}
+{% endif %}
+{% endfor %}
+{% endfor %}
+{% endfor %}
 for(const imageHash in annotations) {
     for(const reportId in annotations[imageHash]) {
         var reportAnnos = {};
@@ -1047,18 +1111,20 @@ for(const imageHash in annotations) {
                 styleClass = reportAnnos[id].target.styleClass;
             }
             var damageAlreadyExists = false;
-            if (!window.annoIds.hasOwnProperty(id)
-                && reportAnnos[id].hasOwnProperty('body')
-                && reportAnnos[id].body.length > 0
-                && reportAnnos[id].body[0].hasOwnProperty('value')
-                && reportAnnos[id].body[0].value != null
-                && reportAnnos[id].body[0].value !== '') {
-                const text = reportAnnos[id].body[0].value;
+            if (!window.annoIds.hasOwnProperty(id) && reportAnnos[id].hasOwnProperty('body')) {
+                var text = '';
+                if(reportAnnos[id].hasOwnProperty('body')) {
+                    for(var i = 0; i < reportAnnos[id].body.length; i++) {
+                        if(reportAnnos[id].body[i].hasOwnProperty('value') && reportAnnos[id].body[i].value != null) {
+                            text += (text !== '' ? '<br/>' : '') + reportAnnos[id].body[i].value;
+                        }
+                    }
+                }
 
                 var groupedNumber = 1;
                 var deleted = isAnnotationDeleted(id, imageHash);
                 for(const [annoId, anno] of Object.entries(window.annoIds)) {
-                    if(anno.text === text && anno.layers === styleClass) {
+                    if(anno.reportId === reportId && anno.text === text && anno.layers === styleClass) {
                         groupedNumber = anno.groupedNumber;
                         damageAlreadyExists = true;
                         if(window.groupSameDamages && !deleted) {
@@ -1073,20 +1139,25 @@ for(const imageHash in annotations) {
                     }
                 }
                 var ungroupedNumber = groupedNumber;
+                var highestGroupedNumber = groupedNumber;
                 for(const [annoId, anno] of Object.entries(window.annoIds)) {
                     if (anno.ungroupedNumber >= ungroupedNumber) {
                         ungroupedNumber = anno.ungroupedNumber + 1;
                     }
+                    if (anno.groupedNumber >= highestGroupedNumber) {
+                        highestGroupedNumber = anno.groupedNumber + 1;
+                    }
                 }
                 if(!damageAlreadyExists || deleted) {
-                    groupedNumber = ungroupedNumber;
+                    groupedNumber = highestGroupedNumber;
                 }
 
                 window.annoIds[id] = {
+                    'reportId': reportId,
                     'groupedNumber': groupedNumber,
                     'ungroupedNumber': ungroupedNumber,
-                    'text': text, 'layers':
-                    styleClass
+                    'text': text,
+                    'layers': styleClass
                 };
                 if(!window.groupSameDamages || !damageAlreadyExists || deleted) {
                     if(histEleDiv != null) {
@@ -1426,11 +1497,10 @@ function clickedThumbnail(hash, image) {
                                 styleClass = annos[id].target.styleClass;
                             }
                             var text = '';
-                            if(annos[id].body.length > 0
-                                && annos[id].body[0].hasOwnProperty('value')
-                                && annos[id].body[0].value != null
-                                && annos[id].body[0].value !== '') {
-                                text = annos[id].body[0].value;
+                            for(var j = 0; j < annos[id].body.length; j++) {
+                                if(annos[id].body[j].hasOwnProperty('value') && annos[id].body[j].value != null) {
+                                    text += (text !== '' ? '<br/>' : '') + annos[id].body[j].value;
+                                }
                             }
                             var deleted = isAnnotationDeleted(id, hash);
                             if(window.annoIds.hasOwnProperty(id)) {
@@ -1444,45 +1514,45 @@ function clickedThumbnail(hash, image) {
                                 }
                             } else {
                                 var damageAlreadyExists = false;
-                                if(annos[id].body.length > 0
-                                    && annos[id].body[0].hasOwnProperty('value')
-                                    && annos[id].body[0].value != null
-                                    && annos[id].body[0].value !== '') {
-                                    var groupedNumber = 1;
-                                    if(!deleted) {
-                                        for (const [annoId, anno] of Object.entries(window.annoIds)) {
-                                            if (anno.text === text && anno.layers === styleClass) {
-                                                groupedNumber = anno.number;
-                                                damageAlreadyExists = true;
-                                                const spans = document.getElementsByClassName('anno-hist-' + annoId);
-                                                if (spans !== null) {
-                                                    for (var k = 0; k < spans.length; k++) {
-                                                        spans[k].classList.add('anno-hist-' + id);
-                                                    }
-                                                }
-                                                break;
-                                            }
-                                        }
-                                    }
-                                    var ungroupedNumber = groupedNumber;
+                                var groupedNumber = 1;
+                                if(!deleted) {
                                     for (const [annoId, anno] of Object.entries(window.annoIds)) {
-                                        if (anno.ungroupedNumber >= ungroupedNumber) {
-                                            ungroupedNumber = anno.ungroupedNumber + 1;
+                                        if (anno.reportId === reportId && anno.text === text && anno.layers === styleClass) {
+                                            groupedNumber = anno.groupedNumber;
+                                            damageAlreadyExists = true;
+                                            const spans = document.getElementsByClassName('anno-hist-' + annoId);
+                                            if (spans !== null) {
+                                                for (var k = 0; k < spans.length; k++) {
+                                                    spans[k].classList.add('anno-hist-' + id);
+                                                }
+                                            }
+                                            break;
                                         }
                                     }
-                                    if (!damageAlreadyExists) {
-                                        groupedNumber = ungroupedNumber;
+                                }
+                                var ungroupedNumber = groupedNumber;
+                                var highestGroupedNumber = groupedNumber;
+                                for (const [annoId, anno] of Object.entries(window.annoIds)) {
+                                    if (anno.ungroupedNumber >= ungroupedNumber) {
+                                        ungroupedNumber = anno.ungroupedNumber + 1;
                                     }
+                                    if (anno.groupedNumber >= highestGroupedNumber) {
+                                        highestGroupedNumber = anno.groupedNumber + 1;
+                                    }
+                                }
+                                if (!damageAlreadyExists) {
+                                    groupedNumber = highestGroupedNumber;
+                                }
 
-                                    window.annoIds[id] = {
-                                        'groupedNumber': groupedNumber,
-                                        'ungroupedNumber': ungroupedNumber,
-                                        'text': annos[id].body[0].value,
-                                        'layers': styleClass
-                                    };
-                                    if (!window.groupSameDamages || !damageAlreadyExists) {
-                                        addAnnoHistSpan(spanDiv, null, id, annos[id].body, styleClass, true);
-                                    }
+                                window.annoIds[id] = {
+                                    'reportId': reportId,
+                                    'groupedNumber': groupedNumber,
+                                    'ungroupedNumber': ungroupedNumber,
+                                    'text': text,
+                                    'layers': styleClass
+                                };
+                                if (!window.groupSameDamages || !damageAlreadyExists) {
+                                    addAnnoHistSpan(spanDiv, null, id, annos[id].body, styleClass, true);
                                 }
                             }
                         }

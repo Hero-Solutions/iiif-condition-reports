@@ -1,4 +1,4 @@
-{% if readonly %}
+{% if readonly and not (disabled is defined and not disabled) %}
     {% if prefilled_data[name] is defined and prefilled_data[name] is not empty %}
         <input type="checkbox" name="{{ name }}" checked disabled/> <label for="{{ name }}">{{ label }}</label>
     {% endif %}

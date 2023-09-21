@@ -1017,6 +1017,12 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
     margin-left: 13px !important;
 }
 
+#report-form #same-damages-checkbox-readonly {
+    margin-top: 15px !important;
+    margin-left: 20px !important;
+    border: none !important;
+}
+
 #report-form div:has(.form-checkbox-custom) + div > div.form-checkbox:first-of-type {
     padding-top: 5px !important;
 }

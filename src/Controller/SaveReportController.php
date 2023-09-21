@@ -114,9 +114,16 @@ class SaveReportController extends AbstractController
                     $em->flush();
                 }
 
-                $reportData['manifest'] = IIIFUtil::generateManifest($em, $report->getId(), $reportData, $images, $annotationData, $this->getParameter('service_url'),
-                                           $this->getParameter('validate_manifests'), $this->getParameter('validator_url'),
-                                           $this->getParameter('authentication_url'), $this->getParameter('authentication_service_description'));
+                $reportData['manifest'] = IIIFUtil::generateManifest(
+                    $em, $report->getId(),
+                    $reportData, $images,
+                    $annotationData,
+                    $this->getParameter('service_url'),
+                    $this->getParameter('validate_manifests'),
+                    $this->getParameter('validator_url'),
+                    $this->getParameter('authentication_url'),
+                    $this->getParameter('authentication_service_description')
+                );
 
                 $i = 0;
                 foreach($reportData as $key => $value) {
@@ -212,22 +219,22 @@ class SaveReportController extends AbstractController
                     }
 
                     $oldAnnotations = array();
-                    foreach($imageHashes as $image) {
+                    foreach($imageHashes as $imageHash) {
                         foreach ($previousIds as $reportId) {
-                            if(array_key_exists($image, $oldAnnotations) && array_key_exists($image, $oldAnnotationsToDelete)) {
-                                if (array_key_exists($reportId, $oldAnnotationsToDelete[$image])) {
-                                    foreach ($oldAnnotationsToDelete[$image][$reportId] as $key => $val) {
-                                        unset($oldAnnotations[$image][$key]);
+                            if(array_key_exists($imageHash, $oldAnnotations) && array_key_exists($imageHash, $oldAnnotationsToDelete)) {
+                                if (array_key_exists($reportId, $oldAnnotationsToDelete[$imageHash])) {
+                                    foreach ($oldAnnotationsToDelete[$imageHash] as $annotationId => $annotation) {
+                                        unset($oldAnnotations[$imageHash][$annotationId]);
                                     }
                                 }
                             }
-                            if (array_key_exists($image, $oldAnnotationsToAdd)) {
-                                if (array_key_exists($reportId, $oldAnnotationsToAdd[$image])) {
-                                    foreach ($oldAnnotationsToAdd[$image][$reportId] as $key => $anno) {
-                                        if(!array_key_exists($image, $oldAnnotations)) {
-                                            $oldAnnotations[$image] = array();
+                            if (array_key_exists($imageHash, $oldAnnotationsToAdd)) {
+                                if (array_key_exists($reportId, $oldAnnotationsToAdd[$imageHash])) {
+                                    foreach ($oldAnnotationsToAdd[$imageHash][$reportId] as $annotationId => $annotation) {
+                                        if(!array_key_exists($imageHash, $oldAnnotations)) {
+                                            $oldAnnotations[$imageHash] = array();
                                         }
-                                        $oldAnnotations[$image][$key] = $anno;
+                                        $oldAnnotations[$imageHash][$annotationId] = $annotation;
                                     }
                                 }
                             }
@@ -237,14 +244,15 @@ class SaveReportController extends AbstractController
                     foreach($imageHashes as $image) {
                         $added = array();
                         $deleted = array();
+                        $updated = array();
                         if(array_key_exists($image, $oldAnnotations)) {
                             foreach ($oldAnnotations[$image] as $annoId => $annotation) {
-                                if(!array_key_exists($image, $newAnnotations)) {
+                                if (!array_key_exists($image, $newAnnotations)) {
                                     $deleted[] = $annoId;
                                 } else if (!array_key_exists($annoId, $newAnnotations[$image])) {
                                     $deleted[] = $annoId;
                                 } else if ($annotation !== $newAnnotations[$image][$annoId]) {
-                                    $deleted[] = $annoId;
+                                    $updated[$annoId] = $newAnnotations[$image][$annoId];
                                 }
                             }
                         }
@@ -255,7 +263,7 @@ class SaveReportController extends AbstractController
                                 } else if (!array_key_exists($annoId, $oldAnnotations[$image])) {
                                     $added[$annoId] = $annotation;
                                 } else if ($annotation !== $oldAnnotations[$image][$annoId]) {
-                                    $added[$annoId] = $annotation;
+                                    $updated[$annoId] = $annotation;
                                 }
                             }
                         }
@@ -274,6 +282,17 @@ class SaveReportController extends AbstractController
                             $addedEntity->setAnnotationId($id);
                             $addedEntity->setAnnotation($annotation);
                             $em->persist($addedEntity);
+                        }
+                        $em->flush();
+                        foreach($updated as $id => $annotation) {
+                            $queryBuilder = $em->createQueryBuilder();
+                            $query = $queryBuilder->update(Annotation::class, 'a')
+                                ->set('a.annotation', ':annotation')
+                                ->where('a.annotationId = :annotationId')
+                                ->setParameter('annotation', $annotation)
+                                ->setParameter('annotationId', $id)
+                                ->getQuery();
+                            $query->execute();
                         }
                         $em->flush();
                     }
