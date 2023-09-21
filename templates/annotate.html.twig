@@ -1041,7 +1041,7 @@ for(const imageHash in annotations) {
             histEleDiv = histEle.querySelector('div');
         }
         for(const id in annotations[imageHash][reportId]) {
-            reportAnnos[id] = JSON.parse(annotations[imageHash][reportId][id]);
+            reportAnnos[id] = annotations[imageHash][reportId][id];
             var styleClass = null;
             if(reportAnnos[id].hasOwnProperty('target') && reportAnnos[id].target.hasOwnProperty('styleClass')) {
                 styleClass = reportAnnos[id].target.styleClass;

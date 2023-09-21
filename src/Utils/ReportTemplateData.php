@@ -197,7 +197,7 @@ class ReportTemplateData
             if(!array_key_exists($annotation->getReportId(), $annotations[$annotation->getImage()])) {
                 $annotations[$annotation->getImage()][$annotation->getReportId()] = array();
             }
-            $annotations[$annotation->getImage()][$annotation->getReportId()][$annotation->getAnnotationId()] = $annotation->getAnnotation();
+            $annotations[$annotation->getImage()][$annotation->getReportId()][$annotation->getAnnotationId()] = json_decode($annotation->getAnnotation());
         }
 
         $deletedAnnotationData = $em->createQueryBuilder()
