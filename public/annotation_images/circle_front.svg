@@ -6,10 +6,10 @@
 	.st0{fill:none;stroke:#000000;stroke-width:2.5;stroke-miterlimit:10;}
 	.st1{fill:none;stroke:#000000;stroke-width:2.5;stroke-miterlimit:10;stroke-dasharray:2.5014,2.5014;}
 </style>
-<circle class="st0" cx="355.6" cy="355.6" r="297.6"/>
-<circle class="st0" cx="355.6" cy="355.6" r="237.5"/>
-<circle class="st0" cx="355.6" cy="355.6" r="247.5"/>
 <g>
+	<circle class="st0" cx="355.6" cy="355.6" r="297.6"/>
+	<circle class="st0" cx="355.6" cy="355.6" r="237.5"/>
+	<circle class="st0" cx="355.6" cy="355.6" r="247.5"/>
 	<circle class="st1" cx="355.6" cy="355.6" r="354.3"/>
 </g>
 </svg>
