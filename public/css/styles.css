@@ -894,8 +894,8 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
 }
 
 #report-form select,
-#report-form input,
-#report-form textarea,
+#report-form input:not(.r6o-tag),
+#report-form textarea:not(.r6o-editable-text),
 #loan-project-form select,
 #loan-project-form input,
 #loan-project-form textarea,
@@ -921,12 +921,22 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
     background-color: #f8f8f8;
 }
 
-#report-form textarea,
+#report-form textarea:not(.r6o-editable-text),
 #loan-project-form textarea,
 #organisation-form textarea,
 #representative-form textarea,
 #user-form textarea {
     padding-top: 3px;
+}
+
+.custom-r6o-comment {
+    padding: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    outline: none;
+    border: none;
+    background-color: transparent;
+    resize: none;
 }
 
 #report-form .textarea-div {
@@ -2356,12 +2366,14 @@ footer p {
     padding-top: 15px;
 }
 
-footer a {
+footer a,
+.aat-link {
     color: #747db3;
     text-decoration: underline;
 }
 
-footer a:hover {
+footer a:hover,
+.aat-link:hover {
     color: #464b6b;
 }
 

@@ -55,6 +55,22 @@
             {% endif %}
         </div>
         <div id="annotation-tools">
+            {% set damage_types = [] %}
+            {% for key, damage_type in report_fields.damage_types %}
+                {% set damage_type_translated = key | trans %}
+                {% set damage_note = '' %}
+                {% if damage_type.note is iterable %}
+                    {% for note in damage_type.note %}
+                        {% set damage_note_translated = note | trans %}
+                        {% set damage_note = damage_note ~ (loop.first ? '' : '&#10;&#10;') ~ damage_note_translated %}
+                    {% endfor %}
+                {% else %}
+                    {% set damage_note_translated = damage_type.note | trans %}
+                    {% set damage_note = damage_note_translated %}
+                {% endif %}
+                {% set damage_types = damage_types | merge({ (damage_type_translated): { 'name': damage_type_translated, 'applies_to': damage_type.applies_to, 'note': damage_note, 'aat': damage_type.aat is defined ? damage_type.aat : '' }}) %}
+            {% endfor %}
+            {% set damage_types = damage_types | sort %}
             {% if not readonly %}
                 <div>
                     <button class="drawing-tool-inactive" name="drawing-tools" type="button" onclick="setDrawingTool('rect');" value="rect">
@@ -104,27 +120,22 @@
                             <div class="layer-over-select" id="layer-over-select"></div>
                         </div>
                         <div id="layer-checkboxes">
-                            <div class="layer-checkbox-div"><input type="checkbox" id="layer-carrier" onchange="checkLayerCheckbox(this)" autocomplete="off"/><label for="layer-carrier">{{ 'Carrier' | trans }}</label></div>
-                            <div class="layer-checkbox-div"><input type="checkbox" id="layer-paint-layer" onchange="checkLayerCheckbox(this)" autocomplete="off"/><label for="layer-paint-layer">{{ 'Pictorial layer' | trans }}</label></div>
-                            <div class="layer-checkbox-div"><input type="checkbox" id="layer-finishing-layer" onchange="checkLayerCheckbox(this)" autocomplete="off"/><label for="layer-finishing-layer">{{ 'Finishing layer' | trans }}</label></div>
+                            <div class="layer-checkbox-div"><input type="checkbox" id="layer-support" onchange="checkLayerCheckbox(this)" autocomplete="off"/><label for="layer-support">{{ 'Support' | trans }}</label></div>
+                            <div class="layer-checkbox-div"><input type="checkbox" id="layer-supporting-medium" onchange="checkLayerCheckbox(this)" autocomplete="off"/><label for="layer-supporting-medium">{{ 'Supporting medium' | trans }}</label></div>
+                            <div class="layer-checkbox-div"><input type="checkbox" id="layer-paint-layer" onchange="checkLayerCheckbox(this)" autocomplete="off"/><label for="layer-paint-layer">{{ 'Paint layer' | trans }}</label></div>
+                            <div class="layer-checkbox-div"><input type="checkbox" id="layer-finishing-layer" onchange="checkLayerCheckbox(this)" autocomplete="off"/><label for="layer-finishing-layer">{{ 'Varnish/Protection layer' | trans }}</label></div>
                             <div class="layer-checkbox-div"><input type="checkbox" id="layer-frame" onchange="checkLayerCheckbox(this)" autocomplete="off"/><label for="layer-frame">{{ 'Frame' | trans }}</label></div>
                         </div>
                     </div>
                 </div>
-                {% set damage_types = [] %}
-                {% for key, damage_type in report_fields.damage_types %}
-                    {% set damage_type = key | trans %}
-                    {% set damage_types = damage_types | merge({ (key): damage_type }) %}
-                {% endfor %}
-                {% set damage_types = damage_types | sort %}
                 <div id="select-damage-type-div">
                 {% for object_type in object_types %}
                     <div id="annotation-select-{{ object_type }}"{% if this_object_type != object_type %} class="hidden"{% endif %}>
                         <select class="annotation-select" onchange="selectedDamageType(this)" autocomplete="off">
                             <option value="" selected disabled hidden>{{ 'Select damage type' | trans }}</option>
                             {% for key, damage_type in damage_types %}
-                                {% if object_type == 'default' or object_type in attribute(report_fields.damage_types, key).applies_to %}
-                                    <option value="{{ key | trans }}">{{ key | trans }}</option>
+                                {% if object_type == 'default' or object_type in damage_type.applies_to %}
+                                    <option value="{{ damage_type.name }}">{{ damage_type.name }}</option>
                                 {% endif %}
                             {% endfor %}
                         </select>
@@ -328,6 +339,8 @@ window.osd_anno = OpenSeadragon({
     ]
 });
 
+window.damageTypes = {{ damage_types | json_encode | raw }};
+
 window.annoConf = {
     locale: 'auto',
     styleColor: 'red',
@@ -385,6 +398,75 @@ window.anno.on('selectAnnotation', function(annotation, ele) {
                     eles[i].classList.add('highlighted-number');
                 }
             }
+        }
+        if(annotation.hasOwnProperty('body')) {
+            {% if not readonly %}
+                var toDelete = document.querySelectorAll("div.r6o-editable-text");
+                for(var i = 0; i < toDelete.length; i++) {
+                    toDelete[i].parentElement.removeChild(toDelete[i]);
+                }
+                var comments = document.querySelectorAll("textarea.r6o-editable-text:not(.r6o-nodrag)");
+                if(comments.length === annotation.body.length) {
+                    for(var i = 0; i < annotation.body.length; i++) {
+                        if(annotation.body[i].hasOwnProperty('value') && window.damageTypes.hasOwnProperty(annotation.body[i].value)) {
+                            const newDiv = document.createElement('div');
+                            newDiv.className = 'r6o-editable-text';
+                            if(window.damageTypes[annotation.body[i].value].aat !== '') {
+                                newDiv.innerHTML = '<div class="annotation-span-div"><a class="aat-link" href="' + window.damageTypes[annotation.body[i].value].aat + '" title="' + window.damageTypes[annotation.body[i].value].note + '" target="_blank">' + comments[i].value + "</a></div>";
+                            } else {
+                                newDiv.innerHTML = '<div class="annotation-span-div"><span title="' + window.damageTypes[annotation.body[i].value].note + '">' + comments[i].value + "</span></div>";
+                            }
+                            const comment = comments[i];
+                            const parentElement = comments[i].parentElement;
+                            comments[i].classList.add("hidden");
+                            if(parentElement.childNodes.length === 0) {
+                                parentElement.appendChild(newDiv);
+                            } else {
+                               parentElement.insertBefore(newDiv, parentElement.firstChild);
+                            }
+                            new MutationObserver((mutationList, obser) => {
+                                if(newDiv.parentElement === null) {
+                                    obser.disconnect();
+                                } else {
+                                    for (const mutation of mutationList) {
+                                        if (mutation.type === "attributes" && mutation.attributeName === "disabled") {
+                                            comment.classList.remove("hidden");
+                                            newDiv.parentElement.removeChild(newDiv);
+                                            obser.disconnect();
+                                        }
+                                    }
+                                }
+                            }).observe(comment, { 'attributes': true });
+                        }
+                    }
+                }
+            {% else %}
+                var toDelete = document.querySelectorAll("div.custom-r6o-comment");
+                for(var i = 0; i < toDelete.length; i++) {
+                    toDelete[i].parentElement.removeChild(toDelete[i]);
+                }
+                var comments = document.querySelectorAll(".r6o-readonly-comment");
+                if(comments.length === annotation.body.length) {
+                    for(var i = 0; i < annotation.body.length; i++) {
+                        if(annotation.body[i].hasOwnProperty('value') && window.damageTypes.hasOwnProperty(annotation.body[i].value)) {
+                            const newDiv = document.createElement('div');
+                            newDiv.className = "custom-r6o-comment";
+                            if(window.damageTypes[annotation.body[i].value].aat !== '') {
+                                newDiv.innerHTML = '<a class="aat-link" href="' + window.damageTypes[annotation.body[i].value].aat + '" title="' + window.damageTypes[annotation.body[i].value].note + '" target="_blank">' + comments[i].innerHTML + "</a>";
+                            } else {
+                                newDiv.innerHTML = '<span title="' + window.damageTypes[annotation.body[i].value].note + '">' + comments[i].innerHTML + "</span>";
+                            }
+                            const parentElement = comments[i].parentElement;
+                            comments[i].classList.add("hidden");
+                            if(parentElement.childNodes.length === 0) {
+                                parentElement.appendChild(newDiv);
+                            } else {
+                                parentElement.insertBefore(newDiv, parentElement.firstChild);
+                            }
+                        }
+                    }
+                }
+            {% endif %}
         }
     }
 });
@@ -1220,39 +1302,72 @@ function showLayerCheckboxes() {
 }
 
 function checkLayerCheckbox(element) {
-    var checkboxCarrier = document.getElementById('layer-carrier');
+    var checkboxSupport = document.getElementById('layer-support');
+    var checkboxSupportingMedium = document.getElementById('layer-supporting-medium');
     var checkboxPaintLayer = document.getElementById('layer-paint-layer');
     var checkboxFinishingLayer = document.getElementById('layer-finishing-layer');
     var checkboxFrame = document.getElementById('layer-frame');
-    if(checkboxCarrier != null && checkboxPaintLayer != null && checkboxFinishingLayer != null && checkboxFrame != null) {
+    if(checkboxSupport != null && checkboxPaintLayer != null && checkboxFinishingLayer != null && checkboxFrame != null) {
         if(checkboxFrame.checked && element === checkboxFrame) {
-            checkboxCarrier.checked = false;
+            checkboxSupport.checked = false;
+            checkboxSupportingMedium.checked = false;
             checkboxPaintLayer.checked = false;
             checkboxFinishingLayer.checked = false;
             window.annoConf.styleClass = 'condition-orange';
-        } else if(checkboxCarrier.checked) {
+        } else if(checkboxSupport.checked) {
             checkboxFrame.checked = false;
             if(checkboxPaintLayer.checked) {
                 if(checkboxFinishingLayer.checked) {
-                    window.annoConf.styleClass = 'condition-red-green-blue';
+                    if(checkboxSupportingMedium.checked) {
+                        window.annoConf.styleClass = 'condition-red-green-blue-yellow';
+                    } else {
+                        window.annoConf.styleClass = 'condition-red-green-blue';
+                    }
                 } else {
-                    window.annoConf.styleClass = 'condition-red-blue';
+                    if(checkboxSupportingMedium.checked) {
+                        window.annoConf.styleClass = 'condition-red-blue-yellow';
+                    } else {
+                        window.annoConf.styleClass = 'condition-red-blue';
+                    }
                 }
             } else if(checkboxFinishingLayer.checked) {
-                window.annoConf.styleClass = 'condition-green-blue';
+                if(checkboxSupportingMedium.checked) {
+                    window.annoConf.styleClass = 'condition-green-blue-yellow';
+                } else {
+                    window.annoConf.styleClass = 'condition-green-blue';
+                }
             } else {
-                window.annoConf.styleClass = 'condition-blue';
+                if(checkboxSupportingMedium.checked) {
+                    window.annoConf.styleClass = 'condition-blue-yellow';
+                } else {
+                    window.annoConf.styleClass = 'condition-blue';
+                }
             }
         } else if(checkboxPaintLayer.checked) {
             checkboxFrame.checked = false;
             if(checkboxFinishingLayer.checked) {
-                window.annoConf.styleClass = 'condition-red-green';
+                if(checkboxSupportingMedium.checked) {
+                    window.annoConf.styleClass = 'condition-red-green-yellow';
+                } else {
+                    window.annoConf.styleClass = 'condition-red-green';
+                }
             } else {
-                window.annoConf.styleClass = 'condition-red';
+                if(checkboxSupportingMedium.checked) {
+                    window.annoConf.styleClass = 'condition-red-yellow';
+                } else {
+                    window.annoConf.styleClass = 'condition-red';
+                }
             }
         } else if(checkboxFinishingLayer.checked) {
             checkboxFrame.checked = false;
-            window.annoConf.styleClass = 'condition-green';
+            if(checkboxSupportingMedium.checked) {
+                window.annoConf.styleClass = 'condition-green-yellow';
+            } else {
+                window.annoConf.styleClass = 'condition-green';
+            }
+        } else if(checkboxSupportingMedium.checked) {
+            checkboxFrame.checked = false;
+            window.annoConf.styleClass = 'condition-yellow';
         }
     }
 }
@@ -1696,6 +1811,7 @@ function addAnnoHistSpan(div, printDiv, id, body, styleClass, added) {
             case 'condition-red':
             case 'condition-green':
             case 'condition-blue':
+            case 'condition-yellow':
             case 'condition-orange':
                 layers.push(styleClass);
                 break;
@@ -1707,14 +1823,47 @@ function addAnnoHistSpan(div, printDiv, id, body, styleClass, added) {
                 layers.push('condition-red');
                 layers.push('condition-blue');
                 break;
+            case 'condition-red-yellow':
+                layers.push('condition-red');
+                layers.push('condition-yellow');
+                break;
             case 'condition-green-blue':
                 layers.push('condition-green');
                 layers.push('condition-blue');
+                break;
+            case 'condition-green-yellow':
+                layers.push('condition-green');
+                layers.push('condition-yellow');
+                break;
+            case 'condition-blue-yellow':
+                layers.push('condition-blue');
+                layers.push('condition-yellow');
                 break;
             case 'condition-red-green-blue':
                 layers.push('condition-red');
                 layers.push('condition-green');
                 layers.push('condition-blue');
+                break;
+            case 'condition-red-green-yellow':
+                layers.push('condition-red');
+                layers.push('condition-green');
+                layers.push('condition-yellow');
+                break;
+            case 'condition-red-blue-yellow':
+                layers.push('condition-red');
+                layers.push('condition-blue');
+                layers.push('condition-yellow');
+                break;
+            case 'condition-green-blue-yellow':
+                layers.push('condition-green');
+                layers.push('condition-blue');
+                layers.push('condition-yellow');
+                break;
+            case 'condition-red-green-blue-yellow':
+                layers.push('condition-red');
+                layers.push('condition-green');
+                layers.push('condition-blue');
+                layers.push('condition-yellow');
                 break;
         }
         divsToAdd = addLayersToDiv(layers, div);
@@ -1824,7 +1973,8 @@ function addDivsToHistory(divsToAdd, id, added, body, groupedNumber, ungroupedNu
                 }
             };
             span.onclick = function () {
-                if (window.anno.selectAnnotation(id) !== undefined) {
+                var annotation = window.anno.selectAnnotation(id);
+                if (annotation !== undefined) {
                     var spans = document.getElementsByClassName('anno-hist-' + id);
                     if(spans !== null) {
                         for(var i = 0; i < spans.length; i++) {
@@ -1838,6 +1988,81 @@ function addDivsToHistory(divsToAdd, id, added, body, groupedNumber, ungroupedNu
                                 eles[i].classList.add('highlighted-number');
                             }
                         }
+                    }
+                    if(annotation.hasOwnProperty('body')) {
+                        {% if not readonly %}
+                            new MutationObserver((mutations, obs) => {
+                                var toDelete = document.querySelectorAll("div.r6o-editable-text");
+                                for(var i = 0; i < toDelete.length; i++) {
+                                    toDelete[i].parentElement.removeChild(toDelete[i]);
+                                }
+                                var comments = document.querySelectorAll("textarea.r6o-editable-text:not(.r6o-nodrag)");
+                                if (comments.length > 0 && comments.length === annotation.body.length) {
+                                    for(var i = 0; i < annotation.body.length; i++) {
+                                        if(annotation.body[i].hasOwnProperty('value') && window.damageTypes.hasOwnProperty(annotation.body[i].value)) {
+                                            const newDiv = document.createElement('div');
+                                            newDiv.className = 'r6o-editable-text';
+                                            if(window.damageTypes[annotation.body[i].value].aat !== '') {
+                                                newDiv.innerHTML = '<div class="annotation-span-div"><a class="aat-link" href="' + window.damageTypes[annotation.body[i].value].aat + '" title="' + window.damageTypes[annotation.body[i].value].note + '" target="_blank">' + comments[i].value + "</a></div>";
+                                            } else {
+                                                newDiv.innerHTML = '<div class="annotation-span-div"><span title="' + window.damageTypes[annotation.body[i].value].note + '">' + comments[i].value + "</span></div>";
+                                            }
+                                            const comment = comments[i];
+                                            const parentElement = comments[i].parentElement;
+                                            comments[i].classList.add("hidden");
+                                            if(parentElement.childNodes.length === 0) {
+                                                parentElement.appendChild(newDiv);
+                                            } else {
+                                                parentElement.insertBefore(newDiv, parentElement.firstChild);
+                                            }
+                                            new MutationObserver((mutationList, obser) => {
+                                                if(newDiv.parentElement === null) {
+                                                    obser.disconnect();
+                                                } else {
+                                                    for (const mutation of mutationList) {
+                                                        if (mutation.type === "attributes" && mutation.attributeName === "disabled") {
+                                                            comment.classList.remove("hidden");
+                                                            newDiv.parentElement.removeChild(newDiv);
+                                                            obser.disconnect();
+                                                        }
+                                                    }
+                                                }
+                                            }).observe(comment, { 'attributes': true });
+                                        }
+                                    }
+                                }
+                                obs.disconnect();
+                            }).observe(document, { childList: true, subtree: true });
+                        {% else %}
+                            new MutationObserver((mutations, obs) => {
+                                var toDelete = document.querySelectorAll("div.custom-r6o-comment");
+                                for(var i = 0; i < toDelete.length; i++) {
+                                    toDelete[i].parentElement.removeChild(toDelete[i]);
+                                }
+                                var comments = document.querySelectorAll("div.r6o-readonly-comment");
+                                if(comments.length > 0 && comments.length === annotation.body.length) {
+                                    for(var i = 0; i < annotation.body.length; i++) {
+                                        if(annotation.body[i].hasOwnProperty('value') && window.damageTypes.hasOwnProperty(annotation.body[i].value)) {
+                                            const newDiv = document.createElement('div');
+                                            newDiv.className = "custom-r6o-comment";
+                                            if(window.damageTypes[annotation.body[i].value].aat !== '') {
+                                                newDiv.innerHTML = '<a class="aat-link" href="' + window.damageTypes[annotation.body[i].value].aat + '" title="' + window.damageTypes[annotation.body[i].value].note + '" target="_blank">' + comments[i].innerHTML + "</a>";
+                                            } else {
+                                                newDiv.innerHTML = '<span title="' + window.damageTypes[annotation.body[i].value].note + '">' + comments[i].innerHTML + "</span>";
+                                            }
+                                            const parentElement = comments[i].parentElement;
+                                            comments[i].classList.add("hidden");
+                                            if(parentElement.childNodes.length === 0) {
+                                                parentElement.appendChild(newDiv);
+                                            } else {
+                                                parentElement.insertBefore(newDiv, parentElement.firstChild);
+                                            }
+                                        }
+                                    }
+                                }
+                                obs.disconnect();
+                            }).observe(document, { childList: true, subtree: true });
+                        {% endif %}
                     }
                 }
             };
@@ -1855,19 +2080,30 @@ function getHistorySpanText(body, number, deleted) {
     if(body != null) {
         for(var j = 0; j < body.length; j++) {
             if(body[j].hasOwnProperty('value') && body[j].value != null && body[j].value !== '') {
+                var note = '';
+                if(window.damageTypes.hasOwnProperty(body[j].value)) {
+                    note = window.damageTypes[body[j].value].note;
+                }
                 if (text == null) {
                     if(deleted) {
-                        text = '<span class="anno-text anno-hist-deleted-span">';
+                        text = '<span class="anno-text anno-hist-deleted-span"';
                     } else {
-                        text = '<span class="anno-text">';
+                        text = '<span class="anno-text"';
                     }
-                    text += body[j].value;
+                    if(note !== '') {
+                        text += ' title="' + note + '"';
+                    }
+                    text += '>' + body[j].value;
                 } else {
                     if(deleted) {
-                        text = text + '<br/><span class="italic anno-hist-deleted-span">' + body[j].value + '</span>';
+                        text = text + '<br/><span class="italic anno-hist-deleted-span"';
                     } else {
-                        text = text + '<br/><span class="italic">' + body[j].value + '</span>';
+                        text = text + '<br/><span class="italic"';
                     }
+                    if(note !== '') {
+                        text += ' title="' + note + '"';
+                    }
+                    text += '>' + body[j].value + '</span>';
                 }
             }
         }
@@ -1900,6 +2136,35 @@ function addLayersToDiv(layers, div) {
             nameSpan.className = 'anno-hist-layer-span';
             layerDiv.appendChild(nameSpan);
             switch(layers[i]) {
+                case 'condition-blue': {
+                    nameSpan.innerHTML = '{{ 'Support' | trans }}';
+                    if(div.childNodes.length === 0) {
+                        div.appendChild(layerDiv);
+                    } else {
+                        div.insertBefore(layerDiv, div.firstChild);
+                    }
+                    break;
+                }
+                case 'condition-yellow': {
+                    nameSpan.innerHTML = '{{ 'Supporting medium' | trans }}';
+                    var frame = div.querySelector('.condition-red');
+                    if (frame != null) {
+                        div.insertBefore(layerDiv, frame);
+                    } else {
+                        frame = div.querySelector('.condition-green');
+                        if (frame != null) {
+                            div.insertBefore(layerDiv, frame);
+                        } else {
+                            frame = div.querySelector('.condition-orange');
+                            if (frame != null) {
+                                div.insertBefore(layerDiv, frame);
+                            } else {
+                                div.appendChild(layerDiv);
+                            }
+                        }
+                    }
+                    break;
+                }
                 case 'condition-red': {
                     nameSpan.innerHTML = '{{ 'Pictorial layer' | trans }}';
                     var finishingLayer = div.querySelector('.condition-green');
@@ -1916,21 +2181,12 @@ function addLayersToDiv(layers, div) {
                     break;
                 }
                 case 'condition-green': {
-                    nameSpan.innerHTML = '{{ 'Finishing layer' | trans }}';
+                    nameSpan.innerHTML = '{{ 'Varnish/Protection layer' | trans }}';
                     var frame = div.querySelector('.condition-orange');
                     if (frame != null) {
                         div.insertBefore(layerDiv, frame);
                     } else {
                         div.appendChild(layerDiv);
-                    }
-                    break;
-                }
-                case 'condition-blue': {
-                    nameSpan.innerHTML = '{{ 'Carrier' | trans }}';
-                    if(div.childNodes.length === 0) {
-                        div.appendChild(layerDiv);
-                    } else {
-                        div.insertBefore(layerDiv, div.firstChild);
                     }
                     break;
                 }
