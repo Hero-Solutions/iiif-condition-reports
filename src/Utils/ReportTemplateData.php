@@ -14,6 +14,7 @@ use App\Entity\ReportData;
 use App\Entity\ReportHistory;
 use App\Entity\Representative;
 use App\Entity\Signature;
+use App\Entity\User;
 use Doctrine\ORM\EntityManager;
 
 class ReportTemplateData
@@ -130,14 +131,15 @@ class ReportTemplateData
     {
         $prefilledData = array();
         $reportData = $em->createQueryBuilder()
-            ->select('r.id, r.inventoryId, r.baseId, r.timestamp, d.name, d.value')
+            ->select('r.id, r.inventoryId, r.baseId, r.timestamp, d.name, d.value, u.fullName')
             ->from(Report::class, 'r')
             ->leftJoin(ReportData::class, 'd', 'WITH', 'd.id = r.id')
+            ->leftJoin(User::class, 'u', 'WITH', 'u.id = r.editor')
             ->where('r.id = :id')
             ->setParameter('id', $id)
             ->getQuery()
             ->getResult();
-        $lastReportTimestamp = '';
+        $lastReportTimestamp = [ 'timestamp' => '', 'editor' => ''];
         foreach ($reportData as $data) {
             if(empty($prefilledData['inventory_id'])) {
                 $prefilledData['inventory_id'] = $data['inventoryId'];
@@ -145,8 +147,11 @@ class ReportTemplateData
             if(empty($prefilledData['base_id'])) {
                 $prefilledData['base_id'] = $data['baseId'];
             }
-            if(empty($lastReportTimestamp)) {
-                $lastReportTimestamp = $data['timestamp']->format('Y-m-d H:i:s');
+            if(empty($lastReportTimestamp['timestamp'])) {
+                $lastReportTimestamp = [
+                    'timestamp' => $data['timestamp']->format('Y-m-d H:i'),
+                    'editor' => $data['fullName']
+                ];
             }
             $prefilledData[$data['name']] = $data['value'];
         }
@@ -155,9 +160,10 @@ class ReportTemplateData
         $images = self::getImages($em, $prefilledData, $imageRelPath);
 
         $reportHistory = $em->createQueryBuilder()
-            ->select('h.id, h.previousId, h.sortOrder, r.timestamp')
+            ->select('h.id, h.previousId, h.sortOrder, r.timestamp, u.fullName')
             ->from(ReportHistory::class, 'h')
             ->innerJoin(Report::class, 'r', 'WITH', 'r.id = h.previousId')
+            ->leftJoin(User::class, 'u', 'WITH', 'u.id = r.editor')
             ->where('h.id = :id')
             ->setParameter('id', $id)
             ->orderBy('h.sortOrder', 'DESC')
@@ -173,7 +179,10 @@ class ReportTemplateData
             }
             $prefilledData['report_history'][$history['previousId']] = $history['sortOrder'];
             $previousIds[] = $history['previousId'];
-            $annotationTimestamps[$history['previousId']] = $history['timestamp']->format('Y-m-d H:i:s');
+            $annotationTimestamps[$history['previousId']] = [
+                'timestamp' => $history['timestamp']->format('Y-m-d H:i'),
+                'editor' => $history['fullName']
+            ];
         }
         if(!array_key_exists('report_history', $prefilledData)) {
             $prefilledData['report_history'] = array($id => 1);

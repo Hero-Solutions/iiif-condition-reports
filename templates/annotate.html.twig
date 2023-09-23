@@ -42,7 +42,7 @@
                                         <div id="annos-{{ image.hash }}-{{ id }}">
                                             <button type="button" onclick="toggleAnnotations('{{ id }}')" id="show-hide-annos-{{ image.hash }}-{{ id }}" class="hide">
                                                 <i class="far fa-eye"></i>
-                                                <span>{{ timestamp }}</span>
+                                                <span class="text-align-left">{{ timestamp.editor }}<br/><i>{{ timestamp.timestamp }}</i></span>
                                             </button>
                                             <div class="annotations-list"></div>
                                         </div>
@@ -1120,6 +1120,7 @@ window.images = {{ images | json_encode | raw }};
 window.currentImage = '{{ default_image }}';
 window.currentImageHash = '{{ default_image_hash }}';
 var hist = {{ annotation_history | json_encode | raw }};
+console.log(hist);
 
 window.annoIds = [];
 window.annotationHistory = {};
@@ -1132,7 +1133,7 @@ for(var i = 0; i < window.images.length; i++) {
     window.annotationsVisible[hash] = {};
     {% if not readonly %}
         window.annotationHistory[hash] = {
-            '999999999': ''
+            '999999999': { 'timestamp': '', 'editor': '' }
         };
         window.addedAnnotations[hash] = {
             '999999999': {}
@@ -1512,7 +1513,7 @@ function addImage(image) {
 
     window.images.push(image);
     window.annotationHistory[image.hash] = {
-        '999999999': ''
+        '999999999': { 'timestamp': '', 'editor': '' }
     };
     window.addedAnnotations[image.hash] = {
         '999999999': {}
@@ -1587,11 +1588,12 @@ function clickedThumbnail(hash, image) {
             var iEye = document.createElement('i');
             iEye.className = 'far fa-eye';
             var span = document.createElement('span');
+            span.class = 'text-align-left';
             if (reportId === '999999999') {
                 span.innerHTML = '{{ 'Current annotations' | trans }}';
                 newDiv.className = 'show-hide-current-annos';
             } else {
-                span.innerHTML = window.annotationHistory[hash][reportId];
+                span.innerHTML = window.annotationHistory[hash][reportId]['editor'] + '<br/><i>' + window.annotationHistory[hash][reportId]['timestamp'] + '</i>';
             }
             button.appendChild(iEye);
             button.appendChild(span);

@@ -497,6 +497,10 @@ textarea {
     overflow-y: scroll;
 }
 
+.text-align-left {
+    text-align: left;
+}
+
 #annotation-history-timestamps > div {
     padding-bottom: 10px;
     border-bottom: 1px solid #dbdbdb;
