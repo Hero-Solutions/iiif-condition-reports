@@ -722,6 +722,14 @@ textarea {
     margin-bottom: 0;
 }
 
+#print-selection div {
+    display: flex;
+}
+
+#print-selection input {
+    margin-top: 3px;
+}
+
 .signatures button {
     cursor: pointer;
     background-color: #5f585d;
@@ -2372,6 +2380,22 @@ form {
 .signature-pad img {
     display:block;
     margin:auto;
+}
+
+.signature-div {
+    display: flex;
+    margin-top: 10px;
+}
+
+.signature-input {
+    width: auto !important;
+    height: auto !important;
+    margin-top: 0 !important;
+    margin-right: 10px;
+}
+
+.signature-div label {
+    padding-top: 0 !important;
 }
 
 footer {
