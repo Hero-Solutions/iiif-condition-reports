@@ -6,7 +6,7 @@
         {% if signature_count == 1 %}
             <div class="signatures" id="signatures-form">
                 <div class="report-header">{{ 'Signatures' | trans }}</div>
-                <p class="no-print">{{ 'Alternatively, you can also choose to add a validated digital signature after saving this document as a PDF.' | trans }}</p>
+                <p class="no-print">{{ 'Alternatively, after saving this document as a PDF, you can add a digitally verified signature to the PDF.' | trans }}</p>
         {% endif %}
 
         {% if signature_count % 2 == 1 %}
@@ -60,7 +60,8 @@
                     const div = document.getElementById('signature-pad-' + role);
                     const children = div.children;
                     for(var i = children.length - 1; i >= 0; i--) {
-                        if(children[i].className === 'signature-div') {
+                        if(children[i].classList.contains('signature-div')) {
+                            children[i].classList.remove('no-print');
                             children[i].getElementsByClassName('signature-input')[0].disabled = true;
                         } else {
                             div.removeChild(children[i]);

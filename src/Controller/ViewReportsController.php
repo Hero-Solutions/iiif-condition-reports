@@ -104,7 +104,7 @@ class ViewReportsController extends AbstractController
             $totalSignatures = count($res['signatures']);
             if($signaturesRequired === $totalSignatures) {
                 if($signaturesRequired > 0) {
-                    $res['signature_message'] = $this->translator->trans('Signed by all parties');
+                    $res['signature_message'] = $this->translator->trans('Signed by all parties') . ' (' . $totalSignatures . '/' . $signaturesRequired . ')';
                 }
             } else {
                 if($totalSignatures > 0) {

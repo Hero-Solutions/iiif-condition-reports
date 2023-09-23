@@ -2352,7 +2352,7 @@ form {
 
 .signature-pad--body {
     position: relative;
-    margin: 15px auto;
+    margin: 10px auto;
     height: 202px;
     width: 382px;
 }
@@ -2384,7 +2384,7 @@ form {
 
 .signature-pad img {
     display:block;
-    margin:auto;
+    margin: 10px auto 0 auto;
 }
 
 .signature-div {
@@ -2525,5 +2525,18 @@ footer a:hover,
 
     .report-header > .form-group {
         break-inside: avoid !important;
+    }
+
+    .signature-pad {
+        width: 337px;
+        height: 190px;
+    }
+
+    .signature-pad img {
+        max-width: 320px;
+    }
+
+    .signature-box {
+        max-width: 337px;
     }
 }
