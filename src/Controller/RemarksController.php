@@ -117,7 +117,14 @@ class RemarksController extends AbstractController
             ->subject($subject)
             ->text($body . PHP_EOL . PHP_EOL . 'Submitted by ' . $emailAddress)
         ;
+        $mailer->send($email);
 
+        $email = (new Email())
+            ->from(new Address($emailAddress, $name))
+            ->to('info@vlaamsekunstcollectie.be')
+            ->subject($subject)
+            ->text($body . PHP_EOL . PHP_EOL . 'Submitted by ' . $emailAddress)
+        ;
         $mailer->send($email);
     }
 }

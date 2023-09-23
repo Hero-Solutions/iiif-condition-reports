@@ -6,6 +6,7 @@
         {% if signature_count == 1 %}
             <div class="signatures" id="signatures-form">
                 <div class="report-header">{{ 'Signatures' | trans }}</div>
+                <p class="no-print">{{ 'Alternatively, you can also choose to add a validated digital signature after saving this document as a PDF.' | trans }}</p>
         {% endif %}
 
         {% if signature_count % 2 == 1 %}
