@@ -258,7 +258,6 @@ Condition paint layer: Conditie verflaag
 Scratches/dents: Krassen/deuken
 Crackle (pronounced, irregular, micro, bump/pressure craquelure, youth cracks,...): Craquelé (sterk, onregelmatig, micro, stoot/drukcraquelé, jeugdbarsten, …)
 Cupping: Schotelvorming/cupping
-Flaking: Schilfering
 Degraded medium: Poederende/loskomende verf
 "Blisters/flaking paint (checked and stable): see picture": "Opstuwingen/blazen (gecontroleerd en stabiel): zie foto"
 Losses (see picture): Lacunes (zie foto)
@@ -667,6 +666,7 @@ Carrier + paint + finishing layer: Drager + verf + afwerklaag
 Select damage type: Selecteer soort schade
 
 Support: Drager
+Supporting medium: Ondersteunende drager
 Canvas: Doek
 Wood: Hout
 Metal: Metaal
@@ -691,7 +691,6 @@ plastic: Kunststof
 loose: Los
 Loose: Los
 fixed: Vast
-Fixed: Vast
 original: Origineel
 Original: Origineel
 not_original: Niet origineel
@@ -836,14 +835,18 @@ Acid: Algemene verzuring
 acid: Algemene verzuring
 Algemene verzuring: Algemene verzuring
 accretion: Accretie
+Accretion: Accretie
 Accretie: Accretie
-Adheasion: Hechting
-adheasion: Hechting
+Adhesion: Hechting
+adhesion: Hechting
 Hechting: Hechting
 adhesive_tape: Plakband
+Adhesive tape: Plakband
 Plakbank: Plakbank
 animal_glue: Dierlijke lijm
+Animal glue: Dierlijke lijm
 Dierlijke lijm: Dierlijke lijm
+Blanching: Blindgeslagen
 blanching: Blindgeslagen
 Blindgeslagen: Blindgeslagen
 bleaching: Gebleekt
@@ -872,34 +875,44 @@ Klimaatbox goed gesealed: Klimaatbox goed gesealed
 condensation: Condenseren
 Condenseren: Condenseren
 consolidated: Verstevigen
+Consolidated: Verstevigen
 Verstevigen: Verstevigen
 crackle: Craquelé
 Craquelé: Craquelé
 cracks_damage_type: Barsten
+Cracks: Barsten
 Barsten: Barsten
 Crusted dirt: Geïncrusteerd vuil
 Geïncrusteerd vuil: Geïncrusteerd vuil
 creases: Plooien
+Creases: Plooien
 Plooien: Plooien
 crizzling: Ziek (glas)
+Crizzling: Ziek (glas)
 Ziek (glas): Ziek (glas)
 cupping: Schotelvorming
 Schotelvorming: Schotelvorming
 cutting: Snede
+Cutting: Snede
 Snede: Snede
 missing_edges: Afgebroken of ontbrekende hoeken en randen
+Missing edges: Afgebroken of ontbrekende hoeken en randen
 Afgebroken of ontbrekende hoeken en randen: Afgebroken of ontbrekende hoeken en randen
 damaged_edges: Randen beschadigd
 Randen beschadigd: Randen beschadigd
 dampness: Vochtigheid
+Dampness: Vochtigheid
 Vochtigheid: Vochtigheid
 darkening: Verdonkeren (retouches)
+Darkening: Verdonkeren (retouches)
 Verdonkeren (retouches): Verdonkeren (retouches)
 daylight_opening_correct: Dagmaat passend
 Dagmaat passend: Dagmaat passend
 deformation: Deformatie
+Deformation: Deformatie
 Deformatie: Deformatie
 degradation: Degradatie
+Degradation: Degradatie
 Degradatie: Degradatie
 degradation_of_plastics: Degradatie van kunststoffen
 Degradatie van kunststoffen: Degradatie van kunststoffen
@@ -908,6 +921,7 @@ Gecrepeerd: Gecrepeerd
 degraded_medium: Poederende/loskomende verf
 Poederende/loskomende verf: Poederende/loskomende verf
 delamination_type: Delamineren
+Delamination: Delamineren
 Delamineren: Delamineren
 dents_type: Deuken
 Deuken: Deuken
@@ -916,53 +930,69 @@ Vuil tussen raam en doek: Vuil tussen raam en doek
 dirt_between_glass_and_artwork: Vuil tussen glas en werk
 Vuil tussen glas en werk: Vuil tussen glas en werk
 deterioration: Degradatie
+Deterioration: Degradatie
 discoloration: Verkleuring
 Verkleuring: Verkleuring
 discolored_retouching: Verkleurde retouches
 Verkleurde retouches: Verkleurde retouches
 distortion: Vervorming
+Distortion: Vervorming
 Vervorming: Vervorming
 drips_or_dripmarks: Druppels of druipsporen
 Druppels of druipsporen: Druppels of druipsporen
 dust: Stof
+Dust: Stof
 Stof: Stof
 embrittlement: Bros geworden
+Embrittlement: Bros geworden
 Bros geworden: Bros geworden
 fiber_degradation: Vezelaantasting
 Vezelaantasting: Vezelaantasting
 excrements: Dierenuitwerpselen
+Excrements: Dierenuitwerpselen
 Dierenuitwerpselen: Dierenuitwerpselen
 fading: Vervagen
+Fading: Vervagen
 Vervagen: Vervagen
 filling: Vulling
+Filling: Vulling
 Vulling: Vulling
 finger_marks: Vingerafdrukken
+Finger marks: Vingerafdrukken
 Vingerafdrukken: Vingerafdrukken
 fire_damage: Brandschade
 Brandschade: Brandschade
 fixation: Gefixeerd (de materialen)
+Fixation: Gefixeerd (de materialen)
 Gefixeerd (de materialen): Gefixeerd (de materialen)
 fixed_type: Gefixeerd (de verschillende objectdelen)
+Fixed: Gefixeerd
 Gefixeerd (de verschillende objectdelen): Gefixeerd (de verschillende objectdelen)
 flaking_type: Afschilferen
+Flaking: Afschilferen
 Afschilferen: Afschilferen
 flattened_paint: Geplette verf
 Geplette verf: Geplette verf
 fly_out_openings: Uitvliegopeningen
 Uitvliegopeningen: Uitvliegopeningen
 folds: Vouwen
+Folds: Vouwen
 Vouwen: Vouwen
 foxing: Roestbruine verkleuring/Foxing
+Foxing: Roestbruine verkleuring/Foxing
 Roestbruine verkleuring/Foxing: Roestbruine verkleuring/Foxing
 fracture: Breuk
 Breuk: Breuk
 frass: Houtpoeder
+Frass: Houtpoeder
 Houtpoeder: Houtpoeder
 glue_residues: Lijm(resten)
+Glue residues: Lijm(resten)
 Lijm(resten): Lijm(resten)
 hair_tears_cracks: Haarscheurtjes
 Haarscheurtjes: Haarscheurtjes
 impurities_in_the_paper_fiber: Onzuiverheden in de papiervezel
+Impuritues in the paper fiber: Onzuiverheden in de papiervezel
 Onzuiverheden in de papiervezel: Onzuiverheden in de papiervezel
 impurities_in_varnish: Onzuiverheden in vernis
 Onzuiverheden in vernis: Onzuiverheden in vernis
@@ -971,20 +1001,26 @@ Inktvraat: Inktvraat
 inscriptions: Inscripties
 Inscripties: Inscripties
 insect_damage_type: Insectenvraat
+Insect damage: Insectenvraat
 Insectenvraat: Insectenvraat
 insect_feces: Insectenpoep
 Insectenpoep: Insectenpoep
 instability: Instabiliteit
+Instability: Instabiliteit
 Instabiliteit: Instabiliteit
 joints: Voegen (open, hersteld, verstevigd)
+Joints: Voegen (open, hersteld, verstevigd)
 Voegen (open, hersteld, verstevigd): Voegen (open, hersteld, verstevigd)
 keys: Spieën
+Keys: Spieën
 Spieën: Spieën
 labels: Etiketten
 Etiketten: Etiketten
 lacunae: Lacunes
+Lacunae: Lacunes
 Lacunes: Lacunes
 losses_lacunae: Lacunes
+Losses / lacunae: Lacunes
 lined: Gedoubleerd
 Gedoubleerd: Gedoubleerd
 loose_parts: Losse delen
@@ -992,18 +1028,22 @@ Losse delen: Losse delen
 loosening_in_composite_support: Loskomen in samengestelde drager
 Loskomen in samengestelde drager: Loskomen in samengestelde drager
 milky: Wazig
+Milky: Wazig
 Wazig: Wazig
 impregnation: Vochtbarrière aan de achterkant / impregnatie met verf
+Impregnation: Vochtbarrière aan de achterkant / impregnatie met verf
 Vochtbarrière aan de achterkant / impregnatie met verf: Vochtbarrière aan de achterkant / impregnatie met verf
 not_lined: Niet gedoubleerd
 Niet gedoubleerd: Niet gedoubleerd
 old_repairs: Oude ingrepen / restauraties
+Old repairs: Oude ingrepen / restauraties
 Oude ingrepen / restauraties: Oude ingrepen / restauraties
 open_joints: Open verbindingen
 Open verbindingen: Open verbindingen
 overpaint: Overschildering
+Overpaint: Overschildering
 Overschildering: Overschildering
-oxidation: Oxideren
+oxidation_type: Oxideren
 Oxideren: Oxideren
 patches: Herstellappen
 Herstellappen: Herstellappen
@@ -1012,39 +1052,51 @@ Perforaties: Perforaties
 powdering_type: Verpoederen
 Verpoederen: Verpoederen
 pitting: Holtevorming
+Pitting: Holtevorming
 Holtevorming: Holtevorming
 remains: Restanten van andere materialen
+Remains: Restanten van andere materialen
 Restanten van andere materialen: Restanten van andere materialen
 repairing: Herstelling
+Repairing: Herstelling
 Herstelling: Herstelling
 retouching_type: Retouches
 Retouches: Retouches
 rodent_damage: Knaagdiervraat
+Rodent damage: Knaagdiervraat
 Knaagdiervraat: Knaagdiervraat
 seals: Zegels
 Zegels: Zegels
 seams: Naad
+Seams: Naad
 Naad: Naad
 silverfish: Zilvervisje
 Zilvervisje: Zilvervisje
 silver_mirroring: Verzilvering
+Silver mirroring: Verzilvering
 Verzilvering: Verzilvering
 smudged: Uitgeveegd
 Uitgeveegd: Uitgeveegd
 stains: Vlekken
+Stains: Vlekken
 Vlekken: Vlekken
 stains_spots: Vlekken
+Stains/Spots: Vlekken
 sticking_together: Verkleving
+Sticking together: Verkleving
 Verkleving: Verkleving
 strainers: Spanramen
+Strainers: Spanramen
 Spanramen: Spanramen
 stretchers: Spieraam
+Stretchers: Spieraam
 Spieraam: Spieraam
 stretching_edges: Omslagranden
 Omslagranden: Omslagranden
 stretching_marks: Spanguirlandes
 Spanguirlandes: Spanguirlandes
 strip_lining: Strip-lining
+Strip lining: Strip-lining
 sugaring: Versuikeren
 Versuikeren: Versuikeren
 tears: Scheuren
@@ -1052,28 +1104,36 @@ Scheuren: Scheuren
 tension: Spanning
 Spanning: Spanning
 tidelines: Vochtkringen
+Tidelines: Vochtkringen
 Vochtkringen: Vochtkringen
 undulation: Golving
 Golving: Golving
 warping: Kromtrekking
+Warping: Kromtrekking
 wax_residues: Wax(resten)
+Wax residues: Wax(resten)
 Wax(resten): Wax(resten)
 wax_resin: Washars
+Wax resin: Washars
 Washars: Washars
 weak_corner_joints: Zwakke hoekverbindingen
 Zwakke hoekverbindingen: Zwakke hoekverbindingen
 wear: Slijtage
+Wear: Slijtage
 Slijtage: Slijtage
 wood_borers: Houtboorders
+Wood _borers: Houtboorders
 Houtboorders: Houtboorders
 wrinkle: Plooivorming
+Wrinkle: Plooivorming
 wrinkles: Plooivorming
+Wrinkles: Plooivorming
 Plooivorming: Plooivorming
 yellowing: Vergelen
 Vergelen: Vergelen
 
 "Adhesion: The joining of two surfaces by means of a generally viscous, sticky composition such as an adhesive or through physical or chemical force.": "Hechting: Het samenvoegen van twee oppervlakken met behulp van een in het algemeen kleverig, plakkerig mengsel zoals een kleefstof, of door middel van fysieke of chemische kracht."
-Blanching: "Blindgeslagen: Te onderscheiden van 'waas' dat algemeen wordt gebruikt om aan te geven dat allerlei oppervlakken er anders zijn gaan uitzien als gevolg van de inwerking van waterdamp of vocht uit de atmosfeer."
+blanching_note: "Blindgeslagen: Te onderscheiden van 'waas' dat algemeen wordt gebruikt om aan te geven dat allerlei oppervlakken er anders zijn gaan uitzien als gevolg van de inwerking van waterdamp of vocht uit de atmosfeer."
 "Bleaching: The process of whitening or lightening the color of a material by means of oxidation through the use of chemicals or exposure to sunlight.": "Bleken, gebleekt: Een materiaal wit of lichter van kleur maken door oxydatie met behulp van chemicaliën of door blootstelling aan zonlicht."
 "Blisters: Swellings on a surface, often bubble-shaped, frequently caused by nonadherence or by separation of an applied substance.": "Blazen: Opstuwing aan een oppervlak, vaak in de vorm van een blaasje, meestal veroorzaakt doordat een aangebrachte stof loslaat of niet hecht."
 "Broken: Splitting into pieces or smashing into parts or fragments, typically by a blow or stress and with suddenness or violence.": "Gebroken: Het in stukjes uiteensplijten of in delen of scherven uiteenspatten, meestal plotseling en hevig, als gevolg van een klap of drukuitoefening."
@@ -1107,7 +1167,7 @@ fiber_degradation_note: Vezelaantasting
 "Filling: Inserting material into a hole, crack, or cavity. In the specific context of mosaic conservation, the application of mortar or other material into an area of loss of the mosaic surface.": "Vullen: Het inbrengen van materiaal in een gat, een scheur of een holte. In de specifieke context van mozaïekonderhoud het aanbrengen van mortel of een ander materiaal in een beschadigd gedeelte van het mozaïekoppervlak."
 "Finger Marks: The impression of the markings from the inner surface of the finger.": "Verwijst naar de afdruk van de tekening aan de binnenkant van de vingertoppen."
 "Fire damage: Damage caused by fire, including burning and ash residue.": "Brandschade: Schade als gevolg van vuur, door verbranding of door asresten."
-Fixation: "Gefixeerd (de materialen): Het materiaal (de verf, vergulding, afwerkingslaag, ...) vastzetten."
+fixation_note: "Gefixeerd (de materialen): Het materiaal (de verf, vergulding, afwerkingslaag, ...) vastzetten."
 fixed_note: "Gefixeerd (de verschillende objectdelen): Het object vastzetten."
 "Flaking: Separating into thin flattened pieces or layers.": "Afschilferen: Het uiteenvallen in dunne, platte stukjes of laagjes."
 flattened_paint_note: "Geplette verf: Platgedrukte verf"
@@ -1125,7 +1185,7 @@ ink_corrosion_note: "Inktvraat - ijzervraat: De zogenaamde ijzergallusinkt waarm
 "Insect damage: Damage caused by insects.": "Insectenvraat: Wordt gebruikt voor de schade die door insecten wordt veroorzaakt."
 Insect feces: Insectenpoep
 "Instability: The quality or state of lacking stability, of tending toward changeability, or of readily decomposing or changing chemically.": "Instabiliteit: De eigenschap of toestand van het missen van stabiliteit, van het neigen naar veranderlijkheid of van gemakkelijk uiteenvallen of chemisch veranderen."
-Joints: Voegen
+joints_note: Voegen
 "Keys (frame components): Wedges of wood set at the corners of frames.": "Spieën (frameonderdelen): Wordt gebruikt voor houten wiggen aan de hoeken van lijsten."
 "Labels: Pieces of paper, leather, fabric, or small tablets inscribed and affixed to something for identification or description. In the context of bookbinding, refers specifically to paper or other material separate from that used to cover a book, on which the author's name and the title are printed or engraved and glued to the spine or front board. For larger, more public identifying notices, use 'identification signs'.": "Etiketten: Stukken papier, leer, stof of kleine tabletten waarop is geschreven en die ergens aan zijn bevestigd ter identificatie of beschrijving. Verwijst in de context van boekbinden specifiek naar papier of ander materiaal, anders dan de kaft van een boek, waarop de naam van de auteur en de titel zijn afgedrukt, die zijn vastgelijmd aan de rug of voorkaft. Voor grotere, meer algemeen identificerende aankondigingen wordt 'herkenningsborden' gebruikt."
 "Lacunae: Blank spaces or missing portions of a written or printed text, of the media or support of a two-dimensional object, or of paint or a coating on a three dimensional object; objects subject to lacunae include paintings, mosaics, manuscripts, and painted sculptures. Lacunae result from damage or accidental omission; intentional omissions are not called 'lacunae'.": "Lacunes: Lege of ontbrekende gedeelten van een tekst of voorwerp, zoals een schilderij of manuscript, die gewoonlijk het gevolg zijn van beschadiging of onopzettelijke omissie."
@@ -1160,7 +1220,7 @@ Sugaring: Versuikeren
 Undulation: Golving
 "Warping/Bowing (warping, surface or structural changes, ...): A type of warping usually associated with wood when one face of a length of lumber shrinks more than the other, resulting in a bowed curvature. Less commonly this process may occur in stone such as marble, due to residual stresses, anisotropic thermal expansion of calcitic grains, variation of fluid contents, and dissolution processes.": "Kromtrekking: Een vormverandering die vooral met hout wordt geassocieerd, wanneer een kant van een stuk hout meer krimpt dan de andere, zodat het geheel buigt. Minder vaak treedt dit proces ook op bij steensoorten zoals marmer, als gevolg van inwendige spanning, anisotrope warmte-uitzetting van kalkkorrels, variatie in vloeibare inhoud en ontbindingsprocessen."
 "Water damage: Damage caused by water. Usage often refers to water damaged library materials and buildings, and includes but is not limited to flood damage.": "Waterschade: Schade die door water is veroorzaakt. Vaak verwijst de term naar waterschade aan bibliotheekmaterialen en gebouwen. Deze kan optreden na een overstroming, maar de term wordt ook in andere gevallen gebruikt."
-Wax residues: "Waxresten. Wax: Aanduiding voor diverse materialen die, hoewel ze geen chemisch homogene groep vormen, bepaalde fysieke kenmerken gemeen hebben, en meestal vast en doorschijnend zijn en een laag smeltpunt hebben."
+wax_residues_note: "Waxresten. Wax: Aanduiding voor diverse materialen die, hoewel ze geen chemisch homogene groep vormen, bepaalde fysieke kenmerken gemeen hebben, en meestal vast en doorschijnend zijn en een laag smeltpunt hebben."
 Weak corner joints: Zwakke hoekverbindingen
 "Wear/Wearage: Damage or deterioration occurring gradually as a result of continuing use or exposure, usually a gradual diminishing from such actions as rubbing, scraping, or washing.": "Slijtage: Beschadiging of achteruitgang die zich geleidelijk manifesteert als gevolg van voortdurend gebruik of blootstelling; meestal een geleidelijke aantasting als gevolg van wrijven, schuren of wassen."
 "Wood borers: Wood boring beetles in their larval and adult states. As larvae, commonly known as woodworms. Termites, though wood eating, are not beetles and thus not wood borers.": "Houtboorders: Kevers die zich als larve en in hun volwassen vorm in hout ingraven. Als larven staan ze algemeen bekend als houtwormen. Termieten eten ook hout maar zijn geen kevers, en worden dus niet tot de houtboorders gerekend."

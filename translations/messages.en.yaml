@@ -111,10 +111,11 @@ abrasions: Abrasions
 abrasions_note: Abrasions
 acid: Acid
 accretion: Accretion
-adheasion: Adheasion
+adhesion: Adhesion
 adhesive_tape: Adhesive tape
 animal_glue: Animal glue
 blanching: Blanching
+blanching_note: Blanching
 bleaching: Bleaching
 blisters: Blisters
 bloom: Bloom
@@ -166,6 +167,7 @@ finger_marks: Finger marks
 fire_damage: Fire damage
 fixed_type: Fixed
 fixation: Fixation
+fixation_note: Fixation
 fixed_note: Fixed
 flaking_type: Flaking
 flattened_paint: Flattened paint
@@ -186,6 +188,7 @@ insect_damage_type: Insect damage
 insect_feces: Insect feces
 instability: Instability
 joints: Joints
+joints_note: Joints
 keys: Keys
 labels: Labels
 lacunae: Lacunae
@@ -200,7 +203,7 @@ not_lined: Not lined
 old_repairs: Old repairs / restoration
 open_joints: Open joints
 overpaint: Overpaint
-oxidation: Oxidation
+oxidation_type: Oxidation
 patches: Patches
 perforations: Perforations
 pitting: Pitting
@@ -229,6 +232,7 @@ tidelines: Tidelines
 undulation: Undulation
 warping: Warping/Bowing
 wax_residues: Wax residues
+wax_residues_note: Wax residues
 wax_resin: Wax-resin
 weak_corner_joints: Weak corner joints
 wear: Wear/Wearage
@@ -241,7 +245,7 @@ yellowing: Yellowing
 Geschaafd: Abrasions
 Algemene verzuring: Acid
 Accretie: Accretion
-Hechting: Adheasion
+Hechting: Adhesion
 Plakbank: Adhesive tape
 Dierlijke lijm: Animal glue
 Blindgeslagen: Blanching
@@ -264,9 +268,11 @@ Geïncrusteerd vuil: Crusted dirt
 Plooien: Creases
 Ziek (glas): Crizzling
 Schotelvorming: Cupping
+Schotelvorming/cupping: Cupping
 Snede: Cutting
 Afgebroken of ontbrekende hoeken en randen: Damaged and missing corners and edges
 Randen beschadigd: Damaged edges
+Beschadigde randen: Damaged edges
 Vochtigheid: Dampness
 Verdonkeren (retouches): Darkening
 Dagmaat passend: Daylight opening correct
@@ -286,6 +292,7 @@ Druppels of druipsporen: Drips or dripmarks
 Stof: Dust
 Bros geworden: Embrittlement
 Vezelaantasting: Fiber degradation
+Vezelaantasting/geschaafd: Fiber degradation
 Dierenuitwerpselen: Excrements
 Vervagen: Fading
 Vulling: Filling
@@ -324,6 +331,7 @@ Oude ingrepen / restauraties: Old repairs
 Open verbindingen: Open joints
 Overschildering: Overpaint
 Oxideren: Oxidation
+Weefsel geoxideerd: Oxidation
 Herstellappen: Patches
 Perforaties: Perforations
 Verpoederen: Powdering
@@ -356,3 +364,4 @@ Slijtage: Wear
 Houtboorders: Wood borers
 Plooivorming: Wrinkles
 Vergelen: Yellowing
+Vergeling: Yellowing

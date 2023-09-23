@@ -774,7 +774,7 @@ parameters:
                       content: 'Loose'
                     - type: radio
                       name: 'material_paper_work_loose'
-                      content: 'Fixed'
+                      content: 'fixed'
                 - type: div
                   class: 'form-subgroup'
                   content:
@@ -4444,128 +4444,8 @@ parameters:
                     - type: checkbox_custom
                       name: 'recommendations_work_on_paper_manipulation_transport_outer_packing_other'
                       content: ''
-    finishing_layers:
-      default:
-        - absent
-        - glaze
-        - varnish
-        - wax_layer
-        - painting_1
-        - monochrome
-        - polychrome
-        - patination
-        - chop_marks
-        - polishing
-        - natural
-        - artificial
-        - custom
-    connections:
-      default:
-        - not_applicable
-        - welded
-        - soldered
-        - dived_wood
-        - glue
-        - screws
-        - nails
-        - bolts
-        - custom
-    damages:
-      default:
-        - surface_dirt
-        - crusted_dirt
-        - spots
-        - fingerprints
-        - old_restoration
-        - salts
-        - insect_damage
-        - mould
-        - water_damage
-        - corrosion
-        - gaps
-        - flaking
-        - powdering
-        - discolorations
-        - wearage
-        - scratches
-        - twists
-        - dents
-        - structural_damage
-        - cracks
-        - hair_tears
-        - holes
-        - wrinkled
-        - delamination
-        - missing_parts
-        - removable_parts
-        - brittle
-        - custom
-    conservation_treatments:
-      default:
-        - removing_dust
-        - superficial_cleaning
-        - insect_repellent_treatment
-        - removing_mold_spores
-        - reinforcing
-        - regluing_loose_parts
-        - fixating_loose_parts
-        - stabilizing_pedestal
-        - adding_protective_layer
-        - adding_barcode
-        - custom
-      painting:
-        - removing_dust
-        - superficial_cleaning
-        - insect_repellent_treatment
-        - removing_mold_spores
-        - reinforcing
-        - regluing_loose_parts
-        - fixating_loose_parts
-        - adding_protective_layer
-        - adding_barcode
-        - custom
-      work_on_paper:
-        - removing_dust
-        - superficial_cleaning
-        - insect_repellent_treatment
-        - removing_mold_spores
-        - reinforcing
-        - adding_protective_layer
-        - adding_barcode
-        - custom
-      sculpture:
-        - removing_dust
-        - superficial_cleaning
-        - insect_repellent_treatment
-        - removing_mold_spores
-        - reinforcing
-        - regluing_loose_parts
-        - fixating_loose_parts
-        - stabilizing_pedestal
-        - adding_protective_layer
-        - adding_barcode
-        - custom
-    restoration_treatments:
-      default:
-        - thorough_cleaning
-        - local_cleaning
-        - polychromy_research
-        - reconstruction_of_original
-        - removing_material_tension
-        - removing_old_restoration
-        - replacing_construction
-        - protective_layer
-        - adding_fastening_system
-        - retouching
-        - filling_gap_elements
-        - custom
-    researches:
-      default:
-        - setup_method
-        - material_technical_research
-        - analysis
-        - necessary_background_information
-        - custom
+
+
     damage_types:
       abrasions:
         note: abrasions_note
@@ -4576,7 +4456,7 @@ parameters:
         note: "Acid"
         applies_to:
           - work_on_paper
-      adheasion:
+      adhesion:
         aat: http://vocab.getty.edu/page/aat/300053010
         note: "Adhesion: The joining of two surfaces by means of a generally viscous, sticky composition such as an adhesive or through physical or chemical force."
         applies_to:
@@ -4585,7 +4465,7 @@ parameters:
           - sculpture
           - frame
       blanching:
-        note: "Blanching"
+        note: "blanching_note"
         applies_to:
           - painting
           - work_on_paper
@@ -4683,13 +4563,6 @@ parameters:
       cutting:
         aat: http://vocab.getty.edu/page/aat/300053069
         note: "Cutting: Making incisions with a sharp-edged instrument, thus removing material or dividing something into parts."
-        applies_to:
-          - painting
-          - work_on_paper
-          - sculpture
-          - frame
-      missing_edges:
-        note: "Damaged and missing corners and edges"
         applies_to:
           - painting
           - work_on_paper
@@ -4847,7 +4720,7 @@ parameters:
           - sculpture
           - frame
       fixation:
-        note: "Fixation"
+        note: "fixation_note"
         applies_to:
           - painting
           - work_on_paper
@@ -4963,7 +4836,7 @@ parameters:
           - frame
       joints:
         aat: http://vocab.getty.edu/page/aat/300048693
-        note: "Joints"
+        note: "joints_note"
         applies_to:
           - painting
           - sculpture
@@ -5013,6 +4886,13 @@ parameters:
         applies_to:
           - painting
           - work_on_paper
+      missing_edges:
+        note: "Damaged and missing corners and edges"
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
       missing_parts:
         note: "Missing parts"
         applies_to:
@@ -5061,7 +4941,7 @@ parameters:
           - work_on_paper
           - sculpture
           - frame
-      oxidation:
+      oxidation_type:
         aat: http://vocab.getty.edu/page/aat/300220235
         note: "Oxidation: The process or result of combining with oxygen; sometimes contributing to the degradation of a surface, such as in corrosion."
         applies_to:
@@ -5229,7 +5109,7 @@ parameters:
           - frame
       wax_residues:
         aat: http://vocab.getty.edu/page/aat/300014585
-        note: "Wax residues"
+        note: "wax_residues_note"
         applies_to:
           - painting
       weak_corner_joints:

@@ -68,6 +68,13 @@
                     {% set damage_note_translated = damage_type.note | trans %}
                     {% set damage_note = damage_note_translated %}
                 {% endif %}
+                {% if damage_type.aat is defined %}
+                    {% if damage_note == '' %}
+                        {% set damage_note = damage_type.aat %}
+                    {% else %}
+                        {% set damage_note = damage_type.aat ~ '&#10;&#10;' ~ damage_note %}
+                    {% endif %}
+                {% endif %}
                 {% set damage_types = damage_types | merge({ (damage_type_translated): { 'name': damage_type_translated, 'applies_to': damage_type.applies_to, 'note': damage_note, 'aat': damage_type.aat is defined ? damage_type.aat : '' }}) %}
             {% endfor %}
             {% set damage_types = damage_types | sort %}
