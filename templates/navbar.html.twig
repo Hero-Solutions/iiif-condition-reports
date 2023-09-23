@@ -18,6 +18,9 @@
                         </div>
                     </div>
                 </li>
+                <li{% if current_page is defined and current_page == 'manual' %} class="active"{% endif %}>
+                    <a class="nav-li-a" href="{{ path('manual') }}">{{ 'Manual' | trans }}</a>
+                </li>
             {% endif %}
         </ul>
         <ul class="nav-right">

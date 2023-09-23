@@ -28,7 +28,7 @@ class RemarksController extends AbstractController
         $locales = $this->getParameter('locales');
         //Set default locale if locale is missing
         if ($locale === null || !in_array($locale, $locales)) {
-            return $this->redirectToRoute('organisation', array('_locale' => $locales[0], 'id' => $id, 'action' => $action));
+            return $this->redirectToRoute('manual', array('_locale' => $locales[0]));
         }
         if (!$this->getUser()) {
             return $this->redirectToRoute('main');
