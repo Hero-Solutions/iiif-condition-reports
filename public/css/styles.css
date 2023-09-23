@@ -1237,6 +1237,11 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
     display: none;
 }
 
+.annos-print-div {
+    margin-top: 15px;
+    margin-left: 10px;
+}
+
 #report-form #annotation-history button {
     background-color: white;
     padding: 10px;
@@ -2455,6 +2460,7 @@ footer a:hover,
     #annotation-viewer,
     #annotation-history-print {
         display: block;
+        padding-top: 30px;
     }
 
     .no-print-break {

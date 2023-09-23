@@ -163,7 +163,7 @@
                         {% if annotation_history[image.hash] is defined %}
                             <div id="annotation-history-print">
                                 {% for id, timestamp in annotation_history[image.hash] %}
-                                    <div id="annos-print-{{ image.hash }}-{{ id }}">{{ timestamp }}</div>
+                                    <div class="annos-print-div nobreak" id="annos-print-{{ image.hash }}-{{ id }}">{{ timestamp.editor }}<br/>{{ timestamp.timestamp }}</div>
                                 {% endfor %}
                             </div>
                         {% endif %}
