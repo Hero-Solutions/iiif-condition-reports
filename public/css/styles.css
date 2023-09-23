@@ -194,11 +194,16 @@ textarea {
     margin: 15px;
 }
 
+.manual-block {
+    margin-top: 20px;
+}
+
 .disclaimer-row {
     margin-top: 15px;
 }
 
-.disclaimer-row p {
+.disclaimer-row p,
+.manual-block p {
     margin-bottom: 15px;
 }
 

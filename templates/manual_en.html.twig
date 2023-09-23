@@ -1,0 +1,64 @@
+{% include 'header.html.twig' %}
+
+{% block body %}
+
+<div class="manual">
+
+    <div class="header">Manual</div>
+
+    <div class="manual-block">
+        <h1>Main page</h1>
+
+        <p>
+            The main page displays the works for which one or more condition reports have been made,
+            in descending chronological order (the work with the most recent report is shown at the top).</p>
+        <p>
+            To the right of each work, you can click on the pencil icon to create a new report,
+            based on the most recent report about this work.
+            You can also click on the eye-icon to view all reports about this work.
+            If a work only has a single report, you will immediately be brought to this report.
+            If multiple reports exists for this work, you will see a overview page with all reports about this work,
+            in descending chronological order (the most recent report is shown at the top).
+        </p>
+        <p>
+            At the top left of the main page, you will find a search bar that allows you to search for works based on their inventory number.<br/>
+            WARNING: you can only search works which have been published through the Datahub.<br/>
+            You can search for an exact inventory number, part of an inventory number, or the start of an inventory number, with the use of the drop-down menu left of the search bar.<br/>
+            After you have sought one or more works through the search bar, you can click on the plus-icon to the right of a work in order to create a new report about this work.<br/>
+            The first time you create a report about a work, you have to indicate whether this object is a painting, work on paper, sculpture or another type of work.
+        </p>
+    </div>
+
+    <div class="manual-block">
+        <h1>Administration</h1>
+
+        <p>
+            The button 'Administrations' allows you to create, change or delete organisations, representatives and loan projects.
+            This enables you to save all information about an organisation, person or loan project which you can then reuse in your condition reports.
+        </p>
+    </div>
+
+    <div class="manual-block">
+        <h1>IIIF images</h1>
+
+        <p>
+            Additional images (such as images on your computer, tablet or camera) cannot exceed 10MB.
+            If you wish to add larger images to annotate on, you should use IIIF images instead.
+        </p>
+        <p>
+            Such large images first need to be uploaded into a third-party Digital Asset Management (DAM) system that supports IIIF, such as ResourceSpace.<br/>
+            Once uploaded into a DAM, you can add the image to annotate on through its IIIF URL, which may typically look something like this: https://imagehub.vlaamsekunstcollectie.be/iiif/2/public%2F2.tif (or https://imagehub.vlaamsekunstcollectie.be/iiif/2/public%2F2.tif/info.json).
+        </p>
+    </div>
+
+    <div class="manual-block">
+        <h1>Report and annotation history</h1>
+
+        <p>Saving a report makes it permanent. Information and annotations can be added, changed or deleted in subsequent reports, but its history will forever remain.</p>
+        <p>When an annotation is deleted on an image, an indication will be added that the annotation has been deleted. This indication cannot be removed from the history.</p>
+    </div>
+</div>
+
+{% endblock %}
+
+{% include 'footer.html.twig' %}

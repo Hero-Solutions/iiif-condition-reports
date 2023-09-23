@@ -1,0 +1,65 @@
+{% include 'header.html.twig' %}
+
+{% block body %}
+
+<div class="manual">
+
+    <div class="header">Handleiding</div>
+
+    <div class="manual-block">
+        <h1>Hoofdpagina</h1>
+
+        <p>
+            Op de hoofdpagina worden de werken getoond waarvoor een of meerdere conditierapporten werden opgesteld,
+            in aflopende chronologisch volgorde (het werk met het meest recente rapport staat bovenaan).</p>
+        <p>
+            Rechts van elk werk kunt u op het potlood-icoon klikken om een nieuw rapport aan te maken,
+            gebaseerd op het meest recente rapport over dit werk.
+            U kunt ook op het oog-icoon klikken om alle rapporten over dit werk te bezichtigen.
+            Als een werk maar een rapport heeft, wordt u meteen naar dit rapport gebracht.
+            Bestaan er meerdere rapporten van dit werk, dan ziet u een overzichtspagina met alle rapporten over dit werk,
+            in aflopende chronologisch volgorde (het meest recente rapport staat bovenaan).
+        </p>
+        <p>
+            Linksboven de hoofdpagina vindt u een zoekbalk terug die u in staat stelt om te zoeken naar werken op basis van hun inventarisnummer.<br/>
+            OPGELET: u kunt enkel werken opzoeken die via de Datahub van uw instelling worden ontsloten.<br/>
+            U kunt zoeken op een exact inventarisnummer, een gedeelte van het inventarisnummer, of op het begin van het inventarisnummer, met behulp van het drop-down menu links van de zoekbalk.<br/>
+            Nadat u een of meerdere werken hebt opgezocht via de zoekbalk, kunt u rechts van een werk op het plus-icoon klikken om een nieuw rapport aan te maken over dit werk.<br/>
+            De eerste maal dat u een rapport maakt van een werk, dient u aan te duiden of het om een schilderij, werk op papier, sculptuur of ander soort werk gaat.
+        </p>
+    </div>
+
+    <div class="manual-block">
+        <h1>Beheer</h1>
+
+        <p>
+            Via de knop 'Beheer' kunt u organisaties, vertegenwoordigers en bruikleenprojecten aanmaken, wijzigen of verwijderen.
+            Dit stelt u in staat om alle informatie over een organisatie, persoon of bruikleenproject op te slaan die u daarna in uw conditierapporten kunt hergebruiken.
+        </p>
+    </div>
+
+    <div class="manual-block">
+        <h1>IIIF afbeeldingen</h1>
+
+        <p>
+            Extra afbeeldingen (zoals afbeeldingen op je computer, tablet of camera) kunnen niet groter zijn dan 10MB.
+            Indien u grotere afbeeldingen wenst toe te voegen om op te annoteren, dient u IIIF afbeeldingen te gebruiken in de plaats.
+        </p>
+
+        <p>
+            Dergelijke grote afbeeldingen dienen eerst te worden opgeladen in een afzonderlijk Digital Asset Management (DAM) systeem die IIIF ondersteunt, zoals ResourceSpace.<br/>
+            Eens in een DAM opgeladen, kunt u de afbeelding om op te annoteren toevoegen via zijn IIIF URL, die er gewoonlijk uitziet als dit: https://imagehub.vlaamsekunstcollectie.be/iiif/2/public%2F2.tif (of https://imagehub.vlaamsekunstcollectie.be/iiif/2/public%2F2.tif/info.json).
+        </p>
+    </div>
+
+    <div class="manual-block">
+        <h1>Rapport- en annotatiegeschiedenis</h1>
+
+        <p>Een rapport opslaan zorgt ervoor dat dit permanent wordt. Informatie en annotaties kunnen toegevoegd, gewijzigd of verwijderd worden in latere rapporten, maar de geschiedenis blijft voor altijd vastgelegd.</p>
+        <p>Wanneer een annotatie wordt verwijderd op een afbeelding, zal er een indicatie worden toegevoegd dat de annotatie werd verwijderd. Deze indicatie kan niet uit de geschiedenis worden verwijderd.</p>
+    </div>
+</div>
+
+{% endblock %}
+
+{% include 'footer.html.twig' %}

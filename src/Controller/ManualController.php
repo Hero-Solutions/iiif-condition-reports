@@ -5,13 +5,14 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Twig\Environment;
 
 class ManualController extends AbstractController
 {
     /**
      * @Route("/{_locale}/manual", name="manual")
      */
-    public function manual(Request $request)
+    public function manual(Request $request, Environment $env)
     {
         $locale = $request->get('_locale');
         $locales = $this->getParameter('locales');
@@ -29,9 +30,16 @@ class ManualController extends AbstractController
             );
         }
 
-        return $this->render('manual.html.twig', [
-            'current_page' => 'manual',
-            'translated_routes' => $translatedRoutes
-        ]);
+        if($env->getLoader()->exists('manual_' . $locale . '.html.twig')) {
+            return $this->render('manual_' . $locale . '.html.twig', [
+                'current_page' => 'manual',
+                'translated_routes' => $translatedRoutes
+            ]);
+        } else {
+            return $this->render('manual_en.html.twig', [
+                'current_page' => 'manual',
+                'translated_routes' => $translatedRoutes
+            ]);
+        }
     }
 }

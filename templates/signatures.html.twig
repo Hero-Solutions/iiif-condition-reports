@@ -58,15 +58,17 @@
 
                 if(data['image'] !== null) {
                     const div = document.getElementById('signature-pad-' + role);
-                    while (div.firstChild) {
-                        div.removeChild(div.lastChild);
+                    const children = div.children;
+                    for(var i = children.length - 1; i >= 0; i--) {
+                        if(children[i].className === 'signature-div') {
+                            children[i].getElementsByClassName('signature-input')[0].disabled = true;
+                        } else {
+                            div.removeChild(children[i]);
+                        }
                     }
-                    const p = document.createElement('p');
-                    p.innerText = data['timestamp'];
                     const img = document.createElement('img');
                     img.src = data['image'];
 
-                    div.appendChild(p);
                     div.appendChild(img);
                 }
             },
