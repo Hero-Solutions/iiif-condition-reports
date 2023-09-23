@@ -859,6 +859,7 @@ window.onload = function() {
         }
 
         window.printCheckboxes = {};
+        window.currentPrintCheckboxIndex = 1;
         var printSelection = document.getElementById("print-selection");
         var forms = {
             "{{ 'Report reason' | trans }}": "reason-form",
@@ -937,13 +938,15 @@ window.onload = function() {
 
         function addPrintCheckbox(formId, subIndex, childIndex, type, formElement, text, className) {
 
-            var wrapDiv = document.createElement("div");
+            const wrapDiv = document.createElement("div");
             if(className !== null && className.length > 0) {
                 wrapDiv.className = className;
             }
-            var printCheckbox = document.createElement("input");
+            const printCheckbox = document.createElement("input");
             printCheckbox.type = "checkbox";
             printCheckbox.checked = true;
+            printCheckbox.id = "print-checkbox-" + window.currentPrintCheckboxIndex;
+            window.currentPrintCheckboxIndex++;
             wrapDiv.appendChild(printCheckbox);
             if(type === "main") {
                 window.printCheckboxes[formId] = { div: wrapDiv, checkbox: printCheckbox, children: {} };
@@ -960,9 +963,10 @@ window.onload = function() {
                 }
             }
 
-            var span = document.createElement("span");
-            span.innerHTML = text;
-            wrapDiv.appendChild(span);
+            const label = document.createElement("label");
+            label.innerHTML = text;
+            label.setAttribute("for", printCheckbox.id);
+            wrapDiv.appendChild(label);
 
             printCheckbox.onchange = function() {
                 if(printCheckbox.checked) {
