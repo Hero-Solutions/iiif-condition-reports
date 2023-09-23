@@ -267,6 +267,7 @@ class ResetPasswordController extends AbstractController
             return $this->redirectToRoute('app_check_email');
         }
 
+        //TODO set proper 'from' e-mail address
         $email = (new TemplatedEmail())
             ->from(new Address('passwordreset@condition-reports.com', 'Condition Report Password Reset'))
             ->to($user->getEmail())

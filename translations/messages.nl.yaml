@@ -40,6 +40,15 @@ Repeat Password: Herhaal wachtwoord
 The password fields must match: De wachtwoordvelden dienen overeen te komen
 Password successfully updated.: Wachtwoord succesvol bijgewerkt.
 
+Notes on the tool: Opmerkingen bij de tool
+If you have any comments about using this condition reporting tool, please leave them here! The comments can be both content-related and technical.: Hebt u opmerkingen bij het gebruik van deze conditierapportagetool dan kunt u deze hier achterlaten! De opmerkingen kunnen zowel van inhoudelijke als technische aard zijn.
+Subject: Onderwerp
+Remark: Opmerking
+Your name: Uw naam
+Your e-mail address: Uw e-mailadres
+Send remark: Opmerking versturen
+Your remark has been sent to us. Thank you for your feedback!: Uw opmerking werd naar ons gestuurd. Bedankt voor uw feedback!
+
 Signed by all parties: Door alle partijen ondertekend
 Signed by: Ondertekend door
 parties: partijen
@@ -538,6 +547,7 @@ Signatures: Handtekeningen
 Conservation treatment: Conservatiebehandeling
 Degree of urgency (very urgent) 1 - 2 - 3 (not urgent): Urgentiegraad (zeer urgent) 1 - 2 - 3 (weinig urgent)
 Other: Andere
+Other ...: Andere ...
 Restoration treatment: Restauratiebehandeling
 Estimated work hours: Schatting werkuren
 Further research needed: Verder onderzoek nodig

@@ -22,6 +22,9 @@
         </ul>
         <ul class="nav-right">
             {% if is_granted('ROLE_USER') %}
+                <li{% if current_page is defined and current_page == 'remarks' %} class="active"{% endif %}>
+                    <a class="nav-li-a" href="{{ path('remarks') }}">{{ 'Remarks' | trans }}</a>
+                </li>
                 <li class="nav-user{% if current_page is defined and current_page == 'profile' %} active{% endif %}">
                     <div id="user-select">
                         <div id="user-select-selected" onclick="clickedUserButton(this)"><i id="user-select-button" class="fas fa-user"></i>{{ app.user.fullName }}</div>

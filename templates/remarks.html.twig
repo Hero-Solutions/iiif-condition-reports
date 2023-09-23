@@ -1,0 +1,26 @@
+{% include 'header.html.twig' %}
+
+{% block body %}
+
+    <div class="login">
+        <div class="login-row">
+            <div class="login-header">{{ 'Notes on the tool' | trans }}</div>
+
+            <p>{{ 'If you have any comments about using this condition reporting tool, please leave them here! The comments can be both content-related and technical.' | trans }}</p>
+
+            <div id="login-form">
+                {{ form_start(form) }}
+                    {{ form_row(form.subject) }}
+                    {{ form_row(form.body) }}
+                    {{ form_row(form.name) }}
+                    {{ form_row(form.email) }}
+                    <div class="login-submit">
+                        <button class="btn btn-primary">{{ 'Send remark' | trans }}</button>
+                    </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% include 'footer.html.twig' %}
