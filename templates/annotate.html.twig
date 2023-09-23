@@ -86,12 +86,6 @@
                             <path d="M25.8,4.2v21.6H4.2V4.2H25.8 M30,0H0v30h30V0L30,0z"/>
                         </svg>
                     </button>
-                    <button class="drawing-tool-inactive" name="drawing-tools" type="button" onclick="setDrawingTool('polygon');" value="polygon">
-                        <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-                             viewBox="0 0 34.6 30" style="enable-background:new 0 0 34.6 30;" xml:space="preserve">
-                            <path d="M23.6,4.2L29.8,15l-6.2,10.8H11.1L4.8,15l6.2-10.8H23.6 M26,0H8.7L0,15l8.7,15H26l8.7-15L26,0L26,0z"/>
-                        </svg>
-                    </button>
                     <!--<button class="drawing-tool-inactive" name="drawing-tools" type="button" onclick="setDrawingTool('circle');" value="recirclect">
                         <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
                              viewBox="0 0 30 30" style="enable-background:new 0 0 30 30;" xml:space="preserve">
@@ -104,6 +98,12 @@
                              viewBox="0 0 30 30" style="enable-background:new 0 0 30 30;" xml:space="preserve">
                             <path d="M15,4.2C21,4.2,25.8,9,25.8,15S21,25.8,15,25.8S4.2,21,4.2,15S9,4.2,15,4.2 M15,0C6.7,0,0,6.7,0,15s6.7,15,15,15
                                 s15-6.7,15-15S23.3,0,15,0L15,0z"/>
+                        </svg>
+                    </button>
+                    <button class="drawing-tool-inactive" name="drawing-tools" type="button" onclick="setDrawingTool('polygon');" value="polygon">
+                        <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                             viewBox="0 0 34.6 30" style="enable-background:new 0 0 34.6 30;" xml:space="preserve">
+                            <path d="M23.6,4.2L29.8,15l-6.2,10.8H11.1L4.8,15l6.2-10.8H23.6 M26,0H8.7L0,15l8.7,15H26l8.7-15L26,0L26,0z"/>
                         </svg>
                     </button>
                     <button class="drawing-tool-inactive" name="drawing-tools" type="button" onclick="setDrawingTool('freehand');" value="freehand">
@@ -130,7 +130,7 @@
                             <div class="layer-checkbox-div"><input type="checkbox" id="layer-support" onchange="checkLayerCheckbox(this)" autocomplete="off"/><label for="layer-support">{{ 'Support' | trans }}</label></div>
                             <div class="layer-checkbox-div"><input type="checkbox" id="layer-supporting-medium" onchange="checkLayerCheckbox(this)" autocomplete="off"/><label for="layer-supporting-medium">{{ 'Supporting medium' | trans }}</label></div>
                             <div class="layer-checkbox-div"><input type="checkbox" id="layer-paint-layer" onchange="checkLayerCheckbox(this)" autocomplete="off"/><label for="layer-paint-layer">{{ 'Paint layer' | trans }}</label></div>
-                            <div class="layer-checkbox-div"><input type="checkbox" id="layer-finishing-layer" onchange="checkLayerCheckbox(this)" autocomplete="off"/><label for="layer-finishing-layer">{{ 'Varnish/Protection layer' | trans }}</label></div>
+                            <div class="layer-checkbox-div"><input type="checkbox" id="layer-finishing-layer" onchange="checkLayerCheckbox(this)" autocomplete="off"/><label for="layer-finishing-layer">{{ 'Varnish layer/Protection layer' | trans }}</label></div>
                             <div class="layer-checkbox-div"><input type="checkbox" id="layer-frame" onchange="checkLayerCheckbox(this)" autocomplete="off"/><label for="layer-frame">{{ 'Frame' | trans }}</label></div>
                         </div>
                     </div>
@@ -2195,7 +2195,7 @@ function addLayersToDiv(layers, div) {
                     break;
                 }
                 case 'condition-green': {
-                    nameSpan.innerHTML = '{{ 'Varnish/Protection layer' | trans }}';
+                    nameSpan.innerHTML = '{{ 'Varnish layer/Protection layer' | trans }}';
                     var frame = div.querySelector('.condition-orange');
                     if (frame != null) {
                         div.insertBefore(layerDiv, frame);
