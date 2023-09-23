@@ -2,14 +2,14 @@
     <p class="signature-name">{{ prefilled_data[rep ~ '_rep_name'] }} ({{ prefilled_data[rep ~ '_name'] }} - {{ rep_name | trans }})</p>
     <div class="signature-pad" id="signature-pad-{{ rep }}">
         {% if signatures[rep] is defined %}
-            <div>
-                <input type="checkbox" name="signature-checkbox-{{ rep }}" checked disabled/>
+            <div class="signature-div">
+                <input class="signature-input" type="checkbox" name="signature-checkbox-{{ rep }}" checked disabled/>
                 <label for="signature-checkbox-{{ rep }}">{{ 'Read and approved on' | trans }} {{ signatures[rep].timestamp | date("Y-m-d H:i e") }}</label>
             </div>
             <img src="{{ signatures[rep].filename }}" alt="{{ signatures[rep].name }}"/>
         {% else %}
-            <div>
-                <input type="checkbox" name="signature-checkbox-{{ rep }}" id="signature-checkbox-{{ rep }}"/>
+            <div class="signature-div">
+                <input class="signature-input" type="checkbox" name="signature-checkbox-{{ rep }}" id="signature-checkbox-{{ rep }}"/>
                 <label for="signature-checkbox-{{ rep }}">{{ 'Read and approved on' | trans }} {{ "now" | date("Y-m-d H:i e") }}</label>
             </div>
             <div class="signature-pad--body">
