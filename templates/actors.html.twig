@@ -26,7 +26,7 @@
         {% set actor = { 'role': prefilled_data['actor_' ~ i ~ '_role'] | trans } %}
         {% for field, label in actor_fields %}
             {% if prefilled_data['actor_' ~ i ~ '_' ~ field] is defined %}
-                {% set actor = actor|merge({ (field): prefilled_data['actor_' ~ i ~ '_' ~ field] }) %}
+                {% set actor = actor|merge({ (field): prefilled_data['actor_' ~ i ~ '_' ~ field] | trans }) %}
             {% endif %}
         {% endfor %}
         {% set actors = actors + { (i): actor } %}

@@ -144,6 +144,12 @@ borrower: bruikleennemer
 restorer: restaurateur
 courier: koerier
 art handler: art handler
+insurer: verzekeraar
+eigenaar / bruikleengever: eigenaar / bruikleengever
+bruikleennemer: bruikleennemer
+restaurateur: restaurateur
+koerier: koerier
+verzekeraar: verzekeraar
 
 Add: Voeg toe
 Clear: Verwijderen

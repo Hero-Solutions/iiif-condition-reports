@@ -60,6 +60,7 @@ parameters:
     - restorer
     - courier
     - art handler
+    - insurer
 
   pictures:
     rectangle_portrait_front:
