@@ -24,7 +24,7 @@
 
 {% for i in 1..1000 if not break %}
     {% if prefilled_data['actor_' ~ i ~ '_role'] is defined %}
-        {% set actor = { 'role': prefilled_data['actor_' ~ i ~ '_role'] } %}
+        {% set actor = { 'role': prefilled_data['actor_' ~ i ~ '_role'] | trans } %}
         {% for field, label in actor_fields %}
             {% if prefilled_data['actor_' ~ i ~ '_' ~ field] is defined %}
                 {% set actor = actor|merge({ (field): prefilled_data['actor_' ~ i ~ '_' ~ field] }) %}
@@ -475,5 +475,5 @@
                 </div>
             {% endfor %}
         </div>
-{% endif %}
+    {% endif %}
 {% endif %}
