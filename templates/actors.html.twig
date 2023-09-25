@@ -66,13 +66,13 @@
                     {{ 'Add' | trans }}
                 </button>
             </div>
-        </div>
-        <div class="buttons">
-            <div class="previous-button">
-                <button type="button" onclick="showDiv('basic-info-form', true)">{{ 'Previous' | trans }}</button>
-            </div>
-            <div class="next-button">
-                <button type="button" onclick="showDiv('material-form', true)">{{ 'Next' | trans }}</button>
+            <div class="buttons">
+                <div class="previous-button">
+                    <button type="button" onclick="showDiv('basic-info-form', true)">{{ 'Previous' | trans }}</button>
+                </div>
+                <div class="next-button">
+                    <button type="button" onclick="showDiv('material-form', true)">{{ 'Next' | trans }}</button>
+                </div>
             </div>
         </div>
         <script>
@@ -245,6 +245,9 @@
                     orgNameSelectCustomInput.value = actor.org_name;
                 } else {
                     orgNameSelectCustomInput.style.display = "none";
+                    if(actor !== null && actor.org_name !== undefined && actor.org_name !== '') {
+                        orgNameSelectCustomInput.value = actor.org_name;
+                    }
                 }
                 orgNameSelectCustomInput.autocomplete = "off";
 
@@ -360,6 +363,9 @@
                     repNameSelectCustomInput.value = actor.rep_name;
                 } else {
                     repNameSelectCustomInput.style.display = "none";
+                    if(actor !== null && actor.rep_name !== undefined && actor.rep_name !== '') {
+                        repNameSelectCustomInput.value = actor.rep_name;
+                    }
                 }
                 repNameSelectCustomInput.autocomplete = "off";
 

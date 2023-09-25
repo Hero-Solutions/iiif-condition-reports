@@ -50,13 +50,15 @@ class SaveReportController extends AbstractController
                 $fieldData = explode('=', $field);
                 $name = urldecode($fieldData[0]);
                 $value = urldecode($fieldData[1]);
-                $orgNamePos = strpos($name, '_name');
-                if($orgNamePos !== false && !empty($value)) {
-                    $organisations[] = substr($name, 0, $orgNamePos);
-                }
-                $repNamePos = strpos($name, '_rep_name');
-                if($repNamePos !== false && !empty($value)) {
-                    $representatives[] = substr($name, 0, $repNamePos);
+                if(strpos($name, 'actor_') === 0) {
+                    $orgNamePos = strpos($name, '_org_name');
+                    if ($orgNamePos !== false && !empty($value)) {
+                        $organisations[] = substr($name, 6, -9);
+                    }
+                    $repNamePos = strpos($name, '_rep_name');
+                    if ($repNamePos !== false && !empty($value)) {
+                        $representatives[] = substr($name, 6, -9);
+                    }
                 }
                 if($name === 'reason') {
                     $reason = $value;
