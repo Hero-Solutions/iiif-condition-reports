@@ -1,5 +1,4 @@
 {% set actors = {} %}
-{% set break = false %}
 {% set actor_fields = {
     'org_id': '',
     'org_name': 'Name',
@@ -21,7 +20,7 @@
     'rep_phone': 'Telephone',
     'rep_notes': 'Notes'
 } %}
-
+{% set break = false %}
 {% for i in 1..1000 if not break %}
     {% if prefilled_data['actor_' ~ i ~ '_role'] is defined %}
         {% set actor = { 'role': prefilled_data['actor_' ~ i ~ '_role'] | trans } %}
