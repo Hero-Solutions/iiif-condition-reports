@@ -137,15 +137,15 @@ Loan number or dossier number: Bruikleennummer of dossiernummer
 Receipt: Ontvangstbewijs
 This document also serves as a receipt for the transfer of the work on: Dit document dient tevens als ontvangstbewijs voor de overdracht van het werk op
 
-Information owner / lender: Informatie eigenaar / bruikleengever
-Information borrower / restorer: Informatie bruikleennemer / restaurateur
-Information courier / art handler: Informatie koerier / art handler
-Information other third party: Informatie andere derde partij
-Owner / lender: Eigenaar / bruikleengever
-Borrower / restorer: Bruikleennemer / restaurateur
-Courier / art handler: Koerier / art handler
-Other third party: Andere derde partij
+Add organisation with role: Voeg organisatie toe met rol
+Information: Informatie
+owner / lender: eigenaar / bruikleengever
+borrower: bruikleennemer
+restorer: restaurateur
+courier: koerier
+art handler: art handler
 
+Add: Voeg toe
 Clear: Verwijderen
 Undo: Ongedaan maken
 

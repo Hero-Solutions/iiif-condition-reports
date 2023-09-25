@@ -77,7 +77,7 @@
 {% include 'footer.html.twig' %}
 <script>
 	window.onload = function() {
-		fixTextareaheight();
+		fixTextAreaHeight();
 		const orgDropdownEle = document.getElementById("form_organisation");
 		if(orgDropdownEle !== null) {
 			{% if org_name is not null and organisations[org_name] is not defined%}
@@ -117,7 +117,7 @@
 			};
 		}
 	};
-	function fixTextareaheight() {
+	function fixTextAreaHeight() {
 		const ele = document.getElementById('form_notes');
 		ele.style.height = "16px";
 		ele.style.height = (ele.scrollHeight + 5) + "px";

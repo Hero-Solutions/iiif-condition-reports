@@ -31,6 +31,7 @@ class ViewReportController extends AbstractController
         $em = $this->get('doctrine')->getManager();
         $reportReasons = $this->getParameter('report_reasons');
         $objectTypes = $this->getParameter('object_types');
+        $actorTypes = $this->getParameter('actor_types');
         $reportFields = $this->getParameter('report_fields');
         $pictures = $this->getParameter('pictures');
 
@@ -43,6 +44,8 @@ class ViewReportController extends AbstractController
             );
         }
 
-        return $this->render('report.html.twig', ReportTemplateData::getViewData($em, $reportReasons, $objectTypes, $reportFields, $pictures, $id, $translatedRoutes));
+        return $this->render('report.html.twig',
+            ReportTemplateData::getViewData($em, $reportReasons, $objectTypes, $actorTypes, $reportFields, $pictures, $id, $translatedRoutes)
+        );
     }
 }

@@ -83,22 +83,17 @@
                 if(customInput != null) {
                     if(show) {
                         customInput.value = '';
-                        customInput.style = 'display: block';
+                        customInput.style.display = 'block';
                         if(focus) {
                             customInput.focus();
                         }
                     } else {
-                        customInput.style = 'display: none';
+                        customInput.style.display = 'none';
                         customInput.value = value;
                     }
                 }
             }
 
-            function fixTextAreaHeight(id) {
-                const ele = document.getElementById("textarea_" + id);
-                ele.style.height = "16px";
-                ele.style.height = (ele.scrollHeight + 5) + "px";
-            }
         </script>
     {% endif %}
 </div>

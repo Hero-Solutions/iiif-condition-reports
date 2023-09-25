@@ -39,7 +39,7 @@
                             <option value=""{% if prefilled_data.object_type is not defined %} selected="selected"{% endif %} disabled hidden>{{ 'Select the object category' | trans }}</option>
                             {% for object_type in object_types %}
                                 {% if object_type == 'default' %}
-                                    <option value="customOption">{{ 'Other' | trans }}</option>
+                                    <option value="customOption">{{ 'Other ...' | trans }}</option>
                                 {% else %}
                                     <option value="{{ object_type }}"{% if this_object_type == object_type %} selected="selected"{% endif %}>{{ object_type | trans }}</option>
                                 {% endif %}

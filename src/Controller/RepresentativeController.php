@@ -98,7 +98,7 @@ class RepresentativeController extends AbstractController
                 ->add('role', TextType::class, ['required' => false, 'label' => $t->trans('Role'), 'attr' => ['placeholder' => $t->trans('Ex. restorer, courier ...')]])
                 ->add('email', TextType::class, ['required' => false, 'label' => $t->trans('E-mail'), 'attr' => ['placeholder' => $t->trans('contact@example.com')]])
                 ->add('phone', TextType::class, ['required' => false, 'label' => $t->trans('Telephone'), 'attr' => ['placeholder' => '+32 xxx xx.xx.xx']])
-                ->add('notes', TextareaType::class, ['required' => false, 'label' => $t->trans('Notes'), 'attr' => ['placeholder' => $t->trans('Own notes about this person'), 'oninput' => 'fixTextareaheight()']])
+                ->add('notes', TextareaType::class, ['required' => false, 'label' => $t->trans('Notes'), 'attr' => ['placeholder' => $t->trans('Own notes about this person'), 'oninput' => 'fixTextAreaHeight()']])
                 ->add('submit', SubmitType::class, ['label' => $t->trans('Save')])
                 ->getForm();
             $form->handleRequest($request);

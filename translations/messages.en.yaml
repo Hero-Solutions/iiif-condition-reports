@@ -12,6 +12,12 @@ paper: Paper
 wood: Wood
 plastic: Plastic
 
+eigenaar / bruikleengever: owner / lender
+bruikleennemer: borrower
+restaurateur: restorer
+koerier: courier
+art handler: art handler
+
 loose: Loose
 fixed: Fixed
 original: Original

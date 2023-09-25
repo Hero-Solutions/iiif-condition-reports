@@ -657,7 +657,7 @@ window.anno.on('createAnnotation', function(annotation, ele) {
             if(!window.groupSameDamages || !damageAlreadyExists) {
                 var buttons = document.getElementsByClassName('show-hide-current-annos');
                 for (var i = 0; i < buttons.length; i++) {
-                    buttons[i].style = 'display: block';
+                    buttons[i].style.display = 'block';
                     var div = buttons[i].querySelector('div');
                     if (div != null) {
                         if (annotation.hasOwnProperty('body')) {
@@ -686,7 +686,7 @@ window.anno.on('deleteAnnotation', function(annotation, ele) {
                         parentParentDiv.removeChild(parentGroup);
                     }
                     if(parentParentDiv.childElementCount === 0) {
-                        topDiv.style = 'display: none';
+                        topDiv.style.display = 'none';
                     }
                     if(window.currentImageHash in window.addedAnnotations) {
                         for(id in window.addedAnnotations[window.currentImageHash]) {
@@ -722,7 +722,7 @@ window.anno.on('deleteAnnotation', function(annotation, ele) {
                         clickedThumbnail(window.currentImageHash, window.currentImage);
 /*                        var buttons1 = document.getElementsByClassName('show-hide-current-annos');
                         for(var j = 0; j < buttons1.length; j++) {
-                            buttons1[j].style = 'display: block';
+                            buttons1[j].style.display = 'block';
                             var div = buttons1[j].querySelector('div');
                             if(div != null) {
                                 addAnnoHistSpan(div, null, annotation.id, null, null, false);
@@ -1130,8 +1130,7 @@ window.groupSameDamages = {{ prefilled_data.group_same_damages is defined ? (pre
 window.images = {{ images | json_encode | raw }};
 window.currentImage = '{{ default_image }}';
 window.currentImageHash = '{{ default_image_hash }}';
-var hist = {{ annotation_history | json_encode | raw }};
-console.log(hist);
+const hist = {{ annotation_history | json_encode | raw }};
 
 window.annoIds = [];
 window.annotationHistory = {};
@@ -1620,7 +1619,7 @@ function clickedThumbnail(hash, image) {
                     const annos = window.addedAnnotations[hash][reportId];
                     for (const id in annos) {
                         if (annos[id].hasOwnProperty('body')) {
-                            newDiv.style = 'display: block';
+                            newDiv.style.display = 'block';
                             var styleClass = null;
                             if(annos[id].hasOwnProperty('target') && annos[id].target.hasOwnProperty('styleClass')) {
                                 styleClass = annos[id].target.styleClass;
@@ -1692,7 +1691,7 @@ function clickedThumbnail(hash, image) {
                 if (reportId in window.deletedAnnotations[hash]) {
                     var annos = window.deletedAnnotations[hash][reportId];
                     for (var l = 0; l < annos.length; l++) {
-                        newDiv.style = 'display: block';
+                        newDiv.style.display = 'block';
                         addAnnoHistSpan(spanDiv, null, annos[l], null, null, false);
                     }
                 }

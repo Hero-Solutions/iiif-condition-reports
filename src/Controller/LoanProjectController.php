@@ -122,7 +122,7 @@ class LoanProjectController extends AbstractController
                 ->add('representative_role', TextType::class, ['required' => false, 'label' => $t->trans('Role')])
                 ->add('representative_email', TextType::class, ['required' => false, 'label' => $t->trans('E-mail')])
                 ->add('representative_phone', TextType::class, ['required' => false, 'label' => $t->trans('Telephone')])
-                ->add('notes', TextareaType::class, ['required' => false, 'label' => $t->trans('Notes'), 'attr' => ['placeholder' => $t->trans('Own notes about this loan project'), 'oninput' => 'fixTextareaheight()']])
+                ->add('notes', TextareaType::class, ['required' => false, 'label' => $t->trans('Notes'), 'attr' => ['placeholder' => $t->trans('Own notes about this loan project'), 'oninput' => 'fixTextAreaHeight()']])
                 ->add('submit', SubmitType::class, ['label' => $t->trans('Save')])
                 ->getForm();
             $form->handleRequest($request);

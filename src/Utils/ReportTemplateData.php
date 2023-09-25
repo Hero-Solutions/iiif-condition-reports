@@ -29,7 +29,7 @@ class ReportTemplateData
         return $data;
     }
 
-    public static function getViewData(EntityManager $em, $reportReasons, $objectTypes, $reportFields, $pictures, $id, $translatedRoutes)
+    public static function getViewData(EntityManager $em, $reportReasons, $objectTypes, $actorTypes, $reportFields, $pictures, $id, $translatedRoutes)
     {
         $imageRelPath = '../..';
         $data = self::getExistingReportData($em, $id, $imageRelPath);
@@ -51,6 +51,7 @@ class ReportTemplateData
         $data['signatures'] = $signatureArray;
         $data['report_reasons'] = $reportReasons;
         $data['object_types'] = $objectTypes;
+        $data['actor_types'] = $actorTypes;
         $data['report_fields'] = $reportFields;
         $data['annotation_schema_images'] = $pictures;
         $data['annotation_image_relative_path'] = $imageRelPath;
@@ -62,7 +63,7 @@ class ReportTemplateData
         return $data;
     }
 
-    public static function getDataToCreateExisting(EntityManager $em, $user, $reportReasons, $objectTypes, $reportFields, $pictures, $id, $translatedRoutes)
+    public static function getDataToCreateExisting(EntityManager $em, $user, $reportReasons, $objectTypes, $actorTypes, $reportFields, $pictures, $id, $translatedRoutes)
     {
         $imageRelPath = '../../..';
         $data = self::getExistingReportData($em, $id, $imageRelPath);
@@ -70,6 +71,7 @@ class ReportTemplateData
         $data['full_name'] = $user->getFullName();
         $data['report_reasons'] = $reportReasons;
         $data['object_types'] = $objectTypes;
+        $data['actor_types'] = $actorTypes;
         $data['report_fields'] = $reportFields;
         $data['annotation_schema_images'] = $pictures;
         $data['annotation_image_relative_path'] = $imageRelPath;
@@ -80,7 +82,7 @@ class ReportTemplateData
         return $data;
     }
 
-    public static function getDataToCreateBlank(EntityManager $em, $user, $reportReasons, $objectTypes, $reportFields, $pictures, $id, $translatedRoutes)
+    public static function getDataToCreateBlank(EntityManager $em, $user, $reportReasons, $objectTypes, $actorTypes, $reportFields, $pictures, $id, $translatedRoutes)
     {
         // Prevent creation of a blank report if there is already a report for this inventory number
         $canCreate = true;
@@ -116,6 +118,7 @@ class ReportTemplateData
             'annotation_schema_images' => $pictures,
             'annotation_image_relative_path' => $imageRelPath,
             'object_types' => $objectTypes,
+            'actor_types' => $actorTypes,
             'report_fields' => $reportFields,
             'organisations' => self::getOrganisations($em),
             'representatives' => self::getRepresentatives($em),

@@ -54,6 +54,13 @@ parameters:
         602: Loss and damage
         603: Damage claim
 
+  actor_types:
+    - owner / lender
+    - borrower
+    - restorer
+    - courier
+    - art handler
+
   pictures:
     rectangle_portrait_front:
       name: 'Rectangle (portrait)'

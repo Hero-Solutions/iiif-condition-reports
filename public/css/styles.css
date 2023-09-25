@@ -665,6 +665,10 @@ textarea {
     flex: 1;
 }
 
+.justify-content-space-between {
+    justify-content: space-between;
+}
+
 .number-box {
     margin-left: 15px;
 }
@@ -1582,6 +1586,17 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
     font-size: 20px;
 }
 
+.org-trash-icon {
+    width: 35px;
+    line-height: 35px;
+    font-size: 20px;
+    margin-top: 13px;
+}
+
+.org-trash-icon:hover {
+    cursor: pointer;
+}
+
 .trash-right-icon {
     position: absolute;
     top: 16px;
@@ -2062,6 +2077,32 @@ form {
 #form_inventory_number {
     width: 400px;
     padding: 6px 12px 6px 12px;
+}
+
+#add-new-actor-div {
+    margin: 15px;
+}
+
+#add-new-actor-div > span {
+    margin: 5px;
+}
+
+#add-new-actor-div > button {
+    margin-top: 2px;
+    margin-left: 10px;
+    padding-left: 5px;
+    padding-right: 5px;
+    border: 1px solid #777777;
+    border-radius: 4px;
+}
+
+#add-new-actor-div > button:hover {
+    background-color: #dddddd;
+}
+
+#add_new_actor_select,
+#add_new_actor_custom_org_role {
+    width: auto !important;
 }
 
 #form_match_type:focus-visible,
