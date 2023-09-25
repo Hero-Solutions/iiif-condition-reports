@@ -320,7 +320,9 @@
                 orgNotesTextarea.name = "actor_" + actorId + "_org_notes";
                 orgNotesTextarea.id = "textarea_actor_" + actorId + "_org_notes";
                 orgNotesTextarea.cols = 100;
-                orgNotesTextarea.oninput = "fixTextAreaHeight('actor_" + actorId + "_org_notes');";
+                orgNotesTextarea.oninput = function() {
+                    fixTextAreaHeight('actor_' + actorId + '_org_notes');
+                };
                 if(actor !== null && actor.org_notes !== undefined) {
                     orgNotesTextarea.value = actor.org_notes;
                     waitForElm('#textarea_actor_' + actorId + '_org_notes').then((elm) => {
@@ -420,7 +422,9 @@
                 repNotesTextarea.name = "actor_" + actorId + "_rep_notes";
                 repNotesTextarea.id = "textarea_actor_" + actorId + "_rep_notes";
                 repNotesTextarea.cols = 100;
-                repNotesTextarea.oninput = "fixTextAreaHeight('actor_" + actorId + "_rep_notes');";
+                repNotesTextarea.oninput = function() {
+                    fixTextAreaHeight('actor_' + actorId + '_rep_notes');
+                };
                 if(actor !== null && actor.rep_notes !== undefined) {
                     repNotesTextarea.value = actor.rep_notes;
                     waitForElm('#textarea_actor_' + actorId + '_rep_notes').then((elm) => {
