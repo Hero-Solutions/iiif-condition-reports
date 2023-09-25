@@ -34,12 +34,6 @@
             <div id="wrap" class="readonly">
                 <div class="readonly-header">
                     <div class="header">{{ 'Print report' | trans }}</div>
-                    <div id="header-buttons">
-                        <a id="export-button" href="/data/{{ report_id }}.json">
-                            <i class="fas fa-file-export"></i>
-                            {{ 'JSON export' | trans }}
-                        </a>
-                    </div>
                 </div>
                 <div id="print-wrap">
                     <div class="print-selection-header">{{ 'Select the items to print' | trans }}</div>
@@ -51,6 +45,12 @@
                 </div>
                 <div class="readonly-header">
                     <div class="header">{{ 'View report' | trans }}</div>
+                    <div id="header-buttons">
+                        <a id="export-button" href="/data/{{ report_id }}.json">
+                            <i class="fas fa-file-export"></i>
+                            {{ 'JSON export' | trans }}
+                        </a>
+                    </div>
                 </div>
                 {% include 'report_form.html.twig' %}
             </div>

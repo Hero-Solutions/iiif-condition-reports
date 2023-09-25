@@ -35,7 +35,7 @@ class ReportTemplateData
         $data = self::getExistingReportData($em, $id, $imageRelPath);
 
         $signatures = $em->createQueryBuilder()
-            ->select('s.timestamp, s.name, s.role, s.filename')
+            ->select('s.timestamp, s.name, s.actorId, s.filename')
             ->from(Signature::class, 's')
             ->where('s.reportId = :id')
             ->setParameter('id', $id)
@@ -45,7 +45,7 @@ class ReportTemplateData
         $signatureArray = array();
         foreach($signatures as $signature) {
             $signature['filename'] = $imageRelPath . '/' . $signature['filename'];
-            $signatureArray[$signature['role']] = $signature;
+            $signatureArray[$signature['actorId']] = $signature;
         }
 
         $data['signatures'] = $signatureArray;

@@ -12,9 +12,9 @@ use Symfony\Component\Routing\Annotation\Route;
 class SaveSignatureController extends AbstractController
 {
     /**
-     * @Route("/{_locale}/save_signature/{reportId}/{name}/{role}", name="save_signature")
+     * @Route("/{_locale}/save_signature/{reportId}/{name}/{actorId}", name="save_signature")
      */
-    public function saveSignature(Request $request, $reportId, $name, $role)
+    public function saveSignature(Request $request, $reportId, $name, $actorId)
     {
         if(!$this->getUser()) {
             return $this->redirectToRoute('main');
@@ -46,10 +46,10 @@ class SaveSignatureController extends AbstractController
             $timestamp = new DateTime();
             $signature->setTimestamp($timestamp);
             $signature->setName($name);
-            $signature->setRole($role);
+            $signature->setActorId($actorId);
             $signature->setFilename($folder . '/' . $filename);
             $em = $this->container->get('doctrine')->getManager();
-            $em->getConnection()->getConfiguration()->setSQLLogger(null);
+//            $em->getConnection()->getConfiguration()->setSQLLogger(null);
             $em->persist($signature);
             $em->flush();
 

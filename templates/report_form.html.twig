@@ -8,20 +8,19 @@
     {% include 'annotate.html.twig' %}
 
     {% if readonly %}
-        {% set reps = {
-            'owner': 'Owner / lender',
-            'user': 'Borrower / restorer',
-            'handler': 'Courier / art handler',
-            'third_party': 'Other third party'
-        } %}
         {% set has_signatures = false %}
-        {% for rep, rep_name in reps %}
-            {% if prefilled_data[rep ~ '_name'] is defined and prefilled_data[rep ~ '_rep_name'] is defined %}
-                {% set has_signatures = true %}
+        {% set break = false %}
+        {% for i in 1..1000 if not break %}
+            {% if prefilled_data['actor_' ~ i ~ '_role'] is defined %}
+                {% if prefilled_data['actor_' ~ i ~ '_rep_name'] is defined %}
+                    {% set has_signatures = true %}
+                {% endif %}
+            {% else %}
+                {% set break = true %}
             {% endif %}
         {% endfor %}
         {% if has_signatures %}
-            {% include 'signatures.html.twig' with { 'reps': reps } %}
+            {% include 'signatures.html.twig' %}
         {% endif %}
     {% else %}
         <script>

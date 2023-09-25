@@ -33,9 +33,9 @@ class Signature
     private $name;
 
     /**
-     * @ORM\Column(type="string", length="255")
+     * @ORM\Column(type="integer")
      */
-    private $role;
+    private $actorId;
 
     /**
      * @ORM\Column(type="string", length="255")
@@ -82,14 +82,14 @@ class Signature
         $this->name = $name;
     }
 
-    public function getRole()
+    public function getActorId()
     {
-        return $this->role;
+        return $this->actorId;
     }
 
-    public function setRole($role)
+    public function setActorId($actorId)
     {
-        $this->role = $role;
+        $this->actorId = $actorId;
     }
 
     public function getFilename() {

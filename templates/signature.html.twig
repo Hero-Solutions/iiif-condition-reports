@@ -1,70 +1,68 @@
 <div class="signature-box nobreak">
-    <p class="signature-name">{{ prefilled_data[rep ~ '_rep_name'] }} ({{ prefilled_data[rep ~ '_name'] }} - {{ rep_name | trans }})</p>
-    <div class="signature-pad" id="signature-pad-{{ rep }}">
-        {% if signatures[rep] is defined %}
+    <p class="signature-name">{{ prefilled_data['actor_' ~ index ~ '_rep_name'] }} ({% if prefilled_data['actor_' ~ index ~ '_org_name'] is defined %}{{ prefilled_data['actor_' ~ index ~ '_org_name'] }} - {% endif %}{{ prefilled_data['actor_' ~ index ~ '_role'] | trans }})</p>
+    <div class="signature-pad" id="signature-pad-{{ index }}">
+        {% if signatures[index] is defined %}
             <div class="signature-div">
-                <input class="signature-input" type="checkbox" name="signature-checkbox-{{ rep }}" checked disabled/>
-                <label for="signature-checkbox-{{ rep }}">{{ 'Read and approved on' | trans }} {{ signatures[rep].timestamp | date("Y-m-d H:i e") }}</label>
+                <input class="signature-input" type="checkbox" name="signature-checkbox-{{ index }}" checked disabled/>
+                <label for="signature-checkbox-{{ index }}">{{ 'Read and approved on' | trans }} {{ signatures[index].timestamp | date("Y-m-d H:i e") }}</label>
             </div>
-            <img src="{{ signatures[rep].filename }}" alt="{{ signatures[rep].name }}"/>
+            <img src="{{ signatures[index].filename }}" alt="{{ signatures[index].name }}"/>
         {% else %}
             <div class="signature-div no-print">
-                <input class="signature-input" type="checkbox" name="signature-checkbox-{{ rep }}" id="signature-checkbox-{{ rep }}"/>
-                <label for="signature-checkbox-{{ rep }}">{{ 'Read and approved on' | trans }} {{ "now" | date("Y-m-d H:i e") }}</label>
+                <input class="signature-input" type="checkbox" name="signature-checkbox-{{ index }}" id="signature-checkbox-{{ index }}"/>
+                <label for="signature-checkbox-{{ index }}">{{ 'Read and approved on' | trans }} {{ "now" | date("Y-m-d H:i e") }}</label>
             </div>
             <div class="signature-pad--body no-print">
-                <canvas class="signature-canvas" id="signature-canvas-{{ rep }}" width="380" style="touch-action: none; user-select: none;" height="200"></canvas>
+                <canvas class="signature-canvas" id="signature-canvas-{{ index }}" width="380" style="touch-action: none; user-select: none;" height="200"></canvas>
             </div>
             <div class="signature-pad--footer no-print">
                 <div class="signature-pad--actions">
                     <div>
-                        <button type="button" id="signature-pad-{{ rep }}-action-clear" class="button-clear">{{ 'Clear' | trans }}</button>
-                        <button type="button" id="signature-pad-{{ rep }}-action-undo" class="button-undo">{{ 'Undo' | trans }}</button>
-                        <button type="button" id="signature-pad-{{ rep }}-action-save" class="button-save">{{ 'Save' | trans }}</button>
-                        <input type="file" id="signature-pad-file-{{ rep }}" name="signature-file" style="display: none">
+                        <button type="button" id="signature-pad-{{ index }}-action-clear" class="button-clear">{{ 'Clear' | trans }}</button>
+                        <button type="button" id="signature-pad-{{ index }}-action-undo" class="button-undo">{{ 'Undo' | trans }}</button>
+                        <button type="button" id="signature-pad-{{ index }}-action-save" class="button-save">{{ 'Save' | trans }}</button>
+                        <input type="file" id="signature-pad-file-{{ index }}" name="signature-file" style="display: none">
                     </div>
                 </div>
             </div>
             <script>
-                var clear{{ rep }}Button = document.getElementById('signature-pad-{{ rep }}-action-clear');
-                var undo{{ rep }}Button = document.getElementById('signature-pad-{{ rep }}-action-undo');
-                var save{{ rep }}Button = document.getElementById('signature-pad-{{ rep }}-action-save');
-                var signatureCanvas{{ rep }} = document.getElementById('signature-canvas-{{ rep }}');
-                var signatureFile{{ rep }} = document.getElementById('signature-pad-file-{{ rep }}');
-                var signaturePad{{ rep }} = new SignaturePad(signatureCanvas{{ rep }}, {
+                var clear{{ index }}Button = document.getElementById('signature-pad-{{ index }}-action-clear');
+                var undo{{ index }}Button = document.getElementById('signature-pad-{{ index }}-action-undo');
+                var save{{ index }}Button = document.getElementById('signature-pad-{{ index }}-action-save');
+                var signatureCanvas{{ index }} = document.getElementById('signature-canvas-{{ index }}');
+                var signatureFile{{ index }} = document.getElementById('signature-pad-file-{{ index }}');
+                var signaturePad{{ index }} = new SignaturePad(signatureCanvas{{ index }}, {
                     backgroundColor: 'rgba(255, 255, 255, 0)',
                     penColor: 'rgb(0, 0, 0)'
                 });
-                clear{{ rep }}Button.addEventListener("click", function (event) {
-                    signaturePad{{ rep }}.clear();
+                clear{{ index }}Button.addEventListener("click", function (event) {
+                    signaturePad{{ index }}.clear();
                 });
 
-                undo{{ rep }}Button.addEventListener("click", function (event) {
-                    var data = signaturePad{{ rep }}.toData();
+                undo{{ index }}Button.addEventListener("click", function (event) {
+                    var data = signaturePad{{ index }}.toData();
 
                     if (data && data.length > 0) {
                         data.pop(); // remove the last dot or line
-                        signaturePad{{ rep }}.fromData(data);
+                        signaturePad{{ index }}.fromData(data);
                     }
                 });
 
-                save{{ rep }}Button.onclick = function() {
-                    var data = signaturePad{{ rep }}.toData();
+                save{{ index }}Button.onclick = function() {
+                    var data = signaturePad{{ index }}.toData();
                     if (data && data.length > 0) {
-                        var checkbox = document.getElementById("signature-checkbox-{{ rep }}");
+                        var checkbox = document.getElementById("signature-checkbox-{{ index }}");
                         if(checkbox !== null) {
                             if(!checkbox.checked) {
                                 alert('{{ 'You need to check the \"Read and approved\" checkbox before signing' | trans | raw }}.');
-                            } else if (confirm('{{ 'Is this signature from' | trans }} {{ prefilled_data[rep ~ '_rep_name'] }} {{ 'correct' | trans }}?')) {
-                                signatureCanvas{{ rep }}.toBlob(function (blob) {
-                                    saveSignature(blob, signatureFile{{ rep }}, '{{ prefilled_data[rep ~ '_rep_name'] }}', '{{ rep }}');
+                            } else if (confirm('{{ 'Is this signature from' | trans }} {{ name }} {{ 'correct' | trans }}?')) {
+                                signatureCanvas{{ index }}.toBlob(function (blob) {
+                                    saveSignature(blob, signatureFile{{ index }}, '{{ name }}', '{{ index }}');
                                 });
                             }
-
                         }
                     }
                 };
-
             </script>
         {% endif %}
     </div>

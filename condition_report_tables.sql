@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS `signatures` (
     `report_id` INT UNSIGNED NOT NULL,
     `timestamp` TIMESTAMP NOT NULL,
     `name` VARCHAR(255) NOT NULL,
-    `role` VARCHAR(255) NOT NULL,
+    `actor_id` SMALLINT UNSIGNED NOT NULL,
     `filename` VARCHAR(255) NOT NULL,
     PRIMARY KEY(`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
