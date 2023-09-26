@@ -13,7 +13,7 @@
         if(typeof eventsToTrigger === 'undefined') {
             var eventsToTrigger = [];
         }
-        eventsToTrigger.push("fixTextAreaHeight('{{ name }}')");
+        eventsToTrigger.push({ "name": "fixTextAreaHeight", "arguments": "{{ name }}"});
     </script>
 {% elseif prefilled_data[name] is defined %}
     {% if label is defined and label is not empty %}
