@@ -122,7 +122,11 @@
                 showObj.style.position = 'relative';
                 showObj.style.top = '0';
                 showObj.style.left = '0';
-                var highlightButton = document.getElementById(showId.concat("-button"));
+                if(typeof eventsToTrigger !== 'undefined') {
+                    for (var e in eventsToTrigger) {
+                        eval(eventsToTrigger[e] + "()");
+                    }
+                }                var highlightButton = document.getElementById(showId.concat("-button"));
                 highlightButton.classList.remove("inactive");
                 highlightButton.classList.add("active");
                 if(scrollToTop) {
