@@ -10,10 +10,10 @@
       >{% if prefilled_data[name] is defined %}{{ prefilled_data[name] }}{% endif %}</textarea>
     <script>
         document.addEventListener("DOMContentLoaded", fixTextAreaHeight("{{ name }}"));
-        if(typeof eventsToTrigger === 'undefined') {
-            var eventsToTrigger = [];
+        if(typeof textAreasToResize === 'undefined') {
+            var textAreasToResize = [];
         }
-        eventsToTrigger.push({ "name": "fixTextAreaHeight", "arguments": "{{ name }}"});
+        textAreasToResize.push("{{ name }}");
     </script>
 {% elseif prefilled_data[name] is defined %}
     {% if label is defined and label is not empty %}

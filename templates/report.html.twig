@@ -122,9 +122,9 @@
                 showObj.style.position = 'relative';
                 showObj.style.top = '0';
                 showObj.style.left = '0';
-                if(typeof eventsToTrigger !== 'undefined') {
-                    for (var e in eventsToTrigger) {
-                        eval(eventsToTrigger[e.name] + "(" + e.arguments + ")");
+                if(typeof textAreasToResize !== 'undefined') {
+                    for (var e in textAreasToResize) {
+                        fixTextAreaHeight(textAreasToResize[e]);
                     }
                 }
                 const highlightButton = document.getElementById(showId.concat("-button"));
