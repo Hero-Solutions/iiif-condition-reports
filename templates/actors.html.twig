@@ -23,13 +23,17 @@
 {% set break = false %}
 {% for i in 1..1000 if not break %}
     {% if prefilled_data['actor_' ~ i ~ '_role'] is defined %}
+        {% set has_actor_fields = false %}
         {% set actor = { 'role': prefilled_data['actor_' ~ i ~ '_role'] | trans } %}
         {% for field, label in actor_fields %}
             {% if prefilled_data['actor_' ~ i ~ '_' ~ field] is defined %}
                 {% set actor = actor|merge({ (field): prefilled_data['actor_' ~ i ~ '_' ~ field] | trans }) %}
+                {% set has_actor_fields = true %}
             {% endif %}
         {% endfor %}
-        {% set actors = actors + { (i): actor } %}
+        {% if has_actor_fields %}
+            {% set actors = actors + { (i): actor } %}
+        {% endif %}
     {% else %}
         {% set break = true %}
     {% endif %}
