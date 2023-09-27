@@ -466,7 +466,15 @@
             {% for id, actor in actors %}
                 <div class="report-header">{{ 'Information' | trans }} {{ actor['role'] | trans }}</div>
                 <div class="form-group">
-                    <div class="report-header-2">{{ 'Organisation' | trans }}</div>
+                    {% set has_org = false %}
+                    {% for key, value in actor if not has_org %}
+                        {% if key starts with 'org_' %}
+                            {% set has_org = true %}
+                        {% endif %}
+                    {% endfor %}
+                    {% if has_org %}
+                        <div class="report-header-2">{{ 'Organisation' | trans }}</div>
+                    {% endif %}
                     {% for key, value in actor %}
                         {% if key == 'rep_id' %}
                         <div class="report-header-2">{{ 'Representative' | trans }}</div>
