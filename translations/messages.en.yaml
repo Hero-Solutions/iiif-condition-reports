@@ -2,6 +2,8 @@ painting: Painting
 work_on_paper: Work on paper
 sculpture: Sculpture
 
+panel_type: Wood
+
 stone: Stone
 metal: Metal
 glass: Glass
@@ -272,6 +274,7 @@ Verstevigen: Consolidated
 Craquelé: Crackle
 Barsten: Cracks or Splits
 Geïncrusteerd vuil: Crusted dirt
+canvas_oxidation: Oxidation
 Plooien: Creases
 Ziek (glas): Crizzling
 Schotelvorming: Cupping

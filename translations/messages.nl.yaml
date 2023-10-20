@@ -110,11 +110,41 @@ Paper: Papier
 Paper with frame: Papier met lijst
 Paper without frame: Papier zonder lijst
 Passe-partout: Passe-partout
+Material passe-partout: Materiaal passe-partout
 Window in the passe-partout: Venster in het passe-partout
 Box: Doos
 Total weight: Totaal gewicht
 Pedestal / Sculpture / ...: Sokkel / Sculptuur / ...
 Complete sculpture: Volledig beeldhouwwerk
+Rag paper: Lompenpapier
+Wood pulp paper: Houthoudend papier
+Tracing paper: Kalkpapier
+Japanese paper: Japans papier
+Colored paper: Gekleurd papier
+Multilayered support: Meerlagige drager
+Graphite: Grafiet
+Charcoal: Houtskool
+Colored pencil: Kleurpotlood
+Chalk: Krijt
+Black chalk: Zwart krijt
+Sanguine (red chalk): Rood krijt
+White chalk: Wit krijt
+Pastel: Pastel
+Oil pastel: Oliepastel
+Ink: Inkt
+Printing ink: Drukinkt
+India ink: Oost-Indische inkt
+Bister (pigment): Bister
+Gouache: Gouache (waterverf)
+Watercolour: Aquarelverf
+Oil paint: Olieverf
+Acrylic paint: Acrylverf
+Casein paint: Caseïne
+Collage: Collage
+Varnish: Vernis
+Fixative: Fixatief
+Glue: Lijm
+No protection layer: Geen beschermlaag
 
 Identification of the reason for the report : Identificatie van de aanleiding voor het rapport
 Report type: Soort rapport
@@ -171,6 +201,7 @@ Material type: Materiaalsoort
 Carrier: Drager
 Pedestal: Sokkel
 Material specification: Materiaalspecificatie
+Paper material specification: Papier materiaalspecificatie
 Finishing layer: Afwerklaag
 Material specification (if possible): Materiaalspecificatie (indien mogelijk)
 Construction techniques: Vervaardigingstechnieken
@@ -224,7 +255,7 @@ Dents: Deuken
 Seam: Naad
 Tears/holes (see picture): Scheuren/gaten (zie foto)
 Edges: (Omslag)randen
-Oxidation: Weefsel geoxideerd
+canvas_oxidation: Weefsel geoxideerd
 Dirt between canvas and stretcher: Vuil tussen raam en doek
 support_carrier: Ondersteunende drager
 Condition stretcher: Conditie ondersteunende drager
@@ -278,7 +309,6 @@ Abraded/abrasion: Sleets
 Surface dirt: Oppervlaktevuil
 Fingerprints: Vingerafdrukken
 Condition varnish layer: Conditie vernislaag
-Varnish: Vernis
 Glossy: Glanzend
 Matte: Mat
 Irregular: Ongelijkmatig
@@ -343,7 +373,7 @@ Water damage (tideline): Vochtschade (vochtkring)
 Insect damage and damage by microorganisms: Insectenschade en micro-organismen
 Silverfish: Zilvervisje
 Wood worm/wood borers: Boekenworm/houtboorders
-Mould: Schimmel/vochtplekken
+Mould: Schimmel
 Old restorations: Oude restauraties
 Encrusted dirt, stains or impurities in the paper fiber: Ingedrongen vuil, vlekken of onzuiverheden in de papiervezel
 Residue of glue: Lijmresten
@@ -352,6 +382,7 @@ Condition pictorial layer: Conditie picturale laag
 Surface dirt/dust/stains/spots: Oppervlakte vuil, stof, vlekken
 Dusty: Stoffig
 Rust: Roest
+Oxidation: Roest
 Excrements of insects: Insectenuitwerpselen
 Ink corrosion: Inktvraat
 Exfoliation: Afschilferen
@@ -677,6 +708,7 @@ Supporting medium: Ondersteunende drager
 Varnish layer/Protection layer: Vernislaag/beschermlaag
 Canvas: Doek
 Wood: Hout
+panel_type: Hout
 Metal: Metaal
 Cardboard: Karton
 Acid-free cardboard: Zuurvrij karton
@@ -749,26 +781,42 @@ Painting fixed in frame with: Bevestiging van schilderij in lijst
 Clips: Lijstveren
 Metal plates: Metalen plaatjes
 Wooden plates: Houten plaatjes
+Flex stapling: Flexnieten
+Hinges: Scharnieren
+Nails: Nagels
+Tape: Plakband
+Pasted/glued: Gekleefd
+Sealed: Gesealed
 Material in rabbet: Materiaal in sponning
 Felt: Vilt
+Kapaline: Kapaline plaat
+Museum cardboard: Museumkarton
+Lexaan: Lexaan
+Fiberboard, hardboard: Houtvezelplaat
+Acid-free (corrugated) board: Zuurvrij (golf-)karton
+Unalit: Unalit
+MDF: MDF
 Filling material in rabbet: Vulmateriaal in sponning
 Balsa wood: Balsa hout
 Curvuture profiles: Kromming in de sponning
 Back frame build-up (BFBU): Opbouw rugzijde
 Back protection: Achterkantbescherming
-Kapaline: Kapaline plaat
 Labels: Etiketten
 Glass: Glas
 Glazed: Glas
 Type of glass: Glassoort
 Museum glass: Museumglas
+No museum glass: Geen museumglas
 Glass taped: Glas getaped
 Taped: Getaped
 Not taped: Niet getaped
 Climate box (incorporated in frame): Klimaatbox (verwerkt in lijst)
 Hanging system: Ophangsysteem
+Mirror plate: Mirror plate
+Steddie: Steddie
 ICN with loose screw eye: ICN met schroefoog
 Large suspension brace: Grote ophangbeugel
+Track & slide: Track & slide
 Plain screw eye: Gewone schroefoog
 Picture hanger (hook): Schilderijhanger (haak)
 

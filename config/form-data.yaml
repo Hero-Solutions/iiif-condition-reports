@@ -513,8 +513,9 @@ parameters:
                               class: 'checkbox-custom-with-label'
                               placeholder: 'Further specifications'
                             - type: checkbox_custom
+                              content: 'No museum glass'
                               name: 'material_painting_frame_framing_type_of_glass_custom'
-                              content: ''
+                              placeholder: 'Further specifications'
                         - type: div
                           content:
                             - type: div_text
@@ -591,46 +592,49 @@ parameters:
                     - type: div_text
                       class: 'report-header-2'
                       content: 'Support'
-                    - type: checkbox
+                    - type: div_text
                       name: 'material_paper_support_material_spec'
                       content: 'Paper material specification'
-                    - type: checkbox
-                      name: 'material_paper_support_paper'
-                      content: 'Paper'
                     - type: div
                       class: 'form-subgroup checkbox-subgroup'
                       content:
-                        - type: checkbox
-                          name: 'material_paper_support_paper_rag'
-                          content: 'Rag paper'
-                        - type: checkbox
-                          name: 'material_paper_support_paper_wood_pulp'
-                          content: 'Wood pulp paper'
-                        - type: checkbox
-                          name: 'material_paper_support_paper_tracing'
-                          content: 'Tracing paper'
-                        - type: checkbox
-                          name: 'material_paper_support_paper_japanese'
-                          content: 'Japanese paper'
-                        - type: checkbox
-                          name: 'material_paper_support_paper_colored'
-                          content: 'Colored paper'
-                    - type: checkbox
-                      name: 'material_paper_support_cardboard'
-                      content: 'Cardboard'
-                    - type: div
-                      class: 'form-subgroup checkbox-subgroup'
-                      content:
-                        - type: checkbox
-                          name: 'material_paper_support_cardboard_acid_free'
-                          content: 'Acid-free cardboard'
-                    - type: checkbox_custom
-                      name: 'material_paper_support_multilayered'
-                      class: 'checkbox-custom-with-label'
-                      content: 'Multilayered support'
-                    - type: checkbox_custom
-                      name: 'material_paper_support_custom'
-                      content: ''
+                      - type: checkbox
+                        name: 'material_paper_support_paper'
+                        content: 'Paper'
+                      - type: div
+                        class: 'form-subgroup checkbox-subgroup'
+                        content:
+                          - type: checkbox
+                            name: 'material_paper_support_paper_rag'
+                            content: 'Rag paper'
+                          - type: checkbox
+                            name: 'material_paper_support_paper_wood_pulp'
+                            content: 'Wood pulp paper'
+                          - type: checkbox
+                            name: 'material_paper_support_paper_tracing'
+                            content: 'Tracing paper'
+                          - type: checkbox
+                            name: 'material_paper_support_paper_japanese'
+                            content: 'Japanese paper'
+                          - type: checkbox
+                            name: 'material_paper_support_paper_colored'
+                            content: 'Colored paper'
+                      - type: checkbox
+                        name: 'material_paper_support_cardboard'
+                        content: 'Cardboard'
+                      - type: div
+                        class: 'form-subgroup checkbox-subgroup'
+                        content:
+                          - type: checkbox
+                            name: 'material_paper_support_cardboard_acid_free'
+                            content: 'Acid-free cardboard'
+                      - type: checkbox_custom
+                        name: 'material_paper_support_multilayered'
+                        class: 'checkbox-custom-with-label'
+                        content: 'Multilayered support'
+                      - type: checkbox_custom
+                        name: 'material_paper_support_custom'
+                        content: ''
                 - type: div
                   class: 'form-subgroup top-margin-subgroup'
                   content:
@@ -1071,8 +1075,9 @@ parameters:
                               class: 'checkbox-custom-with-label'
                               placeholder: 'Further specifications'
                             - type: checkbox_custom
+                              content: 'No museum glass'
                               name: 'material_paper_frame_framing_type_of_glass_custom'
-                              content: ''
+                              placeholder: 'Further specifications'
                         - type: div
                           content:
                             - type: div_text
@@ -1228,7 +1233,7 @@ parameters:
                             - type: checkbox_custom
                               name: 'condition_painting_specific_condition_support_type_wood'
                               class: 'checkbox-custom-with-label'
-                              content: 'Wood'
+                              content: 'panel_type'
                             - type: checkbox_custom
                               name: 'condition_painting_specific_condition_support_type_metal'
                               class: 'checkbox-custom-with-label'
@@ -1405,7 +1410,7 @@ parameters:
                               content: 'Edges'
                             - type: checkbox
                               name: 'condition_painting_specific_condition_canvas_oxidation'
-                              content: 'Oxidation'
+                              content: 'canvas_oxidation'
                             - type: checkbox
                               name: 'condition_painting_specific_condition_canvas_dirt'
                               content: 'Dirt between canvas and stretcher'
@@ -2671,7 +2676,7 @@ parameters:
                                   content: 'Dusty'
                                 - type: checkbox
                                   name: 'condition_work_on_paper_specific_condition_pictorial_layer_oxidation'
-                                  content: 'Rust'
+                                  content: 'Oxidation'
                                 - type: checkbox
                                   name: 'condition_work_on_paper_specific_condition_pictorial_layer_paint'
                                   content: 'Paint'
@@ -2696,7 +2701,7 @@ parameters:
                               content: 'Cupping'
                             - type: checkbox
                               name: 'condition_work_on_paper_specific_condition_pictorial_layer_flaking'
-                              content: 'Exfoliation'
+                              content: 'Flaking'
                             - type: checkbox
                               name: 'condition_work_on_paper_specific_condition_pictorial_layer_degraded_medium'
                               content: 'Degraded medium'
