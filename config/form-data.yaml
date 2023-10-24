@@ -148,7 +148,7 @@ parameters:
               depth: Depth
               weight: Weight
       painting:
-        header: 'Total work'
+        header: 'With frame, total work'
         items:
           height_full: Height
           width_full: Width

@@ -1536,6 +1536,7 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
 
 #report-form #annotation-images #thumbnails div img {
     display: block;
+    max-width: 150px;
 }
 
 #report-form #annotation-images #thumbnails div:not(:first-of-type) {
