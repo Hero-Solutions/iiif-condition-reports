@@ -254,12 +254,20 @@
                 }
             }
 
-            function checkReasonSelected() {
+            function saveDraft() {
+                document.getElementById('is_draft').value = '1';
+                document.body.onbeforeunload = null;
+                document.getElementById('report_form').submit();
+            }
+
+            function saveReport() {
                 const reasonDropdown = document.getElementById('reason-dropdown');
                 if(reasonDropdown.value.length === 0) {
                     showDiv('reason-form', false);
                 } else {
-                    document.body.onbeforeunload = null;
+                    if(confirm("{{ 'Are you sure you want to finalize and save this report?\\nYou cannot make any changes afterward.' | trans }}")) {
+                        document.body.onbeforeunload = null;
+                    }
                 }
             }
 
@@ -270,13 +278,29 @@
             }
         </script>
 
-        <form action="{{ path('save') }}" method="POST">
+        <form action="{{ path('save') }}" id="report_form" method="POST">
             <input type="hidden" id="inventory_id" name="inventory_id" value="{{ prefilled_data.inventory_id }}">
             <input type="hidden" id="base_id" name="base_id"{% if prefilled_data.base_id is defined %} value="{{ prefilled_data.base_id }}"{% endif %}>
             <input type="hidden" id="report_history" name="report_history"{% if prefilled_data.report_history is defined %} value="{{ prefilled_data.report_history | json_encode }}"{% endif %}>
             <input type="hidden" id="publisher" name="publisher"{% if prefilled_data.publisher is defined %} value="{{ prefilled_data.publisher }}"{% endif %}>
+            <input type="hidden" id="is_draft" name="is_draft" value="0">
             <input type="hidden" id="title_en" name="title_en"{% if prefilled_data.title_en is defined %} value="{{ prefilled_data.title_en }}"{% endif %}>
-            <div class="header-report">{{ 'Create report' | trans }}</div>
+            <div class="header-report">
+                <div>{{ 'Create report' | trans }}</div>
+                <div class="save">
+                    {% if is_referred_from_save is defined and is_referred_from_save %}
+                        <p id="save-p-message">{{ 'Draft saved.' | trans }}</p>
+                    {% endif %}
+                    <button type="button" onclick="saveDraft()">
+                        <i class="fas fa-save"></i>
+                        {{ 'Save draft' | trans }}
+                    </button>
+                    <button type="submit" onclick="saveReport()">
+                        <i class="fas fa-save"></i>
+                        {{ 'Save' | trans }}
+                    </button>
+                </div>
+            </div>
             <div class="object-row">
                 <div class="object-row-thumbnail">
                     <img src="{% if prefilled_data.thumbnail is not defined %}{{ asset('images/no_image_available.png') }}{% else %}{{ prefilled_data.thumbnail }}{% endif %}" alt="">
@@ -315,12 +339,6 @@
                     <button id="condition-form-button" class="inactive" type="button" onclick="showDiv('condition-form', false)" title="{{ 'Condition and conservation' | trans }}">{{ 'Condition and conservation' | trans }}</button>
                     <button id="recommendations-form-button" class="inactive" type="button" onclick="showDiv('recommendations-form', false)" title="{{ 'Recommendations' | trans }}">{{ 'Recommendations' | trans }}</button>
                     <button id="annotate-form-button" class="inactive" type="button" onclick="showDiv('annotate-form', false)" title="{{ 'Annotations' | trans }}">{{ 'Annotations' | trans }}</button>
-                    <div class="save">
-                        <button type="submit" onclick="checkReasonSelected()">
-                            <i class="fas fa-save"></i>
-                            {{ 'Save' | trans }}
-                        </button>
-                    </div>
                 </div>
                 {% include 'report_form.html.twig' %}
             </div>

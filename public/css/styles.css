@@ -150,10 +150,24 @@ textarea {
     padding-right: 15px;
 }
 
-.header-report,
 .header {
     font-weight: bold;
     font-size: 36px;
+}
+
+.header-report {
+    display: flex;
+}
+
+.header-report > div {
+    font-weight: bold;
+    font-size: 36px;
+}
+
+.header-report .save {
+    margin-left: auto;
+    margin-top: auto;
+    display: flex;
 }
 
 #wrap > .header {
@@ -578,10 +592,6 @@ textarea {
     margin-right: 5px;
 }
 
-#report-navigation .save {
-    margin-left: auto;
-}
-
 .print-selection-indent {
     margin-left: 23px;
 }
@@ -594,7 +604,7 @@ textarea {
     margin-left: 5px;
 }
 
-#report-navigation .save .fa-save,
+.header-report .save .fa-save,
 #report-navigation .print .fa-print,
 #object-type-select-div .save .fa-save {
     padding-top: 7px;
@@ -603,7 +613,42 @@ textarea {
     color: #747db3;
 }
 
-#report-navigation .save button,
+#save-p-message {
+    margin-top: auto;
+    margin-bottom: auto;
+    opacity: 0;
+    animation: fade-in 0s ease-in forwards, fade-out 10s 1s ease-out forwards;
+}
+
+@keyframes fade-in {
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes fade-out {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+.header-report .save button {
+    margin-left: 10px;
+    cursor: pointer;
+    display: flex;
+    flex-wrap: nowrap;
+    width: auto;
+    background-color: #5f585d;
+    color: white;
+    margin-bottom: 5px;
+    padding: 11px 12px;
+    border: 1px solid #dbdbdb;
+    border-radius: 4px;
+}
+
 #report-navigation .print button,
 #report-form #annotation-images #add-image-url-button {
     width: 46px;
@@ -612,7 +657,7 @@ textarea {
     border-radius: 4px;
 }
 
-#report-navigation .save button:hover .fa-save,
+.header-report .save button:hover .fa-save,
 #report-navigation .print button:hover .fa-print,
 #object-type-select-div .save button:hover .fa-save {
     color: #3a3f5a;
@@ -695,7 +740,6 @@ textarea {
 }
 
 #wrap .readonly-header button,
-#report-navigation .save button,
 #object-type-select-div .save button,
 #report-form #annotation-images #add-image-url-button,
 #login-form button,
@@ -777,7 +821,7 @@ textarea {
 
 #wrap .readonly-header button:hover,
 #wrap #print-button:hover,
-#report-navigation .save button:hover,
+.header-report .save button:hover,
 #object-type-select-div .save button:hover,
 #report-form #annotation-images #add-image-url-button:hover,
 #login-form button:hover,
@@ -787,7 +831,7 @@ textarea {
 }
 
 #wrap .fa-print,
-#report-navigation .save .fa-save,
+.header-report .save .fa-save,
 #object-type-select-div .save .fa-save,
 #export-button .fa-file-export {
     color: white;
@@ -798,7 +842,7 @@ textarea {
 }
 
 #wrap button:hover .fa-print,
-#report-navigation .save button:hover .fa-save,
+.header-report .save button:hover .fa-save,
 #object-type-select-div .save button:hover .fa-save,
 #export-button:hover .fa-file-export {
     color: white;

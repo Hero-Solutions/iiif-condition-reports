@@ -836,7 +836,7 @@ window.onload = function() {
         }
         var reasonDropdown = document.getElementById('reason-dropdown');
         if(reasonDropdown != null) {
-            {% if prefilled_data.reason_custom is not defined %}
+            {% if not prefilled_data.is_draft %}
                 reasonDropdown.selectedIndex = 0;
             {% endif %}
         }

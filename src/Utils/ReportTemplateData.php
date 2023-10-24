@@ -63,7 +63,7 @@ class ReportTemplateData
         return $data;
     }
 
-    public static function getDataToCreateExisting(EntityManager $em, $user, $reportReasons, $objectTypes, $actorTypes, $reportFields, $pictures, $id, $translatedRoutes)
+    public static function getDataToCreateExisting(EntityManager $em, $user, $reportReasons, $objectTypes, $actorTypes, $reportFields, $pictures, $id, $translatedRoutes, $isReferredFromSave)
     {
         $imageRelPath = '../../..';
         $data = self::getExistingReportData($em, $id, $imageRelPath);
@@ -79,6 +79,7 @@ class ReportTemplateData
         $data['pattern_size'] = 20;
         $data['stroke_width'] = 2;
         $data['translated_routes'] = $translatedRoutes;
+        $data['is_referred_from_save'] = $isReferredFromSave;
         return $data;
     }
 
@@ -101,6 +102,7 @@ class ReportTemplateData
         }
 
         $prefilledData = self::getDatahubData($em, $id, array());
+        $prefilledData['is_draft'] = 0;
 
         $imageRelPath = '../../..';
         $images = self::getImages($em, $prefilledData, $imageRelPath);
@@ -134,7 +136,7 @@ class ReportTemplateData
     {
         $prefilledData = array();
         $reportData = $em->createQueryBuilder()
-            ->select('r.id, r.inventoryId, r.baseId, r.timestamp, d.name, d.value, u.fullName')
+            ->select('r.id, r.inventoryId, r.baseId, r.timestamp, r.reason, r.isDraft, d.name, d.value, u.fullName')
             ->from(Report::class, 'r')
             ->leftJoin(ReportData::class, 'd', 'WITH', 'd.id = r.id')
             ->leftJoin(User::class, 'u', 'WITH', 'u.id = r.editor')
@@ -142,13 +144,19 @@ class ReportTemplateData
             ->setParameter('id', $id)
             ->getQuery()
             ->getResult();
-        $lastReportTimestamp = [ 'timestamp' => '', 'editor' => ''];
+        $lastReportTimestamp = [ 'timestamp' => '', 'editor' => '' ];
         foreach ($reportData as $data) {
             if(empty($prefilledData['inventory_id'])) {
                 $prefilledData['inventory_id'] = $data['inventoryId'];
             }
             if(empty($prefilledData['base_id'])) {
                 $prefilledData['base_id'] = $data['baseId'];
+            }
+            if(empty($prefilledData['reason'])) {
+                $prefilledData['reason'] = $data['reason'];
+            }
+            if(empty($prefilledData['is_draft'])) {
+                $prefilledData['is_draft'] = $data['isDraft'];
             }
             if(empty($lastReportTimestamp['timestamp'])) {
                 $lastReportTimestamp = [

@@ -269,11 +269,15 @@ class IIIFUtil
         if(StringUtil::endsWith($imageUrl, '/info.json')) {
             $baseImage = substr($imageUrl, 0, -10);
             $image = $baseImage . '/full/max/0/default.jpg';
-            $imageDataJSON = CurlUtil::get($imageUrl);
-            if($imageDataJSON) {
-                $imageData = json_decode($imageDataJSON);
-                $width = $imageData->width;
-                $height = $imageData->height;
+            //Surround with try-catch incase the remote IIIF image server is acting up
+            try {
+                $imageDataJSON = CurlUtil::get($imageUrl);
+                if ($imageDataJSON) {
+                    $imageData = json_decode($imageDataJSON);
+                    $width = $imageData->width;
+                    $height = $imageData->height;
+                }
+            } catch(Exception $e) {
             }
         } else {
             if(strpos($imageUrl, '../') === 0) {

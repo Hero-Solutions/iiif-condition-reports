@@ -81,12 +81,14 @@
                 var customInput = document.getElementById(customInputId);
                 if(customInput != null) {
                     if(show) {
+                        customInput.disabled = false;
                         customInput.value = '';
                         customInput.style.display = 'block';
                         if(focus) {
                             customInput.focus();
                         }
                     } else {
+                        customInput.disabled = true;
                         customInput.style.display = 'none';
                         customInput.value = value;
                     }

@@ -9,8 +9,10 @@ use App\Entity\ReportData;
 use App\Entity\ReportHistory;
 use App\Utils\IIIFUtil;
 use DateTime;
+use Exception;
 use http\Env\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -43,6 +45,7 @@ class SaveReportController extends AbstractController
             $baseId = '';
             $inventoryId = '';
             $reason = '';
+            $isDraft = 0;
             $images = array();
             $organisations = array();
             $representatives = array();
@@ -65,10 +68,15 @@ class SaveReportController extends AbstractController
                 }
                 if($name === 'annotation_data') {
                     $annotationData = json_decode($value);
+                    if(empty($annotationData)) {
+                        $annotationData = [];
+                    }
                 } else if($name === 'base_id') {
                     $baseId = $value;
                 } else if($name === 'inventory_id') {
                     $inventoryId = $value;
+                } else if($name === 'is_draft') {
+                    $isDraft = intval($value);
                 } else if($name === 'report_history') {
                     $reportHistory = json_decode($value);
                 } else if($name === 'images[]') {
@@ -100,6 +108,7 @@ class SaveReportController extends AbstractController
                 $report->setEditor($this->getUser()->getId());
                 $report->setTimestamp(new DateTime());
                 $report->setReason($reason);
+                $report->setIsDraft($isDraft);
                 $report->setSignaturesRequired($signaturesRequired);
                 if(!empty($baseId)) {
                     $report->setBaseId($baseId);
@@ -110,6 +119,7 @@ class SaveReportController extends AbstractController
 
                 if(empty($baseId)) {
                     $report->setBaseId($report->getId());
+                    $baseId = $report->getId();
                     // Because datetime is converted into UTC, we have to set it again
                     $report->setTimestamp(new DateTime());
                     $em->persist($report);
@@ -300,7 +310,11 @@ class SaveReportController extends AbstractController
                     }
                 }
 
-                return $this->redirectToRoute('view', array('_locale' => $locale, 'id' => $report->getId()));
+                if($isDraft) {
+                    return $this->redirectToRoute('create_existing', array('_locale' => $locale, 'baseId' => $baseId));
+                } else {
+                    return $this->redirectToRoute('view', array('_locale' => $locale, 'id' => $report->getId()));
+                }
             } else {
                 //TODO appropriate error message
                 return $this->redirectToRoute('main', array('_locale' => $locale));

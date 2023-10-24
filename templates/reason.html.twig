@@ -19,7 +19,7 @@
                         <option value="customOption"{% if prefilled_data.reason_custom is defined %} selected{% endif %}>{{ 'Other ...' | trans }}</option>
                     </select>
                     <input type="text" class="custom-input" id="reason_custom" placeholder="{{ 'Fill in another reason ...' | trans }}" name="reason_custom"
-                           {% if prefilled_data.reason_custom is defined %}value="{{ prefilled_data.reason_custom }}" {% else %}style="display: none;" disabled="disabled"{% endif %} autocomplete="off">
+                           {% if prefilled_data.reason_custom is defined %}value="{{ prefilled_data.reason_custom }}" {% else %}style="display: none;" disabled{% endif %} autocomplete="off">
                 </div>
             </div>
         </div>

@@ -47,6 +47,11 @@ class Report
      */
     private $signaturesRequired;
 
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $isDraft;
+
     public function getId()
     {
         return $this->id;
@@ -114,5 +119,15 @@ class Report
     public function setSignaturesRequired($signaturesRequired)
     {
         $this->signaturesRequired = $signaturesRequired;
+    }
+
+    public function getIsDraft()
+    {
+        return $this->isDraft;
+    }
+
+    public function setIsDraft($isDraft)
+    {
+        $this->isDraft = $isDraft;
     }
 }
