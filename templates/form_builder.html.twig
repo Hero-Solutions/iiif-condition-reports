@@ -99,6 +99,11 @@
                         if(div.style.display === 'none') {
                             div.style.display = 'block';
                             image.className = 'fas fa-minus-circle collapse-circle-image';
+                            if(typeof textAreasToResize !== 'undefined') {
+                                for (var e in textAreasToResize) {
+                                    fixTextAreaHeight(textAreasToResize[e]);
+                                }
+                            }
                         } else {
                             div.style.display = 'none';
                             image.className = 'fas fa-plus-circle collapse-circle-image';
