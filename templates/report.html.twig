@@ -100,6 +100,26 @@
     <div class="main-container">
         {% include 'navbar.html.twig' %}
         <script>
+            window.addEventListener('keydown', function(e) {
+                if (e.keyIdentifier === 'U+000A' || e.keyIdentifier === 'Enter' || e.keyCode===13) {
+                    if (e.target.nodeName === 'INPUT' || e.target.nodeName === 'BUTTON') {
+                        const form = e.target.form;
+                        if(form !== undefined) {
+                            const index = Array.prototype.indexOf.call(form, e.target);
+                            if(index >= 0 && index < form.elements.length - 1) {
+                                if(form.elements[index + 1].type !== 'hidden') {
+                                    form.elements[index + 1].focus();
+                                } else if(index < form.elements.length - 2) {
+                                    form.elements[index + 2].focus();
+                                }
+                            }
+                        }
+                        e.preventDefault();
+                        return false;
+                    }
+                }
+            }, true);
+
             const divIds = [
                 'reason-form', 'basic-info-form', 'actors-form', 'material-form', 'condition-form', 'recommendations-form', 'annotate-form'
             ];
