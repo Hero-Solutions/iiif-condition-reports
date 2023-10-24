@@ -257,6 +257,7 @@
             function saveDraft() {
                 document.getElementById('is_draft').value = '1';
                 document.body.onbeforeunload = null;
+                window.canSubmit = true;
                 document.getElementById('report_form').submit();
             }
 
@@ -267,8 +268,13 @@
                 } else {
                     if(confirm("{{ 'Are you sure you want to finalize and save this report?\\nYou cannot make any changes afterward.' | trans }}")) {
                         document.body.onbeforeunload = null;
+                        window.canSubmit = true;
                     }
                 }
+            }
+
+            function checkSubmit() {
+                return window.canSubmit === true;
             }
 
             function fixTextAreaHeight(id) {
@@ -278,7 +284,7 @@
             }
         </script>
 
-        <form action="{{ path('save') }}" id="report_form" method="POST">
+        <form action="{{ path('save') }}" id="report_form" method="POST" onsubmit="return checkSubmit()">
             <input type="hidden" id="inventory_id" name="inventory_id" value="{{ prefilled_data.inventory_id }}">
             <input type="hidden" id="base_id" name="base_id"{% if prefilled_data.base_id is defined %} value="{{ prefilled_data.base_id }}"{% endif %}>
             <input type="hidden" id="report_history" name="report_history"{% if prefilled_data.report_history is defined %} value="{{ prefilled_data.report_history | json_encode }}"{% endif %}>
