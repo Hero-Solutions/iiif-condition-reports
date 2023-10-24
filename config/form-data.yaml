@@ -1407,7 +1407,7 @@ parameters:
                               content: 'Seam'
                             - type: checkbox
                               name: 'condition_painting_specific_condition_canvas_tears'
-                              content: 'Tears/holes (see picture)'
+                              content: 'Tears/holes'
                             - type: checkbox_custom
                               name: 'condition_painting_specific_condition_canvas_edges'
                               class: 'checkbox-custom-with-label'
@@ -1568,7 +1568,7 @@ parameters:
                               content: 'Joints (open, repared, strengthened, …)'
                             - type: checkbox
                               name: 'condition_painting_specific_condition_panel_splits'
-                              content: 'Splits (position/length, see picture)'
+                              content: 'Splits (position/length)'
                             - type: checkbox_custom
                               name: 'condition_painting_specific_condition_panel_deformations'
                               class: 'checkbox-custom-with-label'
@@ -1713,11 +1713,11 @@ parameters:
                               content: 'Degraded medium'
                             - type: checkbox
                               name: 'condition_painting_specific_condition_paint_layer_blisters'
-                              content: 'Blisters/flaking paint (checked and stable): see picture'
+                              content: 'Blisters/flaking paint (checked and stable)'
                             - type: checkbox_custom
                               name: 'condition_painting_specific_condition_paint_layer_losses'
                               class: 'checkbox-custom-with-label'
-                              content: 'Losses (see picture)'
+                              content: 'Losses'
                             - type: checkbox
                               name: 'condition_painting_specific_condition_paint_layer_old_fillings'
                               content: 'Old fillings'
