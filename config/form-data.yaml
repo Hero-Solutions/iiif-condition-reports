@@ -1205,8 +1205,10 @@ parameters:
                     - type: div_text
                       class: 'report-header-2'
                       content: 'Support'
+                      collapsible: true
                     - type: div
                       class: 'form-subgroup subgroup-with-border'
+                      collapsed: true
                       content:
                         - type: div
                           content:
@@ -1326,8 +1328,10 @@ parameters:
                     - type: div_text
                       class: 'report-header-2'
                       content: 'Canvas'
+                      collapsible: true
                     - type: div
                       class: 'form-subgroup subgroup-with-border'
+                      collapsed: true
                       content:
                         - type: div
                           content:
@@ -1428,8 +1432,10 @@ parameters:
                     - type: div_text
                       class: 'report-header-2'
                       content: support_carrier
+                      collapsible: true
                     - type: div
                       class: 'form-subgroup subgroup-with-border'
+                      collapsed: true
                       content:
                         - type: div
                           content:
@@ -1497,8 +1503,10 @@ parameters:
                     - type: div_text
                       class: 'report-header-2'
                       content: 'Panel'
+                      collapsible: true
                     - type: div
                       class: 'form-subgroup subgroup-with-border'
+                      collapsed: true
                       content:
                         - type: div
                           content:
@@ -1600,8 +1608,10 @@ parameters:
                     - type: div_text
                       class: 'report-header-2'
                       content: 'Metal'
+                      collapsible: true
                     - type: div
                       class: 'form-subgroup subgroup-with-border'
+                      collapsed: true
                       content:
                         - type: div
                           content:
@@ -1661,8 +1671,10 @@ parameters:
                     - type: div_text
                       class: 'report-header-2'
                       content: paint_layer
+                      collapsible: true
                     - type: div
                       class: 'form-subgroup subgroup-with-border'
+                      collapsed: true
                       content:
                         - type: div
                           content:
@@ -1759,8 +1771,10 @@ parameters:
                     - type: div_text
                       class: 'report-header-2'
                       content: 'Varnish layer'
+                      collapsible: true
                     - type: div
                       class: 'form-subgroup subgroup-with-border'
+                      collapsed: true
                       content:
                         - type: div
                           content:
@@ -1870,8 +1884,10 @@ parameters:
                     - type: div_text
                       class: 'report-header-2'
                       content: 'Frame'
+                      collapsible: true
                     - type: div
                       class: 'form-subgroup subgroup-with-border'
+                      collapsed: true
                       content:
                         - type: div
                           content:
@@ -1999,8 +2015,10 @@ parameters:
                     - type: div_text
                       class: 'report-header-2'
                       content: 'Framing'
+                      collapsible: true
                     - type: div
                       class: 'form-subgroup subgroup-with-border'
+                      collapsed: true
                       content:
                         - type: div
                           content:
@@ -2074,8 +2092,10 @@ parameters:
                     - type: div_text
                       class: 'report-header-2'
                       content: 'Conservation'
+                      collapsible: true
                     - type: div
                       class: 'form-subgroup subgroup-with-border'
+                      collapsed: true
                       content:
                         - type: div
                           content:
@@ -2495,8 +2515,10 @@ parameters:
                     - type: div_text
                       class: 'report-header-2'
                       content: 'Support'
+                      collapsible: true
                     - type: div
                       class: 'form-subgroup subgroup-with-border'
+                      collapsed: true
                       content:
                         - type: div
                           content:
@@ -2643,8 +2665,10 @@ parameters:
                     - type: div_text
                       class: 'report-header-2'
                       content: 'Pictorial layer'
+                      collapsible: true
                     - type: div
                       class: 'form-subgroup subgroup-with-border'
+                      collapsed: true
                       content:
                         - type: div
                           content:
@@ -2777,8 +2801,10 @@ parameters:
                     - type: div_text
                       class: 'report-header-2'
                       content: 'Protective layer'
+                      collapsible: true
                     - type: div
                       class: 'form-subgroup subgroup-with-border'
+                      collapsed: true
                       content:
                         - type: div
                           content:
@@ -2820,8 +2846,10 @@ parameters:
                     - type: div_text
                       class: 'report-header-2'
                       content: 'Frame, passe-partout and mounting'
+                      collapsible: true
                     - type: div
                       class: 'form-subgroup subgroup-with-border'
+                      collapsed: true
                       content:
                         - type: div
                           content:
@@ -3058,8 +3086,10 @@ parameters:
                     - type: div_text
                       class: 'report-header-2'
                       content: 'Conservation'
+                      collapsible: true
                     - type: div
                       class: 'form-subgroup subgroup-with-border'
+                      collapsed: true
                       content:
                         - type: div
                           content:

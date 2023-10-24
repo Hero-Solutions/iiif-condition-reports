@@ -71,6 +71,9 @@
                     {% if item.onclick is defined %}
                         onclick="{{ item.onclick }}"
                     {% endif %}
+                    {% if item.collapsed is defined and item.collapsed %}
+                        style="display: none"
+                    {% endif %}
                 >
                     {% for subitem in item.content %}
                         {% set next = false %}
@@ -83,7 +86,38 @@
             {% elseif item.type == 'html' %}
                 {{ item.content | trans | raw }}
             {% elseif item.type == 'div_text' %}
-                <div{% if item.class is defined %} class="{{ item.class  }}"{% endif %}>{{ item.content | trans }}</div>
+                <div
+                    {% if next_item and item.collapsible is defined and item.collapsible %}
+                        {% if item.class is defined %}
+                            class="{{ item.class  }} hover-pointer"
+                        {% else %}
+                            class="hover-pointer"
+                        {% endif %}
+                    onclick="
+                        const div = this.nextElementSibling;
+                        const image = this.firstElementChild;
+                        if(div.style.display === 'none') {
+                            div.style.display = 'block';
+                            image.className = 'fas fa-minus-circle collapse-circle-image';
+                        } else {
+                            div.style.display = 'none';
+                            image.className = 'fas fa-plus-circle collapse-circle-image';
+                        }
+                    "
+                >
+                        {% if next_item.collapsed is defined and next_item.collapsed %}
+                            <i class="fas fa-plus-circle collapse-circle-image"></i>
+                        {% else %}
+                            <i class="fas fa-minus-circle collapse-circle-image"></i>
+                        {% endif %}
+                    {% else %}
+                        {% if item.class is defined %}
+                            class="{{ item.class  }}"
+                        {% endif %}
+                >
+                    {% endif %}
+                    {{ item.content | trans }}
+                </div>
             {% elseif item.type == 'textfield' and item.name is defined %}
                 <div class="form-item">{% include 'textfield.html.twig' with { 'name': item.name, 'label': item.content | trans } %}</div>
             {% elseif item.type == 'textarea' and item.name is defined %}
