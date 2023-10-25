@@ -39,430 +39,430 @@
     {% endif %}
 {% endfor %}
 
-{% if not readonly or actors|length > 0 %}
-    {% if not readonly %}
-        <div id="actors-form" class="form-tab">
-            <div id="add-new-actor-div" class="flex">
-                <span>{{ 'Add organisation with role' | trans }}</span>
-                <select
-                    id="add_new_actor_select"
-                    onchange="toggleCustomInput(
-                        'add_new_actor_custom_org_role',
-                        this.options[this.selectedIndex].value,
-                        this.options[this.selectedIndex].value === 'customOption'
-                    );"
-                    autocomplete="off"
-                >
-                    <option></option>
-                    {% for actor_type in actor_types %}
-                        <option value="{{ actor_type | trans }}">{{ actor_type | trans }}</option>
-                    {% endfor %}
-                    <option value="customOption">{{ 'Other ...' | trans }}</option>
-                </select>
-                <input type="text"
-                    id="add_new_actor_custom_org_role"
-                    class="custom-input"
-                    placeholder="{{ 'Fill in another role ...' | trans }}"
-                    style="display: none;"
-                    autocomplete="off"
-                />
-                <button onclick="addNewOrganisation(-1, null);">
-                    {{ 'Add' | trans }}
-                </button>
+{% if not readonly %}
+    <div id="actors-form" class="form-tab">
+        <div id="add-new-actor-div" class="flex">
+            <span>{{ 'Add organisation with role' | trans }}</span>
+            <select
+                id="add_new_actor_select"
+                onchange="toggleCustomInput(
+                    'add_new_actor_custom_org_role',
+                    this.options[this.selectedIndex].value,
+                    this.options[this.selectedIndex].value === 'customOption'
+                );"
+                autocomplete="off"
+            >
+                <option></option>
+                {% for actor_type in actor_types %}
+                    <option value="{{ actor_type | trans }}">{{ actor_type | trans }}</option>
+                {% endfor %}
+                <option value="customOption">{{ 'Other ...' | trans }}</option>
+            </select>
+            <input type="text"
+                id="add_new_actor_custom_org_role"
+                class="custom-input"
+                placeholder="{{ 'Fill in another role ...' | trans }}"
+                style="display: none;"
+                autocomplete="off"
+            />
+            <button onclick="addNewOrganisation(-1, null);">
+                {{ 'Add' | trans }}
+            </button>
+        </div>
+        <div class="buttons">
+            <div class="previous-button">
+                <button type="button" onclick="showDiv('basic-info-form', true)">{{ 'Previous' | trans }}</button>
             </div>
-            <div class="buttons">
-                <div class="previous-button">
-                    <button type="button" onclick="showDiv('basic-info-form', true)">{{ 'Previous' | trans }}</button>
-                </div>
-                <div class="next-button">
-                    <button type="button" onclick="showDiv('material-form', true)">{{ 'Next' | trans }}</button>
-                </div>
+            <div class="next-button">
+                <button type="button" onclick="showDiv('material-form', true)">{{ 'Next' | trans }}</button>
             </div>
         </div>
-        <script>
-            const actors = {{ actors | json_encode | raw }};
-            const actorOrganisations = {{ organisations | json_encode | raw }};
-            const actorRepresentatives = {{ representatives | json_encode | raw }};
-            window.currentActorId = 1;
+    </div>
+    <script>
+        const actors = {{ actors | json_encode | raw }};
+        const actorOrganisations = {{ organisations | json_encode | raw }};
+        const actorRepresentatives = {{ representatives | json_encode | raw }};
+        window.currentActorId = 1;
 
-            function fillActorOrganisation(number, id) {
-                for(var key in actorOrganisations[id]) {
-                    var element = document.querySelector("input[name='actor_" + number + "_" + key + "']");
+        function fillActorOrganisation(number, id) {
+            for(var key in actorOrganisations[id]) {
+                var element = document.querySelector("input[name='actor_" + number + "_" + key + "']");
+                if(element != null) {
+                    element.value = actorOrganisations[id][key];
+                } else {
+                    element = document.querySelector("textarea[name='actor_" + number + "_" + key + "']");
                     if(element != null) {
                         element.value = actorOrganisations[id][key];
-                    } else {
-                        element = document.querySelector("textarea[name='actor_" + number + "_" + key + "']");
-                        if(element != null) {
-                            element.value = actorOrganisations[id][key];
-                            window["fixTextAreaHeight"]("actor_" + number + "_" + key);
-                        }
+                        window["fixTextAreaHeight"]("actor_" + number + "_" + key);
                     }
                 }
             }
+        }
 
-            function fillActorRepresentative(number, id) {
-                for(var key in actorRepresentatives[id]) {
-                    var element = document.querySelector("input[name='actor_" + number + "_" + key + "']");
+        function fillActorRepresentative(number, id) {
+            for(var key in actorRepresentatives[id]) {
+                var element = document.querySelector("input[name='actor_" + number + "_" + key + "']");
+                if(element != null) {
+                    element.value = actorRepresentatives[id][key];
+                } else {
+                    element = document.querySelector("textarea[name='actor_" + number + "_" + key + "']");
                     if(element != null) {
                         element.value = actorRepresentatives[id][key];
-                    } else {
-                        element = document.querySelector("textarea[name='actor_" + number + "_" + key + "']");
-                        if(element != null) {
-                            element.value = actorRepresentatives[id][key];
-                            window["fixTextAreaHeight"]("actor_" + number + "_" + key);
-                        }
+                        window["fixTextAreaHeight"]("actor_" + number + "_" + key);
                     }
                 }
             }
+        }
 
-            function fillActor(number, id) {
-                for(var key in actors[id]) {
-                    var element = document.querySelector("input[name='actor_" + number + "_" + key + "']");
+        function fillActor(number, id) {
+            for(var key in actors[id]) {
+                var element = document.querySelector("input[name='actor_" + number + "_" + key + "']");
+                if(element != null) {
+                    element.value = actors[id][key];
+                } else {
+                    element = document.querySelector("textarea[name='actor_" + number + "_" + key + "']");
                     if(element != null) {
                         element.value = actors[id][key];
-                    } else {
-                        element = document.querySelector("textarea[name='actor_" + number + "_" + key + "']");
-                        if(element != null) {
-                            element.value = actors[id][key];
-                            window["fixTextAreaHeight"]("actor_" + number + "_" + key);
-                        }
+                        window["fixTextAreaHeight"]("actor_" + number + "_" + key);
                     }
                 }
             }
+        }
 
-            function createFormItem(parentDiv, actorId, name, label, actor) {
-                const divElement = document.createElement("div");
-                divElement.className = "form-item";
+        function createFormItem(parentDiv, actorId, name, label, actor) {
+            const divElement = document.createElement("div");
+            divElement.className = "form-item";
 
-                const labelElement = document.createElement("label");
-                labelElement.for = "actor_" + actorId + "_" + name;
-                labelElement.innerHTML = label;
-                divElement.appendChild(labelElement);
+            const labelElement = document.createElement("label");
+            labelElement.for = "actor_" + actorId + "_" + name;
+            labelElement.innerHTML = label;
+            divElement.appendChild(labelElement);
 
-                const inputElement = document.createElement("input");
-                inputElement.type = "text";
-                inputElement.name = "actor_" + actorId + "_" + name;
-                inputElement.id = "actor_" + actorId + "_" + name;
-                if(actor !== null && actor[name] !== undefined) {
-                    inputElement.value = actor[name];
-                }
-                divElement.appendChild(inputElement);
-
-                parentDiv.appendChild(divElement);
+            const inputElement = document.createElement("input");
+            inputElement.type = "text";
+            inputElement.name = "actor_" + actorId + "_" + name;
+            inputElement.id = "actor_" + actorId + "_" + name;
+            if(actor !== null && actor[name] !== undefined) {
+                inputElement.value = actor[name];
             }
+            divElement.appendChild(inputElement);
 
-            function waitForElm(selector) {
-                return new Promise(resolve => {
+            parentDiv.appendChild(divElement);
+        }
+
+        function waitForElm(selector) {
+            return new Promise(resolve => {
+                if (document.querySelector(selector)) {
+                    return resolve(document.querySelector(selector));
+                }
+
+                const observer = new MutationObserver(mutations => {
                     if (document.querySelector(selector)) {
-                        return resolve(document.querySelector(selector));
+                        observer.disconnect();
+                        resolve(document.querySelector(selector));
                     }
-
-                    const observer = new MutationObserver(mutations => {
-                        if (document.querySelector(selector)) {
-                            observer.disconnect();
-                            resolve(document.querySelector(selector));
-                        }
-                    });
-
-                    observer.observe(document.body, {
-                        childList: true,
-                        subtree: true
-                    });
                 });
-            }
 
-            function addNewOrganisation(id, actor) {
-                const actorId = id > 0 ? id : window.currentActorId;
-                const addNewActorDiv = document.getElementById("add-new-actor-div");
-                var role = '';
-                if(actor !== null) {
-                    role = actor.role;
-                } else {
-                    const addNewActorSelect = document.getElementById("add_new_actor_select");
-                    var roleInput = addNewActorSelect.options[addNewActorSelect.selectedIndex].value;
-                    if (roleInput === '') {
+                observer.observe(document.body, {
+                    childList: true,
+                    subtree: true
+                });
+            });
+        }
+
+        function addNewOrganisation(id, actor) {
+            const actorId = id > 0 ? id : window.currentActorId;
+            const addNewActorDiv = document.getElementById("add-new-actor-div");
+            var role = '';
+            if(actor !== null) {
+                role = actor.role;
+            } else {
+                const addNewActorSelect = document.getElementById("add_new_actor_select");
+                var roleInput = addNewActorSelect.options[addNewActorSelect.selectedIndex].value;
+                if (roleInput === '') {
+                    return;
+                }
+                if (roleInput === 'customOption') {
+                    const addNewActorRoleInput = document.getElementById("add_new_actor_custom_org_role");
+                    if (addNewActorRoleInput.value === '') {
                         return;
                     }
-                    if (roleInput === 'customOption') {
-                        const addNewActorRoleInput = document.getElementById("add_new_actor_custom_org_role");
-                        if (addNewActorRoleInput.value === '') {
-                            return;
-                        }
-                        addNewActorRoleInput.style.display = "none";
-                        roleInput = addNewActorRoleInput.value;
-                    }
-                    addNewActorSelect.selectedIndex = 0;
-                    role = roleInput;
+                    addNewActorRoleInput.style.display = "none";
+                    roleInput = addNewActorRoleInput.value;
                 }
-
-                const actorDiv = document.createElement("div");
-                actorDiv.className = "form-group";
-                actorDiv.id = "actor-" + actorId + "-div";
-
-                const actorRoleInput = document.createElement("input");
-                actorRoleInput.name = "actor_" + actorId + "_role";
-                actorRoleInput.type = "hidden";
-                actorRoleInput.value = role;
-                actorDiv.appendChild(actorRoleInput);
-
-                const actorOrgHeaderDiv = document.createElement("div");
-                actorOrgHeaderDiv.className = "flex justify-content-space-between";
-
-                const actorOrgHeader = document.createElement("div");
-                actorOrgHeader.className = "report-header";
-                actorOrgHeader.innerHTML = "{{ 'Information' | trans }} " + role;
-                actorOrgHeaderDiv.appendChild(actorOrgHeader);
-
-                const trashIcon = document.createElement("i");
-                trashIcon.className = "fas fa-trash-alt org-trash-icon";
-                trashIcon.onclick = function() {
-                    actorDiv.parentElement.removeChild(actorDiv);
-                };
-                actorOrgHeaderDiv.appendChild(trashIcon);
-
-                actorDiv.appendChild(actorOrgHeaderDiv);
-
-                const actorOrgHeader2 = document.createElement("div");
-                actorOrgHeader2.className = "report-header-2";
-                actorOrgHeader2.innerHTML = "{{ 'Organisation' | trans }}";
-                actorDiv.appendChild(actorOrgHeader2);
-
-                const orgNameVatSubgroup = document.createElement("div");
-                orgNameVatSubgroup.className = "form-subgroup";
-
-                const orgNameDiv = document.createElement("div");
-                orgNameDiv.className = "form-item";
-
-                const orgNameLabel = document.createElement("label");
-                orgNameLabel.innerHTML = "{{ 'Name' | trans }}";
-                orgNameDiv.appendChild(orgNameLabel);
-                const orgNameFlexDiv = document.createElement("div");
-                orgNameFlexDiv.className = "flex";
-
-                const orgNameSelectCustomInput = document.createElement("input");
-                orgNameSelectCustomInput.type = "text";
-                orgNameSelectCustomInput.className = "custom-input";
-                orgNameSelectCustomInput.name = "actor_" + actorId + "_org_name";
-                orgNameSelectCustomInput.id = "actor_" + actorId + "_org_name";
-                orgNameSelectCustomInput.placeholder = "{{ 'Fill in another name ...' | trans }}";
-                if(actor !== null && actor.org_id === 'customOption') {
-                    orgNameSelectCustomInput.value = actor.org_name;
-                } else {
-                    orgNameSelectCustomInput.style.display = "none";
-                    if(actor !== null && actor.org_name !== undefined && actor.org_name !== '') {
-                        orgNameSelectCustomInput.value = actor.org_name;
-                    }
-                }
-                orgNameSelectCustomInput.autocomplete = "off";
-
-                const orgNameSelect = document.createElement("select");
-                orgNameSelect.id = "actor_" + actorId + "_org_id";
-                orgNameSelect.name = "actor_" + actorId + "_org_id";
-                orgNameSelect.onchange = function() {
-                    toggleCustomInput(orgNameSelectCustomInput.id, orgNameSelect.options[orgNameSelect.selectedIndex].value, orgNameSelect.options[orgNameSelect.selectedIndex].value === 'customOption');
-                    fillActorOrganisation(actorId + "_org", orgNameSelect.options[orgNameSelect.selectedIndex].value);
-                };
-                orgNameSelect.autocomplete = "off";
-                var option = document.createElement("option");
-                orgNameSelect.appendChild(option);
-                for(const [id, organisation] of Object.entries(actorOrganisations)) {
-                    option = document.createElement("option");
-                    option.value = organisation['id'];
-                    option.innerHTML = organisation['alias'];
-                    if(actor !== null && actor.org_id === option.value) {
-                        option.selected = true;
-                    }
-                    orgNameSelect.appendChild(option);
-                }
-                option = document.createElement("option");
-                option.value = "customOption";
-                option.innerHTML = "{{ 'Other ...' | trans }}";
-                if(actor !== null && actor.org_id === 'customOption') {
-                    option.selected = true;
-                }
-                orgNameSelect.appendChild(option);
-                orgNameFlexDiv.appendChild(orgNameSelect);
-
-                orgNameFlexDiv.appendChild(orgNameSelectCustomInput);
-                orgNameDiv.appendChild(orgNameFlexDiv);
-
-                orgNameVatSubgroup.appendChild(orgNameDiv);
-
-                createFormItem(orgNameVatSubgroup, actorId, "org_vat", "{{ 'VAT number' | trans }}", actor);
-
-                actorDiv.appendChild(orgNameVatSubgroup);
-
-                const orgAddressSubgroup = document.createElement("div");
-                orgAddressSubgroup.className = "form-subgroup";
-                createFormItem(orgAddressSubgroup, actorId, "org_address", "{{ 'Address' | trans }}", actor);
-                createFormItem(orgAddressSubgroup, actorId, "org_postal", "{{ 'Postal code' | trans }}", actor);
-                createFormItem(orgAddressSubgroup, actorId, "org_city", "{{ 'City' | trans }}", actor);
-                createFormItem(orgAddressSubgroup, actorId, "org_stateProvince", "{{ 'Province or state' | trans }}", actor);
-                createFormItem(orgAddressSubgroup, actorId, "org_country", "{{ 'Country' | trans }}", actor);
-
-                actorDiv.appendChild(orgAddressSubgroup);
-
-                const orgMailSitePhoneMobileSubgroup = document.createElement("div");
-                orgMailSitePhoneMobileSubgroup.className = "form-subgroup";
-                createFormItem(orgMailSitePhoneMobileSubgroup, actorId, "org_email", "{{ 'General e-mail address' | trans }}", actor);
-                createFormItem(orgMailSitePhoneMobileSubgroup, actorId, "org_website", "{{ 'Website' | trans }}", actor);
-                createFormItem(orgMailSitePhoneMobileSubgroup, actorId, "org_phone", "{{ 'Telephone' | trans }}", actor);
-                createFormItem(orgMailSitePhoneMobileSubgroup, actorId, "org_mobile", "{{ 'Cell phone' | trans }}", actor);
-
-                actorDiv.appendChild(orgMailSitePhoneMobileSubgroup);
-
-                const orgNotesSubgroup = document.createElement("div");
-                orgNotesSubgroup.className = "form-subgroup";
-
-                const orgNotesDiv = document.createElement("div");
-                orgNotesDiv.className = "form-item";
-
-                const orgNotesLabel = document.createElement("label");
-                orgNotesLabel.for = "textarea_actor_" + actorId + "_org_notes";
-                orgNotesLabel.innerHTML = "{{ 'Notes' | trans }}";
-                orgNotesDiv.appendChild(orgNotesLabel);
-
-                const orgNotesTextarea = document.createElement("textarea");
-                orgNotesTextarea.name = "actor_" + actorId + "_org_notes";
-                orgNotesTextarea.id = "textarea_actor_" + actorId + "_org_notes";
-                orgNotesTextarea.cols = 100;
-                orgNotesTextarea.oninput = function() {
-                    fixTextAreaHeight('actor_' + actorId + '_org_notes');
-                };
-                if(actor !== null && actor.org_notes !== undefined) {
-                    orgNotesTextarea.value = actor.org_notes;
-                    waitForElm('#textarea_actor_' + actorId + '_org_notes').then((elm) => {
-                        fixTextAreaHeight('actor_' + actorId + '_org_notes');
-                    });
-                }
-                orgNotesDiv.appendChild(orgNotesTextarea);
-
-                orgNotesSubgroup.appendChild(orgNotesDiv);
-                actorDiv.appendChild(orgNotesSubgroup);
-
-                const actorRepHeader2 = document.createElement("div");
-                actorRepHeader2.className = "report-header-2";
-                actorRepHeader2.innerHTML = "{{ 'Representative' | trans }}";
-                actorDiv.appendChild(actorRepHeader2);
-
-                const repNameRoleSubgroup = document.createElement("div");
-                repNameRoleSubgroup.className = "form-subgroup";
-
-                const repNameDiv = document.createElement("div");
-                repNameDiv.className = "form-item";
-
-                const repNameLabel = document.createElement("label");
-                repNameLabel.innerHTML = "{{ 'Name' | trans }}";
-                repNameDiv.appendChild(repNameLabel);
-                const repNameFlexDiv = document.createElement("div");
-                repNameFlexDiv.className = "flex";
-
-                const repNameSelectCustomInput = document.createElement("input");
-                repNameSelectCustomInput.type = "text";
-                repNameSelectCustomInput.className = "custom-input";
-                repNameSelectCustomInput.name = "actor_" + actorId + "_rep_name";
-                repNameSelectCustomInput.id = "actor_" + actorId + "_rep_name";
-                repNameSelectCustomInput.placeholder = "{{ 'Fill in another name ...' | trans }}";
-                if(actor !== null && actor.rep_id === 'customOption') {
-                    repNameSelectCustomInput.value = actor.rep_name;
-                } else {
-                    repNameSelectCustomInput.style.display = "none";
-                    if(actor !== null && actor.rep_name !== undefined && actor.rep_name !== '') {
-                        repNameSelectCustomInput.value = actor.rep_name;
-                    }
-                }
-                repNameSelectCustomInput.autocomplete = "off";
-
-                const repNameSelect = document.createElement("select");
-                repNameSelect.id = "actor_" + actorId + "_rep_id";
-                repNameSelect.name = "actor_" + actorId + "_rep_id";
-                repNameSelect.onchange = function() {
-                    toggleCustomInput(repNameSelectCustomInput.id, repNameSelect.options[repNameSelect.selectedIndex].value, repNameSelect.options[repNameSelect.selectedIndex].value === 'customOption');
-                    fillActorRepresentative(actorId + "_rep", repNameSelect.options[repNameSelect.selectedIndex].value);
-                };
-                repNameSelect.autocomplete = "off";
-                option = document.createElement("option");
-                repNameSelect.appendChild(option);
-                for(const [id, representative] of Object.entries(actorRepresentatives)) {
-                    option = document.createElement("option");
-                    option.value = representative['id'];
-                    option.innerHTML = representative['alias'];
-                    if(actor !== null && actor.rep_id === option.value) {
-                        option.selected = true;
-                    }
-                    repNameSelect.appendChild(option);
-                }
-                option = document.createElement("option");
-                option.value = "customOption";
-                option.innerHTML = "{{ 'Other ...' | trans }}";
-                if(actor !== null && actor.rep_id === 'customOption') {
-                    option.selected = true;
-                }
-                repNameSelect.appendChild(option);
-                repNameFlexDiv.appendChild(repNameSelect);
-
-                repNameFlexDiv.appendChild(repNameSelectCustomInput);
-                repNameDiv.appendChild(repNameFlexDiv);
-
-                repNameRoleSubgroup.appendChild(repNameDiv);
-
-                createFormItem(repNameRoleSubgroup, actorId, "rep_role", "{{ 'Role' | trans }}", actor);
-
-                actorDiv.appendChild(repNameRoleSubgroup);
-
-                const repMailPhoneSubgroup = document.createElement("div");
-                repMailPhoneSubgroup.className = "form-subgroup";
-                createFormItem(repMailPhoneSubgroup, actorId, "rep_email", "{{ 'E-mail' | trans }}", actor);
-                createFormItem(repMailPhoneSubgroup, actorId, "rep_phone", "{{ 'Telephone' | trans }}", actor);
-                actorDiv.appendChild(repMailPhoneSubgroup);
-
-                const repNotesSubgroup = document.createElement("div");
-                repNotesSubgroup.className = "form-subgroup";
-
-                const repNotesDiv = document.createElement("div");
-                repNotesDiv.className = "form-item";
-
-                const repNotesLabel = document.createElement("label");
-                repNotesLabel.for = "textarea_actor_" + actorId + "_rep_notes";
-                repNotesLabel.innerHTML = "{{ 'Notes' | trans }}";
-                repNotesDiv.appendChild(repNotesLabel);
-
-                const repNotesTextarea = document.createElement("textarea");
-                repNotesTextarea.name = "actor_" + actorId + "_rep_notes";
-                repNotesTextarea.id = "textarea_actor_" + actorId + "_rep_notes";
-                repNotesTextarea.cols = 100;
-                repNotesTextarea.oninput = function() {
-                    fixTextAreaHeight('actor_' + actorId + '_rep_notes');
-                };
-                if(actor !== null && actor.rep_notes !== undefined) {
-                    repNotesTextarea.value = actor.rep_notes;
-                    waitForElm('#textarea_actor_' + actorId + '_rep_notes').then((elm) => {
-                        fixTextAreaHeight('actor_' + actorId + '_rep_notes');
-                    });
-                }
-                repNotesDiv.appendChild(repNotesTextarea);
-
-                repNotesSubgroup.appendChild(repNotesDiv);
-                actorDiv.appendChild(repNotesSubgroup);
-
-                document.getElementById("actors-form").insertBefore(actorDiv, addNewActorDiv);
-                if(id === -1) {
-                    window.currentActorId++;
-                } else if(id >= window.currentActorId) {
-                    window.currentActorId = id + 1;
-                }
+                addNewActorSelect.selectedIndex = 0;
+                role = roleInput;
             }
 
-            document.addEventListener("DOMContentLoaded", function() {
-                for (const [id, actor] of Object.entries(actors)) {
-                    addNewOrganisation(parseInt(id), actor);
-                }
-            });
+            const actorDiv = document.createElement("div");
+            actorDiv.className = "form-group";
+            actorDiv.id = "actor-" + actorId + "-div";
 
-        </script>
+            const actorRoleInput = document.createElement("input");
+            actorRoleInput.name = "actor_" + actorId + "_role";
+            actorRoleInput.type = "hidden";
+            actorRoleInput.value = role;
+            actorDiv.appendChild(actorRoleInput);
+
+            const actorOrgHeaderDiv = document.createElement("div");
+            actorOrgHeaderDiv.className = "flex justify-content-space-between";
+
+            const actorOrgHeader = document.createElement("div");
+            actorOrgHeader.className = "report-header";
+            actorOrgHeader.innerHTML = "{{ 'Information' | trans }} " + role;
+            actorOrgHeaderDiv.appendChild(actorOrgHeader);
+
+            const trashIcon = document.createElement("i");
+            trashIcon.className = "fas fa-trash-alt org-trash-icon";
+            trashIcon.onclick = function() {
+                actorDiv.parentElement.removeChild(actorDiv);
+            };
+            actorOrgHeaderDiv.appendChild(trashIcon);
+
+            actorDiv.appendChild(actorOrgHeaderDiv);
+
+            const actorOrgHeader2 = document.createElement("div");
+            actorOrgHeader2.className = "report-header-2";
+            actorOrgHeader2.innerHTML = "{{ 'Organisation' | trans }}";
+            actorDiv.appendChild(actorOrgHeader2);
+
+            const orgNameVatSubgroup = document.createElement("div");
+            orgNameVatSubgroup.className = "form-subgroup";
+
+            const orgNameDiv = document.createElement("div");
+            orgNameDiv.className = "form-item";
+
+            const orgNameLabel = document.createElement("label");
+            orgNameLabel.innerHTML = "{{ 'Name' | trans }}";
+            orgNameDiv.appendChild(orgNameLabel);
+            const orgNameFlexDiv = document.createElement("div");
+            orgNameFlexDiv.className = "flex";
+
+            const orgNameSelectCustomInput = document.createElement("input");
+            orgNameSelectCustomInput.type = "text";
+            orgNameSelectCustomInput.className = "custom-input";
+            orgNameSelectCustomInput.name = "actor_" + actorId + "_org_name";
+            orgNameSelectCustomInput.id = "actor_" + actorId + "_org_name";
+            orgNameSelectCustomInput.placeholder = "{{ 'Fill in another name ...' | trans }}";
+            if(actor !== null && actor.org_id === 'customOption') {
+                orgNameSelectCustomInput.value = actor.org_name;
+            } else {
+                orgNameSelectCustomInput.style.display = "none";
+                if(actor !== null && actor.org_name !== undefined && actor.org_name !== '') {
+                    orgNameSelectCustomInput.value = actor.org_name;
+                }
+            }
+            orgNameSelectCustomInput.autocomplete = "off";
+
+            const orgNameSelect = document.createElement("select");
+            orgNameSelect.id = "actor_" + actorId + "_org_id";
+            orgNameSelect.name = "actor_" + actorId + "_org_id";
+            orgNameSelect.onchange = function() {
+                toggleCustomInput(orgNameSelectCustomInput.id, orgNameSelect.options[orgNameSelect.selectedIndex].value, orgNameSelect.options[orgNameSelect.selectedIndex].value === 'customOption');
+                fillActorOrganisation(actorId + "_org", orgNameSelect.options[orgNameSelect.selectedIndex].value);
+            };
+            orgNameSelect.autocomplete = "off";
+            var option = document.createElement("option");
+            orgNameSelect.appendChild(option);
+            for(const [id, organisation] of Object.entries(actorOrganisations)) {
+                option = document.createElement("option");
+                option.value = organisation['id'];
+                option.innerHTML = organisation['alias'];
+                if(actor !== null && actor.org_id === option.value) {
+                    option.selected = true;
+                }
+                orgNameSelect.appendChild(option);
+            }
+            option = document.createElement("option");
+            option.value = "customOption";
+            option.innerHTML = "{{ 'Other ...' | trans }}";
+            if(actor !== null && actor.org_id === 'customOption') {
+                option.selected = true;
+            }
+            orgNameSelect.appendChild(option);
+            orgNameFlexDiv.appendChild(orgNameSelect);
+
+            orgNameFlexDiv.appendChild(orgNameSelectCustomInput);
+            orgNameDiv.appendChild(orgNameFlexDiv);
+
+            orgNameVatSubgroup.appendChild(orgNameDiv);
+
+            createFormItem(orgNameVatSubgroup, actorId, "org_vat", "{{ 'VAT number' | trans }}", actor);
+
+            actorDiv.appendChild(orgNameVatSubgroup);
+
+            const orgAddressSubgroup = document.createElement("div");
+            orgAddressSubgroup.className = "form-subgroup";
+            createFormItem(orgAddressSubgroup, actorId, "org_address", "{{ 'Address' | trans }}", actor);
+            createFormItem(orgAddressSubgroup, actorId, "org_postal", "{{ 'Postal code' | trans }}", actor);
+            createFormItem(orgAddressSubgroup, actorId, "org_city", "{{ 'City' | trans }}", actor);
+            createFormItem(orgAddressSubgroup, actorId, "org_stateProvince", "{{ 'Province or state' | trans }}", actor);
+            createFormItem(orgAddressSubgroup, actorId, "org_country", "{{ 'Country' | trans }}", actor);
+
+            actorDiv.appendChild(orgAddressSubgroup);
+
+            const orgMailSitePhoneMobileSubgroup = document.createElement("div");
+            orgMailSitePhoneMobileSubgroup.className = "form-subgroup";
+            createFormItem(orgMailSitePhoneMobileSubgroup, actorId, "org_email", "{{ 'General e-mail address' | trans }}", actor);
+            createFormItem(orgMailSitePhoneMobileSubgroup, actorId, "org_website", "{{ 'Website' | trans }}", actor);
+            createFormItem(orgMailSitePhoneMobileSubgroup, actorId, "org_phone", "{{ 'Telephone' | trans }}", actor);
+            createFormItem(orgMailSitePhoneMobileSubgroup, actorId, "org_mobile", "{{ 'Cell phone' | trans }}", actor);
+
+            actorDiv.appendChild(orgMailSitePhoneMobileSubgroup);
+
+            const orgNotesSubgroup = document.createElement("div");
+            orgNotesSubgroup.className = "form-subgroup";
+
+            const orgNotesDiv = document.createElement("div");
+            orgNotesDiv.className = "form-item";
+
+            const orgNotesLabel = document.createElement("label");
+            orgNotesLabel.for = "textarea_actor_" + actorId + "_org_notes";
+            orgNotesLabel.innerHTML = "{{ 'Notes' | trans }}";
+            orgNotesDiv.appendChild(orgNotesLabel);
+
+            const orgNotesTextarea = document.createElement("textarea");
+            orgNotesTextarea.name = "actor_" + actorId + "_org_notes";
+            orgNotesTextarea.id = "textarea_actor_" + actorId + "_org_notes";
+            orgNotesTextarea.cols = 100;
+            orgNotesTextarea.oninput = function() {
+                fixTextAreaHeight('actor_' + actorId + '_org_notes');
+            };
+            if(actor !== null && actor.org_notes !== undefined) {
+                orgNotesTextarea.value = actor.org_notes;
+                waitForElm('#textarea_actor_' + actorId + '_org_notes').then((elm) => {
+                    fixTextAreaHeight('actor_' + actorId + '_org_notes');
+                });
+            }
+            orgNotesDiv.appendChild(orgNotesTextarea);
+
+            orgNotesSubgroup.appendChild(orgNotesDiv);
+            actorDiv.appendChild(orgNotesSubgroup);
+
+            const actorRepHeader2 = document.createElement("div");
+            actorRepHeader2.className = "report-header-2";
+            actorRepHeader2.innerHTML = "{{ 'Representative' | trans }}";
+            actorDiv.appendChild(actorRepHeader2);
+
+            const repNameRoleSubgroup = document.createElement("div");
+            repNameRoleSubgroup.className = "form-subgroup";
+
+            const repNameDiv = document.createElement("div");
+            repNameDiv.className = "form-item";
+
+            const repNameLabel = document.createElement("label");
+            repNameLabel.innerHTML = "{{ 'Name' | trans }}";
+            repNameDiv.appendChild(repNameLabel);
+            const repNameFlexDiv = document.createElement("div");
+            repNameFlexDiv.className = "flex";
+
+            const repNameSelectCustomInput = document.createElement("input");
+            repNameSelectCustomInput.type = "text";
+            repNameSelectCustomInput.className = "custom-input";
+            repNameSelectCustomInput.name = "actor_" + actorId + "_rep_name";
+            repNameSelectCustomInput.id = "actor_" + actorId + "_rep_name";
+            repNameSelectCustomInput.placeholder = "{{ 'Fill in another name ...' | trans }}";
+            if(actor !== null && actor.rep_id === 'customOption') {
+                repNameSelectCustomInput.value = actor.rep_name;
+            } else {
+                repNameSelectCustomInput.style.display = "none";
+                if(actor !== null && actor.rep_name !== undefined && actor.rep_name !== '') {
+                    repNameSelectCustomInput.value = actor.rep_name;
+                }
+            }
+            repNameSelectCustomInput.autocomplete = "off";
+
+            const repNameSelect = document.createElement("select");
+            repNameSelect.id = "actor_" + actorId + "_rep_id";
+            repNameSelect.name = "actor_" + actorId + "_rep_id";
+            repNameSelect.onchange = function() {
+                toggleCustomInput(repNameSelectCustomInput.id, repNameSelect.options[repNameSelect.selectedIndex].value, repNameSelect.options[repNameSelect.selectedIndex].value === 'customOption');
+                fillActorRepresentative(actorId + "_rep", repNameSelect.options[repNameSelect.selectedIndex].value);
+            };
+            repNameSelect.autocomplete = "off";
+            option = document.createElement("option");
+            repNameSelect.appendChild(option);
+            for(const [id, representative] of Object.entries(actorRepresentatives)) {
+                option = document.createElement("option");
+                option.value = representative['id'];
+                option.innerHTML = representative['alias'];
+                if(actor !== null && actor.rep_id === option.value) {
+                    option.selected = true;
+                }
+                repNameSelect.appendChild(option);
+            }
+            option = document.createElement("option");
+            option.value = "customOption";
+            option.innerHTML = "{{ 'Other ...' | trans }}";
+            if(actor !== null && actor.rep_id === 'customOption') {
+                option.selected = true;
+            }
+            repNameSelect.appendChild(option);
+            repNameFlexDiv.appendChild(repNameSelect);
+
+            repNameFlexDiv.appendChild(repNameSelectCustomInput);
+            repNameDiv.appendChild(repNameFlexDiv);
+
+            repNameRoleSubgroup.appendChild(repNameDiv);
+
+            createFormItem(repNameRoleSubgroup, actorId, "rep_role", "{{ 'Role' | trans }}", actor);
+
+            actorDiv.appendChild(repNameRoleSubgroup);
+
+            const repMailPhoneSubgroup = document.createElement("div");
+            repMailPhoneSubgroup.className = "form-subgroup";
+            createFormItem(repMailPhoneSubgroup, actorId, "rep_email", "{{ 'E-mail' | trans }}", actor);
+            createFormItem(repMailPhoneSubgroup, actorId, "rep_phone", "{{ 'Telephone' | trans }}", actor);
+            actorDiv.appendChild(repMailPhoneSubgroup);
+
+            const repNotesSubgroup = document.createElement("div");
+            repNotesSubgroup.className = "form-subgroup";
+
+            const repNotesDiv = document.createElement("div");
+            repNotesDiv.className = "form-item";
+
+            const repNotesLabel = document.createElement("label");
+            repNotesLabel.for = "textarea_actor_" + actorId + "_rep_notes";
+            repNotesLabel.innerHTML = "{{ 'Notes' | trans }}";
+            repNotesDiv.appendChild(repNotesLabel);
+
+            const repNotesTextarea = document.createElement("textarea");
+            repNotesTextarea.name = "actor_" + actorId + "_rep_notes";
+            repNotesTextarea.id = "textarea_actor_" + actorId + "_rep_notes";
+            repNotesTextarea.cols = 100;
+            repNotesTextarea.oninput = function() {
+                fixTextAreaHeight('actor_' + actorId + '_rep_notes');
+            };
+            if(actor !== null && actor.rep_notes !== undefined) {
+                repNotesTextarea.value = actor.rep_notes;
+                waitForElm('#textarea_actor_' + actorId + '_rep_notes').then((elm) => {
+                    fixTextAreaHeight('actor_' + actorId + '_rep_notes');
+                });
+            }
+            repNotesDiv.appendChild(repNotesTextarea);
+
+            repNotesSubgroup.appendChild(repNotesDiv);
+            actorDiv.appendChild(repNotesSubgroup);
+
+            document.getElementById("actors-form").insertBefore(actorDiv, addNewActorDiv);
+            if(id === -1) {
+                window.currentActorId++;
+            } else if(id >= window.currentActorId) {
+                window.currentActorId = id + 1;
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            for (const [id, actor] of Object.entries(actors)) {
+                addNewOrganisation(parseInt(id), actor);
+            }
+        });
+
+    </script>
 
     {% else %}
         <div id="actors-form">
+        {% if not readonly or actors|length > 0 %}
             {% for id, actor in actors %}
                 <div class="report-header">{{ 'Information' | trans }} {{ actor['role'] | trans }}</div>
                 <div class="form-group">
@@ -491,6 +491,6 @@
                     {% endfor %}
                 </div>
             {% endfor %}
-        </div>
-    {% endif %}
+        {% endif %}
+    </div>
 {% endif %}
