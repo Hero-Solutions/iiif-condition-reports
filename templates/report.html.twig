@@ -87,7 +87,7 @@
                             <option value="" selected disabled hidden>{{ 'Select the object category' | trans }}</option>
                             {% for object_type in object_types %}
                                 {% if object_type == 'default' %}
-                                    <option value="customOption">{{ 'Other ...' | trans }}</option>
+<!--                                    <option value="customOption">{{ 'Other ...' | trans }}</option> -->
                                 {% else %}
                                     <option value="{{ object_type }}">{{ object_type | trans }}</option>
                                 {% endif %}
@@ -219,6 +219,9 @@
                 var objectTypes = {{ object_types | json_encode | raw }};
                 if(!objectTypes.includes(selectedValue)) {
                     selectedValue = 'default';
+                }
+                if(selectedValue === 'default') {
+                    return;
                 }
                 var divs = [
                     'number-of-parts', 'measurements', 'materials', 'finishing-layer', 'connections',
