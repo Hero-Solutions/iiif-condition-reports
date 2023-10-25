@@ -84,13 +84,8 @@ class CreateExistingReportController extends AbstractController
             );
         }
 
-        $isReferredFromSave = false;
-        if(array_key_exists('COOKIE', $request->server->getHeaders())) {
-            $isReferredFromSave = strpos($request->server->getHeaders()['COOKIE'], 'SaveReportController') !== false;
-        }
-
         return $this->render('report.html.twig',
-            ReportTemplateData::getDataToCreateExisting($em, $this->getUser(), $reportReasons, $objectTypes, $actorTypes, $reportFields, $pictures, $highestId, $translatedRoutes, $isReferredFromSave)
+            ReportTemplateData::getDataToCreateExisting($em, $this->getUser(), $reportReasons, $objectTypes, $actorTypes, $reportFields, $pictures, $highestId, $translatedRoutes)
         );
     }
 }

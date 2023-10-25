@@ -170,6 +170,17 @@ textarea {
     display: flex;
 }
 
+#edit-report-form-div {
+    margin-left: auto;
+}
+
+#edit-report-form-div .fa-pencil-alt {
+    color: white;
+    font-size: 20px;
+    margin-right: 10px;
+    vertical-align: middle;
+}
+
 #wrap > .header {
     margin-top: 30px;
 }
@@ -277,6 +288,10 @@ textarea {
 .users-row-metadata div div,
 .object-row-metadata div div {
     margin-left: 20px;
+}
+
+.reports-row-metadata .reports-row-draft {
+    color: black;
 }
 
 .loans-row-metadata div div:first-child {

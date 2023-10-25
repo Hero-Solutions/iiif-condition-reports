@@ -105,7 +105,7 @@ class MainController extends AbstractController
         }
 
         $queryBuilder = $em->createQueryBuilder()
-            ->select('r.id, r.baseId, r.inventoryId, r.timestamp, r.reason, i.inventoryNumber, d.name, d.value, u.fullName')
+            ->select('r.id, r.baseId, r.inventoryId, r.timestamp, r.reason, r.isDraft, i.inventoryNumber, d.name, d.value, u.fullName')
             ->from(Report::class, 'r')
             ->leftJoin(InventoryNumber::class, 'i', 'WITH', 'i.id = r.inventoryId')
             ->leftJoin(DatahubData::class, 'd', 'WITH', 'd.id = r.inventoryId')
@@ -143,6 +143,7 @@ class MainController extends AbstractController
                 }
             }
             $searchResults[$id]['reason'] = $reason;
+            $searchResults[$id]['is_draft'] = $data['isDraft'];
             $searchResults[$id]['editor'] = $data['fullName'];
             $searchResults[$id][$data['name']] = $data['value'];
         }

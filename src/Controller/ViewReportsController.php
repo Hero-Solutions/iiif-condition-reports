@@ -48,19 +48,21 @@ class ViewReportsController extends AbstractController
 
         $searchResults = array();
         $reportData = $em->createQueryBuilder()
-            ->select('r.id, r.inventoryId, r.timestamp, r.reason, r.signaturesRequired, i.inventoryNumber, d.name, d.value, u.fullName')
+            ->select('r.id, r.inventoryId, r.timestamp, r.reason, r.signaturesRequired, r.isDraft, i.inventoryNumber, d.name, d.value, u.fullName')
             ->from(Report::class, 'r')
             ->leftJoin(InventoryNumber::class, 'i', 'WITH', 'i.id = r.inventoryId')
             ->leftJoin(DatahubData::class, 'd', 'WITH', 'd.id = r.inventoryId')
             ->leftJoin(User::class, 'u', 'WITH', 'u.id = r.editor')
             ->where('r.baseId = :id')
-            ->andWhere('r.isDraft <> 1')
             ->setParameter('id', $baseId)
             ->orderBy('r.timestamp', 'DESC')
             ->orderBy('r.id', 'DESC')
             ->getQuery()
             ->getResult();
         foreach ($reportData as $data) {
+            if($data['isDraft'] && !empty($searchResults) && !array_key_exists($data['id'], $searchResults)) {
+                continue;
+            }
             if(!array_key_exists($data['id'], $searchResults)) {
                 $reason = '';
                 if($data['reason'] !== null) {
@@ -81,6 +83,7 @@ class ViewReportsController extends AbstractController
                     'reason' => $reason,
                     'editor' => $data['fullName'],
                     'signatures_required' => $data['signaturesRequired'],
+                    'is_draft' => $data['isDraft'],
                     'signatures' => array(),
                     'signature_message' => null
                 ];
@@ -92,6 +95,7 @@ class ViewReportsController extends AbstractController
             ->from(Report::class, 'r')
             ->leftJoin(Signature::class, 's', 'WITH', 's.reportId = r.id')
             ->where('r.baseId = :id')
+            ->andWhere('r.isDraft <> 1')
             ->setParameter('id', $baseId)
             ->getQuery()
             ->getResult();

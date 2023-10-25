@@ -44,8 +44,13 @@ class ViewReportController extends AbstractController
             );
         }
 
-        return $this->render('report.html.twig',
-            ReportTemplateData::getViewData($em, $reportReasons, $objectTypes, $actorTypes, $reportFields, $pictures, $id, $translatedRoutes)
-        );
+        $viewData = ReportTemplateData::getViewData($em, $reportReasons, $objectTypes, $actorTypes, $reportFields, $pictures, $id, $translatedRoutes);
+        if(array_key_exists('is_draft', $viewData['prefilled_data']) && array_key_exists('base_id', $viewData['prefilled_data'])) {
+            if($viewData['prefilled_data']['is_draft']) {
+                $viewData['edit_url'] = $this->generateUrl('create_existing', array('_locale' => $locale, 'baseId' => $viewData['prefilled_data']['base_id']));
+            }
+        }
+
+        return $this->render('report.html.twig', $viewData);
     }
 }

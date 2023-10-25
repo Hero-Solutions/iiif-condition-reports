@@ -63,7 +63,7 @@ class ReportTemplateData
         return $data;
     }
 
-    public static function getDataToCreateExisting(EntityManager $em, $user, $reportReasons, $objectTypes, $actorTypes, $reportFields, $pictures, $id, $translatedRoutes, $isReferredFromSave)
+    public static function getDataToCreateExisting(EntityManager $em, $user, $reportReasons, $objectTypes, $actorTypes, $reportFields, $pictures, $id, $translatedRoutes)
     {
         $imageRelPath = '../../..';
         $data = self::getExistingReportData($em, $id, $imageRelPath);
@@ -79,7 +79,6 @@ class ReportTemplateData
         $data['pattern_size'] = 20;
         $data['stroke_width'] = 2;
         $data['translated_routes'] = $translatedRoutes;
-        $data['is_referred_from_save'] = $isReferredFromSave;
         return $data;
     }
 

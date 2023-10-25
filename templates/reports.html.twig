@@ -22,6 +22,11 @@
             <div class="reports-row">
                 <div class="reports-row-thumbnail"><img src="{% if result.thumbnail is empty %}{{ asset('images/no_image_available.png') }}{% else %}{{ result.thumbnail }}{% endif %}" alt="" /></div>
                 <div class="reports-row-metadata">
+                    {% if result.is_draft is defined and result.is_draft %}
+                        <div>
+                            <div><p class="reports-row-draft"><b>DRAFT</b></p></div>
+                        </div>
+                    {% endif %}
                     <div class="reports-row-inventory-number">
                         <div>{{ 'Inventory number' | trans }}:</div>
                         <div>{{ result.inventory_number }}</div>

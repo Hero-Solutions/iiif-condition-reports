@@ -8,6 +8,11 @@
                 <div class="reports-row">
                     <div class="reports-row-thumbnail"><img src="{{ result.thumbnail }}" alt="" /></div>
                     <div class="reports-row-metadata">
+                        {% if result.is_draft %}
+                            <div>
+                                <div><p class="reports-row-draft"><b>DRAFT</b></p></div>
+                            </div>
+                        {% endif %}
                         <div class="reports-row-inventory-number">
                             <div>{{ 'Inventory number' | trans }}:</div>
                             <div>{{ result.inventory_number }}</div>

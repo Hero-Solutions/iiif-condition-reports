@@ -310,11 +310,7 @@ class SaveReportController extends AbstractController
                     }
                 }
 
-                if($isDraft) {
-                    return $this->redirectToRoute('create_existing', array('_locale' => $locale, 'baseId' => $baseId));
-                } else {
-                    return $this->redirectToRoute('view', array('_locale' => $locale, 'id' => $report->getId()));
-                }
+                return $this->redirectToRoute('view', array('_locale' => $locale, 'id' => $report->getId()));
             } else {
                 //TODO appropriate error message
                 return $this->redirectToRoute('main', array('_locale' => $locale));

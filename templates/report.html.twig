@@ -33,7 +33,15 @@
         <div id="readonly-container">
             <div id="wrap" class="readonly">
                 <div class="readonly-header">
-                    <div class="header">{{ 'Print report' | trans }}</div>
+                    <div class="header">{% if prefilled_data.is_draft %}[{{ 'Draft' | trans }}] {% endif %}{{ 'Print report' | trans }}</div>
+                    {% if prefilled_data.is_draft and edit_url is defined %}
+                        <div class="save" id="edit-report-form-div">
+                            <button type="button" onclick="location.href='{{ edit_url }}'">
+                                <i class="fas fa-pencil-alt"></i>
+                                {{ 'Continue editing' | trans }}
+                            </button>
+                        </div>
+                    {% endif %}
                 </div>
                 <div id="print-wrap">
                     <div class="print-selection-header">{{ 'Select the items to print' | trans }}</div>
@@ -44,7 +52,7 @@
                     </button>
                 </div>
                 <div class="readonly-header">
-                    <div class="header">{{ 'View report' | trans }}</div>
+                    <div class="header">{% if prefilled_data.is_draft %}[{{ 'Draft' | trans }}] {% endif %}{{ 'View report' | trans }}</div>
                     <div id="header-buttons">
                         <a id="export-button" href="/data/{{ report_id }}.json">
                             <i class="fas fa-file-export"></i>
