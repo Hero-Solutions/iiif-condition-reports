@@ -13,7 +13,7 @@ class IIIFUtil
 
     public static function isPublicImage($imageUrl)
     {
-        return strpos($imageUrl, '/public@') !== false;
+        return strpos($imageUrl, '/public@') !== false || strpos($imageUrl, 'public%2F') !== false;
     }
 
     public static function filterPublicImages($imageUrl)

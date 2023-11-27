@@ -21,6 +21,9 @@
                 const loanProjects = {{ loan_projects | json_encode | raw }};
 
                 function fillLoanProject(id) {
+                    if(id.length === 0) {
+                        return;
+                    }
                     for(var key in loanProjects[id]) {
                         if (loanProjects[id][key] !== null) {
                             var element = null;
@@ -29,11 +32,11 @@
                                 if (element != null) {
                                     if (loanProjects[id][key] in organisations) {
                                         element.value = loanProjects[id][key];
-                                        toggleCustomInput('loan_project_organisationName', element.options[element.selectedIndex].value, false, false);
+                                        toggleCustomInput('loan_project_organisationName', organisations[loanProjects[id][key]]['name'], false, false);
                                     } else {
                                         element.value = 'customOption';
-                                        toggleCustomInput('loan_project_organisationName', element.options[element.selectedIndex].value, true, false);
-                                        if ('organisationName' in loanProjects[id]) {
+                                        toggleCustomInput('loan_project_organisationName', null, true, false);
+                                        if ('organisationName' in loanProjects[id] && loanProjects[id]['organisationName'] !== null && loanProjects[id]['organisationName'].length > 0) {
                                             element = document.querySelector("input[id='loan_project_organisationName']");
                                             element.value = loanProjects[id]['organisationName'];
                                         }
@@ -44,11 +47,11 @@
                                 if (element != null) {
                                     if (loanProjects[id][key] in representatives) {
                                         element.value = loanProjects[id][key];
-                                        toggleCustomInput('loan_project_representativeName', element.options[element.selectedIndex].value, false, false);
+                                        toggleCustomInput('loan_project_representativeName', representatives[loanProjects[id][key]]['name'], false, false);
                                     } else {
                                         element.value = 'customOption';
-                                        toggleCustomInput('loan_project_representativeName', element.options[element.selectedIndex].value, true, false);
-                                        if ('representativeName' in loanProjects[id]) {
+                                        toggleCustomInput('loan_project_representativeName', null, true, false);
+                                        if ('representativeName' in loanProjects[id] && loanProjects[id]['representativeName'] !== null && loanProjects[id]['representativeName'].length > 0) {
                                             element = document.querySelector("input[id='loan_project_representativeName']");
                                             element.value = loanProjects[id]['representativeName'];
                                         }
@@ -75,6 +78,13 @@
                 }
 
                 function fillLoanProjectOrganisation(id) {
+                    if(id.length === 0) {
+                        return;
+                    }
+                    const nameElement = document.querySelector("input[name='loan_project_organisationName']");
+                    if(nameElement != null) {
+                        nameElement.value = organisations[id]['name'];
+                    }
                     for(var key in organisations[id]) {
                         if(key !== 'id') {
                             var element = document.querySelector("input[name='loan_project_" + key + "']");
@@ -92,6 +102,9 @@
                 }
 
                 function fillLoanProjectRepresentative(id) {
+                    if(id.length === 0) {
+                        return;
+                    }
                     for(var key in representatives[id]) {
                         if(key !== 'id') {
                             const keyUC = key.charAt(0).toUpperCase() + key.slice(1);
@@ -138,7 +151,7 @@
                             {% endfor %}
                             <option
                                 value="customOption"
-                                {% if prefilled_data['loan_projectName'] is defined
+                                {% if prefilled_data['loan_project_title'] is defined
                                    and prefilled_data['loan_project_id'] is defined
                                    and prefilled_data['loan_project_id'] == 'customOption'
                                 %}
@@ -152,12 +165,12 @@
                                    id="loan_project_title"
                                    class="custom-input"
                                    placeholder="{{ 'Fill in another title ...' | trans }}"
-                                   {% if prefilled_data['loan_projectName'] is defined
-                                      and prefilled_data['loan_project_id'] is defined
-                                      and prefilled_data['loan_project_id'] == 'customOption'
-                                   %}
+                                   {% if prefilled_data['loan_project_title'] is defined %}
                                        value="{{ prefilled_data['loan_project_title'] }}"
-                                   {% else %}
+                                   {% endif %}
+                                   {% if prefilled_data['loan_project_id'] is not defined
+                                      or prefilled_data['loan_project_id'] != 'customOption'
+                                   %}
                                        style="display: none;"
                                    {% endif %}
                                    autocomplete="off">
@@ -204,12 +217,12 @@
                            id="loan_project_organisationName"
                            class="custom-input"
                            placeholder="{{ 'Fill in another name ...' | trans }}"
-                           {% if prefilled_data['loan_project_organisationName'] is defined
-                              and prefilled_data['loan_project_organisation_id'] is defined
-                              and prefilled_data['loan_project_organisation_id'] == 'customOption'
-                           %}
+                           {% if prefilled_data['loan_project_organisationName'] is defined %}
                                value="{{ prefilled_data['loan_project_organisationName'] }}"
-                           {% else %}
+                           {% endif %}
+                           {% if  prefilled_data['loan_project_organisation_id'] is not defined
+                              or prefilled_data['loan_project_organisation_id'] != 'customOption'
+                           %}
                                style="display: none;"
                            {% endif %}
                            autocomplete="off"
@@ -287,7 +300,12 @@
                     <div class="flex">
                         <select id="loan_project_representative_id"
                                 name="loan_project_representative_id"
-                                onchange="toggleCustomInput('loan_project_representativeName', this.options[this.selectedIndex].value, this.options[this.selectedIndex].value === 'customOption'); fillLoanProjectRepresentative(this.options[this.selectedIndex].value)"
+                                onchange="toggleCustomInput(
+                                    'loan_project_representativeName',
+                                    this.options[this.selectedIndex].value,
+                                    this.options[this.selectedIndex].value === 'customOption'
+                                );
+                                fillLoanProjectRepresentative(this.options[this.selectedIndex].value)"
                                 autocomplete="off">
                             <option></option>
                             {% for representative in representatives %}
@@ -315,11 +333,12 @@
                                    id="loan_project_representativeName"
                                    class="custom-input"
                                    placeholder="{{ 'Fill in another name ...' | trans }}"
-                                   {% if prefilled_data['loan_project_representativeName'] is defined
-                                      and prefilled_data['loan_project_representative_id'] is defined
-                                      and prefilled_data['loan_project_representative_id'] == 'customOption' %}
+                                   {% if prefilled_data['loan_project_representativeName'] is defined %}
                                        value="{{ prefilled_data['loan_project_representativeName'] }}"
-                                   {% else %}
+                                   {% endif %}
+                                   {% if prefilled_data['loan_project_representative_id'] is not defined
+                                      or prefilled_data['loan_project_representative_id'] != 'customOption'
+                                   %}
                                        style="display: none;"
                                    {% endif %}
                                    autocomplete="off"
@@ -329,7 +348,7 @@
                 </div>
             {% else %}
                 <div class="form-item">
-                    {% include 'textfield.html.twig' with { 'name': 'loan_project_representativeName', 'label': 'Role' | trans } %}
+                    {% include 'textfield.html.twig' with { 'name': 'loan_project_representativeName', 'label': 'Name' | trans } %}
                 </div>
             {% endif %}
             <div class="form-item">
