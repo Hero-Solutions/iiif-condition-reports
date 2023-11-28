@@ -1392,7 +1392,7 @@ function selectedImageToAdd(selectElement) {
         case 'camera': {
             addImageDivInput.classList.remove('load-new-image-button');
             selectElement.classList.add('add-image-select-url');
-            document.getElementById('annotate-camera').style.display = "block";
+            document.getElementById('annotate-camera').style.display = "flex";
             document.getElementById('annotate-file').style.display = "none";
             break;
         }
@@ -1400,7 +1400,7 @@ function selectedImageToAdd(selectElement) {
             addImageDivInput.classList.remove('load-new-image-button');
             selectElement.classList.add('add-image-select-url');
             document.getElementById('annotate-camera').style.display = "none";
-            document.getElementById('annotate-file').style.display = "block";
+            document.getElementById('annotate-file').style.display = "flex";
             break;
         }
         case 'url': {
