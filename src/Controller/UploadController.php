@@ -99,6 +99,7 @@ class UploadController extends AbstractController
             case 'PNG':
             case 'tif':
             case 'TIF':
+            case 'heic':
             case 'HEIC':
                 $type = 'image';
                 break;
@@ -108,14 +109,18 @@ class UploadController extends AbstractController
                 break;
         }
         if ($type == null) {
-            $response = new Response(json_encode(array('image' => null, 'error' => 'File type not supported. Allowed types: JPG, PNG, TIF, PDF')));
+            $response = new Response(json_encode(array('image' => null, 'error' => 'File type not supported. Allowed types: JPG, PNG, TIF, HEIC, PDF')));
             $response->headers->set('Content-Type', 'application/json');
             return $response;
         } else {
             $filenameNoExt = round(microtime(true) * 1000);
             $file->move($folder, $filenameNoExt . '.' . $extension);
+            $filename = $folder . '/' . $filenameNoExt . '.' . $extension;
+            if($extension !== 'jpg') {
+                $filename = IIIFUtil::convertToJpeg($filename, $folder, $filenameNoExt);
+            }
 
-            $response = new Response(json_encode(array('image' => '/' . $folder . '/' . $filenameNoExt . '.' . $extension)));
+            $response = new Response(json_encode(array('image' => '/' . $filename)));
             $response->headers->set('Content-Type', 'application/json');
             return $response;
         }
