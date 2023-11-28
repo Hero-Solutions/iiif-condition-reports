@@ -36,6 +36,30 @@ class IIIFUtil
         return $imageUrl . '/full/' . self::$thumbnailWidth . ',/0/default.jpg';
     }
 
+    public static function convertToJpeg($file, $folder, $filenameNoExt)
+    {
+        if (is_file($file)) {
+            $imagick = new Imagick(realpath($file));
+            $imagick->setImageFormat('jpeg');
+            $imagick->setBackgroundColor('#ffffff');
+            $imagick->setImageAlphaChannel(Imagick::ALPHACHANNEL_REMOVE);
+            $imagick = $imagick->mergeImageLayers(Imagick::LAYERMETHOD_FLATTEN);
+            $imagick->setImageCompression(Imagick::COMPRESSION_JPEG);
+            $imagick->setImageCompressionQuality(100);
+            $filename = $folder . '/' . $filenameNoExt . '.jpg';
+            if (file_put_contents($filename, $imagick) === false) {
+                throw new Exception("Could not store image.");
+            }
+            if($file !== $filename) {
+                unlink($file);
+            }
+            return $filename;
+        }
+        else {
+            throw new Exception("No valid image provided with {$file}.");
+        }
+    }
+
     public static function generateThumbnail($file, $thumbnail)
     {
         if (is_file($file)) {

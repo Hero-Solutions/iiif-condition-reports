@@ -3763,7 +3763,7 @@ parameters:
                       content: 'Not necessary'
                 - type: html
                   always_visible: true
-                  content: '<div id="setup_plan_painting_images_div"></div><div id="setup_plan_painting_div" class="hidden top-margin-subgroup"><input type="file" id="setup_plan_painting_input" name="setup-plan-painting-input" class="hidden" accept=".jpg,.png,.tif,.pdf" /><label for="setup_plan_painting_input" class="setup-plan-input-label">Upload file</label><p id="setup_plan_painting_input_error" class="hidden message-red"></p></div>'
+                  content: '<div id="setup_plan_painting_images_div"></div><div id="setup_plan_painting_div" class="hidden top-margin-subgroup"><input type="file" id="setup_plan_painting_input" name="setup-plan-painting-input" class="hidden" accept=".jpg,.png,.tif,.HEIC,.pdf" /><label for="setup_plan_painting_input" class="setup-plan-input-label">Upload file</label><p id="setup_plan_painting_input_error" class="hidden message-red"></p></div>'
                 - type: div
                   class: 'form-subgroup top-margin-subgroup'
                   content:
@@ -3806,7 +3806,7 @@ parameters:
                       content: ''
                 - type: html
                   always_visible: true
-                  content: '<div id="recommendation_image_painting_images_div"></div><div id="recommendation_image_painting_div" class="top-margin-subgroup"><input type="file" id="recommendation_image_painting_input" name="recommendation-image-painting-input" class="hidden" accept=".jpg,.png,.tif,.pdf" /><label for="recommendation_image_painting_input" class="recommendation-image-input-label">Upload file</label><p id="recommendation_image_painting_input_error" class="hidden message-red"></p></div>'
+                  content: '<div id="recommendation_image_painting_images_div"></div><div id="recommendation_image_painting_div" class="top-margin-subgroup"><input type="file" id="recommendation_image_painting_input" name="recommendation-image-painting-input" class="hidden" accept=".jpg,.png,.tif,.HEIC,.pdf" /><label for="recommendation_image_painting_input" class="recommendation-image-input-label">Upload file</label><p id="recommendation_image_painting_input_error" class="hidden message-red"></p></div>'
         - type: div
           class: 'report-block'
           content:
@@ -4152,7 +4152,7 @@ parameters:
                       content: 'Not necessary'
                 - type: html
                   always_visible: true
-                  content: '<div id="setup_plan_work_on_paper_images_div"></div><div id="setup_plan_work_on_paper_div" class="hidden top-margin-subgroup"><input type="file" id="setup_plan_work_on_paper_input" name="setup-plan-work-on-paper-input" class="hidden" accept=".jpg,.png,.tif,.pdf" /><label for="setup_plan_work_on_paper_input" class="setup-plan-input-label">Upload file</label><p id="setup_plan_work_on_paper_input_error" class="hidden message-red"></p></div>'
+                  content: '<div id="setup_plan_work_on_paper_images_div"></div><div id="setup_plan_work_on_paper_div" class="hidden top-margin-subgroup"><input type="file" id="setup_plan_work_on_paper_input" name="setup-plan-work-on-paper-input" class="hidden" accept=".jpg,.png,.tif,.HEIC,.pdf" /><label for="setup_plan_work_on_paper_input" class="setup-plan-input-label">Upload file</label><p id="setup_plan_work_on_paper_input_error" class="hidden message-red"></p></div>'
                 - type: div
                   class: 'form-subgroup top-margin-subgroup'
                   content:
@@ -4198,7 +4198,7 @@ parameters:
                       content: ''
                 - type: html
                   always_visible: true
-                  content: '<div id="recommendation_image_work_on_paper_images_div"></div><div id="recommendation_image_work_on_paper_div" class="top-margin-subgroup"><input type="file" id="recommendation_image_work_on_paper_input" name="recommendation-image-work-on-paper-input" class="hidden" accept=".jpg,.png,.tif,.pdf" /><label for="recommendation_image_work_on_paper_input" class="recommendation-image-input-label">Upload file</label><p id="recommendation_image_work_on_paper_input_error" class="hidden message-red"></p></div>'
+                  content: '<div id="recommendation_image_work_on_paper_images_div"></div><div id="recommendation_image_work_on_paper_div" class="top-margin-subgroup"><input type="file" id="recommendation_image_work_on_paper_input" name="recommendation-image-work-on-paper-input" class="hidden" accept=".jpg,.png,.tif,.HEIC,.pdf" /><label for="recommendation_image_work_on_paper_input" class="recommendation-image-input-label">Upload file</label><p id="recommendation_image_work_on_paper_input_error" class="hidden message-red"></p></div>'
         - type: div
           class: 'report-block'
           content:

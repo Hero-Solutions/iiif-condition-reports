@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Image;
 use App\Utils\IIIFUtil;
+use Imagick;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
@@ -35,9 +36,12 @@ class UploadController extends AbstractController
             $filename = $folder . '/' . $filenameNoExt . '.' . $extension;
 
             $image = new Image();
-            $image->setImage('/' . $filename);
             $thumbnail = $folder . '/' . $filenameNoExt . '_thm.jpg';
             $file->move($folder, $filenameNoExt . '.' . $extension);
+            if($extension !== 'jpg') {
+                $filename = IIIFUtil::convertToJpeg($filename, $folder, $filenameNoExt);
+            }
+            $image->setImage('/' . $filename);
             $thumbnail = IIIFUtil::generateThumbnail($filename, $thumbnail);
             $image->setThumbnail('/' . $thumbnail);
 
@@ -95,6 +99,7 @@ class UploadController extends AbstractController
             case 'PNG':
             case 'tif':
             case 'TIF':
+            case 'HEIC':
                 $type = 'image';
                 break;
             case 'pdf':
