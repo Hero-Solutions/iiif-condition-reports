@@ -209,9 +209,9 @@
                                 <option value="iiif">{{ 'IIIF image through URL' | trans }}</option>
                             </optgroup>
                         </select>
+                        <input type="file" id="annotate-camera" name="annotate-file" accept="image/*" capture="environment" style="display: none">
+                        <input type="file" id="annotate-file" name="annotate-file" accept="image/*" style="display: none">
                         <div id="add-image-div">
-                            <input type="file" id="annotate-camera" name="annotate-file" accept="image/*" capture="environment" style="display: none">
-                            <input type="file" id="annotate-file" name="annotate-file" accept="image/*" style="display: none">
                             <input type="text" id="add-image-url" placeholder="{{ 'Fill in image URL ...' | trans }}">
                             <button type="button" id="add-image-url-button" onclick="triggerImageAdd()">{{ 'Load' | trans }}</button>
                         </div>
@@ -263,6 +263,7 @@ $('input#annotate-file').change(function() {
         start: function(file) {
             document.getElementById('add-image-select').selectedIndex = 0;
             document.getElementById('annotate-file').value = '';
+            document.getElementById('annotate-file').style.display = 'none';
 //            document.getElementById('annotate-file-progress').innerHTML = 'Uploading...';
         },
 
@@ -299,6 +300,7 @@ $('input#annotate-camera').change(function() {
         start: function(file) {
             document.getElementById('add-image-select').selectedIndex = 0;
             document.getElementById('annotate-camera').value = '';
+            document.getElementById('annotate-camera').style.display = 'none';
 //            document.getElementById('annotate-camera-progress').innerHTML = 'Uploading...';
         },
 
@@ -1389,20 +1391,22 @@ function selectedImageToAdd(selectElement) {
     switch(selectElement.options[selectElement.selectedIndex].value) {
         case 'camera': {
             addImageDivInput.classList.remove('load-new-image-button');
-            selectElement.classList.remove('add-image-select-url');
-            document.getElementById('annotate-camera').click();
-            selectElement.selectedIndex = 0;
+            selectElement.classList.add('add-image-select-url');
+            document.getElementById('annotate-camera').style.display = "block";
+            document.getElementById('annotate-file').style.display = "none";
             break;
         }
         case 'device': {
             addImageDivInput.classList.remove('load-new-image-button');
-            selectElement.classList.remove('add-image-select-url');
-            document.getElementById('annotate-file').click();
-            selectElement.selectedIndex = 0;
+            selectElement.classList.add('add-image-select-url');
+            document.getElementById('annotate-camera').style.display = "none";
+            document.getElementById('annotate-file').style.display = "block";
             break;
         }
         case 'url': {
             addImageDivInput.classList.add('load-new-image-button');
+            document.getElementById('annotate-camera').style.display = "none";
+            document.getElementById('annotate-file').style.display = "none";
             selectElement.classList.add('add-image-select-url');
             var addImageUrl = document.getElementById('add-image-url');
             addImageUrl.placeholder = '{{ 'Insert image URL ...' | trans }}';
@@ -1411,6 +1415,8 @@ function selectedImageToAdd(selectElement) {
         }
         case 'iiif': {
             addImageDivInput.classList.add('load-new-image-button');
+            document.getElementById('annotate-camera').style.display = "none";
+            document.getElementById('annotate-file').style.display = "none";
             selectElement.classList.add('add-image-select-url');
             var addImageUrl = document.getElementById('add-image-url');
             addImageUrl.placeholder = '{{ 'Insert IIIF image URL ...' | trans }}';
@@ -1419,6 +1425,8 @@ function selectedImageToAdd(selectElement) {
         }
         default: {
             addImageDivInput.classList.remove('load-new-image-button');
+            document.getElementById('annotate-camera').style.display = "none";
+            document.getElementById('annotate-file').style.display = "none";
             selectElement.classList.remove('add-image-select-url');
             const images = {{ annotation_schema_images | json_encode | raw }};
             if(images.hasOwnProperty(selectElement.options[selectElement.selectedIndex].value)) {

@@ -1578,6 +1578,12 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
     width: 2500px;
 }
 
+#report-form #annotation-images #annotate-camera,
+#report-form #annotation-images #annotate-file {
+    margin: auto 0;
+    padding: 3px;
+}
+
 #report-form #annotation-images #add-image-url-button {
     margin: auto 15px auto 10px;
     height: 35px;
