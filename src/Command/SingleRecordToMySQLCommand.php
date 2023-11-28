@@ -42,6 +42,8 @@ class SingleRecordToMySQLCommand extends Command implements ContainerAwareInterf
             ->setName('app:record-to-mysql')
             ->addArgument('recordid', InputArgument::REQUIRED, 'The Datahub record OAI ID')
             ->addArgument('url', InputArgument::OPTIONAL, 'The URL of the Datahub')
+            ->addArgument('username', InputArgument::OPTIONAL, 'The username to authenticate with (basic HTTP auth')
+            ->addArgument('password', InputArgument::OPTIONAL, 'The password to authenticate with (basic HTTP auth)')
             ->setDescription('')
             ->setHelp('');
     }
@@ -66,6 +68,8 @@ class SingleRecordToMySQLCommand extends Command implements ContainerAwareInterf
         if (!$this->datahubUrl) {
             $this->datahubUrl = $this->container->getParameter('datahub_url');
         }
+        $username = $input->getArgument('username');
+        $password = $input->getArgument('password');
 
         $overrideCA = $this->container->getParameter('override_certificate_authority');
         $sslCAFile = $this->container->getParameter('ssl_certificate_authority_file');
@@ -80,12 +84,12 @@ class SingleRecordToMySQLCommand extends Command implements ContainerAwareInterf
         //Disable SQL logging to improve performance
         $em->getConnection()->getConfiguration()->setSQLLogger(null);
 
-        $this->storeDatahubData($em, $recordId, $overrideCA, $sslCAFile);
+        $this->storeDatahubData($em, $recordId, $username, $password, $overrideCA, $sslCAFile);
 
         return 0;
     }
 
-    function storeDatahubData($em, $recordId, $overrideCA, $sslCAFile)
+    function storeDatahubData($em, $recordId, $username, $password, $overrideCA, $sslCAFile)
     {
         $qb = $em->createQueryBuilder();
 
@@ -100,6 +104,14 @@ class SingleRecordToMySQLCommand extends Command implements ContainerAwareInterf
 
         try {
             $curlAdapter = new CurlAdapter();
+            if($username !== null && $password !== null) {
+                $curlOpts = array(
+                    CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
+                    CURLOPT_USERPWD => $username . ':' . $password
+                );
+            } else {
+                $curlOpts = [];
+            }
             if ($overrideCA) {
                 $curlOpts[CURLOPT_CAINFO] = $sslCAFile;
                 $curlOpts[CURLOPT_CAPATH] = $sslCAFile;
