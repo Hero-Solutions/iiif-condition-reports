@@ -50,7 +50,7 @@
 							<div class="flex-1">
 								{{ form_row(form.representative) }}
 							</div>
-							<div id="custom-rep-name-div" class="flex-1 left-margin-item{% if rep_name is null or representatives[rep_name] is defined%} hidden{% endif %}">
+							<div id="custom-rep-name-div" class="flex-1 left-margin-item{% if rep_name is null or representative_names[rep_name] is defined%} hidden{% endif %}">
 								{{ form_row(form.representative_name) }}
 							</div>
 						</div>
@@ -76,6 +76,7 @@
 {{ form_end(form) }}
 {% include 'footer.html.twig' %}
 <script>
+	const representatives = {{ representatives | json_encode | raw }};
 	window.onload = function() {
 		fixTextAreaHeight();
 		const orgDropdownEle = document.getElementById("form_organisation");
@@ -99,19 +100,31 @@
 		}
 		const repDropdownEle = document.getElementById("form_representative");
 		if(repDropdownEle !== null) {
-			{% if rep_name is not null and representatives[rep_name] is not defined%}
+			{% if rep_name is not null and representative_names[rep_name] is not defined%}
 			repDropdownEle.value = "customOption";
 			{% endif %}
 			repDropdownEle.onchange = function () {
-				var customEleRep = document.getElementById("custom-rep-name-div");
-				var customEleRepInput = document.getElementById("form_representative_name");
+				const customEleRep = document.getElementById("custom-rep-name-div");
+				const customEleRepInput = document.getElementById("form_representative_name");
 				if (customEleRep !== null && customEleRepInput !== null) {
 					customEleRepInput.value = '';
-					if (repDropdownEle.options[repDropdownEle.selectedIndex].value === 'customOption') {
+					const id = repDropdownEle.options[repDropdownEle.selectedIndex].value;
+					if (id === 'customOption') {
 						customEleRep.classList.remove("hidden");
 						customEleRep.focus();
 					} else {
 						customEleRep.classList.add("hidden");
+						if(id in representatives) {
+							console.log(representatives);
+							for(const key in representatives[id]) {
+								if (key !== 'id') {
+									var element = document.getElementById("form_representative_" + key);
+									if (element != null) {
+										element.value = representatives[id][key];
+									}
+								}
+							}
+						}
 					}
 				}
 			};

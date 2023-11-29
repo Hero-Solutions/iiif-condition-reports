@@ -93,7 +93,7 @@ class LoanProjectController extends AbstractController
                 ->getResult();
             foreach ($reps as $rep) {
                 $representativeNames[$rep->alias] = $rep->id;
-                $representatives[$rep->id] = $rep->alias;
+                $representatives[$rep->getId()] = $rep;
             }
 
             $t = $this->translator;
@@ -147,7 +147,8 @@ class LoanProjectController extends AbstractController
                 return $this->render('loan_project.html.twig', [
                     'current_page' => 'loan_projects',
                     'organisations' => $organisationNames,
-                    'representatives' => $representativeNames,
+                    'representative_names' => $representativeNames,
+                    'representatives' => $representatives,
                     'org_name' => $organisationName,
                     'rep_name' => $representativeName,
                     'new' => empty($id),
