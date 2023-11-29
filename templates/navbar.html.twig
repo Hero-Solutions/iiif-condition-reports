@@ -26,7 +26,7 @@
         <ul class="nav-right">
             {% if is_granted('ROLE_USER') %}
                 <li{% if current_page is defined and current_page == 'remarks' %} class="active"{% endif %}>
-                    <a class="nav-li-a" href="{{ path('remarks') }}">{{ 'Remarks' | trans }}</a>
+                    <a class="nav-li-a" href="{{ path('remarks') }}" target="_blank">{{ 'Remarks' | trans }}</a>
                 </li>
                 <li class="nav-user{% if current_page is defined and current_page == 'profile' %} active{% endif %}">
                     <div id="user-select">
