@@ -116,7 +116,7 @@ class UploadController extends AbstractController
             $filenameNoExt = round(microtime(true) * 1000);
             $file->move($folder, $filenameNoExt . '.' . $extension);
             $filename = $folder . '/' . $filenameNoExt . '.' . $extension;
-            if($extension !== 'jpg') {
+            if($type === 'image' && $extension !== 'jpg') {
                 $filename = IIIFUtil::convertToJpeg($filename, $folder, $filenameNoExt);
             }
 
