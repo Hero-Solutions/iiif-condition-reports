@@ -1594,6 +1594,10 @@ parameters:
                             - type: checkbox
                               name: 'condition_painting_specific_condition_panel_damaged_edges'
                               content: 'Damaged edges'
+                            - type: checkbox_custom
+                              name: 'condition_painting_specific_condition_panel_missing_parts'
+                              content: 'Missing parts'
+                              class: 'checkbox-custom-with-label'
                         - type: div
                           content:
                             - type: div_text
@@ -1697,7 +1701,10 @@ parameters:
                               content: 'Further specifications'
                             - type: checkbox
                               name: 'condition_painting_specific_condition_paint_layer_scratches'
-                              content: 'Scratches/dents'
+                              content: 'Scratches'
+                            - type: checkbox
+                              name: 'condition_painting_specific_condition_paint_layer_dents'
+                              content: 'Dents'
                             - type: checkbox_custom
                               name: 'condition_painting_specific_condition_paint_layer_crackle'
                               class: 'checkbox-custom-with-label'
@@ -1847,7 +1854,10 @@ parameters:
                               content: 'Degraded'
                             - type: checkbox
                               name: 'condition_painting_specific_condition_varnish_layer_scratches'
-                              content: 'Scratches/wipes'
+                              content: 'Scratches'
+                            - type: checkbox
+                              name: 'condition_painting_specific_condition_varnish_layer_wipes'
+                              content: 'Wipes'
                             - type: checkbox_custom
                               name: 'condition_painting_specific_condition_varnish_layer_crackle'
                               class: 'checkbox-custom-with-label'
