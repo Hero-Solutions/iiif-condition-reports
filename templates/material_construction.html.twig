@@ -1,7 +1,7 @@
 {% set measurements = { 'default': [] } %}
 
 {% set these_measurements = measurements.default %}
-{% set number_of_parts = 0 %}
+{% set number_of_parts = 1 %}
 
 {% for object_type in object_types %}
     {% if report_fields.measurements[object_type] is defined %}
@@ -11,7 +11,7 @@
     {% endif %}
     {% if this_object_type is defined and this_object_type == object_type %}
         {% set these_measurements = measurements[object_type] %}
-        {% if prefilled_data['number_of_parts_' ~ object_type] is defined %}
+        {% if prefilled_data['number_of_parts_' ~ object_type] is defined and prefilled_data['number_of_parts_' ~ object_type] > 0 and prefilled_data['number_of_parts_' ~ object_type] < 1000 %}
             {% set number_of_parts = prefilled_data['number_of_parts_' ~ object_type] %}
         {% endif %}
     {% endif %}
@@ -27,11 +27,6 @@
 {% if not readonly %}
     <script>
         window.numberOfParts = parseInt({{ number_of_parts }});
-        if(window.numberOfParts < 1) {
-            window.numberOfParts = 1;
-        } else if(window.numberOfParts > 1000) {
-            window.numberOfParts = 1000;
-        }
     </script>
 {% endif %}
 
