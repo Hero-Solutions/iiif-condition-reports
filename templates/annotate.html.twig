@@ -788,6 +788,14 @@ window.onload = function() {
         {% endif %}
     {% endfor %}
 
+    {% if readonly %}
+        {% for object_type in object_types %}
+            var printDiv = document.getElementById('recommendation_image_{{ object_type }}_div');
+            if(printDiv !== null) {
+                printDiv.style.display = "none";
+            }
+        {% endfor %}
+    {% endif %}
 
     refreshAnnotations(window.anno, window.osd_anno, window.currentImageHash, 'viewer', true);
 
@@ -1239,7 +1247,7 @@ for(const imageHash in annotations) {
                     'layers': styleClass
                 };
                 if(!window.groupSameDamages || !damageAlreadyExists || deleted) {
-                    if(histEleDiv != null) {
+                    if(histEleDiv !== null || printHistEleDiv !== null) {
                         addAnnoHistSpan(histEleDiv, printHistEleDiv, id, reportAnnos[id].body, styleClass, true);
                     }
                 }
@@ -1258,7 +1266,7 @@ for(const image in deletedAnnos) {
         }
         var printHistEleDiv_ = document.getElementById('annos-print-' + image + '-' + reportId);
         for(const id in deletedAnnos[image][reportId]) {
-            if(histEleDiv_ != null) {
+            if(histEleDiv_ !== null || printHistEleDiv_ !== null) {
                 addAnnoHistSpan(histEleDiv_, printHistEleDiv_, id, null, null, false);
             }
         }
@@ -1891,12 +1899,16 @@ function addAnnoHistSpan(div, printDiv, id, body, styleClass, added) {
                 layers.push('condition-yellow');
                 break;
         }
-        divsToAdd = addLayersToDiv(layers, div);
+        if(div !== null) {
+            divsToAdd = addLayersToDiv(layers, div);
+        }
         if (printDiv !== null) {
             printDivsToAdd = addLayersToDiv(layers, printDiv);
         }
     } else {
-        divsToAdd.push(div);
+        if(div !== null) {
+            divsToAdd.push(div);
+        }
         if (printDiv !== null) {
             printDivsToAdd.push(printDiv);
         }
