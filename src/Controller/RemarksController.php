@@ -89,7 +89,7 @@ class RemarksController extends AbstractController
         }
 
         if ($form->isSubmitted() && $form->isValid()) {
-             $this->processSendingPasswordResetEmail(
+             $this->sendRemarksEmail(
                 $form->get('subject')->getData(),
                 $form->get('body')->getData(),
                 $form->get('name')->getData(),
@@ -109,10 +109,11 @@ class RemarksController extends AbstractController
         }
     }
 
-    private function processSendingPasswordResetEmail($subject, $body, $name, $emailAddress, MailerInterface $mailer)
+    private function sendRemarksEmail($subject, $body, $name, $emailAddress, MailerInterface $mailer)
     {
         $email = (new Email())
             ->from(new Address($emailAddress, $name))
+            ->replyTo($emailAddress)
             ->to('michiel@herosolutions.be')
             ->subject($subject)
             ->text($body . PHP_EOL . PHP_EOL . 'Submitted by ' . $emailAddress)
@@ -121,6 +122,7 @@ class RemarksController extends AbstractController
 
         $email = (new Email())
             ->from(new Address($emailAddress, $name))
+            ->replyTo($emailAddress)
             ->to('pascal.ennaert@meemoo.be')
             ->subject($subject)
             ->text($body . PHP_EOL . PHP_EOL . 'Submitted by ' . $emailAddress)
@@ -129,6 +131,7 @@ class RemarksController extends AbstractController
 
         $email = (new Email())
             ->from(new Address($emailAddress, $name))
+            ->replyTo($emailAddress)
             ->to('an.seurinck@meemoo.be')
             ->subject($subject)
             ->text($body . PHP_EOL . PHP_EOL . 'Submitted by ' . $emailAddress)
