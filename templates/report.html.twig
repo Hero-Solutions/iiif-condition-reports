@@ -269,6 +269,7 @@
                 document.getElementById('is_draft').value = '1';
                 document.body.onbeforeunload = null;
                 window.canSubmit = true;
+                saveAnnotationData();
                 document.getElementById('report_form').submit();
             }
 

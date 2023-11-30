@@ -794,24 +794,7 @@ window.onload = function() {
     {% if not readonly %}
         document.forms[0].addEventListener('submit', function() {
             document.body.onbeforeunload = '';
-            var annotations = {};
-            for(var i = 0; i < window.images.length; i++) {
-                var hash = window.images[i].hash;
-                annotations[hash] = {};
-                for (const id in window.annotationHistory[hash]) {
-                    if (id in window.deletedAnnotations[hash]) {
-                        for (const delId of window.deletedAnnotations[hash][id]) {
-                            delete annotations[hash][delId];
-                        }
-                    }
-                    if (id in window.addedAnnotations[hash]) {
-                        for (const [annoId, anno] of Object.entries(window.addedAnnotations[hash][id])) {
-                            annotations[hash][annoId] = anno;
-                        }
-                    }
-                }
-            }
-            document.getElementById('annotation_data').value = JSON.stringify(annotations);
+            saveAnnotationData();
         });
         var objectTypePopupSelect = document.getElementById('object-type-popup-select');
         if (objectTypePopupSelect != null) {
@@ -1295,6 +1278,27 @@ function groupUngroupSameDamages(checked) {
 {% if not readonly %}
 
 document.addEventListener("click", closeLayerCheckboxes);
+
+function saveAnnotationData() {
+    var annotations = {};
+    for(var i = 0; i < window.images.length; i++) {
+        var hash = window.images[i].hash;
+        annotations[hash] = {};
+        for (const id in window.annotationHistory[hash]) {
+            if (id in window.deletedAnnotations[hash]) {
+                for (const delId of window.deletedAnnotations[hash][id]) {
+                    delete annotations[hash][delId];
+                }
+            }
+            if (id in window.addedAnnotations[hash]) {
+                for (const [annoId, anno] of Object.entries(window.addedAnnotations[hash][id])) {
+                    annotations[hash][annoId] = anno;
+                }
+            }
+        }
+    }
+    document.getElementById('annotation_data').value = JSON.stringify(annotations);
+}
 
 function closeLayerCheckboxes(ele) {
     var layerCheckboxes = document.getElementById('layer-over-select');
