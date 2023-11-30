@@ -26,6 +26,7 @@
 
 {% if not readonly %}
     <script>
+        console.log({{ prefilled_data | json_encode | raw }});
         window.numberOfParts = parseInt({{ number_of_parts }});
     </script>
 {% endif %}
