@@ -1042,6 +1042,10 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
     line-height: 1.5;
 }
 
+#report-form .textarea-div + .subgroup-with-border {
+    margin-top: 10px;
+}
+
 #report-form input[type=checkbox],
 #loan-project-form input[type=checkbox],
 #organisation-form input[type=checkbox],
@@ -1145,6 +1149,16 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
     padding-top: 10px;
 }
 
+#report-form .conservation-other {
+    margin-top: 3px;
+    float: left;
+    width: 50%;
+}
+
+#report-form .conservation-other label {
+    padding-top: 0;
+}
+
 #report-form .form-radio-date input:first-of-type {
     margin-top: 13px;
 }
@@ -1219,7 +1233,9 @@ div:not(.readonly) > #report-form .form-tab:not(#reason-form) {
     padding-top: 0;
 }
 
-#report-form #materials-painting .report-block:first-child {
+#report-form #materials-painting .report-block:first-child,
+#report-form #materials-work_on_paper .report-block:first-child,
+#report-form #materials-sculpture .report-block:first-child {
     padding-top: 30px;
 }
 
@@ -2209,7 +2225,9 @@ form {
     padding-top: 0 !important;
 }
 
-.readonly #report-form #materials-painting .report-block:first-child {
+.readonly #report-form #materials-painting .report-block:first-child,
+.readonly #report-form #materials-work_on_paper .report-block:first-child,
+.readonly #report-form #materials-sculpture .report-block:first-child {
     padding-top: 0;
 }
 
@@ -2405,6 +2423,10 @@ form {
 }
 
 .readonly #report-form .textarea-div {
+    margin-top: 0;
+}
+
+.readonly #report-form .textarea-div + .subgroup-with-border {
     margin-top: 0;
 }
 

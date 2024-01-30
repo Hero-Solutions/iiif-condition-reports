@@ -227,7 +227,6 @@ parameters:
             - type: div_text
               class: 'report-header'
               content: 'Material type'
-          # TODO implement
       painting:
         - type: div
           class: 'report-block'
@@ -1140,11 +1139,396 @@ parameters:
                       content: ''
       sculpture:
         - type: div
+          class: 'report-block'
           content:
             - type: div_text
               class: 'report-header'
               content: 'Material type'
-          # TODO implement
+            - type: div
+              class: 'form-group'
+              content:
+                - type: div
+                  class: 'form-subgroup'
+                  content:
+                    - type: div_text
+                      class: 'report-header-2'
+                      content: 'Sculpture'
+                    - type: checkbox_custom
+                      name: 'material_sculpture_metal'
+                      class: 'checkbox-custom-with-label'
+                      content: 'Metal'
+                    - type: checkbox_custom
+                      name: 'material_sculpture_wood'
+                      class: 'checkbox-custom-with-label'
+                      content: 'Wood'
+                    - type: checkbox_custom
+                      name: 'material_sculpture_stone'
+                      class: 'checkbox-custom-with-label'
+                      content: 'Stone'
+                    - type: checkbox_custom
+                      name: 'material_sculpture_plaster'
+                      class: 'checkbox-custom-with-label'
+                      content: 'Plaster'
+                    - type: checkbox_custom
+                      name: 'material_sculpture_ceramic'
+                      class: 'checkbox-custom-with-label'
+                      content: 'Ceramic'
+                    - type: checkbox_custom
+                      name: 'material_sculpturet_plastic'
+                      class: 'checkbox-custom-with-label'
+                      content: 'Plastic'
+                    - type: checkbox_custom
+                      name: 'material_sculpture_textile'
+                      class: 'checkbox-custom-with-label'
+                      content: 'Textile'
+                    - type: checkbox_custom
+                      name: 'material_sculpture_glass'
+                      class: 'checkbox-custom-with-label'
+                      content: 'Glass'
+                    - type: checkbox_custom
+                      name: 'material_sculpture_paper'
+                      class: 'checkbox-custom-with-label'
+                      content: 'Paper'
+                    - type: checkbox_custom
+                      name: 'material_sculpture_custom'
+                      content: ''
+                - type: div
+                  class: 'form-subgroup top-margin-subgroup'
+                  content:
+                    - type: div_text
+                      class: 'report-header-2'
+                      content: finishing_layer_sculpture
+                    - type: checkbox
+                      name: 'material_sculpture_finishing_layer_absent'
+                      content: 'No finishing layer'
+                    - type: checkbox
+                      name: 'material_sculpture_finishing_layer_polishing'
+                      content: 'Polishing'
+                    - type: checkbox
+                      name: 'material_sculpture_finishing_layer_patina'
+                      content: 'Patina'
+                    - type: div
+                      class: 'form-subgroup checkbox-subgroup'
+                      content:
+                        - type: checkbox
+                          name: 'material_sculpture_finishing_layer_patina_artificial'
+                          content: 'Artificial patina'
+                        - type: checkbox
+                          name: 'material_sculpture_finishing_layer_patina_natural'
+                          content: 'Natural patina'
+                    - type: checkbox
+                      name: 'material_sculpture_finishing_layer_wax'
+                      content: 'Wax layer'
+                    - type: checkbox
+                      name: 'material_sculpture_finishing_layer_glaze'
+                      content: 'Glaze'
+                    - type: checkbox
+                      name: 'material_sculpture_finishing_layer_painting'
+                      content: painting_sculpture
+                    - type: checkbox
+                      name: 'material_sculpture_finishing_layer_varnish'
+                      content: 'Varnish'
+                    - type: checkbox_custom
+                      name: 'material_sculpture_finishing_layer_custom'
+                      content: ''
+                    - type: textarea
+                      name: 'material_sculpture_finishing_layer_material_specification'
+                      content: 'Material specification (if possible)'
+                    - type: div
+                      class: 'form-subgroup subgroup-with-border'
+                      content:
+                        - type: div
+                          content:
+                            - type: div_text
+                              class: 'report-header-3'
+                              content: 'Traces of the production process'
+                            - type: checkbox
+                              name: 'material_sculpture_finishing_layer_traces_chop_marks'
+                              content: 'Chop marks'
+                            - type: checkbox
+                              name: 'material_sculpture_finishing_layer_traces_chisel_marks'
+                              content: 'Chisel marks'
+                            - type: checkbox
+                              name: 'material_sculpture_finishing_layer_traces_casting_channels'
+                              content: 'Casting channels'
+                            - type: checkbox
+                              name: 'material_sculpture_finishing_layer_traces_casting_seams'
+                              content: 'Casting seams'
+                            - type: checkbox
+                              name: 'material_sculpture_finishing_layer_traces_welds'
+                              content: 'Welds'
+                            - type: checkbox
+                              name: 'material_sculpture_finishing_layer_traces_baking_failure'
+                              content: 'Baking failure'
+                            - type: checkbox
+                              name: 'material_sculpture_finishing_layer_traces_glaze_stain'
+                              content: 'Glaze stain'
+                            - type: checkbox_custom
+                              name: 'material_sculpture_finishing_layer_traces_custom'
+                              content: ''
+                - type: div
+                  class: 'form-subgroup top-margin-subgroup'
+                  content:
+                    - type: div_text
+                      class: 'report-header-2'
+                      content: 'Pedestal/Socle'
+                    - type: radio
+                      name: 'material_sculpture_pedestal_original'
+                      content: 'Original'
+                    - type: radio
+                      name: 'material_sculpture_pedestal_original'
+                      content: 'Not original'
+                    - type: checkbox_custom
+                      name: 'material_sculpture_pedestal_metal'
+                      class: 'checkbox-custom-with-label'
+                      content: 'Metal'
+                    - type: checkbox_custom
+                      name: 'material_sculpture_pedestal_wood'
+                      class: 'checkbox-custom-with-label'
+                      content: 'Wood'
+                    - type: checkbox_custom
+                      name: 'material_sculpture_pedestal_stone'
+                      class: 'checkbox-custom-with-label'
+                      content: 'Stone'
+                    - type: checkbox_custom
+                      name: 'material_sculpture_pedestal_plaster'
+                      class: 'checkbox-custom-with-label'
+                      content: 'Plaster'
+                    - type: checkbox_custom
+                      name: 'material_sculpture_pedestal_plastic'
+                      class: 'checkbox-custom-with-label'
+                      content: 'Plastic'
+                    - type: checkbox_custom
+                      name: 'material_sculpture_pedestal_custom'
+                      content: ''
+        - type: div
+          class: 'report-block'
+          content:
+            - type: div_text
+              class: 'report-header'
+              content: 'Construction techniques'
+            - type: div
+              class: 'form-group'
+              content:
+                - type: div
+                  class: 'form-subgroup'
+                  content:
+                    - type: div_text
+                      class: 'report-header-2'
+                      content: 'Construction techniques'
+                    - type: checkbox
+                      name: 'material_sculpture_construction_techniques_metal'
+                      content: 'Metal'
+                    - type: div
+                      class: 'form-subgroup checkbox-subgroup'
+                      content:
+                        - type: checkbox
+                          name: 'material_sculpture_construction_techniques_metal_cast'
+                          content: 'Cast'
+                        - type: checkbox
+                          name: 'material_sculpture_construction_techniques_metal_assembled'
+                          content: 'Assembled'
+                        - type: checkbox
+                          name: 'material_sculpture_construction_techniques_metal_welded'
+                          content: 'Welded'
+                        - type: checkbox
+                          name: 'material_sculpture_construction_techniques_metal_brazed'
+                          content: 'Brazed'
+                        - type: checkbox
+                          name: 'material_sculpture_construction_techniques_metal_lost_wax_process'
+                          content: 'Lost-wax process'
+                        - type: checkbox
+                          name: 'material_sculpture_construction_techniques_metal_cast_in_sand'
+                          content: 'Cast in sand'
+                        - type: checkbox_custom
+                          name: 'material_sculpture_construction_techniques_metal_custom'
+                          content: ''
+                    - type: checkbox
+                      name: 'material_sculpture_construction_techniques_wood'
+                      content: 'Wood'
+                    - type: div
+                      class: 'form-subgroup checkbox-subgroup'
+                      content:
+                        - type: checkbox
+                          name: 'material_sculpture_construction_techniques_wood_cast'
+                          content: 'Sculptured'
+                        - type: checkbox
+                          name: 'material_sculpture_construction_techniques_wood_assembled'
+                          content: 'Assembled'
+                        - type: checkbox_custom
+                          name: 'material_sculpture_construction_techniques_wood_custom'
+                          content: ''
+                    - type: checkbox
+                      name: 'material_sculpture_construction_techniques_stone'
+                      content: 'Stone'
+                    - type: div
+                      class: 'form-subgroup checkbox-subgroup'
+                      content:
+                        - type: checkbox
+                          name: 'material_sculpture_construction_techniques_stone_stone_cutted'
+                          content: 'Stone cutted'
+                        - type: checkbox
+                          name: 'material_sculpture_construction_techniques_stone_polished'
+                          content: 'Polished'
+                        - type: checkbox
+                          name: 'material_sculpture_construction_techniques_stone_sweetened'
+                          content: 'Sweetened'
+                        - type: checkbox_custom
+                          name: 'material_sculpture_construction_techniques_stone_custom'
+                          content: ''
+                    - type: checkbox_custom
+                      name: 'material_sculpture_construction_techniques_plaster'
+                      class: 'checkbox-custom-with-label'
+                      content: 'Plaster'
+                    - type: checkbox_custom
+                      name: 'material_sculpture_construction_techniques_ceramic'
+                      class: 'checkbox-custom-with-label'
+                      content: 'Ceramic'
+                    - type: checkbox_custom
+                      name: 'material_sculpture_construction_techniques_plastic'
+                      class: 'checkbox-custom-with-label'
+                      content: 'Plastic'
+                    - type: checkbox_custom
+                      name: 'material_sculpture_construction_techniques_textile'
+                      class: 'checkbox-custom-with-label'
+                      content: 'Textile'
+                    - type: checkbox_custom
+                      name: 'material_sculpture_construction_techniques_glass'
+                      class: 'checkbox-custom-with-label'
+                      content: 'Glass'
+                    - type: checkbox_custom
+                      name: 'material_sculpture_construction_techniques_paper'
+                      class: 'checkbox-custom-with-label'
+                      content: 'Paper'
+                    - type: checkbox_custom
+                      name: 'material_sculpture_construction_techniques_custom'
+                      content: ''
+                - type: div
+                  class: 'form-subgroup top-margin-subgroup'
+                  content:
+                    - type: div_text
+                      class: 'report-header-2'
+                      content: 'Construction/composition'
+                    - type: div
+                      class: 'form-subgroup subgroup-with-border'
+                      content:
+                        - type: div
+                          content:
+                            - type: div_text
+                              class: 'report-header-3'
+                              content: 'Sculpture (without pedestal)'
+                            - type: number
+                              name: 'material_sculpture_construction_composition_sculpture_number'
+                              min: 1
+                              content: 'Number of parts'
+                            - type: radio
+                              name: 'material_sculpture_construction_composition_sculpture_loose'
+                              content: 'Loose'
+                            - type: radio
+                              name: 'material_sculpture_construction_composition_sculpture_loose'
+                              content: 'fixed'
+                            - type: textarea
+                              name: 'material_sculpture_construction_composition_sculpture_to_be_mounted_with'
+                              content: 'To be mounted with'
+                            - type: textarea
+                              name: 'material_sculpture_construction_composition_sculpture_mounted_with'
+                              content: 'Mounted with'
+                            - type: textarea
+                              name: 'material_sculpture_construction_composition_sculpture_specification'
+                              content: 'Specification'
+                        - type: div
+                          content:
+                            - type: div_text
+                              class: 'report-header-3'
+                              content: 'Pedestal/Socle'
+                            - type: radio
+                              name: 'material_sculpture_construction_composition_pedestal_loose'
+                              content: 'Loose'
+                            - type: radio
+                              name: 'material_sculpture_construction_composition_pedestal_loose'
+                              content: 'fixed'
+                            - type: textarea
+                              name: 'material_sculpture_construction_composition_pedestal_to_be_mounted_with'
+                              content: 'To be mounted with'
+                            - type: textarea
+                              name: 'material_sculpture_construction_composition_pedestal_mounted_with'
+                              content: 'Mounted with'
+                            - type: textarea
+                              name: 'material_sculpture_construction_composition_pedestal_specification'
+                              content: 'Specification'
+                - type: div
+                  class: 'form-subgroup top-margin-subgroup'
+                  content:
+                    - type: div_text
+                      class: 'report-header-2'
+                      content: 'Connections'
+                    - type: div
+                      class: 'form-subgroup subgroup-with-border'
+                      content:
+                        - type: div
+                          content:
+                            - type: div_text
+                              class: 'report-header-3'
+                              content: 'Between separate parts of the sculpture'
+                            - type: checkbox
+                              name: 'material_sculpture_construction_connections_between_seperate_parts_not_applicable'
+                              content: 'Not applicable'
+                            - type: checkbox
+                              name: 'material_sculpture_construction_connections_between_seperate_parts_welded'
+                              content: 'Welded'
+                            - type: checkbox
+                              name: 'material_sculpture_construction_connections_between_seperate_parts_brazed'
+                              content: 'Brazed'
+                            - type: checkbox
+                              name: 'material_sculpture_construction_connections_between_seperate_parts_pins'
+                              content: 'Pins and pegs'
+                            - type: checkbox
+                              name: 'material_sculpture_construction_connections_between_seperate_parts_glue'
+                              content: glue
+                            - type: checkbox
+                              name: 'material_sculpture_construction_connections_between_seperate_parts_screws'
+                              content: 'Screws'
+                            - type: checkbox
+                              name: 'material_sculpture_construction_connections_between_seperate_parts_nails'
+                              content: 'Nails'
+                            - type: checkbox
+                              name: 'material_sculpture_construction_connections_between_seperate_parts_bolts'
+                              content: 'Bolts'
+                            - type: checkbox_custom
+                              name: 'material_sculpture_construction_connections_between_seperate_parts_custom'
+                              content: ''
+                        - type: div
+                          content:
+                            - type: div_text
+                              class: 'report-header-3'
+                              content: 'Between sculpture and pedestal'
+                            - type: checkbox
+                              name: 'material_sculpture_construction_connections_between_sculpture_and_pedestal_not_applicable'
+                              content: 'Not applicable'
+                            - type: checkbox
+                              name: 'material_sculpture_construction_connections_between_sculpture_and_pedestal_welded'
+                              content: 'Welded'
+                            - type: checkbox
+                              name: 'material_sculpture_construction_connections_between_sculpture_and_pedestal_brazed'
+                              content: 'Brazed'
+                            - type: checkbox
+                              name: 'material_sculpture_construction_connections_between_sculpture_and_pedestal_pegs'
+                              content: 'Pegs'
+                            - type: checkbox
+                              name: 'material_sculpture_construction_connections_between_sculpture_and_pedestal_glue'
+                              content: glue
+                            - type: checkbox
+                              name: 'material_sculpture_construction_connections_between_sculpture_and_pedestal_screws'
+                              content: 'Screws'
+                            - type: checkbox
+                              name: 'material_sculpture_construction_connections_between_sculpture_and_pedestal_nails'
+                              content: 'Nails'
+                            - type: checkbox
+                              name: 'material_sculpture_construction_connections_between_sculpture_and_pedestal_bolts'
+                              content: 'Bolts'
+                            - type: checkbox_custom
+                              name: 'material_sculpture_construction_connections_between_sculpture_and_pedestal_custom'
+                              content: ''
     condition:
       default:
         - type: div
@@ -1152,7 +1536,6 @@ parameters:
             - type: div_text
               class: 'report-header'
               content: 'Condition of the object'
-          # TODO implement
       painting:
         - type: div
           class: 'report-block'
@@ -3707,6 +4090,589 @@ parameters:
                                     - type: radio
                                       name: 'condition_work_on_paper_specific_condition_report_happened_radio'
                                       content: 'Not happened yet'
+      sculpture:
+        - type: div
+          class: 'report-block'
+          content:
+            - type: div_text
+              class: 'report-header'
+              content: 'Condition of the object'
+            - type: div
+              class: 'form-group'
+              content:
+                - type: div
+                  class: 'form-subgroup'
+                  content:
+                    - type: div_text
+                      class: 'report-header-2'
+                      content: 'General condition'
+                    - type: div
+                      content:
+                        - type: div_text
+                          class: 'report-header-3'
+                          content: 'Material technical condition'
+                        - type: radio
+                          name: 'condition_sculpture_general_condition_technical_radio'
+                          content: 'Good'
+                        - type: radio
+                          name: 'condition_sculpture_general_condition_technical_radio'
+                          content: 'Average'
+                        - type: radio
+                          name: 'condition_sculpture_general_condition_technical_radio'
+                          content: 'Bad'
+                        - type: checkbox
+                          name: 'condition_sculpture_general_condition_technical_not_transportable'
+                          content: 'Not transportable'
+                    - type: div
+                      content:
+                        - type: div_text
+                          class: 'report-header-3'
+                          content: 'Optical visual condition'
+                        - type: radio
+                          name: 'condition_sculpture_general_condition_visual_radio'
+                          content: 'Good'
+                        - type: radio
+                          name: 'condition_sculpture_general_condition_visual_radio'
+                          content: 'Average'
+                        - type: radio
+                          name: 'condition_sculpture_general_condition_visual_radio'
+                          content: 'Bad'
+                        - type: checkbox
+                          name: 'condition_sculpture_general_condition_visual_not_displayable'
+                          content: 'Not displayable'
+        - type: div
+          class: 'report-block'
+          content:
+            - type: div_text
+              class: 'report-header'
+              content: 'Specific condition of the sculpture'
+            - type: div
+              class: 'form-group'
+              content:
+                - type: div
+                  class: 'form-subgroup'
+                  content:
+                    - type: div_text
+                      class: 'report-header-2'
+                      content: 'Sculpture'
+                    - type: div
+                      class: 'form-subgroup subgroup-with-border'
+                      content:
+                        - type: div
+                          content:
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_sculpture_metal'
+                              content: 'Metal'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_sculpture_wood'
+                              content: 'Wood'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_sculpture_stone'
+                              content: 'Stone'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_sculpture_plaster'
+                              content: 'Plaster'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_sculpture_ceramic'
+                              content: 'Ceramic'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_sculpture_plastic'
+                              content: 'Plastic'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_sculpture_textile'
+                              content: 'Textile'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_sculpture_glass'
+                              content: 'Glass'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_sculpture_paper'
+                              content: 'Paper'
+                        - type: div
+                          content:
+                            - type: div_text
+                              class: 'report-header-3'
+                              content: 'Surface pollution'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_sculpture_surface_dirt'
+                              content: 'Surface dirt'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_sculpture_crusted_dirt'
+                              content: 'Crusted dirt'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_sculpture_surface_spots'
+                              content: 'Spots'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_sculpture_surface_fingerprints'
+                              content: 'Fingerprints'
+                        - type: div
+                          content:
+                            - type: div_text
+                              class: 'report-header-3'
+                              content: 'Chemical and/or biological damage'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_sculpture_water_damage'
+                              content: 'Water damage'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_sculpture_corrosion'
+                              content: 'Corrosion'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_sculpture_discoloration'
+                              content: 'Discoloration'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_sculpture_degradation_of_plastics'
+                              content: 'Degradation of plastics'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_sculpture_salts'
+                              content: 'Salts'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_sculpture_insect_damage'
+                              content: insect_damage_sculpture
+                            - type: div
+                              class: 'form-subgroup checkbox-subgroup'
+                              content:
+                                - type: radio
+                                  name: 'condition_sculpture_specific_condition_sculpture_insect_damage_radio'
+                                  content: 'Active'
+                                - type: radio
+                                  name: 'condition_sculpture_specific_condition_sculpture_insect_damage_radio'
+                                  content: 'Old'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_sculpture_mold'
+                              content: 'Mold'
+                        - type: div
+                          content:
+                            - type: div_text
+                              class: 'report-header-3'
+                              content: 'Physical and/or constructive damage'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_sculpture_abrasion'
+                              content: 'Abrasion'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_sculpture_wearage'
+                              content: 'Wearage'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_sculpture_scratches'
+                              content: 'Scratches'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_sculpture_hair_tears_cracks'
+                              content: 'Hair tears / cracks'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_sculpture_flaking'
+                              content: flaking_sculpture
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_sculpture_gaps'
+                              content: 'Gaps'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_sculpture_delamination'
+                              content: delamination_sculpture
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_sculpture_powdering'
+                              content: 'Powdering/sugaring'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_sculpture_brittle'
+                              content: brittle_sculpture
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_sculpture_dents'
+                              content: dents_sculpture
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_sculpture_cracks'
+                              content: cracks_sculpture
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_sculpture_fracture'
+                              content: 'Fracture'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_sculpture_twists'
+                              content: 'Twists'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_sculpture_holes'
+                              content: 'Holes'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_sculpture_unstable'
+                              content: 'Shaky/unstable'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_sculpture_missing_parts'
+                              content: 'Missing parts'
+                        - type: div
+                          content:
+                            - type: div_text
+                              class: 'report-header-3'
+                              content: 'Previous restoration'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_sculpture_old_restoration'
+                              content: 'Old restoration'
+                            - type: checkbox_custom
+                              name: 'condition_sculpture_specific_condition_sculpture_custom'
+                              content: ''
+                        - type: div
+                          content:
+                            - type: textarea
+                              name: 'condition_sculpture_specific_condition_sculpture_specifications'
+                              content: 'Specifications'
+                - type: div
+                  class: 'form-subgroup top-margin-subgroup'
+                  content:
+                    - type: div_text
+                      class: 'report-header-2'
+                      content: 'Finishing layer'
+                    - type: div
+                      class: 'form-subgroup subgroup-with-border'
+                      content:
+                        - type: div
+                          content:
+                            - type: div_text
+                              class: 'report-header-3'
+                              content: 'Surface pollution'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_finishing_layer_surface_dirt'
+                              content: 'Surface dirt'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_finishing_layer_crusted_dirt'
+                              content: 'Crusted dirt'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_finishing_layer_surface_spots'
+                              content: 'Spots'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_finishing_layer_surface_fingerprints'
+                              content: 'Fingerprints'
+                        - type: div
+                          content:
+                            - type: div_text
+                              class: 'report-header-3'
+                              content: 'Chemical and/or biological damage'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_finishing_layer_water_damage'
+                              content: 'Water damage'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_finishing_layer_corrosion'
+                              content: 'Corrosion'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_finishing_layer_discoloration'
+                              content: 'Discoloration'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_finishing_layer_degradation_of_plastics'
+                              content: 'Degradation of plastics'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_finishing_layer_salts'
+                              content: 'Salts'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_finishing_layer_insect_damage'
+                              content: insect_damage_sculpture
+                            - type: div
+                              class: 'form-subgroup checkbox-subgroup'
+                              content:
+                                - type: radio
+                                  name: 'condition_sculpture_specific_condition_finishing_layer_insect_damage_radio'
+                                  content: 'Active'
+                                - type: radio
+                                  name: 'condition_sculpture_specific_condition_finishing_layer_insect_damage_radio'
+                                  content: 'Old'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_finishing_layer_mold'
+                              content: 'Mold'
+                        - type: div
+                          content:
+                            - type: div_text
+                              class: 'report-header-3'
+                              content: 'Physical and/or constructive damage'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_finishing_layer_abrasion'
+                              content: 'Abrasion'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_finishing_layer_wearage'
+                              content: 'Wearage'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_finishing_layer_scratches'
+                              content: 'Scratches'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_finishing_layer_hair_tears_cracks'
+                              content: 'Hair tears / cracks'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_finishing_layer_flaking'
+                              content: flaking_sculpture
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_finishing_layer_gaps'
+                              content: 'Gaps'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_finishing_layer_delamination'
+                              content: delamination_sculpture
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_finishing_layer_powdering'
+                              content: 'Powdering/sugaring'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_finishing_layer_brittle'
+                              content: brittle_sculpture
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_finishing_layer_dents'
+                              content: dents_sculpture
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_finishing_layer_cracks'
+                              content: cracks_sculpture
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_finishing_layer_fracture'
+                              content: 'Fracture'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_finishing_layer_twists'
+                              content: 'Twists'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_finishing_layer_holes'
+                              content: 'Holes'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_finishing_layer_unstable'
+                              content: 'Shaky/unstable'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_finishing_layer_missing_parts'
+                              content: 'Missing parts'
+                        - type: div
+                          content:
+                            - type: div_text
+                              class: 'report-header-3'
+                              content: 'Previous restoration'
+                            - type: checkbox
+                              name: 'condition_sculpture_specific_condition_finishing_layer_old_restoration'
+                              content: 'Old restoration'
+                            - type: checkbox_custom
+                              name: 'condition_sculpture_specific_condition_finishing_layer_custom'
+                              content: ''
+                        - type: div
+                          content:
+                            - type: textarea
+                              name: 'condition_sculpture_specific_condition_finishing_layer_specifications'
+                              content: 'Specifications'
+                - type: div
+                  class: 'form-subgroup top-margin-subgroup'
+                  content:
+                    - type: div_text
+                      class: 'report-header-2'
+                      content: 'Conservation/restauration'
+                    - type: div
+                      class: 'form-subgroup subgroup-with-border'
+                      content:
+                        - type: div
+                          content:
+                            - type: div_text
+                              class: 'report-header-3'
+                              content: 'Conservation for transport needed'
+                            - type: radio
+                              name: 'condition_sculpture_conservation_transport_radio'
+                              content: 'Yes'
+                            - type: radio
+                              name: 'condition_sculpture_conservation_transport_radio'
+                              content: 'No'
+                            - type: radio
+                              name: 'condition_sculpture_conservation_transport_radio'
+                              content: 'Preferable'
+                        - type: div
+                          content:
+                            - type: div_text
+                              class: 'report-header-3'
+                              content: 'Further explanation'
+                            - type: textarea
+                              name: 'condition_sculpture_conservation_transport_further_specifications'
+                              content: ''
+                        - type: div
+                          content:
+                            - type: div_text
+                              class: 'report-header-3'
+                              content: 'Further specifications'
+                            - type: div
+                              content:
+                                - type: div_text
+                                  class: 'report-header-standard-layout condition-hours-container readonly-padding-top'
+                                  content: 'Conservation treatment'
+                                - type: div
+                                  class: 'form-subgroup checkbox-subgroup'
+                                  content:
+                                    - type: radio
+                                      name: 'condition_sculpture_specific_condition_conservation_treatment_necessary_radio'
+                                      content: 'Necessary'
+                                    - type: radio
+                                      name: 'condition_sculpture_specific_condition_conservation_treatment_necessary_radio'
+                                      content: 'Not necessary'
+                                    - type: radio_date
+                                      name: 'condition_sculpture_specific_condition_conservation_treatment_happened_radio'
+                                      content: 'Happened'
+                                    - type: radio
+                                      name: 'condition_sculpture_specific_condition_conservation_treatment_happened_radio'
+                                      content: 'Not happened yet'
+                            - type: div
+                              content:
+                                - type: div_text
+                                  class: 'padding-top-label float-left'
+                                  content: 'Cleaning'
+                                - type: number
+                                  always_visible: true
+                                  name: 'condition_sculpture_specific_condition_cleaning'
+                                  min: 0
+                                  class: 'condition-hours-container condition-hours readonly-padding-top-label'
+                                  content: ''
+                                  placeholder: 'Number of hours'
+                                  label_after: 'hour(s)'
+                                  label_after_class: 'padding-left-3 readonly-input padding-top-label readonly-no-padding-top'
+                                - type: div
+                                  class: 'form-subgroup checkbox-subgroup'
+                                  content:
+                                    - type: radio
+                                      name: 'condition_sculpture_specific_condition_cleaning_necessary_radio'
+                                      content: 'Necessary'
+                                    - type: radio
+                                      name: 'condition_sculpture_specific_condition_cleaning_necessary_radio'
+                                      content: 'Not necessary'
+                                    - type: radio_date
+                                      name: 'condition_sculpture_specific_condition_cleaning_happened_radio'
+                                      content: 'Happened'
+                                    - type: radio
+                                      name: 'condition_sculpture_specific_condition_cleaning_happened_radio'
+                                      content: 'Not happened yet'
+                            - type: div
+                              content:
+                                - type: div_text
+                                  class: 'padding-top-label float-left'
+                                  content: 'Intervention at the level of the top layer'
+                                - type: number
+                                  always_visible: true
+                                  name: 'condition_sculpture_specific_condition_intervention'
+                                  min: 0
+                                  class: 'condition-hours-container condition-hours readonly-padding-top-label'
+                                  content: ''
+                                  placeholder: 'Number of hours'
+                                  label_after: 'hour(s)'
+                                  label_after_class: 'padding-left-3 readonly-input padding-top-label readonly-no-padding-top'
+                                - type: div
+                                  class: 'form-subgroup checkbox-subgroup'
+                                  content:
+                                    - type: radio
+                                      name: 'condition_sculpture_specific_condition_intervention_necessary_radio'
+                                      content: 'Necessary'
+                                    - type: radio
+                                      name: 'condition_sculpture_specific_condition_intervention_necessary_radio'
+                                      content: 'Not necessary'
+                                    - type: radio_date
+                                      name: 'condition_sculpture_specific_condition_intervention_happened_radio'
+                                      content: 'Happened'
+                                    - type: radio
+                                      name: 'condition_sculpture_specific_condition_intervention_happened_radio'
+                                      content: 'Not happened yet'
+                            - type: div
+                              content:
+                                - type: div_text
+                                  float: true
+                                  class: 'padding-top-label float-left'
+                                  content: 'Control and treatment microbiological infestation'
+                                - type: number
+                                  always_visible: true
+                                  name: 'condition_sculpture_specific_condition_control'
+                                  min: 0
+                                  class: 'condition-hours-container condition-hours readonly-padding-top-label'
+                                  content: ''
+                                  placeholder: 'Number of hours'
+                                  label_after: 'hour(s)'
+                                  label_after_class: 'padding-left-3 readonly-input padding-top-label readonly-no-padding-top'
+                                - type: div
+                                  class: 'form-subgroup checkbox-subgroup'
+                                  content:
+                                    - type: radio
+                                      name: 'condition_sculpture_specific_condition_control_necessary_radio'
+                                      content: 'Necessary'
+                                    - type: radio
+                                      name: 'condition_sculpture_specific_condition_control_necessary_radio'
+                                      content: 'Not necessary'
+                                    - type: radio_date
+                                      name: 'condition_sculpture_specific_condition_control_happened_radio'
+                                      content: 'Happened'
+                                    - type: radio
+                                      name: 'condition_sculpture_specific_condition_control_happened_radio'
+                                      content: 'Not happened yet'
+                            - type: div
+                              content:
+                                - type: div_text
+                                  float: true
+                                  class: 'padding-top-label float-left'
+                                  content: 'Fixating'
+                                - type: number
+                                  always_visible: true
+                                  name: 'condition_sculpture_specific_condition_fixating'
+                                  min: 0
+                                  class: 'condition-hours-container condition-hours readonly-padding-top-label'
+                                  content: ''
+                                  placeholder: 'Number of hours'
+                                  label_after: 'hour(s)'
+                                  label_after_class: 'padding-left-3 readonly-input padding-top-label readonly-no-padding-top'
+                                - type: div
+                                  class: 'form-subgroup checkbox-subgroup'
+                                  content:
+                                    - type: radio
+                                      name: 'condition_sculpture_specific_condition_fixating_necessary_radio'
+                                      content: 'Necessary'
+                                    - type: radio
+                                      name: 'condition_sculpture_specific_condition_fixating_necessary_radio'
+                                      content: 'Not necessary'
+                                    - type: radio_date
+                                      name: 'condition_sculpture_specific_condition_fixating_happened_radio'
+                                      content: 'Happened'
+                                    - type: radio
+                                      name: 'condition_sculpture_specific_condition_fixating_happened_radio'
+                                      content: 'Not happened yet'
+                            - type: div
+                              content:
+                                - type: div_text
+                                  float: true
+                                  class: 'padding-top-label float-left'
+                                  content: 'Further research needed'
+                                - type: number
+                                  always_visible: true
+                                  name: 'condition_sculpture_specific_condition_research'
+                                  min: 0
+                                  class: 'condition-hours-container condition-hours readonly-padding-top-label'
+                                  content: ''
+                                  placeholder: 'Number of hours'
+                                  label_after: 'hour(s)'
+                                  label_after_class: 'padding-left-3 readonly-input padding-top-label readonly-no-padding-top'
+                                - type: div
+                                  class: 'form-subgroup checkbox-subgroup'
+                                  content:
+                                    - type: radio
+                                      name: 'condition_sculpture_specific_condition_research_necessary_radio'
+                                      content: 'Necessary'
+                                    - type: radio
+                                      name: 'condition_sculpture_specific_condition_research_necessary_radio'
+                                      content: 'Not necessary'
+                                    - type: radio_date
+                                      name: 'condition_sculpture_specific_condition_research_happened_radio'
+                                      content: 'Happened'
+                                    - type: radio
+                                      name: 'condition_sculpture_specific_condition_research_happened_radio'
+                                      content: 'Not happened yet'
+                            - type: div
+                              content:
+                                - type: textfield
+                                  float: true
+                                  class: 'conservation-other'
+                                  name: 'condition_sculpture_specific_condition_custom'
+                                  content: ''
+                                - type: number
+                                  always_visible: true
+                                  name: 'condition_sculpture_specific_condition_custom_number'
+                                  min: 0
+                                  class: 'condition-hours-container condition-hours readonly-padding-top-label'
+                                  content: ''
+                                  placeholder: 'Number of hours'
+                                  label_after: 'hour(s)'
+                                  label_after_class: 'padding-left-3 readonly-input padding-top-label readonly-no-padding-top'
+                                - type: div
+                                  class: 'form-subgroup checkbox-subgroup'
+                                  content:
+                                    - type: radio
+                                      name: 'condition_sculpture_specific_condition_custom_necessary_radio'
+                                      content: 'Necessary'
+                                    - type: radio
+                                      name: 'condition_sculpture_specific_condition_custom_necessary_radio'
+                                      content: 'Not necessary'
+                                    - type: radio_date
+                                      name: 'condition_sculpture_specific_condition_custom_happened_radio'
+                                      content: 'Happened'
+                                    - type: radio
+                                      name: 'condition_sculpture_specific_condition_custom_happened_radio'
+                                      content: 'Not happened yet'
     recommendations:
       default:
         - type: div
@@ -3714,7 +4680,6 @@ parameters:
             - type: div_text
               class: 'report-header'
               content: 'Presentation'
-          # TODO implement
       painting:
         - type: div
           class: 'report-block'
@@ -3897,7 +4862,7 @@ parameters:
                       name: 'recommendations_painting_manipulation_transport_moving_equipment_pallet_truck'
                       content: 'Pallet truck'
                     - type: checkbox
-                      name: 'recommendations_painting_manipulation_transport_moving_equipment_pallet_trolley'
+                      name: 'recommendations_painting_manipulation_transport_moving_equipment_trolley'
                       content: 'Trolley'
                     - type: checkbox_custom
                       name: 'recommendations_painting_manipulation_transport_moving_equipment_other'
@@ -3964,7 +4929,7 @@ parameters:
                   content:
                     - type: div_text
                       class: 'report-header-2'
-                      content: 'Packing'
+                      content: packing_packing
                     - type: radio
                       name: 'recommendations_painting_manipulation_transport_packing_direction_radio'
                       content: 'Face down'
@@ -4289,7 +5254,7 @@ parameters:
                       name: 'recommendations_work_on_paper_manipulation_transport_moving_equipment_pallet_truck'
                       content: 'Pallet truck'
                     - type: checkbox
-                      name: 'recommendations_work_on_paper_manipulation_transport_moving_equipment_pallet_trolley'
+                      name: 'recommendations_work_on_paper_manipulation_transport_moving_equipment_trolley'
                       content: 'Trolley'
                     - type: checkbox_custom
                       name: 'recommendations_work_on_paper_manipulation_transport_moving_equipment_other'
@@ -4497,6 +5462,466 @@ parameters:
                     - type: checkbox_custom
                       name: 'recommendations_work_on_paper_manipulation_transport_outer_packing_other'
                       content: ''
+      sculpture:
+        - type: div
+          class: 'report-block'
+          content:
+            - type: div_text
+              class: 'report-header'
+              content: 'Presentation'
+            - type: div
+              class: 'form-group'
+              content:
+                - type: div
+                  class: 'form-subgroup'
+                  content:
+                    - type: div_text
+                      class: 'report-header-2'
+                      content: 'Security conditions'
+                    - type: checkbox
+                      name: 'recommendations_sculpture_presentation_security_conditions_showcase'
+                      content: 'Showcase'
+                    - type: checkbox
+                      name: 'recommendations_sculpture_presentation_security_conditions_glass'
+                      content: 'Glass'
+                    - type: checkbox
+                      name: 'recommendations_sculpture_presentation_security_conditions_climate_box'
+                      content: 'Climate box'
+                    - type: checkbox
+                      name: 'recommendations_sculpture_presentation_security_conditions_barriers'
+                      content: 'Barriers'
+                    - type: checkbox_custom
+                      name: 'recommendations_sculpture_presentation_security_conditions_alarm'
+                      class: 'checkbox-custom-with-label'
+                      content: 'Alarm'
+                      placeholder: 'Alarm specifications'
+                    - type: checkbox
+                      name: 'recommendations_sculpture_presentation_security_conditions_mechanical_protection'
+                      content: 'Mechanical protection'
+                    - type: div
+                      class: 'form-subgroup checkbox-subgroup'
+                      content:
+                        - type: checkbox
+                          name: 'recommendations_sculpture_presentation_security_conditions_mechanical_protection_security_screws'
+                          content: 'Security screws'
+                        - type: checkbox
+                          name: 'recommendations_sculpture_presentation_security_conditions_mechanical_protection_safety_hooks'
+                          content: 'Safety hooks'
+                        - type: checkbox
+                          name: 'recommendations_sculpture_presentation_security_conditions_mechanical_protection_bottom_support'
+                          content: 'Extra support at the bottom required'
+                        - type: checkbox_custom
+                          name: 'recommendations_sculpture_presentation_security_conditions_mechanical_protection_other'
+                          content: ''
+                    - type: checkbox_custom
+                      name: 'recommendations_sculpture_presentation_security_conditions_other'
+                      content: ''
+                    - type: textarea
+                      name: 'recommendations_sculpture_presentation_specification'
+                      content: 'Further specifications'
+                - type: html
+                  always_visible: true
+                  content: '<div id="security_measures_sculpture_images_div"></div><div id="security_measures_sculpture_div" class="hidden top-margin-subgroup"><input type="file" id="security_measures_sculpture_input" name="security_measures_sculpture-input" class="hidden" accept=".jpg,.png,.tif,.HEIC,.pdf" /><label for="security_measures_sculpture_input" class="setup-plan-input-label">Upload file</label><p id="security_measures_sculpture_input_error" class="hidden message-red"></p></div>'
+                - type: div
+                  class: 'form-subgroup top-margin-subgroup'
+                  content:
+                    - type: div_text
+                      class: 'report-header-2'
+                      content: 'Presentation'
+                    - type: div
+                      class: 'form-subgroup subgroup-with-border'
+                      content:
+                        - type: div
+                          content:
+                            - type: div_text
+                              class: 'report-header-3'
+                              content: 'Setup plan / guidelines'
+                            - type: radio
+                              name: 'recommendations_sculpture_presentation_guidelines_radio'
+                              content: 'Present'
+                              onclick: '; document.getElementById("setup_plan_sculpture_div").classList.remove("hidden");'
+                            - type: radio
+                              name: 'recommendations_sculpture_presentation_guidelines_radio'
+                              content: 'Absent'
+                              onclick: '; document.getElementById("setup_plan_sculpture_div").classList.add("hidden");'
+                            - type: checkbox
+                              name: 'recommendations_sculpture_presentation_guidelines_not_necessary'
+                              content: 'Not necessary'
+                        - type: html
+                          always_visible: true
+                          content: '<div id="setup_plan_sculpture_images_div"></div><div id="setup_plan_sculpture_div" class="hidden top-margin-subgroup"><input type="file" id="setup_plan_sculpture_input" name="setup-plan-sculpture-input" class="hidden" accept=".jpg,.png,.tif,.HEIC,.pdf" /><label for="setup_plan_sculpture_input" class="setup-plan-input-label">Upload file</label><p id="setup_plan_sculpture_input_error" class="hidden message-red"></p></div>'
+                        - type: div
+                          content:
+                            - type: div_text
+                              class: 'report-header-3'
+                              content: 'Recommendations'
+                            - type: checkbox
+                              name: 'recommendations_sculpture_presentation_setup_standing'
+                              content: 'Standing'
+                            - type: div
+                              class: 'form-subgroup checkbox-subgroup'
+                              content:
+                                - type: checkbox
+                                  name: 'recommendations_sculpture_presentation_setup_standing_free_in_the_room'
+                                  content: 'Free in the room'
+                                - type: checkbox
+                                  name: 'recommendations_sculpture_presentation_setup_standing_on_pedestal'
+                                  content: 'On pedestal'
+                                - type: div
+                                  class: 'form-subgroup checkbox-subgroup'
+                                  content:
+                                    - type: checkbox
+                                      name: 'recommendations_sculpture_presentation_setup_standing_on_pedestal_stabilizing'
+                                      content: 'Stabilizing pedestal'
+                                    - type: checkbox
+                                      name: 'recommendations_sculpture_presentation_setup_standing_on_pedestal_weighted'
+                                      content: 'Weighted pedestal'
+                                - type: checkbox
+                                  name: 'recommendations_sculpture_presentation_setup_standing_in_showcase'
+                                  content: 'In showcase'
+                                - type: checkbox
+                                  name: 'recommendations_sculpture_presentation_setup_standing_with_hood'
+                                  content: 'With hood'
+                                - type: checkbox
+                                  name: 'recommendations_sculpture_presentation_setup_standing_extra_bottom_support_required'
+                                  content: 'Extra support at the bottom required'
+                                - type: textarea
+                                  name: 'recommendations_sculpture_presentation_setup_standing_other'
+                                  content: 'Recommendations'
+                            - type: checkbox
+                              name: 'recommendations_sculpture_presentation_setup_hanging'
+                              content: 'Hanging'
+                            - type: div
+                              class: 'form-subgroup checkbox-subgroup'
+                              content:
+                                - type: checkbox
+                                  name: 'recommendations_sculpture_presentation_setup_hanging_from_the_ceiling'
+                                  content: 'From the ceiling'
+                                - type: checkbox
+                                  name: 'recommendations_sculpture_presentation_setup_hanging_against_the_wall'
+                                  content: 'Against the wall'
+                                - type: checkbox
+                                  name: 'recommendations_sculpture_presentation_setup_hanging_against_the_wall'
+                                  content: 'Hanging system'
+                                - type: div
+                                  class: 'form-subgroup checkbox-subgroup'
+                                  content:
+                                    - type: radio
+                                      name: 'recommendations_sculpture_presentation_setup_hanging_system_radio'
+                                      content: 'Present'
+                                    - type: radio
+                                      name: 'recommendations_sculpture_presentation_setup_hanging_system_radio'
+                                      content: 'Absent'
+                                - type: textarea
+                                  name: 'recommendations_sculpture_presentation_setup_hanging_other'
+                                  content: 'Recommendations'
+                            - type: checkbox
+                              name: 'recommendations_sculpture_presentation_setup_lying'
+                              content: 'Lying'
+                            - type: div
+                              class: 'form-subgroup checkbox-subgroup'
+                              content:
+                                - type: textarea
+                                  name: 'recommendations_sculpture_presentation_setup_lying_other'
+                                  content: 'Recommendations'
+                            - type: checkbox_custom
+                              name: 'recommendations_sculpture_presentation_setup_other'
+                              content: ''
+                              placeholder: 'Other (e.g. hooks, interior or exterior wall, type of wall, etc.)'
+                        - type: div
+                          content:
+                            - type: div_text
+                              class: 'report-header-3'
+                              content: 'Tools needed for setup'
+                            - type: radio
+                              name: 'recommendations_sculpture_presentation_tools_setup_radio'
+                              content: 'No'
+                            - type: radio
+                              name: 'recommendations_sculpture_presentation_tools_setup_radio'
+                              content: 'Unclear'
+                            - type: textarea
+                              name: 'recommendations_sculpture_presentation_tools_setup_speficiations'
+                              content: 'Further specifications'
+        - type: div
+          class: 'report-block'
+          content:
+            - type: div_text
+              class: 'report-header'
+              content: 'Environmental and climatic conditions during storage, transport and presentations'
+            - type: div
+              class: 'form-group'
+              content:
+                - type: div
+                  class: 'form-subgroup'
+                  content:
+                    - type: textarea
+                      name: 'recommendations_sculpture_environmental_climatic_conditions_temp'
+                      content: 'Guidelines temperature (temp)'
+                    - type: textarea
+                      name: 'recommendations_sculpture_environmental_climatic_conditions_rh'
+                      content: 'Guidelines relative humidity (RH)'
+                    - type: textarea
+                      name: 'recommendations_sculpture_environmental_climatic_conditions_lux'
+                      content: 'Guidelines brightness (Lux)'
+                    - type: textarea
+                      name: 'recommendations_sculpture_environmental_climatic_conditions_uv'
+                      content: 'Guidelines ultraviolet light (UV)'
+                    - type: div_text
+                      class: 'report-header-standard-layout'
+                      content: 'How long to acclimatize before unpacking?'
+                    - type: div
+                      class: 'form-subgroup checkbox-subgroup'
+                      content:
+                        - type: checkbox
+                          name: 'recommendations_sculpture_environmental_climatic_conditions_acclimatize_24h'
+                          content: '24 h'
+                        - type: checkbox_custom
+                          name: 'recommendations_sculpture_environmental_climatic_conditions_acclimatize_other'
+                          content: ''
+                    - type: textarea
+                      name: 'recommendations_sculpture_environmental_climatic_conditions_exhibition_duration'
+                      content: 'Maximum exhibition duration'
+                    - type: textarea
+                      name: 'recommendations_sculpture_environmental_climatic_conditions_remarks'
+                      content: 'Remarks'
+        - type: div
+          class: 'report-block'
+          content:
+            - type: div_text
+              class: 'report-header'
+              content: 'Manipulation / transport'
+            - type: div
+              class: 'form-group'
+              content:
+                - type: div
+                  class: 'form-subgroup'
+                  content:
+                    - type: number
+                      name: 'recommendations_sculpture_manipulation_transport_people'
+                      min: 0
+                      content: 'Number of people'
+                    - type: checkbox
+                      name: 'recommendations_sculpture_manipulation_transport_museum_staff'
+                      content: 'Qualified museum staff'
+                    - type: checkbox
+                      name: 'recommendations_sculpture_manipulation_transport_courier'
+                      content: 'Courier'
+                - type: div
+                  class: 'form-subgroup top-margin-subgroup'
+                  content:
+                    - type: div_text
+                      class: 'report-header-2'
+                      content: 'Moving and installation equipment'
+                    - type: checkbox
+                      name: 'recommendations_sculpture_manipulation_transport_moving_equipment_gloves'
+                      content: 'Please wear gloves when manipulating the art piece'
+                    - type: checkbox
+                      name: 'recommendations_sculpture_manipulation_transport_moving_equipment_car'
+                      content: 'Car with pneumatic tires'
+                    - type: checkbox
+                      name: 'recommendations_sculpture_manipulation_transport_moving_equipment_pallet_truck'
+                      content: 'Pallet truck'
+                    - type: checkbox
+                      name: 'recommendations_sculpture_manipulation_transport_moving_equipment_trolley'
+                      content: 'Trolley'
+                    - type: checkbox
+                      name: 'recommendations_sculpture_manipulation_transport_moving_equipment_telehandler'
+                      content: 'Telehandler'
+                    - type: checkbox
+                      name: 'recommendations_sculpture_manipulation_transport_moving_equipment_stacker'
+                      content: 'Stacker'
+                    - type: checkbox
+                      name: 'recommendations_sculpture_manipulation_transport_moving_equipment_gantry_crane'
+                      content: 'Gantry crane'
+                    - type: checkbox_custom
+                      name: 'recommendations_sculpture_manipulation_transport_moving_equipment_other'
+                      content: ''
+                - type: div
+                  class: 'form-subgroup top-margin-subgroup'
+                  content:
+                    - type: div_text
+                      class: 'report-header-2'
+                      content: 'Transport equipment'
+                    - type: checkbox
+                      name: 'recommendations_sculpture_manipulation_transport_transport_equipment_truck_with_tailgate'
+                      content: 'Truck with tailgate'
+                    - type: checkbox
+                      name: 'recommendations_sculpture_manipulation_transport_transport_equipment_crane'
+                      content: 'Crane'
+                    - type: checkbox
+                      name: 'recommendations_sculpture_manipulation_transport_transport_equipment_air_suspended_truck'
+                      content: 'Air suspended truck'
+                    - type: checkbox
+                      name: 'recommendations_sculpture_manipulation_transport_transport_equipment_air_conditioned_truck'
+                      content: 'Air-conditioned truck'
+                    - type: checkbox
+                      name: 'recommendations_sculpture_manipulation_transport_transport_equipment_direct'
+                      content: 'Direct transport required (no other artwork to pick up)'
+                - type: div
+                  class: 'form-subgroup top-margin-subgroup'
+                  content:
+                    - type: div_text
+                      class: 'report-header-2'
+                      content: 'Points of attention with transport'
+                    - type: radio
+                      name: 'recommendations_sculpture_manipulation_transport_attention_direction_radio'
+                      content: 'Upright'
+                    - type: radio
+                      name: 'recommendations_sculpture_manipulation_transport_attention_direction_radio'
+                      content: 'Lying down'
+                    - type: checkbox
+                      name: 'recommendations_sculpture_manipulation_transport_attention_stacking_allowed'
+                      content: 'Stacking allowed'
+                    - type: checkbox_custom
+                      name: 'recommendations_sculpture_manipulation_transport_attention_other'
+                      content: ''
+        - type: div
+          class: 'report-block'
+          content:
+            - type: div_text
+              class: 'report-header'
+              content: 'Packing'
+            - type: div
+              class: 'form-group'
+              content:
+                - type: div
+                  class: 'form-subgroup'
+                  content:
+                    - type: textarea
+                      name: 'recommendations_sculpture_manipulation_transport_packing_remarks'
+                      content: 'General remarks'
+                - type: div
+                  class: 'form-subgroup top-margin-subgroup'
+                  content:
+                    - type: div_text
+                      class: 'report-header-2'
+                      content: packing_packing
+                    - type: radio
+                      name: 'recommendations_sculpture_manipulation_transport_packing_direction_pack_radio'
+                      content: 'Pack upright'
+                    - type: radio
+                      name: 'recommendations_sculpture_manipulation_transport_packing_direction_pack_radio'
+                      content: 'Pack lying down'
+                    - type: checkbox_custom
+                      name: 'recommendations_sculpture_manipulation_transport_packing_other'
+                      content: ''
+                - type: div
+                  class: 'form-subgroup top-margin-subgroup'
+                  content:
+                    - type: div_text
+                      class: 'report-header-2'
+                      content: 'Packaging'
+                    - type: checkbox
+                      name: 'recommendations_sculpture_manipulation_transport_packaging_local_protection'
+                      content: 'Only local protection'
+                - type: div
+                  class: 'form-subgroup top-margin-subgroup'
+                  content:
+                    - type: div_text
+                      class: 'report-header-2'
+                      content: 'Inner packing'
+                    - type: checkbox
+                      name: 'recommendations_sculpture_manipulation_transport_inner_packing_reinforcing'
+                      content: 'Reinforcing / support structure for transporting'
+                    - type: checkbox
+                      name: 'recommendations_sculpture_manipulation_transport_inner_packing_cushion'
+                      content: 'Cushion'
+                    - type: checkbox
+                      name: 'recommendations_sculpture_manipulation_transport_inner_packing_ethafoam'
+                      content: 'Ethafoam'
+                    - type: checkbox
+                      name: 'recommendations_sculpture_manipulation_transport_inner_packing_filler_cushion'
+                      content: 'Filler cushion'
+                    - type: checkbox
+                      name: 'recommendations_sculpture_manipulation_transport_inner_packing_silk_paper'
+                      content: 'Silk paper'
+                    - type: checkbox
+                      name: 'recommendations_sculpture_manipulation_transport_inner_packing_tyvek'
+                      content: 'Tyvek'
+                    - type: checkbox
+                      name: 'recommendations_sculpture_manipulation_transport_inner_packing_bubble_wrap'
+                      content: 'Bubble wrap'
+                    - type: checkbox
+                      name: 'recommendations_sculpture_manipulation_transport_inner_packing_cardboard'
+                      content: 'Cardboard'
+                    - type: checkbox
+                      name: 'recommendations_sculpture_manipulation_transport_inner_packing_polyethylene_film'
+                      content: 'Polyethylene film/foil sealed with tape'
+                    - type: checkbox
+                      name: 'recommendations_sculpture_manipulation_transport_inner_packing_polyethylene_film_not_sealed'
+                      content: 'Polyethylene film/foil not sealed'
+                    - type: checkbox_custom
+                      name: 'recommendations_sculpture_manipulation_transport_inner_packing_other'
+                      content: ''
+                - type: div
+                  class: 'form-subgroup top-margin-subgroup'
+                  content:
+                    - type: div_text
+                      class: 'report-header-2'
+                      content: 'Outer packing'
+                    - type: checkbox
+                      name: 'recommendations_sculpture_manipulation_transport_outer_packing_climate_box'
+                      content: 'Climate box/double crate'
+                    - type: checkbox
+                      name: 'recommendations_sculpture_manipulation_transport_outer_packing_closed_crate'
+                      content: 'Closed crate'
+                    - type: checkbox
+                      name: 'recommendations_sculpture_manipulation_transport_outer_packing_open_crate'
+                      content: 'Open crate'
+                    - type: checkbox
+                      name: 'recommendations_sculpture_manipulation_transport_outer_packing_custom_crate'
+                      content: 'Custom made crate'
+                    - type: div
+                      class: 'form-subgroup checkbox-subgroup'
+                      content:
+                        - type: radio
+                          name: 'recommendations_sculpture_manipulation_transport_outer_packing_custom_crate_radio'
+                          content: 'At your disposal'
+                        - type: radio
+                          name: 'recommendations_sculpture_manipulation_transport_outer_packing_custom_crate_radio'
+                          content: 'Should be made'
+                    - type: checkbox
+                      name: 'recommendations_sculpture_manipulation_transport_outer_packing_plastic_crate'
+                      content: 'Plastic crate'
+                    - type: checkbox
+                      name: 'recommendations_sculpture_manipulation_transport_outer_packing_pallet'
+                      content: 'Pallet'
+                    - type: div
+                      class: 'form-subgroup checkbox-subgroup'
+                      content:
+                        - type: checkbox
+                          name: 'recommendations_sculpture_manipulation_transport_outer_packing_lashing_straps'
+                          content: lashing_straps_sculpture
+                    - type: checkbox
+                      name: 'recommendations_sculpture_manipulation_transport_outer_packing_frame'
+                      content: frame_sculpture
+                    - type: checkbox_custom
+                      name: 'recommendations_sculpture_manipulation_transport_outer_packing_other'
+                      content: ''
+        - type: div
+          class: 'report-block'
+          content:
+            - type: div_text
+              class: 'report-header'
+              content: 'Extra'
+            - type: div
+              class: 'form-group'
+              content:
+                - type: div
+                  class: 'form-subgroup'
+                  content:
+                    - type: checkbox
+                      name: 'recommendations_sculpture_packing_extra_datalogger_in_the_crate'
+                      content: 'Datalogger in the crate'
+                    - type: checkbox
+                      name: 'recommendations_sculpture_packing_extra_datalogger'
+                      content: 'Datalogger'
+                    - type: checkbox
+                      name: 'recommendations_sculpture_packing_extra_vibrometer_in_the_crate'
+                      content: 'Vibrometer in the crate'
+                    - type: checkbox
+                      name: 'recommendations_sculpture_packing_extra_tilt_and_shockmeter_on_the_crate'
+                      content: 'Tilt and shockmeter on the crate'
 
 
     damage_types:

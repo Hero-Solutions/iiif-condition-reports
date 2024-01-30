@@ -14,6 +14,8 @@ paper: Paper
 wood: Wood
 plastic: Plastic
 
+painting_sculpture: Painting
+
 eigenaar / bruikleengever: owner / lender
 bruikleennemer: borrower
 restaurateur: restorer
@@ -25,6 +27,14 @@ loose: Loose
 fixed: Fixed
 original: Original
 not_original: Not original
+
+finishing_layer_sculpture: Finishing layer
+insect_damage_sculpture: Insect damage
+flaking_sculpture: Flaking
+delamination_sculpture: Delamination
+brittle_sculpture: Brittle
+dents_sculpture: Dents
+cracks_sculpture: Cracks
 
 absent: Absent
 glaze: Glaze
@@ -83,6 +93,8 @@ removable_parts: Removable parts
 brittle: Brittle
 packing_packing: Packing
 other_materials: Other materials
+lashing_straps_sculpture: Lashing straps
+frame_sculpture: Frame
 
 removing_dust: Removing dust
 superficial_cleaning: Superficial cleaning
