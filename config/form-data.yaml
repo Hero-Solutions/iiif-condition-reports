@@ -57,7 +57,7 @@ parameters:
   actor_types:
     - owner / lender
     - borrower
-    - restorer
+    - conservator
     - courier
     - art handler
     - insurer

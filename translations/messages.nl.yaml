@@ -172,7 +172,7 @@ Add organisation with role: Voeg organisatie toe met rol
 Information: Informatie
 owner / lender: eigenaar / bruikleengever
 borrower: bruikleennemer
-restorer: restaurateur
+conservator: restorator
 courier: koerier
 art handler: art handler
 insurer: verzekeraar
@@ -543,7 +543,7 @@ https://www.example.com: https://www.voorbeeld.com
 Own notes about this organisation: Eigen notities over deze organisatie
 Own notes about this person: Eigen notities over deze persoon
 Own notes about this loan project: Eigen notities over dit bruikleenproject
-Ex. restorer, courier ...: Bv. restaurateur, koerier ...
+Ex. conservator, courier ...: Bv. restorator, koerier ...
 Lender: Bruikleengever
 Borrower: Bruikleennemer
 Courier: Koerier
@@ -698,6 +698,7 @@ deleted: verwijderd
 Select layer: Selecteer laag
 Pictorial layer: Picturale laag
 Paint layer: Picturale laag
+Protection layer: Beschermlaag
 Combinations: Combinaties
 Carrier + pictorial layer: Drager + picturale laag
 Carrier + finishing layer: Drager + afwerklaag
