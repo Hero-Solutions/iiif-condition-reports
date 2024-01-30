@@ -212,7 +212,7 @@ Construction / composition: Constructie / samenstelling
 Work: Werk
 To be mounted with: Te monteren met
 Connections: Verbindingen
-Between separate parts of the sculpture: Tussen afzonderlijke delen van het beeld
+Between separate parts of the sculpture: Tussen afzonderlijke delen van de sculptuur
 Between sculpture and pedestal: Tussen beeld en sokkel
 Between carrier and frame: Tussen drager en lijst
 
@@ -425,6 +425,11 @@ Barriers: Afstandhouders/barrière
 Showcase: Vitrine
 Alarm specifications: Alarmspecificaties
 Security screws: Veiligheidsschroeven
+Mechanical protection: Mechanische beveiliging
+Safety hooks: Veiligheidshaakjes
+Extra support at the bottom required: Draagsteunen
+Stabilizing pedestal: Stabiliseren van de sokkel
+Weighted pedestal: Verzwaren van de sokkel
 Security device required: Beveiliging aanbrengen
 E.g., pedestal, extra support at the bottom needed, hooks, interior or exterior wall, type of wall, etc.: Bijv. sokkel, draagsteunen, haken, binnen- of buitenwand, soort wand, …
 Environmental and climatic conditions during storage, transport and presentations: Omgevings- en klimaatvoorwaarden bij stockage, transport en presentatie
@@ -473,6 +478,16 @@ Buffered: Gebufferd
 Unbuffered: Ongebufferd
 packing_packing: Inpakken
 other_materials: Andere materialen
+Reinforcing / support structure for transporting: Versteviging / steunconstructie om te kunnen transporteren
+Cushion: Kussen
+Filler cushion: Transportkussen, filler
+Polyethylene film/foil sealed with tape: Polyethyleenfolie gesealed met tape
+Polyethylene film/foil not sealed: Polyethyleenfolie niet gesealed
+Custom made crate: Maatkist
+Plastic crate: Kunststofkrat
+lashing_straps_sculpture: Spanriemen
+frame_sculpture: Frame
+Vibrometer in the crate: Trillingsmeter in de kist
 
 Incoming object (depacking): Inkomend object (depacking)
 Acquisition (collection donor / seller / ...): Verwerving (collectie schenker / verkoper / ...)
@@ -635,6 +650,7 @@ Storage without packing: Stockeren zonder verpakking
 Manipulation / transport: Manipulatie / transport
 Number of people: Aantal personen
 Moving equipment: Hulpmiddelen verplaatsing
+Moving and installation equipment: Hulpmiddelen verplaatsing en installatie
 Cart with pneumatic tires: Kar met luchtbanden
 Pallet truck: Transpallet
 Handtruck: Steekwagen
@@ -644,6 +660,11 @@ Points of attention: Aandachtspunten
 Upright: Staand
 Lying down: Liggend
 Lashing straps: Spanbanden
+Telehandler: Verreiker
+Stacker: Stapelaar
+Gantry crane: Portaalkraan
+Truck with tailgate: Vrachtwagen met laadklep
+Crane: Kraan
 
 Packing: Verpakking
 Advice: Advies
@@ -663,6 +684,7 @@ Polyethylene film: Polyethyleenfolie
 Silk paper: Zijdepapier
 Not packed: Niet verpakt
 Only local protection: Enkel plaatselijke bescherming
+Packaging: Verpakking
 
 Upload setup plan: Opstellingsplan opladen
 Unable to retrieve file from URL: Bestand kon niet van URL worden opgehaald
@@ -720,6 +742,10 @@ Remarks on the painting techniques: Specificaties bij de schildertechniek
 Varnish layer: Vernislaag
 Complete: Volledig aanwezig
 Local: Plaatselijk aanwezig
+Stone: Steen
+Plaster: Gips
+Ceramic: Keramiek / aardewerk
+Plastic: Kunststof
 
 stone: Steen
 metal: Metaal
@@ -751,6 +777,46 @@ chop_marks: Kapsporen
 polishing: Polijsting
 natural: Natuurlijk
 artificial: Kunstmatig
+
+finishing_layer_sculpture: Afwerklaag of toplaag
+No finishing layer: Geen afwerklaag
+Polishing: Polijsting
+Artificial patina: Kunstmatig
+Natural patina: Natuurlijk
+Wax layer: Waslaag
+Glaze: Glazuur
+painting_sculpture: Beschildering
+
+Traces of the production process: Sporen van het productieproces
+Chop marks: Kapsporen
+Chisel marks: Beitelsporen
+Casting channels: Gietkanalen
+Casting seams: Gietnaden
+Welds: Lasnaden 
+Baking failure: Bakfout
+Glaze stain: Glazuurvlek
+
+Pedestal/Socle: Sokkel
+
+Cast: Gegoten
+Assembled: Geassembleerd
+Welded: Gelast
+Brazed: Gesoldeerd
+Lost-wax process: Verloren wastechniek
+Cast in sand: In zand gegoten
+Sculptured: Gesculpteerd
+Stone cutted: Gekapt
+Polished: Gepolijst
+Sweetened: Gezoet
+
+Construction/composition: Constructie/samenstelling
+Sculpture (without pedestal): Sculptuur (zonder sokkel)
+Mounted with: Gemonteerd met
+Not applicable: Niet van toepassing
+Pins and pegs: Pinnen en doken
+Pegs: Doken
+Screws: Schroeven
+Bolts: Bouten
 
 not_applicable: Niet van toepassing
 welded: Gelast
@@ -822,6 +888,35 @@ Large suspension brace: Grote ophangbeugel
 Track & slide: Track & slide
 Plain screw eye: Gewone schroefoog
 Picture hanger (hook): Schilderijhanger (haak)
+
+Material technical condition: Materiaaltechnische conditie
+Optical visual condition: Optisch-visuele conditie
+Specific condition of the sculpture: Specifieke toestand van de sculptuur
+Surface pollution: Oppervlakte vervuiling
+Chemical and/or biological damage: Chemische en/of biologische schade
+Mold: Schimmel
+Physical and/or constructive damage: Fysieke en/of constructieve schade
+Abrasion: Geschaafd
+Wearage: Sleets
+Hair tears / cracks: Haarscheurtjes
+Gaps: Lacunes
+Powdering/sugaring: Verpoederen/versuikeren
+Twists: Vervorming/scheluw
+Shaky/unstable: Wankel/instabiel
+Previous restoration: Voorgaande restauratie
+Old restoration: Oude ingrepen / restauratie
+insect_damage_sculpture: Insectenaantasting
+flaking_sculpture: Schilfering
+delamination_sculpture: Delaminatie
+brittle_sculpture: Bros
+dents_sculpture: Deuken
+cracks_sculpture: Barsten/spleten
+
+Conservation/restauration: Conservatie/restauratie
+Cleaning: Reiniging
+Intervention at the level of the top layer: Interventie op het niveau van de afwerkingslaag
+Control and treatment microbiological infestation: Controle en behandeling microbiologische aantasting
+Fixating: Fixeren
 
 good: Goed
 reasonable: Redelijk

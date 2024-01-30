@@ -124,7 +124,7 @@
                     {{ item.content | trans }}
                 </div>
             {% elseif item.type == 'textfield' and item.name is defined %}
-                <div class="form-item">{% include 'textfield.html.twig' with { 'name': item.name, 'label': item.content | trans } %}</div>
+                <div class="form-item{% if item.class is defined %} {{ item.class }}{% endif %}">{% include 'textfield.html.twig' with { 'name': item.name, 'label': item.content | trans } %}</div>
             {% elseif item.type == 'textarea' and item.name is defined %}
                 <div class="no-spaces textarea-div{% if item.class is defined %} {{ item.class }}{% endif %}">{% include 'textarea.html.twig' with { 'name': item.name, 'label': item.content | trans } %}</div>
             {% elseif item.type == 'number' and item.name is defined %}
