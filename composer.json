@@ -10,7 +10,7 @@
         "ext-dom": "20031129",
         "ext-exif": "*",
         "ext-iconv": "*",
-        "ext-imagick": "^3.5",
+        "ext-imagick": "*",
         "ext-json": "*",
         "caseyamcl/phpoaipmh": "^3.3",
         "composer/package-versions-deprecated": "1.11.99.2",
