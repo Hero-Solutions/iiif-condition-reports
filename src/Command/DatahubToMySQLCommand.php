@@ -8,12 +8,15 @@ use App\Entity\InventoryNumber;
 use App\Entity\Report;
 use App\Utils\CurlUtil;
 use App\Utils\IIIFUtil;
+use App\Utils\OaiPmhApiUtil;
 use App\Utils\StringUtil;
 use DOMDocument;
 use DOMXPath;
+use Phpoaipmh\Client;
 use Phpoaipmh\Endpoint;
 use Phpoaipmh\Exception\HttpException;
 use Phpoaipmh\Exception\OaipmhException;
+use Phpoaipmh\HttpAdapter\CurlAdapter;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
@@ -62,6 +65,11 @@ class DatahubToMySQLCommand extends Command implements ContainerAwareInterface, 
         if (!$this->datahubUrl) {
             $this->datahubUrl = $this->container->getParameter('datahub_url');
         }
+        $username = $input->getArgument('username');
+        $password = $input->getArgument('password');
+
+        $overrideCA = $this->container->getParameter('override_certificate_authority');
+        $sslCAFile = $this->container->getParameter('ssl_certificate_authority_file');
 
         $this->datahubLanguage = $this->container->getParameter('datahub_language');
         $this->namespace = $this->container->getParameter('datahub_namespace');
@@ -73,12 +81,12 @@ class DatahubToMySQLCommand extends Command implements ContainerAwareInterface, 
         //Disable SQL logging to improve performance
         $em->getConnection()->getConfiguration()->setSQLLogger(null);
 
-        $this->storeAllDatahubData($em);
+        $this->storeAllDatahubData($em, $username, $password, $overrideCA, $sslCAFile);
 
         return 0;
     }
 
-    function storeAllDatahubData($em)
+    function storeAllDatahubData($em, $username, $password, $overrideCA, $sslCAFile)
     {
         $qb = $em->createQueryBuilder();
         $qb->delete(DatahubData::class, 'data')->getQuery()->execute();
@@ -94,7 +102,23 @@ class DatahubToMySQLCommand extends Command implements ContainerAwareInterface, 
         }
 
         try {
-            $datahubEndpoint = Endpoint::build($this->datahubUrl . '/oai');
+            $curlAdapter = new CurlAdapter();
+            if($username !== null && $password !== null) {
+                $curlOpts = array(
+                    CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
+                    CURLOPT_USERPWD => $username . ':' . $password
+                );
+            } else {
+                $curlOpts = [];
+            }
+            if ($overrideCA) {
+                $curlOpts[CURLOPT_CAINFO] = $sslCAFile;
+                $curlOpts[CURLOPT_CAPATH] = $sslCAFile;
+            }
+            $curlAdapter->setCurlOpts($curlOpts);
+            $oaiPmhClient = new Client($this->datahubUrl . '/oai', $curlAdapter);
+            $datahubEndpoint = new Endpoint($oaiPmhClient);
+
             $records = $datahubEndpoint->listRecords($this->metadataPrefix);
             $n = 0;
             foreach($records as $record) {
