@@ -1,27 +1,29 @@
 <div class="signatures" id="signatures-form">
 {% set signature_count = 0 %}
 {% set break = false %}
-{% for i in 1..1000 if not break %}
-    {% if prefilled_data['actor_' ~ i ~ '_role'] is defined %}
-        {% if prefilled_data['actor_' ~ i ~ '_rep_name'] is defined %}
-            {% set signature_count = signature_count + 1 %}
-            {% if signature_count == 1 %}
-                <div class="report-header">{{ 'Signatures' | trans }}</div>
-                <p class="no-print">{{ 'Alternatively, after saving this document as a PDF, you can add a digitally verified signature to the PDF.' | trans }}</p>
-            {% endif %}
-            {% if signature_count % 2 == 1 %}
-                <div class="signatures-row">
-            {% endif %}
+{% for i in 1..1000 %}
+    {% if not break %}
+        {% if prefilled_data['actor_' ~ i ~ '_role'] is defined %}
+            {% if prefilled_data['actor_' ~ i ~ '_rep_name'] is defined %}
+                {% set signature_count = signature_count + 1 %}
+                {% if signature_count == 1 %}
+                    <div class="report-header">{{ 'Signatures' | trans }}</div>
+                    <p class="no-print">{{ 'Alternatively, after saving this document as a PDF, you can add a digitally verified signature to the PDF.' | trans }}</p>
+                {% endif %}
+                {% if signature_count % 2 == 1 %}
+                    <div class="signatures-row">
+                {% endif %}
 
-            {% include 'signature.html.twig' with { 'name' : prefilled_data['actor_' ~ i ~ '_rep_name'], 'index': i } %}
+                {% include 'signature.html.twig' with { 'name' : prefilled_data['actor_' ~ i ~ '_rep_name'], 'index': i } %}
 
-            {% if signature_count % 2 == 0 %}
-                </div>
+                {% if signature_count % 2 == 0 %}
+                    </div>
+                {% endif %}
+
             {% endif %}
-
+        {% else %}
+            {% set break = true %}
         {% endif %}
-    {% else %}
-        {% set break = true %}
     {% endif %}
 {% endfor %}
 {% if signature_count % 2 == 1 %}

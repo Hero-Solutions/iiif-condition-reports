@@ -22,27 +22,29 @@
                 {% set looping = true %}
                 {% set looping_content = item.content %}
                 {% set new_looping_content = [] %}
-                {% for i in 0..10000 if looping %}
-                    {% for subitem in looping_content %}
-                        {% if subitem.type == 'div' %}
-                            {% set new_looping_content = new_looping_content|merge(subitem.content) %}
-                        {% elseif subitem.name is defined %}
-                            {% if prefilled_data[subitem.name] is defined %}
-                                {% if prefilled_data[subitem.name] is not empty %}
-                                    {% set looping = false %}
-                                    {% set do_show = true %}
+                {% for i in 0..10000 %}
+                    {% if looping %}
+                        {% for subitem in looping_content %}
+                            {% if subitem.type == 'div' %}
+                                {% set new_looping_content = new_looping_content|merge(subitem.content) %}
+                            {% elseif subitem.name is defined %}
+                                {% if prefilled_data[subitem.name] is defined %}
+                                    {% if prefilled_data[subitem.name] is not empty %}
+                                        {% set looping = false %}
+                                        {% set do_show = true %}
+                                    {% endif %}
                                 {% endif %}
                             {% endif %}
-                        {% endif %}
-                        {% if loop.last %}
-                            {% if new_looping_content is empty %}
-                                {% set looping = false %}
-                            {% else %}
-                                {% set looping_content = new_looping_content %}
-                                {% set new_looping_content = [] %}
+                            {% if loop.last %}
+                                {% if new_looping_content is empty %}
+                                    {% set looping = false %}
+                                {% else %}
+                                    {% set looping_content = new_looping_content %}
+                                    {% set new_looping_content = [] %}
+                                {% endif %}
                             {% endif %}
-                        {% endif %}
-                    {% endfor %}
+                        {% endfor %}
+                    {% endif %}
                 {% endfor %}
             {% elseif item.name is defined %}
                 {% if prefilled_data[item.name] is defined %}
