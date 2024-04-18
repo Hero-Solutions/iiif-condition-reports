@@ -43,6 +43,8 @@ class DatahubToMySQLCommand extends Command implements ContainerAwareInterface, 
         $this
             ->setName('app:datahub-to-mysql')
             ->addArgument('url', InputArgument::OPTIONAL, 'The URL of the Datahub')
+            ->addArgument('username', InputArgument::OPTIONAL, 'The username to authenticate with (basic HTTP auth')
+            ->addArgument('password', InputArgument::OPTIONAL, 'The password to authenticate with (basic HTTP auth)')
             ->setDescription('')
             ->setHelp('');
     }
