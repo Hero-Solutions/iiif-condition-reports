@@ -1166,7 +1166,9 @@ for(const image in deletedAnnos) {
         for(const id in deletedAnnos[image][reportId]) {
             deletedIds.push(id);
         }
-        window.deletedAnnotations[image][reportId] = deletedIds;
+        if(window.deletedAnnotations[image] !== undefined) {
+            window.deletedAnnotations[image][reportId] = deletedIds;
+        }
     }
 }
 
