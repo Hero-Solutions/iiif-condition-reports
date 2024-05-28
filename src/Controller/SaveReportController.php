@@ -29,6 +29,7 @@ class SaveReportController extends AbstractController
         if($locale === null || !in_array($locale, $locales)) {
             return $this->redirectToRoute('save', array('_locale' => $locales[0]));
         }
+        // Check if the user is authenticated and has the appropriate role
         if(!$this->getUser()) {
             return $this->redirectToRoute('main');
         } else if(!$this->getUser()->getRoles()) {
@@ -37,6 +38,7 @@ class SaveReportController extends AbstractController
             return $this->redirectToRoute('main');
         }
 
+        // Process form data if the request method is POST
         if($request->getMethod() === 'POST') {
             $reportData = array();
             $fields = explode('&', $request->getContent());
@@ -49,10 +51,13 @@ class SaveReportController extends AbstractController
             $images = array();
             $organisations = array();
             $representatives = array();
+            // Parse form fields and populate variables
             foreach($fields as $field) {
                 $fieldData = explode('=', $field);
                 $name = urldecode($fieldData[0]);
                 $value = urldecode($fieldData[1]);
+
+                // Parse actor-related fields
                 if(strpos($name, 'actor_') === 0) {
                     $orgNamePos = strpos($name, '_org_name');
                     if ($orgNamePos !== false && !empty($value)) {
@@ -63,6 +68,8 @@ class SaveReportController extends AbstractController
                         $representatives[] = substr($name, 6, -9);
                     }
                 }
+
+                // Parse other fields
                 if($name === 'reason') {
                     $reason = $value;
                 }
@@ -86,6 +93,7 @@ class SaveReportController extends AbstractController
                 }
             }
 
+            // Calculate the number of required signatures
             $signaturesRequired = 0;
             foreach($representatives as $representative) {
                 if(in_array($representative, $organisations)) {
@@ -93,16 +101,19 @@ class SaveReportController extends AbstractController
                 }
             }
 
+            // Extract image hashes for later use
             $imageHashes = array();
             foreach($images as $image) {
                 $imageHashes[] = $image->hash;
             }
             $reportData['images'] = implode(',', $imageHashes);
 
+            // Only proceed if inventoryId is present
             if(!empty($inventoryId)) {
 
                 $em = $this->container->get('doctrine')->getManager();
 
+                // Create and persist a new Report entity
                 $report = new Report();
                 $report->setInventoryId($inventoryId);
                 $report->setEditor($this->getUser()->getId());
@@ -110,6 +121,7 @@ class SaveReportController extends AbstractController
                 $report->setReason($reason);
                 $report->setIsDraft($isDraft);
                 $report->setSignaturesRequired($signaturesRequired);
+
                 if(!empty($baseId)) {
                     $report->setBaseId($baseId);
                 }
@@ -117,6 +129,7 @@ class SaveReportController extends AbstractController
                 $em->persist($report);
                 $em->flush();
 
+                // Set baseId if it was not initially provided
                 if(empty($baseId)) {
                     $report->setBaseId($report->getId());
                     $baseId = $report->getId();
@@ -126,6 +139,7 @@ class SaveReportController extends AbstractController
                     $em->flush();
                 }
 
+                // Generate manifest using IIIFUtil
                 $reportData['manifest'] = IIIFUtil::generateManifest(
                     $em, $report->getId(),
                     $reportData, $images,
@@ -137,6 +151,7 @@ class SaveReportController extends AbstractController
                     $this->getParameter('authentication_service_description')
                 );
 
+                // Persist report data
                 $i = 0;
                 foreach($reportData as $key => $value) {
                     if(!empty($value)) {
@@ -154,7 +169,9 @@ class SaveReportController extends AbstractController
                 }
                 $em->flush();
 
+                // Handle annotations based on whether reportHistory is empty or not
                 if(empty($reportHistory) || empty($baseId)) {
+                    // Persist new annotations
                     foreach ($annotationData as $image => $newAnnotations) {
                         foreach($newAnnotations as $annotation) {
                             $annotationEntity = new Annotation();
@@ -167,6 +184,7 @@ class SaveReportController extends AbstractController
                     }
                     $em->flush();
                 } else {
+                    // Process report history and old annotations
                     $previousIds = array();
                     foreach($reportHistory as $id => $order) {
                         $idInt = intval($id);
@@ -192,6 +210,7 @@ class SaveReportController extends AbstractController
                         }
                     }
 
+                    // Retrieve old annotations
                     $oldAnnotationEntities = $em->createQueryBuilder()
                         ->select('a')
                         ->from(Annotation::class, 'a')
@@ -211,6 +230,7 @@ class SaveReportController extends AbstractController
                         $oldAnnotationsToAdd[$annotation->getImage()][$annotation->getReportId()][$annotation->getAnnotationId()] = $annotation->getAnnotation();
                     }
 
+                    // Retrieve old deleted annotations
                     $oldDeletedAnnotationEntities = $em->createQueryBuilder()
                         ->select('d')
                         ->from(DeletedAnnotation::class, 'd')
@@ -257,28 +277,30 @@ class SaveReportController extends AbstractController
                         $added = array();
                         $deleted = array();
                         $updated = array();
+                        // Check for old annotations to determine which ones need to be deleted
                         if(array_key_exists($image, $oldAnnotations)) {
                             foreach ($oldAnnotations[$image] as $annoId => $annotation) {
-                                if (!array_key_exists($image, $newAnnotations)) {
-                                    $deleted[] = $annoId;
-                                } else if (!array_key_exists($annoId, $newAnnotations[$image])) {
+                                // Check if the old annotation is not present in new annotations
+                                if (!array_key_exists($image, $newAnnotations) || !array_key_exists($annoId, $newAnnotations[$image])) {
                                     $deleted[] = $annoId;
                                 } else if ($annotation !== $newAnnotations[$image][$annoId]) {
+                                    // If the annotation is present but different, mark it as updated
                                     $updated[$annoId] = $newAnnotations[$image][$annoId];
                                 }
                             }
                         }
+
+                        // Check for new annotations to determine which ones need to be added
                         if(array_key_exists($image, $newAnnotations)) {
                             foreach ($newAnnotations[$image] as $annoId => $annotation) {
-                                if(!array_key_exists($image, $oldAnnotations)) {
-                                    $added[$annoId] = $annotation;
-                                } else if (!array_key_exists($annoId, $oldAnnotations[$image])) {
+                                if(!array_key_exists($image, $oldAnnotations) || !array_key_exists($annoId, $oldAnnotations[$image])) {
                                     $added[$annoId] = $annotation;
                                 } else if ($annotation !== $oldAnnotations[$image][$annoId]) {
                                     $updated[$annoId] = $annotation;
                                 }
                             }
                         }
+
                         foreach ($deleted as $id) {
                             $deletedEntity = new DeletedAnnotation();
                             $deletedEntity->setReportId($report->getId());
