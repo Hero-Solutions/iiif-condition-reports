@@ -1257,7 +1257,9 @@ for(const imageHash in annotations) {
                 }
             }
         }
-        window.addedAnnotations[imageHash][reportId] = reportAnnos;
+        if(window.addedAnnotations[imageHash] !== undefined) {
+            window.addedAnnotations[imageHash][reportId] = reportAnnos;
+        }
     }
 }
 
