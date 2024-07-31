@@ -173,13 +173,15 @@ class SaveReportController extends AbstractController
                 if(empty($reportHistory) || empty($baseId)) {
                     // Persist new annotations
                     foreach ($annotationData as $image => $newAnnotations) {
-                        foreach($newAnnotations as $annotation) {
-                            $annotationEntity = new Annotation();
-                            $annotationEntity->setReportId($report->getId());
-                            $annotationEntity->setImage($image);
-                            $annotationEntity->setAnnotationId($annotation->id);
-                            $annotationEntity->setAnnotation(json_encode($annotation));
-                            $em->persist($annotationEntity);
+                        if(in_array($image, $imageHashes)) {
+                            foreach ($newAnnotations as $annotation) {
+                                $annotationEntity = new Annotation();
+                                $annotationEntity->setReportId($report->getId());
+                                $annotationEntity->setImage($image);
+                                $annotationEntity->setAnnotationId($annotation->id);
+                                $annotationEntity->setAnnotation(json_encode($annotation));
+                                $em->persist($annotationEntity);
+                            }
                         }
                     }
                     $em->flush();
@@ -203,9 +205,11 @@ class SaveReportController extends AbstractController
                     $newAnnotations = array();
                     if(!empty($annotationData)) {
                         foreach ($annotationData as $image => $annos) {
-                            $newAnnotations[$image] = array();
-                            foreach ($annos as $annotation) {
-                                $newAnnotations[$image][$annotation->id] = json_encode($annotation);
+                            if(in_array($image, $imageHashes)) {
+                                $newAnnotations[$image] = array();
+                                foreach ($annos as $annotation) {
+                                    $newAnnotations[$image][$annotation->id] = json_encode($annotation);
+                                }
                             }
                         }
                     }
