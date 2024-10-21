@@ -56,8 +56,6 @@ class LoadIIIFImageController extends AbstractController
 
             //Check if this image doesn't exist already
             $em = $this->container->get('doctrine')->getManager();
-            //Disable SQL logging to improve performance
-            $em->getConnection()->getConfiguration()->setSQLLogger(null);
             $images = $em->createQueryBuilder()
                 ->select('i')
                 ->from(Image::class, 'i')

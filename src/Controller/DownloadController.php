@@ -85,7 +85,6 @@ class DownloadController extends AbstractController
                     $image->setImage('/' . $filename);
                     $image->setThumbnail('/' . $thumbnail);
                     $em = $this->container->get('doctrine')->getManager();
-                    $em->getConnection()->getConfiguration()->setSQLLogger(null);
                     $em->persist($image);
                     $em->flush();
 

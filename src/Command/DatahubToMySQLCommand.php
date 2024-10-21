@@ -10,6 +10,7 @@ use App\Utils\CurlUtil;
 use App\Utils\IIIFUtil;
 use App\Utils\OaiPmhApiUtil;
 use App\Utils\StringUtil;
+use Doctrine\ORM\EntityManagerInterface;
 use DOMDocument;
 use DOMXPath;
 use Phpoaipmh\Client;
@@ -23,11 +24,14 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
-class DatahubToMySQLCommand extends Command implements ContainerAwareInterface, LoggerAwareInterface
+class DatahubToMySQLCommand extends Command implements LoggerAwareInterface
 {
+    private $parameterBag;
+    private $entityManager;
+
     private $datahubUrl;
     private $datahubLanguage;
     private $namespace;
@@ -49,52 +53,50 @@ class DatahubToMySQLCommand extends Command implements ContainerAwareInterface, 
             ->setHelp('');
     }
 
-    public function setContainer(ContainerInterface $container = null)
+    public function __construct(ParameterBagInterface $parameterBag, EntityManagerInterface $entityManager)
     {
-        $this->container = $container;
+        $this->parameterBag = $parameterBag;
+        $this->entityManager = $entityManager;
+        parent::__construct();
     }
 
-    public function setLogger(LoggerInterface $logger)
+    public function setLogger(LoggerInterface $logger): void
     {
         $this->logger = $logger;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->verbose = $input->getOption('verbose');
 
         $this->datahubUrl = $input->getArgument('url');
         if (!$this->datahubUrl) {
-            $this->datahubUrl = $this->container->getParameter('datahub_url');
+            $this->datahubUrl = $this->parameterBag->get('datahub_url');
         }
         $username = $input->getArgument('username');
         $password = $input->getArgument('password');
 
-        $overrideCA = $this->container->getParameter('override_certificate_authority');
-        $sslCAFile = $this->container->getParameter('ssl_certificate_authority_file');
+        $overrideCA = $this->parameterBag->get('override_certificate_authority');
+        $sslCAFile = $this->parameterBag->get('ssl_certificate_authority_file');
 
-        $this->datahubLanguage = $this->container->getParameter('datahub_language');
-        $this->namespace = $this->container->getParameter('datahub_namespace');
-        $this->metadataPrefix = $this->container->getParameter('datahub_metadataprefix');
-        $this->dataDefinition = $this->container->getParameter('datahub_data_definition');
-        $this->placeholderImages = $this->container->getParameter('placeholder_images');
+        $this->datahubLanguage = $this->parameterBag->get('datahub_language');
+        $this->namespace = $this->parameterBag->get('datahub_namespace');
+        $this->metadataPrefix = $this->parameterBag->get('datahub_metadataprefix');
+        $this->dataDefinition = $this->parameterBag->get('datahub_data_definition');
+        $this->placeholderImages = $this->parameterBag->get('placeholder_images');
 
-        $em = $this->container->get('doctrine')->getManager();
-        //Disable SQL logging to improve performance
-        $em->getConnection()->getConfiguration()->setSQLLogger(null);
-
-        $this->storeAllDatahubData($em, $username, $password, $overrideCA, $sslCAFile);
+        $this->storeAllDatahubData($username, $password, $overrideCA, $sslCAFile);
 
         return 0;
     }
 
-    function storeAllDatahubData($em, $username, $password, $overrideCA, $sslCAFile)
+    function storeAllDatahubData($username, $password, $overrideCA, $sslCAFile)
     {
-        $qb = $em->createQueryBuilder();
+        $qb = $this->entityManager->createQueryBuilder();
         $qb->delete(DatahubData::class, 'data')->getQuery()->execute();
-        $em->flush();
+        $this->entityManager->flush();
 
-        $existingImages = $em->createQueryBuilder()
+        $existingImages = $this->entityManager->createQueryBuilder()
             ->select('i')
             ->from(Image::class, 'i')
             ->getQuery()
@@ -232,7 +234,7 @@ class DatahubToMySQLCommand extends Command implements ContainerAwareInterface, 
                             $image->setThumbnail(IIIFUtil::generateIIIFThumbnail($datahubData['iiif_image_url']));
                             if(!in_array($image->getHash(), $this->imageHashes)) {
                                 $this->imageHashes[] = $image->getHash();
-                                $em->persist($image);
+                                $this->entityManager->persist($image);
                             }
                             $datahubData['images'] = $image->getHash();
                             $datahubData['thumbnail'] = $image->getThumbnail();
@@ -241,7 +243,7 @@ class DatahubToMySQLCommand extends Command implements ContainerAwareInterface, 
                     }
 
                     $invNr = null;
-                    $inventoryNumbers = $em->createQueryBuilder()
+                    $inventoryNumbers = $this->entityManager->createQueryBuilder()
                         ->select('i')
                         ->from(InventoryNumber::class, 'i')
                         ->where('i.inventoryNumber = :inventory_number')
@@ -254,8 +256,8 @@ class DatahubToMySQLCommand extends Command implements ContainerAwareInterface, 
                     if($invNr == null) {
                         $invNr = new InventoryNumber();
                         $invNr->setInventoryNumber($inventoryNumber);
-                        $em->persist($invNr);
-                        $em->flush();
+                        $this->entityManager->persist($invNr);
+                        $this->entityManager->flush();
                     }
 
                     // Delete any data that might already exist for this inventory number
@@ -264,7 +266,7 @@ class DatahubToMySQLCommand extends Command implements ContainerAwareInterface, 
                         ->setParameter('id', $invNr->getId())
                         ->getQuery();
                     $query->execute();
-                    $em->flush();
+                    $this->entityManager->flush();
 
                     //Store all relevant Datahub data in mysql
                     foreach($datahubData as $key => $value) {
@@ -272,10 +274,10 @@ class DatahubToMySQLCommand extends Command implements ContainerAwareInterface, 
                         $data->setId($invNr->getId());
                         $data->setName($key);
                         $data->setValue($value);
-                        $em->persist($data);
+                        $this->entityManager->persist($data);
                     }
-                    $em->flush();
-                    $em->clear();
+                    $this->entityManager->flush();
+                    $this->entityManager->clear();
                 }
             }
         }

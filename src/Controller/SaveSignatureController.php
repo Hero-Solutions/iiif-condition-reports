@@ -49,7 +49,6 @@ class SaveSignatureController extends AbstractController
             $signature->setActorId($actorId);
             $signature->setFilename($folder . '/' . $filename);
             $em = $this->container->get('doctrine')->getManager();
-            $em->getConnection()->getConfiguration()->setSQLLogger(null);
             $em->persist($signature);
             $em->flush();
 

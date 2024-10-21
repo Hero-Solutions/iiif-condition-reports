@@ -27,7 +27,7 @@ class ResetPasswordRequest implements ResetPasswordRequestInterface
      */
     private $user;
 
-    public function __construct(object $user, \DateTimeInterface $expiresAt, string $selector, string $hashedToken)
+    public function __construct(\SymfonyCasts\Bundle\ResetPassword\Persistence\object $user, \DateTimeInterface $expiresAt, string $selector, string $hashedToken)
     {
         $this->user = $user;
         $this->initialize($expiresAt, $selector, $hashedToken);

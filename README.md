@@ -9,6 +9,7 @@ This tool is aimed toward the creation and management of condition reports using
 
 ## Requirements
 
+* PHP >=8.2
 * php-imagick
 
 The tables as defined in `condition_report_tables.sql` have to be present in MySQL.

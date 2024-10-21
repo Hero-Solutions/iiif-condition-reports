@@ -46,7 +46,6 @@ class UploadController extends AbstractController
             $image->setThumbnail('/' . $thumbnail);
 
             $em = $this->container->get('doctrine')->getManager();
-            $em->getConnection()->getConfiguration()->setSQLLogger(null);
             $em->persist($image);
             $em->flush();
 
