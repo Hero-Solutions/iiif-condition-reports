@@ -15,6 +15,7 @@
         "caseyamcl/phpoaipmh": "^3.3",
         "doctrine/doctrine-bundle": "^2.13",
         "doctrine/orm": "^3.3",
+        "symfony/asset": "7.1.*",
         "symfony/console": "7.1.*",
         "symfony/dotenv": "7.1.*",
         "symfony/flex": "^2",
