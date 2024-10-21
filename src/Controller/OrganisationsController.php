@@ -9,13 +9,11 @@ use App\Entity\Report;
 use App\Utils\IIIFUtil;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class OrganisationsController extends AbstractController
 {
-    /**
-     * @Route("/{_locale}/organisations", name="organisations")
-     */
+    #[Route("/{_locale}/organisations", name: "organisations")]
     public function organisations(Request $request)
     {
         $locale = $request->get('_locale');

@@ -8,7 +8,7 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class OrganisationController extends AbstractController
@@ -20,9 +20,7 @@ class OrganisationController extends AbstractController
         $this->translator = $translator;
     }
 
-    /**
-     * @Route("/{_locale}/organisation/{id}/{action}", name="organisation", defaults={ "id"="", "action"="" })
-     */
+    #[Route("/{_locale}/organisation/{id}/{action}", name: "organisation", defaults: ["id" => "", "action" => ""])]
     public function organisation(Request $request, $id, $action)
     {
         $locale = $request->get('_locale');

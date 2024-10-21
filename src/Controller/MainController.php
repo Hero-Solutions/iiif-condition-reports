@@ -14,7 +14,7 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class MainController extends AbstractController
@@ -26,10 +26,8 @@ class MainController extends AbstractController
         $this->translator = $translator;
     }
 
-    /**
-     * @Route("/")
-     * @Route("/{_locale}", name="main")
-     */
+    #[Route("/")]
+    #[Route("/{_locale}", name: "main")]
     public function reports(Request $request)
     {
         $t = $this->translator;

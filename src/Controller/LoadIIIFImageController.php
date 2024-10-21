@@ -12,13 +12,11 @@ use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class LoadIIIFImageController extends AbstractController
 {
-    /**
-     * @Route("/{_locale}/loadiiifimage", name="loadiiifimage")
-     */
+    #[Route("/{_locale}/loadiiifimage", name: "loadiiifimage")]
     public function loadiiifimage(Request $request)
     {
         if(!$this->getUser()) {

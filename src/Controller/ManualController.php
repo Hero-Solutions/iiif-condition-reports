@@ -4,14 +4,12 @@ namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Twig\Environment;
 
 class ManualController extends AbstractController
 {
-    /**
-     * @Route("/{_locale}/manual", name="manual")
-     */
+    #[Route("/{_locale}/manual", name: "manual")]
     public function manual(Request $request, Environment $env)
     {
         $locale = $request->get('_locale');

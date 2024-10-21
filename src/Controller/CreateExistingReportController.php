@@ -15,13 +15,11 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\Entity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class CreateExistingReportController extends AbstractController
 {
-    /**
-     * @Route("/{_locale}/create/existing/{baseId}", name="create_existing")
-     */
+    #[Route("/{_locale}/create/existing/{baseId}", name: "create_existing")]
     public function createExisting(Request $request, $baseId)
     {
         $locale = $request->get('_locale');

@@ -17,7 +17,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ProfileController extends AbstractController
@@ -29,9 +29,7 @@ class ProfileController extends AbstractController
         $this->translator = $translator;
     }
 
-    /**
-     * @Route("/{_locale}/profile", name="profile")
-     */
+    #[Route("/{_locale}/profile", name: "profile")]
     public function profile(Request $request, UserPasswordHasherInterface $passwordHasher)
     {
         $locale = $request->get('_locale');

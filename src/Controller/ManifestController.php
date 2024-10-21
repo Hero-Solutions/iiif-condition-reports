@@ -7,13 +7,11 @@ use App\Utils\Authenticator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class ManifestController extends AbstractController
 {
-    /**
-     * @Route("/iiif/3/{manifestId}/manifest.json", name="manifest")
-     */
+    #[Route("/iiif/3/{manifestId}/manifest.json", name: "manifest")]
     public function manifestAction(Request $request, $manifestId = '')
     {
         if(!$this->getUser()) {

@@ -11,13 +11,11 @@ use App\Entity\Representative;
 use App\Utils\IIIFUtil;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class LoanProjectsController extends AbstractController
 {
-    /**
-     * @Route("/{_locale}/loan_projects", name="loan_projects")
-     */
+    #[Route("/{_locale}/loan_projects", name: "loan_projects")]
     public function loanProjects(Request $request)
     {
         $locale = $request->get('_locale');

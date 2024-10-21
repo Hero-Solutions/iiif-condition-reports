@@ -10,13 +10,11 @@ use App\Entity\Representative;
 use App\Utils\IIIFUtil;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class RepresentativesController extends AbstractController
 {
-    /**
-     * @Route("/{_locale}/representatives", name="representatives")
-     */
+    #[Route("/{_locale}/representatives", name: "representatives")]
     public function representatives(Request $request)
     {
         $locale = $request->get('_locale');

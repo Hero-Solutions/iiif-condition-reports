@@ -11,13 +11,11 @@ use App\Utils\LocaleUtil;
 use App\Utils\ReportTemplateData;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class CreateBlankReportController extends AbstractController
 {
-    /**
-     * @Route("/{_locale}/create/blank/{id}", name="create_blank")
-     */
+    #[Route("/{_locale}/create/blank/{id}", name: "create_blank")]
     public function createBlank(Request $request, $id)
     {
         $locale = $request->get('_locale');

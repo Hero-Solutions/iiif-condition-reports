@@ -16,7 +16,7 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class RepresentativeController extends AbstractController
@@ -28,9 +28,7 @@ class RepresentativeController extends AbstractController
         $this->translator = $translator;
     }
 
-    /**
-     * @Route("/{_locale}/representative/{id}/{action}", name="representative", defaults={ "id"="", "action"="" })
-     */
+    #[Route("/{_locale}/representative/{id}/{action}", name: "representative", defaults: ["id" => "", "action" => ""])]
     public function representative(Request $request, $id, $action)
     {
         $locale = $request->get('_locale');

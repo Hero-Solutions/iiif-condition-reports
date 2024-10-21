@@ -4,13 +4,11 @@ namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class DisclaimerController extends AbstractController
 {
-    /**
-     * @Route("/{_locale}/disclaimer", name="disclaimer")
-     */
+    #[Route("/{_locale}/disclaimer", name: "disclaimer")]
     public function disclaimer(Request $request)
     {
         $locale = $request->get('_locale');
