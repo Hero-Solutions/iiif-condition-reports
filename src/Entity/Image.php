@@ -4,26 +4,18 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\ImageRepository")
- * @ORM\Table(name="images")
- */
+#[ORM\Entity(repositoryClass: "App\Repository\ImageRepository")]
+#[ORM\Table(name: "images")]
 class Image
 {
-    /**
-     * @ORM\Id
-     * @ORM\Column(type="string", length=64)
-     */
+    #[ORM\Id]
+    #[ORM\Column(type: "string", length: 64)]
     private $hash;
 
-    /**
-     * @ORM\Column(type="text")
-     */
+    #[ORM\Column(type: "text")]
     private $image;
 
-    /**
-     * @ORM\Column(type="text")
-     */
+    #[ORM\Column(type: "text")]
     private $thumbnail;
 
     public function getHash()

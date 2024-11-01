@@ -4,27 +4,19 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\ReportDataRepository")
- * @ORM\Table(name="report_data")
- */
+#[ORM\Entity(repositoryClass: "App\Repository\ReportDataRepository")]
+#[ORM\Table(name: "report_data")]
 class ReportData
 {
-    /**
-     * @ORM\Id()
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id()]
+    #[ORM\Column(type: "integer")]
     private $id;
 
-    /**
-     * @ORM\Id()
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Id()]
+    #[ORM\Column(type: "string", length: 255)]
     private $name;
 
-    /**
-     * @ORM\Column(type="text")
-     */
+    #[ORM\Column(type: "text")]
     private $value;
 
     public function getId(): ?int

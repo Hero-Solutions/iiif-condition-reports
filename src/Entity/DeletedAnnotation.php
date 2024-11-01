@@ -4,28 +4,20 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\DeletedAnnotationRepository")
- * @ORM\Table(name="deleted_annotations")
- */
+#[ORM\Entity(repositoryClass: "App\Repository\DeletedAnnotationRepository")]
+#[ORM\Table(name: "deleted_annotations")]
 class DeletedAnnotation
 {
-    /**
-     * @ORM\Id
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\Column(type: "integer")]
     private $reportId;
 
-    /**
-     * @ORM\Id
-     * @ORM\Column(type="string", length=64)
-     */
+    #[ORM\Id]
+    #[ORM\Column(type: "string", length: 64)]
     private $image;
 
-    /**
-     * @ORM\Id
-     * @ORM\Column(type="string")
-     */
+    #[ORM\Id]
+    #[ORM\Column(type: "string")]
     private $annotationId;
 
     public function getReportId()
