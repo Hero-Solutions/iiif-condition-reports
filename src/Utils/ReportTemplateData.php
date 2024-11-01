@@ -15,11 +15,11 @@ use App\Entity\ReportHistory;
 use App\Entity\Representative;
 use App\Entity\Signature;
 use App\Entity\User;
-use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 
 class ReportTemplateData
 {
-    public static function getJsonData(EntityManager $em, $id, $baseUrl)
+    public static function getJsonData(EntityManagerInterface $em, $id, $baseUrl)
     {
         $data = self::getExistingReportData($em, $id, $baseUrl);
         unset($data['organisations']);
@@ -29,7 +29,7 @@ class ReportTemplateData
         return $data;
     }
 
-    public static function getViewData(EntityManager $em, $reportReasons, $objectTypes, $actorTypes, $reportFields, $pictures, $id, $translatedRoutes)
+    public static function getViewData(EntityManagerInterface $em, $reportReasons, $objectTypes, $actorTypes, $reportFields, $pictures, $id, $translatedRoutes)
     {
         $imageRelPath = '../..';
         $data = self::getExistingReportData($em, $id, $imageRelPath);
@@ -63,7 +63,7 @@ class ReportTemplateData
         return $data;
     }
 
-    public static function getDataToCreateExisting(EntityManager $em, $user, $reportReasons, $objectTypes, $actorTypes, $reportFields, $pictures, $id, $translatedRoutes)
+    public static function getDataToCreateExisting(EntityManagerInterface $em, $user, $reportReasons, $objectTypes, $actorTypes, $reportFields, $pictures, $id, $translatedRoutes)
     {
         $imageRelPath = '../../..';
         $data = self::getExistingReportData($em, $id, $imageRelPath);
@@ -82,7 +82,7 @@ class ReportTemplateData
         return $data;
     }
 
-    public static function getDataToCreateBlank(EntityManager $em, $user, $reportReasons, $objectTypes, $actorTypes, $reportFields, $pictures, $id, $translatedRoutes)
+    public static function getDataToCreateBlank(EntityManagerInterface $em, $user, $reportReasons, $objectTypes, $actorTypes, $reportFields, $pictures, $id, $translatedRoutes)
     {
         // Prevent creation of a blank report if there is already a report for this inventory number
         $canCreate = true;
@@ -131,7 +131,7 @@ class ReportTemplateData
         ];
     }
 
-    public static function getExistingReportData(EntityManager $em, $id, $imageRelPath)
+    public static function getExistingReportData(EntityManagerInterface $em, $id, $imageRelPath)
     {
         $prefilledData = array();
         $reportData = $em->createQueryBuilder()
@@ -275,7 +275,7 @@ class ReportTemplateData
         ];
    }
 
-   public static function getDatahubData(EntityManager $em, $id, $prefilledData)
+   public static function getDatahubData(EntityManagerInterface $em, $id, $prefilledData)
    {
        $datahubData = $em->createQueryBuilder()
            ->select('i.id, i.inventoryNumber, d.name, d.value')
@@ -295,7 +295,7 @@ class ReportTemplateData
        return $prefilledData;
    }
 
-   public static function getImages(EntityManager $em, $prefilledData, $imageRelPath)
+   public static function getImages(EntityManagerInterface $em, $prefilledData, $imageRelPath)
    {
        $images = array();
        if(array_key_exists('images', $prefilledData)) {
@@ -357,7 +357,7 @@ class ReportTemplateData
        return round(($height > $width ? $height : $width) / 100);
    }
 
-    public static function getOrganisations(EntityManager $em)
+    public static function getOrganisations(EntityManagerInterface $em)
     {
         $organisations = array();
         $organisationData = $em->createQueryBuilder()
@@ -372,7 +372,7 @@ class ReportTemplateData
         return $organisations;
     }
 
-    public static function getRepresentatives(EntityManager $em)
+    public static function getRepresentatives(EntityManagerInterface $em)
     {
         $representatives = array();
         $representativeData = $em->createQueryBuilder()
@@ -387,7 +387,7 @@ class ReportTemplateData
         return $representatives;
     }
 
-    public static function getLoanProjects(EntityManager $em)
+    public static function getLoanProjects(EntityManagerInterface $em)
     {
         $loanProjects = array();
         $loanProjectData = $em->createQueryBuilder()

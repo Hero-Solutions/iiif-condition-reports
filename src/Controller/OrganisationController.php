@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Organisation;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -14,10 +15,12 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class OrganisationController extends AbstractController
 {
     private $translator;
+    private EntityManagerInterface $entityManager;
 
-    public function __construct(TranslatorInterface $translator)
+    public function __construct(TranslatorInterface $translator, EntityManagerInterface $entityManager)
     {
         $this->translator = $translator;
+        $this->entityManager = $entityManager;
     }
 
     #[Route("/{_locale}/organisation/{id}/{action}", name: "organisation", defaults: ["id" => "", "action" => ""])]
@@ -37,12 +40,10 @@ class OrganisationController extends AbstractController
             return $this->redirectToRoute('main');
         }
 
-        $em = $this->container->get('doctrine')->getManager();
-
         $organisation = new Organisation();
         if (!empty($id)) {
             $organisation = null;
-            $organisations = $em->createQueryBuilder()
+            $organisations = $this->entityManager->createQueryBuilder()
                 ->select('o')
                 ->from(Organisation::class, 'o')
                 ->where('o.id = :id')
@@ -55,8 +56,8 @@ class OrganisationController extends AbstractController
             }
         }
         if($action == 'delete' && !empty($id) && $organisations != null) {
-            $em->remove($organisation);
-            $em->flush();
+            $this->entityManager->remove($organisation);
+            $this->entityManager->flush();
             return $this->redirectToRoute('organisations');
         } else {
             $t = $this->translator;
@@ -83,8 +84,8 @@ class OrganisationController extends AbstractController
                 if (empty($formData->getAlias())) {
                     $formData->setAlias($formData->getName());
                 }
-                $em->persist($formData);
-                $em->flush();
+                $this->entityManager->persist($formData);
+                $this->entityManager->flush();
                 return $this->redirectToRoute('organisations');
             } else {
                 $translatedRoutes = array();

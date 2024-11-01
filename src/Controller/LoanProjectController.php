@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\LoanProject;
 use App\Entity\Organisation;
 use App\Entity\Representative;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
@@ -18,10 +19,12 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class LoanProjectController extends AbstractController
 {
     private $translator;
+    private EntityManagerInterface $entityManager;
 
-    public function __construct(TranslatorInterface $translator)
+    public function __construct(TranslatorInterface $translator, EntityManagerInterface $entityManager)
     {
         $this->translator = $translator;
+        $this->entityManager = $entityManager;
     }
 
     #[Route("/{_locale}/loan_project/{id}/{action}", name: "loan_project", defaults: ["id" => "", "action" => ""])]
@@ -41,15 +44,13 @@ class LoanProjectController extends AbstractController
             return $this->redirectToRoute('main');
         }
 
-        $em = $this->container->get('doctrine')->getManager();
-
         $loanProject = new LoanProject();
         $organisationName = null;
         $representativeName = null;
         if (!empty($id)) {
             $loanProject = null;
             /* @var $loanProjects LoanProject[] */
-            $loanProjects = $em->createQueryBuilder()
+            $loanProjects = $this->entityManager->createQueryBuilder()
                 ->select('l')
                 ->from(LoanProject::class, 'l')
                 ->where('l.id = :id')
@@ -64,13 +65,13 @@ class LoanProjectController extends AbstractController
             }
         }
         if($action == 'delete' && !empty($id) && $loanProject != null) {
-            $em->remove($loanProject);
-            $em->flush();
+            $this->entityManager->remove($loanProject);
+            $this->entityManager->flush();
             return $this->redirectToRoute('loan_projects');
         } else {
             $organisationNames = [];
             $organisations = [];
-            $orgs = $em->createQueryBuilder()
+            $orgs = $this->entityManager->createQueryBuilder()
                 ->select('o')
                 ->from(Organisation::class, 'o')
                 ->orderBy('o.alias')
@@ -83,7 +84,7 @@ class LoanProjectController extends AbstractController
 
             $representativeNames = [];
             $representatives = [];
-            $reps = $em->createQueryBuilder()
+            $reps = $this->entityManager->createQueryBuilder()
                 ->select('r')
                 ->from(Representative::class, 'r')
                 ->orderBy('r.alias')
@@ -129,8 +130,8 @@ class LoanProjectController extends AbstractController
                 if (empty($formData->getAlias())) {
                     $formData->setAlias($formData->getTitle());
                 }
-                $em->persist($formData);
-                $em->flush();
+                $this->entityManager->persist($formData);
+                $this->entityManager->flush();
                 return $this->redirectToRoute('loan_projects');
             } else {
                 $translatedRoutes = array();

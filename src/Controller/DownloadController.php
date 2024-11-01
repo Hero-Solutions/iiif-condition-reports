@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Image;
 use App\Utils\IIIFUtil;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,10 +14,12 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class DownloadController extends AbstractController
 {
     private $translator;
+    private EntityManagerInterface $entityManager;
 
-    public function __construct(TranslatorInterface $translator)
+    public function __construct(TranslatorInterface $translator, EntityManagerInterface $entityManager)
     {
         $this->translator = $translator;
+        $this->entityManager = $entityManager;
     }
 
     #[Route("/{_locale}/download", name: "download")]
@@ -82,9 +85,8 @@ class DownloadController extends AbstractController
                     $image = new Image();
                     $image->setImage('/' . $filename);
                     $image->setThumbnail('/' . $thumbnail);
-                    $em = $this->container->get('doctrine')->getManager();
-                    $em->persist($image);
-                    $em->flush();
+                    $this->entityManager->persist($image);
+                    $this->entityManager->flush();
 
                     $response = new Response(json_encode(array('hash' => $image->getHash(), 'image' => '/' . $filename, 'thumbnail' => '/' . $thumbnail)));
                     $response->headers->set('Content-Type', 'application/json');

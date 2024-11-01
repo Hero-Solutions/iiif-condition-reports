@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Image;
 use App\Utils\IIIFUtil;
+use Doctrine\ORM\EntityManagerInterface;
 use Imagick;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -12,6 +13,13 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class UploadController extends AbstractController
 {
+    private EntityManagerInterface $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
+    }
+
     #[Route("/{_locale}/upload", name: "upload")]
     public function upload(Request $request)
     {
@@ -43,9 +51,8 @@ class UploadController extends AbstractController
             $thumbnail = IIIFUtil::generateThumbnail($filename, $thumbnail);
             $image->setThumbnail('/' . $thumbnail);
 
-            $em = $this->container->get('doctrine')->getManager();
-            $em->persist($image);
-            $em->flush();
+            $this->entityManager->persist($image);
+            $this->entityManager->flush();
 
             $response = new Response(json_encode(array('hash' => $image->getHash(), 'image' => $image->getImage(), 'thumbnail' => $image->getThumbnail())));
             $response->headers->set('Content-Type', 'application/json');

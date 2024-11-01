@@ -9,6 +9,7 @@ use App\Entity\Report;
 use App\Entity\Representative;
 use App\Entity\User;
 use App\Utils\IIIFUtil;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
@@ -17,16 +18,18 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class UserController extends AbstractController
 {
     private $translator;
+    private EntityManagerInterface $entityManager;
 
-    public function __construct(TranslatorInterface $translator)
+    public function __construct(TranslatorInterface $translator, EntityManagerInterface $entityManager)
     {
         $this->translator = $translator;
+        $this->entityManager = $entityManager;
     }
 
     #[Route("/{_locale}/user/{id}/{action}", name: "user", defaults: ["id" => "", "action" => ""])]
@@ -46,12 +49,10 @@ class UserController extends AbstractController
             return $this->redirectToRoute('main');
         }
 
-        $em = $this->container->get('doctrine')->getManager();
-
         $user = new User();
         if (!empty($id)) {
             $user = null;
-            $users = $em->createQueryBuilder()
+            $users = $this->entityManager->createQueryBuilder()
                 ->select('u')
                 ->from(User::class, 'u')
                 ->where('u.id = :id')
@@ -65,8 +66,8 @@ class UserController extends AbstractController
         }
 
         if($action == 'delete' && !empty($id) && $user != null) {
-            $em->remove($user);
-            $em->flush();
+            $this->entityManager->remove($user);
+            $this->entityManager->flush();
             return $this->redirectToRoute('users');
         } else {
             $t = $this->translator;
@@ -89,8 +90,8 @@ class UserController extends AbstractController
                 } else {
                     $formData->setPassword($user->getPassword());
                 }
-                $em->persist($formData);
-                $em->flush();
+                $this->entityManager->persist($formData);
+                $this->entityManager->flush();
                 return $this->redirectToRoute('users');
             }
 

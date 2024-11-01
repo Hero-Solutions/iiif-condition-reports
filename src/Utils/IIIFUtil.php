@@ -86,7 +86,7 @@ class IIIFUtil
         }
     }
 
-    public static function generateManifest($em, $reportId, $reportData, $images, $annotationData, $serviceUrl,
+    public static function generateManifest(EntityManagerInterface $em, $reportId, $reportData, $images, $annotationData, $serviceUrl,
                                             $validate, $validatorUrl, $authenticationUrl, $authenticationServiceDescription)
     {
         $data['metadata'] = array();

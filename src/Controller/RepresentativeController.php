@@ -8,6 +8,7 @@ use App\Entity\Organisation;
 use App\Entity\Report;
 use App\Entity\Representative;
 use App\Utils\IIIFUtil;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
@@ -22,10 +23,12 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class RepresentativeController extends AbstractController
 {
     private $translator;
+    private EntityManagerInterface $entityManager;
 
-    public function __construct(TranslatorInterface $translator)
+    public function __construct(TranslatorInterface $translator, EntityManagerInterface $entityManager)
     {
         $this->translator = $translator;
+        $this->entityManager = $entityManager;
     }
 
     #[Route("/{_locale}/representative/{id}/{action}", name: "representative", defaults: ["id" => "", "action" => ""])]
@@ -45,14 +48,12 @@ class RepresentativeController extends AbstractController
             return $this->redirectToRoute('main');
         }
 
-        $em = $this->container->get('doctrine')->getManager();
-
         $representative = new Representative();
         $organisationName = null;
         if (!empty($id)) {
             $representative = null;
             /* @var $representatives Representative[] */
-            $representatives = $em->createQueryBuilder()
+            $representatives = $this->entityManager->createQueryBuilder()
                 ->select('r')
                 ->from(Representative::class, 'r')
                 ->where('r.id = :id')
@@ -67,13 +68,13 @@ class RepresentativeController extends AbstractController
         }
 
         if($action == 'delete' && !empty($id) && $representative != null) {
-            $em->remove($representative);
-            $em->flush();
+            $this->entityManager->remove($representative);
+            $this->entityManager->flush();
             return $this->redirectToRoute('representatives');
         } else {
             $organisationNames = [];
             $organisations = [];
-            $orgs = $em->createQueryBuilder()
+            $orgs = $this->entityManager->createQueryBuilder()
                 ->select('o')
                 ->from(Organisation::class, 'o')
                 ->orderBy('o.alias')
@@ -108,8 +109,8 @@ class RepresentativeController extends AbstractController
                 if(!empty($formData->getOrganisation()) && array_key_exists($formData->getOrganisation(), $organisations)) {
                     $formData->setOrganisationName($organisations[$formData->getOrganisation()]);
                 }
-                $em->persist($formData);
-                $em->flush();
+                $this->entityManager->persist($formData);
+                $this->entityManager->flush();
                 return $this->redirectToRoute('representatives');
             } else {
                 $translatedRoutes = array();

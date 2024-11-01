@@ -4,13 +4,21 @@ namespace App\Controller;
 
 use App\Entity\Signature;
 use DateTime;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class SaveSignatureController extends AbstractController
 {
+    private EntityManagerInterface $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
+    }
+
     #[Route("/{_locale}/save_signature/{reportId}/{name}/{actorId}", name: "save_signature")]
     public function saveSignature(Request $request, $reportId, $name, $actorId)
     {
@@ -46,9 +54,8 @@ class SaveSignatureController extends AbstractController
             $signature->setName($name);
             $signature->setActorId($actorId);
             $signature->setFilename($folder . '/' . $filename);
-            $em = $this->container->get('doctrine')->getManager();
-            $em->persist($signature);
-            $em->flush();
+            $this->entityManager->persist($signature);
+            $this->entityManager->flush();
 
             $response = new Response(json_encode(array('timestamp' => $timestamp->format('Y-m-d H:i:s'), 'image' => '../../' . $folder . '/' . $filename)));
             $response->headers->set('Content-Type', 'application/json');

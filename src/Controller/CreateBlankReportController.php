@@ -9,12 +9,20 @@ use App\Entity\Representative;
 use App\Utils\CurlUtil;
 use App\Utils\LocaleUtil;
 use App\Utils\ReportTemplateData;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 class CreateBlankReportController extends AbstractController
 {
+    private EntityManagerInterface $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
+    }
+
     #[Route("/{_locale}/create/blank/{id}", name: "create_blank")]
     public function createBlank(Request $request, $id)
     {
@@ -32,7 +40,6 @@ class CreateBlankReportController extends AbstractController
             return $this->redirectToRoute('main');
         }
 
-        $em = $this->container->get('doctrine')->getManager();
         $reportReasons = $this->getParameter('report_reasons');
         $objectTypes = $this->getParameter('object_types');
         $actorTypes = $this->getParameter('actor_types');
@@ -48,7 +55,7 @@ class CreateBlankReportController extends AbstractController
             );
         }
 
-        $data = ReportTemplateData::getDataToCreateBlank($em, $this->getUser(), $reportReasons, $objectTypes, $actorTypes, $reportFields, $pictures, $id, $translatedRoutes);
+        $data = ReportTemplateData::getDataToCreateBlank($this->entityManager, $this->getUser(), $reportReasons, $objectTypes, $actorTypes, $reportFields, $pictures, $id, $translatedRoutes);
         if($data === null) {
             return $this->redirectToRoute('main', array('_locale' => $locale));
         } else {

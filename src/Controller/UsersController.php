@@ -3,12 +3,20 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class UsersController extends AbstractController
 {
+    private EntityManagerInterface $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
+    }
+
     #[Route("/{_locale}/users", name: "users")]
     public function users(Request $request)
     {
@@ -26,10 +34,8 @@ class UsersController extends AbstractController
             return $this->redirectToRoute('main');
         }
 
-        $em = $this->container->get('doctrine')->getManager();
-
         $users = [];
-        $usrs = $em->createQueryBuilder()
+        $usrs = $this->entityManager->createQueryBuilder()
             ->select('u')
             ->from(User::class, 'u')
             ->where('u.email <> :this_email')

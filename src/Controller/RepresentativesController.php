@@ -2,18 +2,22 @@
 
 namespace App\Controller;
 
-use App\Entity\DatahubData;
-use App\Entity\InventoryNumber;
 use App\Entity\Organisation;
-use App\Entity\Report;
 use App\Entity\Representative;
-use App\Utils\IIIFUtil;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 class RepresentativesController extends AbstractController
 {
+    private EntityManagerInterface $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
+    }
+
     #[Route("/{_locale}/representatives", name: "representatives")]
     public function representatives(Request $request)
     {
@@ -31,10 +35,8 @@ class RepresentativesController extends AbstractController
             return $this->redirectToRoute('main');
         }
 
-        $em = $this->container->get('doctrine')->getManager();
-
         $organisationNames = [];
-        $orgs = $em->createQueryBuilder()
+        $orgs = $this->entityManager->createQueryBuilder()
             ->select('o')
             ->from(Organisation::class, 'o')
             ->getQuery()
@@ -44,7 +46,7 @@ class RepresentativesController extends AbstractController
         }
 
         $searchResults = array();
-        $representatives = $em->createQueryBuilder()
+        $representatives = $this->entityManager->createQueryBuilder()
             ->select('r')
             ->from(Representative::class, 'r')
             ->orderBy('r.organisationName, r.organisation, r.alias')

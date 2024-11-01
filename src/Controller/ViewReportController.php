@@ -3,12 +3,20 @@
 namespace App\Controller;
 
 use App\Utils\ReportTemplateData;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class ViewReportController extends AbstractController
 {
+    private EntityManagerInterface $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
+    }
+
     #[Route("/{_locale}/view/{id}", name: "view")]
     public function view(Request $request, $id)
     {
@@ -26,7 +34,6 @@ class ViewReportController extends AbstractController
             return $this->redirectToRoute('main');
         }
 
-        $em = $this->get('doctrine')->getManager();
         $reportReasons = $this->getParameter('report_reasons');
         $objectTypes = $this->getParameter('object_types');
         $actorTypes = $this->getParameter('actor_types');
@@ -42,7 +49,7 @@ class ViewReportController extends AbstractController
             );
         }
 
-        $viewData = ReportTemplateData::getViewData($em, $reportReasons, $objectTypes, $actorTypes, $reportFields, $pictures, $id, $translatedRoutes);
+        $viewData = ReportTemplateData::getViewData($this->entityManager, $reportReasons, $objectTypes, $actorTypes, $reportFields, $pictures, $id, $translatedRoutes);
         if(array_key_exists('is_draft', $viewData['prefilled_data']) && array_key_exists('base_id', $viewData['prefilled_data'])) {
             if($viewData['prefilled_data']['is_draft']) {
                 $viewData['edit_url'] = $this->generateUrl('create_existing', array('_locale' => $locale, 'baseId' => $viewData['prefilled_data']['base_id']));

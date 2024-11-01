@@ -8,6 +8,7 @@ use App\Entity\ReportHistory;
 use App\Utils\CurlUtil;
 use App\Utils\IIIFUtil;
 use App\Utils\StringUtil;
+use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,6 +17,13 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class LoadIIIFImageController extends AbstractController
 {
+    private EntityManagerInterface $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
+    }
+
     #[Route("/{_locale}/loadiiifimage", name: "loadiiifimage")]
     public function loadiiifimage(Request $request)
     {
@@ -53,8 +61,7 @@ class LoadIIIFImageController extends AbstractController
             $image->setImage($imageUrl);
 
             //Check if this image doesn't exist already
-            $em = $this->container->get('doctrine')->getManager();
-            $images = $em->createQueryBuilder()
+            $images = $this->entityManager->createQueryBuilder()
                 ->select('i')
                 ->from(Image::class, 'i')
                 ->where('i.hash = :hash')
@@ -68,8 +75,8 @@ class LoadIIIFImageController extends AbstractController
             }
             if($persist) {
                 $image->setThumbnail(IIIFUtil::generateIIIFThumbnail($imageNoJson, false));
-                $em->persist($image);
-                $em->flush();
+                $this->entityManager->persist($image);
+                $this->entityManager->flush();
             }
 
             $response = new Response(json_encode(array('hash' => $image->getHash(), 'image' => $image->getImage(), 'thumbnail' => $image->getThumbnail())));

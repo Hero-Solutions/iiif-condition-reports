@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\IIIFManifest;
 use App\Utils\Authenticator;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -11,6 +12,13 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class ManifestController extends AbstractController
 {
+    private EntityManagerInterface $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
+    }
+
     #[Route("/iiif/3/{manifestId}/manifest.json", name: "manifest")]
     public function manifestAction(Request $request, $manifestId = '')
     {
@@ -25,9 +33,8 @@ class ManifestController extends AbstractController
         // Make sure the service URL name ends with a trailing slash
         $baseUrl = rtrim($this->getParameter('service_url'), '/') . '/';
 
-        $em = $this->container->get('doctrine')->getManager();
         if($request->getMethod() == 'HEAD') {
-            $ids = $em->createQueryBuilder()
+            $ids = $this->entityManager->createQueryBuilder()
                 ->select('m.id')
                 ->from(IIIFManifest::class, 'm')
                 ->where('m.id = :id')
@@ -41,7 +48,7 @@ class ManifestController extends AbstractController
             }
         } else {
             $manifest = null;
-            $manifests = $em->createQueryBuilder()
+            $manifests = $this->entityManager->createQueryBuilder()
                 ->select('m')
                 ->from(IIIFManifest::class, 'm')
                 ->where('m.manifestId = :id')

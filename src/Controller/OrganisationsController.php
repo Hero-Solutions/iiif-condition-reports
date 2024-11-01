@@ -7,12 +7,20 @@ use App\Entity\InventoryNumber;
 use App\Entity\Organisation;
 use App\Entity\Report;
 use App\Utils\IIIFUtil;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 class OrganisationsController extends AbstractController
 {
+    private EntityManagerInterface $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
+    }
+
     #[Route("/{_locale}/organisations", name: "organisations")]
     public function organisations(Request $request)
     {
@@ -30,10 +38,8 @@ class OrganisationsController extends AbstractController
             return $this->redirectToRoute('main');
         }
 
-        $em = $this->container->get('doctrine')->getManager();
-
         $searchResults = array();
-        $organisations = $em->createQueryBuilder()
+        $organisations = $this->entityManager->createQueryBuilder()
             ->select('o')
             ->from(Organisation::class, 'o')
             ->orderBy('o.alias')

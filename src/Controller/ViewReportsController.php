@@ -8,6 +8,7 @@ use App\Entity\Report;
 use App\Entity\Signature;
 use App\Entity\User;
 use App\Utils\IIIFUtil;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,10 +18,12 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class ViewReportsController extends AbstractController
 {
     private $translator;
+    private EntityManagerInterface $entityManager;
 
-    public function __construct(TranslatorInterface $translator)
+    public function __construct(TranslatorInterface $translator, EntityManagerInterface $entityManager)
     {
         $this->translator = $translator;
+        $this->entityManager = $entityManager;
     }
 
     #[Route("/{_locale}/view_reports/{baseId}", name: "view_reports")]
@@ -42,10 +45,8 @@ class ViewReportsController extends AbstractController
 
         $reportReasons = $this->getParameter('report_reasons');
 
-        $em = $this->container->get('doctrine')->getManager();
-
         $searchResults = array();
-        $reportData = $em->createQueryBuilder()
+        $reportData = $this->entityManager->createQueryBuilder()
             ->select('r.id, r.inventoryId, r.timestamp, r.reason, r.signaturesRequired, r.isDraft, i.inventoryNumber, d.name, d.value, u.fullName')
             ->from(Report::class, 'r')
             ->leftJoin(InventoryNumber::class, 'i', 'WITH', 'i.id = r.inventoryId')
@@ -88,7 +89,7 @@ class ViewReportsController extends AbstractController
             }
             $searchResults[$data['id']][$data['name']] = $data['value'];
         }
-        $signatures = $em->createQueryBuilder()
+        $signatures = $this->entityManager->createQueryBuilder()
             ->select('s.reportId, s.timestamp, s.filename')
             ->from(Report::class, 'r')
             ->leftJoin(Signature::class, 's', 'WITH', 's.reportId = r.id')

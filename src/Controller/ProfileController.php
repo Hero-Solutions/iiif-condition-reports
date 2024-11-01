@@ -9,6 +9,7 @@ use App\Entity\Report;
 use App\Entity\Representative;
 use App\Entity\User;
 use App\Utils\IIIFUtil;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
@@ -23,10 +24,12 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class ProfileController extends AbstractController
 {
     private $translator;
+    private EntityManagerInterface $entityManager;
 
-    public function __construct(TranslatorInterface $translator)
+    public function __construct(TranslatorInterface $translator, EntityManagerInterface $entityManager)
     {
         $this->translator = $translator;
+        $this->entityManager = $entityManager;
     }
 
     #[Route("/{_locale}/profile", name: "profile")]
@@ -64,9 +67,8 @@ class ProfileController extends AbstractController
                     $plainPassword
                 );
                 $formData->setPassword($hashedPassword);
-                $em = $this->container->get('doctrine')->getManager();
-                $em->persist($formData);
-                $em->flush();
+                $this->entityManager->persist($formData);
+                $this->entityManager->flush();
                 $message = $t->trans('Password successfully updated.');
             } else {
                 $error = $t->trans('Error: password cannot be empty.');

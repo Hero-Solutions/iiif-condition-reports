@@ -9,12 +9,20 @@ use App\Entity\Organisation;
 use App\Entity\Report;
 use App\Entity\Representative;
 use App\Utils\IIIFUtil;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 class LoanProjectsController extends AbstractController
 {
+    private EntityManagerInterface $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
+    }
+
     #[Route("/{_locale}/loan_projects", name: "loan_projects")]
     public function loanProjects(Request $request)
     {
@@ -32,10 +40,8 @@ class LoanProjectsController extends AbstractController
             return $this->redirectToRoute('main');
         }
 
-        $em = $this->container->get('doctrine')->getManager();
-
         $organisationNames = [];
-        $orgs = $em->createQueryBuilder()
+        $orgs = $this->entityManager->createQueryBuilder()
             ->select('o')
             ->from(Organisation::class, 'o')
             ->getQuery()
@@ -45,7 +51,7 @@ class LoanProjectsController extends AbstractController
         }
 
         $representativeNames = [];
-        $reps = $em->createQueryBuilder()
+        $reps = $this->entityManager->createQueryBuilder()
             ->select('r')
             ->from(Representative::class, 'r')
             ->getQuery()
@@ -55,7 +61,7 @@ class LoanProjectsController extends AbstractController
         }
 
         $searchResults = array();
-        $loanProjects = $em->createQueryBuilder()
+        $loanProjects = $this->entityManager->createQueryBuilder()
             ->select('l')
             ->from(LoanProject::class, 'l')
             ->orderBy('l.alias')

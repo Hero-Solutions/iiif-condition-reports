@@ -12,6 +12,7 @@ use App\Entity\Representative;
 use App\Utils\CurlUtil;
 use App\Utils\ReportTemplateData;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\Entity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,6 +20,13 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class CreateExistingReportController extends AbstractController
 {
+    private EntityManagerInterface $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
+    }
+
     #[Route("/{_locale}/create/existing/{baseId}", name: "create_existing")]
     public function createExisting(Request $request, $baseId)
     {
@@ -36,10 +44,8 @@ class CreateExistingReportController extends AbstractController
             return $this->redirectToRoute('main');
         }
 
-        $em = $this->container->get('doctrine')->getManager();
-
         // Do not allow creation of a report with a baseId which in turn is also the id of a report (unless the baseId and the report id are the same)
-        $reportData = $em->createQueryBuilder()
+        $reportData = $this->entityManager->createQueryBuilder()
             ->select('r')
             ->from(Report::class, 'r')
             ->where('r.id = :id')
@@ -53,7 +59,7 @@ class CreateExistingReportController extends AbstractController
         }
 
         // Find the highest report ID for this baseId
-        $reportData = $em->createQueryBuilder()
+        $reportData = $this->entityManager->createQueryBuilder()
             ->select('r')
             ->from(Report::class, 'r')
             ->where('r.baseId = :baseId')
@@ -83,7 +89,7 @@ class CreateExistingReportController extends AbstractController
         }
 
         return $this->render('report.html.twig',
-            ReportTemplateData::getDataToCreateExisting($em, $this->getUser(), $reportReasons, $objectTypes, $actorTypes, $reportFields, $pictures, $highestId, $translatedRoutes)
+            ReportTemplateData::getDataToCreateExisting($this->entityManager, $this->getUser(), $reportReasons, $objectTypes, $actorTypes, $reportFields, $pictures, $highestId, $translatedRoutes)
         );
     }
 }

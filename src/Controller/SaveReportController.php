@@ -9,15 +9,23 @@ use App\Entity\ReportData;
 use App\Entity\ReportHistory;
 use App\Utils\IIIFUtil;
 use DateTime;
+use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use http\Env\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class SaveReportController extends AbstractController
 {
+    private EntityManagerInterface $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
+    }
+
     #[Route("/{_locale}/save", name: "save")]
     public function save(Request $request)
     {
@@ -109,8 +117,6 @@ class SaveReportController extends AbstractController
             // Only proceed if inventoryId is present
             if(!empty($inventoryId)) {
 
-                $em = $this->container->get('doctrine')->getManager();
-
                 // Create and persist a new Report entity
                 $report = new Report();
                 $report->setInventoryId($inventoryId);
@@ -124,8 +130,8 @@ class SaveReportController extends AbstractController
                     $report->setBaseId($baseId);
                 }
 
-                $em->persist($report);
-                $em->flush();
+                $this->entityManager->persist($report);
+                $this->entityManager->flush();
 
                 // Set baseId if it was not initially provided
                 if(empty($baseId)) {
@@ -133,13 +139,13 @@ class SaveReportController extends AbstractController
                     $baseId = $report->getId();
                     // Because datetime is converted into UTC, we have to set it again
                     $report->setTimestamp(new DateTime());
-                    $em->persist($report);
-                    $em->flush();
+                    $this->entityManager->persist($report);
+                    $this->entityManager->flush();
                 }
 
                 // Generate manifest using IIIFUtil
                 $reportData['manifest'] = IIIFUtil::generateManifest(
-                    $em, $report->getId(),
+                    $this->entityManager, $report->getId(),
                     $reportData, $images,
                     $annotationData,
                     $this->getParameter('service_url'),
@@ -157,15 +163,15 @@ class SaveReportController extends AbstractController
                         $reportDataEntity->setId($report->getId());
                         $reportDataEntity->setName($key);
                         $reportDataEntity->setValue($value);
-                        $em->persist($reportDataEntity);
+                        $this->entityManager->persist($reportDataEntity);
                         $i++;
                         if ($i == 500) {
-                            $em->flush();
+                            $this->entityManager->flush();
                             $i = 0;
                         }
                     }
                 }
-                $em->flush();
+                $this->entityManager->flush();
 
                 // Handle annotations based on whether reportHistory is empty or not
                 if(empty($reportHistory) || empty($baseId)) {
@@ -178,11 +184,11 @@ class SaveReportController extends AbstractController
                                 $annotationEntity->setImage($image);
                                 $annotationEntity->setAnnotationId($annotation->id);
                                 $annotationEntity->setAnnotation(json_encode($annotation));
-                                $em->persist($annotationEntity);
+                                $this->entityManager->persist($annotationEntity);
                             }
                         }
                     }
-                    $em->flush();
+                    $this->entityManager->flush();
                 } else {
                     // Process report history and old annotations
                     $previousIds = array();
@@ -194,9 +200,9 @@ class SaveReportController extends AbstractController
                         $reportHistoryEntity->setId($report->getId());
                         $reportHistoryEntity->setPreviousId($idInt);
                         $reportHistoryEntity->setSortOrder($orderInt);
-                        $em->persist($reportHistoryEntity);
+                        $this->entityManager->persist($reportHistoryEntity);
                     }
-                    $em->flush();
+                    $this->entityManager->flush();
 
                     sort($previousIds);
 
@@ -213,7 +219,7 @@ class SaveReportController extends AbstractController
                     }
 
                     // Retrieve old annotations
-                    $oldAnnotationEntities = $em->createQueryBuilder()
+                    $oldAnnotationEntities = $this->entityManager->createQueryBuilder()
                         ->select('a')
                         ->from(Annotation::class, 'a')
                         ->where('a.reportId IN (:reportIds)')
@@ -233,7 +239,7 @@ class SaveReportController extends AbstractController
                     }
 
                     // Retrieve old deleted annotations
-                    $oldDeletedAnnotationEntities = $em->createQueryBuilder()
+                    $oldDeletedAnnotationEntities = $this->entityManager->createQueryBuilder()
                         ->select('d')
                         ->from(DeletedAnnotation::class, 'd')
                         ->where('d.reportId IN (:reportIds)')
@@ -308,20 +314,20 @@ class SaveReportController extends AbstractController
                             $deletedEntity->setReportId($report->getId());
                             $deletedEntity->setImage($image);
                             $deletedEntity->setAnnotationId($id);
-                            $em->persist($deletedEntity);
+                            $this->entityManager->persist($deletedEntity);
                         }
-                        $em->flush();
+                        $this->entityManager->flush();
                         foreach($added as $id => $annotation) {
                             $addedEntity = new Annotation();
                             $addedEntity->setReportId($report->getId());
                             $addedEntity->setImage($image);
                             $addedEntity->setAnnotationId($id);
                             $addedEntity->setAnnotation($annotation);
-                            $em->persist($addedEntity);
+                            $this->entityManager->persist($addedEntity);
                         }
-                        $em->flush();
+                        $this->entityManager->flush();
                         foreach($updated as $id => $annotation) {
-                            $queryBuilder = $em->createQueryBuilder();
+                            $queryBuilder = $this->entityManager->createQueryBuilder();
                             $query = $queryBuilder->update(Annotation::class, 'a')
                                 ->set('a.annotation', ':annotation')
                                 ->where('a.annotationId = :annotationId')
@@ -330,7 +336,7 @@ class SaveReportController extends AbstractController
                                 ->getQuery();
                             $query->execute();
                         }
-                        $em->flush();
+                        $this->entityManager->flush();
                     }
                 }
 
