@@ -9,6 +9,7 @@ use App\Entity\ReportData;
 use App\Entity\ReportHistory;
 use App\Entity\Search;
 use App\Entity\User;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -20,10 +21,12 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class MainController extends AbstractController
 {
     private $translator;
+    private EntityManagerInterface $entityManager;
 
-    public function __construct(TranslatorInterface $translator)
+    public function __construct(TranslatorInterface $translator, EntityManagerInterface $entityManager)
     {
         $this->translator = $translator;
+        $this->entityManager = $entityManager;
     }
 
     #[Route("/")]
@@ -56,8 +59,6 @@ class MainController extends AbstractController
 
         $reportReasons = $this->getParameter('report_reasons');
 
-        $em = $this->container->get('doctrine')->getManager();
-
         $inventoryNumber = '';
         $matchType = '0';
 
@@ -74,7 +75,7 @@ class MainController extends AbstractController
             $searchParameter .= '%';
         }
 
-        $datahubData = $em->createQueryBuilder()
+        $datahubData = $this->entityManager->createQueryBuilder()
             ->select('i.id, i.inventoryNumber, d.name, d.value')
             ->from(InventoryNumber::class, 'i')
             ->leftJoin(DatahubData::class, 'd', 'WITH', 'd.id = i.id')
@@ -102,7 +103,7 @@ class MainController extends AbstractController
             $searchResults[$id][$data['name']] = $data['value'];
         }
 
-        $queryBuilder = $em->createQueryBuilder()
+        $queryBuilder = $this->entityManager->createQueryBuilder()
             ->select('r.id, r.baseId, r.inventoryId, r.timestamp, r.reason, r.isDraft, i.inventoryNumber, d.name, d.value, u.fullName')
             ->from(Report::class, 'r')
             ->leftJoin(InventoryNumber::class, 'i', 'WITH', 'i.id = r.inventoryId')
