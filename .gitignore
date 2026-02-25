@@ -29,3 +29,5 @@ public/annotation_images/*
 public/signature_images/
 public/setup_plan_images/
 public/recommendation_images/
+composer.lock
+
