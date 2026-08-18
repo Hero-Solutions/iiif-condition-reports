@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'actors.admin_title'|trans }} | {{ 'app.title'|trans }}{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <h1>{{ 'actors.admin_title'|trans }}</h1>
+        <a class="button" href="{{ path('admin_actors_new', {'_locale': app.request.locale}) }}">{{ 'actors.new'|trans }}</a>
+    </div>
+
+    {% if actors is empty %}
+        <section class="empty-state">
+            <h2>{{ 'actors.empty_admin_title'|trans }}</h2>
+            <p>{{ 'actors.empty_admin_text'|trans }}</p>
+        </section>
+    {% else %}
+        <section class="panel admin-panel">
+            <table class="data-table compact-table">
+                <thead>
+                    <tr>
+                        <th>{{ 'actors.alias'|trans }}</th>
+                        <th>{{ 'actors.name'|trans }}</th>
+                        <th>{{ 'actors.type'|trans }}</th>
+                        <th>{{ 'actors.email'|trans }}</th>
+                        <th>{{ 'actors.phone'|trans }}</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for actor in actors %}
+                        <tr>
+                            <td>{{ actor.alias ?: actor.name }}</td>
+                            <td>{{ actor.name }}</td>
+                            <td>{{ ('actor_type.' ~ actor.type)|trans }}</td>
+                            <td>{{ actor.email }}</td>
+                            <td>{{ actor.phone }}</td>
+                            <td class="table-actions">
+                                <a href="{{ path('admin_actors_edit', {'_locale': app.request.locale, id: actor.id}) }}">{{ 'actions.edit'|trans }}</a>
+                                <form method="post" action="{{ path('admin_actors_delete', {'_locale': app.request.locale, id: actor.id}) }}" onsubmit="return confirm('{{ 'actors.confirm_delete'|trans({'%name%': actor.displayName})|e('js') }}');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('admin_actor_delete_' ~ actor.id) }}">
+                                    <button type="submit" class="link-button">{{ 'actions.delete'|trans }}</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    {% endif %}
+{% endblock %}

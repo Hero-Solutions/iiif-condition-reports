@@ -1,0 +1,20 @@
+objects:
+  required_inventory_number: Inventory number is required.
+  required_title: Title is required.
+  invalid_url: Enter a valid URL.
+  max_100: Use at most 100 characters.
+  max_255: Use at most 255 characters.
+
+users:
+  required_full_name: Name is required.
+  required_email: E-mail is required.
+  invalid_email: Enter a valid e-mail address.
+  password_required: Password is required for a new user.
+  max_180: Use at most 180 characters.
+  max_255: Use at most 255 characters.
+
+projects:
+  required_title: Project title is required.
+  required_inventory_number: Inventory number is required.
+  max_100: Use at most 100 characters.
+  max_255: Use at most 255 characters.

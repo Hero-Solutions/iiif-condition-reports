@@ -1,9 +1,381 @@
+app:
+  title: 'Condition Reports'
+nav:
+  projects: Projects
+  objects: Objects
+  reports: Reports
+  admin: Admin
+  manual: Manual
+  logout: Logout
+  menu: Menu
+  collapse: 'Collapse sidebar'
+  breadcrumb: Breadcrumb
+actions:
+  search: Search
+  save: Save
+  remove: Remove
+  edit: Edit
+  open: Open
+  delete: Delete
+  back: Back
+  cancel: Cancel
+  details: Details
+filters:
+  all_types: 'All types'
+  all_statuses: 'All statuses'
+  all_sources: 'All sources'
+status:
+  planned: Planned
+  active: Draft
+  completed: Completed
+  finalized: Final
+  archived: Archived
+source:
+  manual: Manual
+  datahub: Datahub
+  tms: TMS
+  import: Import
+sync_status:
+  not_synced: 'Not synced'
+  synced: Synced
+  local_changes: 'Local changes'
+  sync_error: 'Sync error'
+project_type:
+  loan: Loan
+  exhibition: Exhibition
+  restoration: Restoration
+  research: Research
+  movement: Movement
+  conservation: Conservation
+  other: Other
+project_status:
+  planned: Planned
+  active: Active
+  completed: Completed
+  cancelled: Cancelled
+report_type:
+  incoming_condition: 'Incoming condition report'
+  outgoing_condition: 'Outgoing condition report'
+  returning_condition: 'Returning condition report'
+  quick_condition_check: 'Quick condition check'
+  restoration: Restoration
+  research: Research
+  damage_claim: 'Damage claim'
+  movement: Movement
+  other: Other
+series_status:
+  active: Active
+  completed: Completed
+  cancelled: Cancelled
+actor_role:
+  owner_lender: 'Owner / lender'
+  borrower: Borrower
+  conservator: Conservator
+  courier: Courier
+  art_handler: 'Art handler'
+  insurer: Insurer
+  other: Other
+actor_type:
+  organization: Organization
+  person: Person
+object_type:
+  painting: Painting
+  work_on_paper: 'Work on paper'
+  sculpture: Sculpture
+  other: Other
+projects:
+  title: Projects
+  new: 'New project'
+  saved: 'Project saved.'
+  search: 'Search by project name or reference'
+  project_title: Title
+  type: Type
+  custom_type: 'Specify type'
+  status: Status
+  reference_code: 'Reference code'
+  description: Description
+  start_date: 'Start date'
+  end_date: 'End date'
+  period: Period
+  objects: Objects
+  objects_count: '%count% object(s)'
+  tabs: 'Project sections'
+  add_object: 'Add object'
+  find_object: 'Find object'
+  search_results: 'Search results'
+  no_object_results: 'No objects found. Check the inventory number or create a new object.'
+  object_notes: Notes
+  object_added: 'Object added.'
+  object_removed: 'Object removed from project.'
+  object_not_found: 'No object found with this inventory number.'
+  object_already_added: 'This object is already linked to this project.'
+  object_type_required: 'Choose an object type first.'
+  object_invalid: 'Check the inventory number.'
+  choose_object_type_title: 'Choose object type'
+  choose_object_type_text: 'Choose an object type for %inventory_number% before adding the object.'
+  no_objects_title: 'No objects yet'
+  no_objects_text: 'Use "Add object" to link objects to this project.'
+  add_object_hint: 'Object not in the catalogue yet?'
+  project_details: 'Project details'
+  confirm_remove_object: 'Remove object %inventory_number% from this project?'
+  required_title: 'Project title is required.'
+  required_custom_type: 'Enter the project type.'
+  required_inventory_number: 'Inventory number is required.'
+  max_100: 'Use at most 100 characters.'
+  max_255: 'Use at most 255 characters.'
+  empty_title: 'No projects yet'
+  empty_text: 'Projects will be the main entry point for objects and reports.'
+objects:
+  title: Objects
+  new: 'New object'
+  saved: 'Object saved.'
+  inventory_number: 'Inventory number'
+  object: Object
+  object_title: Title
+  creator: Creator
+  publisher: 'Owner / lender'
+  object_type: 'Object type'
+  choose_object_type: 'Choose an object type'
+  object_type_missing: 'Object type missing'
+  object_type_missing_short: Missing
+  current_location: 'Current location'
+  description: Description
+  iiif_manifest_url: 'IIIF manifest URL'
+  iiif_thumbnail_url: 'Thumbnail URL'
+  thumbnail: Thumbnail
+  no_thumbnail: 'No image'
+  edit_object: 'Edit object'
+  remove_from_project: 'Remove from project'
+  source: Source
+  sync_status: 'Sync status'
+  last_synced: 'Last synced'
+  metadata: Metadata
+  source_data: 'Source data'
+  search: 'Title or creator'
+  match_exact: Exact
+  match_starts_with: 'Starts with'
+  empty_title: 'No objects yet'
+  empty_text: 'Objects can come from a source or be added locally.'
+  inventory_number_exists: 'An object with this inventory number already exists.'
+  required_inventory_number: 'Inventory number is required.'
+  required_title: 'Title is required.'
+  required_object_type: 'Object type is required.'
+  invalid_object_type: 'Choose a valid object type.'
+  invalid_url: 'Enter a valid URL.'
+  max_100: 'Use at most 100 characters.'
+  max_255: 'Use at most 255 characters.'
+reports:
+  title: Reports
+  new: 'New report'
+  saved: 'Report saved.'
+  report: Report
+  finalized_count: '%count% final'
+  report_title: Title
+  metadata: 'Report details'
+  form_fields: 'Report fields'
+  description: Description
+  started_at: 'Start date'
+  ended_at: 'End date'
+  tab_basis: Basics
+  tab_measurements: Measurements
+  number_of_parts: 'Number of parts'
+  measurements: Measurements
+  section: Section
+  section_materials: Materials
+  section_condition: Condition
+  section_damage_types: 'Damage types'
+  section_recommendations: Recommendations
+  annotation_viewer_error: 'IIIF viewer could not be loaded.'
+  no_annotation_manifest: 'No IIIF manifest linked to this object.'
+  custom_value: Other
+  other: Other
+  present: Present
+  absent: Absent
+  frame_presence: 'Presence of the frame'
+  varnish_complete_short: Complete
+  varnish_local_short: Local
+  woodworm_active: 'Woodworm (active)'
+  woodworm_old: 'Woodworm (old)'
+  treatment_date: Date
+  number_of_hours: 'Number of hours'
+  transport_and_display: 'Transport and display'
+  transport_restrictions: Transport
+  display_restrictions: Display
+  no_fields: 'No choices have been configured for this object type yet.'
+  search_add: 'Type to add something…'
+  no_matching_options: 'No matching choices.'
+  remarks: Remarks
+  type: Type
+  status: Status
+  search: 'Inventory number, title or report'
+  empty_title: 'No reports yet'
+  empty_text: 'Reports will later appear here.'
+  unknown_reporter: Unknown
+  deleted: 'Report deleted.'
+  delete_draft: 'Delete draft report'
+  delete_draft_only: 'Only draft reports can be deleted.'
+  confirm_delete: 'Delete draft report %title%?'
+  autosave_saved_at: 'Saved at %time%'
+  autosave_saving: 'Saving...'
+  autosave_unsaved: 'Unsaved changes'
+  autosave_failed: 'Save failed'
+report_series:
+  title: Reports
+  new: 'New report'
+  saved: 'Report saved.'
+  series_title: Title
+  status: Status
+  description: Description
+  started_at: 'Start date'
+  ended_at: 'End date'
+  context: Context
+  reports: Reports
+  reports_count: '%count% report(s)'
+  objects_count: '%count% report(s)'
+  count_zero: 'No reports'
+  count_one: '1 report'
+  count_many: '%count% reports'
+  empty_for_object: 'No reports for this object yet.'
+  no_reports_text: 'No reports added yet.'
+  required_title: 'Title is required.'
+  invalid_status: 'Choose a valid status.'
+  max_255: 'Use at most 255 characters.'
+actors:
+  title: Actors
+  text: 'Manage the organizations and people involved in this project or in specific objects.'
+  admin_title: 'Actors / organizations'
+  new: 'New actor'
+  edit: 'Edit actor'
+  saved: 'Actor saved.'
+  deleted: 'Actor deleted.'
+  empty_admin_title: 'No actors yet'
+  empty_admin_text: 'Create organizations or people so they can be selected later.'
+  general_title: 'General actors'
+  general_text: 'These actors are the general project basis.'
+  object_title: Actors
+  object_specific_title: 'Object-specific actors'
+  object_specific_text: 'Add actors here that apply only to a specific object.'
+  empty_general: 'No general actors yet.'
+  empty_object: 'No object-specific actors yet.'
+  empty_report: 'No actors for this report yet.'
+  count: '%count% actor(s)'
+  actor: Actor
+  name: 'Actor name'
+  type: Type
+  role: Role
+  alias: Alias
+  logo: Logo
+  vat: 'VAT number'
+  address: Address
+  postal: 'Postal code'
+  city: City
+  state_province: 'Province or state'
+  country: Country
+  email: 'General e-mail address'
+  website: Website
+  phone: Telephone
+  mobile: 'Cell phone'
+  notes: Notes
+  basic_data: 'Basic data'
+  address_data: 'Address data'
+  contact_data: 'Contact data'
+  contacts: 'Contact people'
+  contacts_text: 'People linked to this organization as contacts.'
+  contact_new: 'Link contact person'
+  contact_edit: 'Edit link'
+  contact_create_person: 'New person'
+  contact_link_person: 'Link existing person'
+  contact_person_data_hint: 'Names and contact details are managed centrally on the person.'
+  contact_exists: 'This person is already linked as a contact.'
+  person: Person
+  choose_person: 'Choose a person'
+  type_in_use: 'The type cannot be changed while this actor is linked as an organization or contact person.'
+  contact_saved: 'Contact person saved.'
+  contact_deleted: 'Contact person deleted.'
+  empty_contacts: 'No contact people yet.'
+  custom_role: 'Specify role'
+  contact_person: 'Contact person'
+  contact_name: 'Contact name'
+  contact_function: Function
+  contact_email: E-mail
+  contact_phone: Phone
+  contact_person_short: Contact
+  existing_actor: 'Existing actor'
+  choose_existing_actor: 'Choose existing actor'
+  choose_actor: 'Choose actor'
+  other_actor: Other
+  add_actor: 'Add actor'
+  existing_contact: 'Existing contact person'
+  choose_existing_contact: 'Choose contact person'
+  no_contact: 'No contact person'
+  other_contact: Other
+  save_contact: 'Save contact'
+  add: Add
+  added: 'Actor added.'
+  removed: 'Actor removed.'
+  invalid: 'Enter a name and valid role.'
+  invalid_contact: 'Choose a valid contact person or enter a name.'
+  name_exists: 'An actor with this name already exists.'
+  required_name: 'Name is required.'
+  required_contact_name: 'Contact person name is required.'
+  max_100: 'Use at most 100 characters.'
+  max_180: 'Use at most 180 characters.'
+  max_255: 'Use at most 255 characters.'
+  confirm_delete: 'Delete actor %name%?'
+  confirm_contact_delete: 'Delete contact person %name%?'
+admin:
+  title: Admin
+  users: Users
+  users_text: 'Create, edit and deactivate accounts.'
+  actors: 'Actors / organizations'
+  actors_text: 'Reusable organizations and people. Contact people are persons linked to an organization.'
+  organisations: Organisations
+  contacts: Contacts
+  report_types: 'Report types'
+users:
+  title: Users
+  new: 'New user'
+  edit: 'Edit user'
+  empty_title: 'No users yet'
+  empty_text: 'Add a first user.'
+  full_name: Name
+  email: E-mail
+  password: Password
+  new_password: 'New password'
+  roles: Roles
+  access_level: Access
+  status: Status
+  active: Active
+  inactive: Inactive
+  role_user: User
+  role_admin: Administrator
+  role_read_only: Read-only
+  saved: 'User saved.'
+  deleted: 'User deleted.'
+  cannot_delete_self: 'You cannot delete your own user account.'
+  cannot_change_own_access: 'You cannot change your own status or access level.'
+  required_fields: 'Name and e-mail are required.'
+  invalid_email: 'Enter a valid e-mail address.'
+  email_exists: 'A user with this e-mail address already exists.'
+  password_required: 'Password is required for a new user.'
+  confirm_delete: 'Delete user %email%?'
+  required_full_name: 'Name is required.'
+  required_email: 'E-mail is required.'
+  max_180: 'Use at most 180 characters.'
+  max_255: 'Use at most 255 characters.'
+manual:
+  title: Manual
+  empty_title: 'No manual yet'
+  empty_text: 'The user manual will appear here once the workflows are defined.'
+login:
+  title: Login
+  submit: Login
+  error: 'Invalid login or password.'
+  inactive_user: 'This user is not active.'
 painting: Painting
-work_on_paper: Work on paper
+work_on_paper: 'Work on paper'
 sculpture: Sculpture
-
 panel_type: Panel
-
 stone: Stone
 metal: Metal
 glass: Glass
@@ -13,66 +385,58 @@ textile: Textile
 paper: Paper
 wood: Wood
 plastic: Plastic
-
 painting_sculpture: Painting
-
-eigenaar / bruikleengever: owner / lender
+'eigenaar / bruikleengever': 'owner / lender'
 bruikleennemer: borrower
 restorator: conservator
 koerier: courier
-art handler: art handler
+'art handler': 'art handler'
 verzekeraar: insurer
-
 loose: Loose
 fixed: Fixed
 original: Original
-not_original: Not original
-
-finishing_layer_sculpture: Finishing layer
-insect_damage_sculpture: Insect damage
+not_original: 'Not original'
+finishing_layer_sculpture: 'Finishing layer'
+insect_damage_sculpture: 'Insect damage'
 flaking_sculpture: Flaking
 delamination_sculpture: Delamination
 brittle_sculpture: Brittle
 dents_sculpture: Dents
 cracks_sculpture: Cracks
-
 absent: Absent
 glaze: Glaze
 varnish: Varnish
-wax_layer: Wax layer
+wax_layer: 'Wax layer'
 painting_1: Painting
 monochrome: Monochrome
 polychrome: Polychrome
 patination: Patination
-chop_marks: Chop marks
+chop_marks: 'Chop marks'
 polishing: Polishing
 natural: Natural
 artificial: Artificial
-
-not_applicable: Not applicable
+not_applicable: 'Not applicable'
 welded: Welded
 soldered: Soldered
-dived_wood: Dived wood
+dived_wood: 'Dived wood'
 glue: Glue
 screws: Screws
 nails: Nails
 bolts: Bolts
-
 good: Good
 reasonable: Reasonable
 bad: Bad
-not_transportable: Not transportable
-not_displayable: Not displayable
-
-surface_dirt: Surface dirt
-crusted_dirt: Crusted dirt
+not_transportable: 'Not transportable'
+not_displayable: 'Not displayable'
+surface_dirt: 'Surface dirt'
+crusted_dirt: 'Crusted dirt'
 spots: Spots
 fingerprints: Fingerprints
-old_restoration: Old restoration
+old_restoration: 'Old restoration'
 salts: Salts
-insect_damage: Insect damage
+insect_damage: 'Insect damage'
 mould: Mould
-water_damage: Water damage
+water_damage: 'Water damage'
 corrosion: Corrosion
 gaps: Gaps
 flaking: Flaking
@@ -82,59 +446,54 @@ wearage: Wearage
 scratches: Scratches
 twists: Twists
 dents: Dents
-structural_damage: Structural damage
+structural_damage: 'Structural damage'
 cracks: Cracks
-hair_tears: Hair tears
+hair_tears: 'Hair tears'
 holes: Holes
 wrinkled: Wrinkled
 delamination: Delamination
-missing_parts: Missing parts
-removable_parts: Removable parts
+missing_parts: 'Missing parts'
+removable_parts: 'Removable parts'
 brittle: Brittle
 packing_packing: Packing
-other_materials: Other materials
-lashing_straps_sculpture: Lashing straps
+other_materials: 'Other materials'
+lashing_straps_sculpture: 'Lashing straps'
 frame_sculpture: Frame
-
-removing_dust: Removing dust
-superficial_cleaning: Superficial cleaning
-insect_repellent_treatment: Insect repellent treatment
-removing_mold_spores: Removing mould spores
+removing_dust: 'Removing dust'
+superficial_cleaning: 'Superficial cleaning'
+insect_repellent_treatment: 'Insect repellent treatment'
+removing_mold_spores: 'Removing mould spores'
 reinforcing: Reinforcing
-regluing_loose_parts: Regluing loose parts
-fixating_loose_parts: Fixating loose parts
-stabilizing_pedestal: Stabilizing pedestal
-adding_protective_layer: Adding protective layer
-adding_barcode: Adding barcode
-
-thorough_cleaning: Thorough cleaning
-local_cleaning: Local cleaning
-polychromy_research: Polychromy research
-reconstruction_of_original: reconstruction of original
-removing_material_tension: Removing material tension
-removing_old_restoration: Removing old restoration
-replacing_construction: Replacing construction
-protective_layer: Protective layer
-adding_fastening_system: Adding fastening system
+regluing_loose_parts: 'Regluing loose parts'
+fixating_loose_parts: 'Fixating loose parts'
+stabilizing_pedestal: 'Stabilizing pedestal'
+adding_protective_layer: 'Adding protective layer'
+adding_barcode: 'Adding barcode'
+thorough_cleaning: 'Thorough cleaning'
+local_cleaning: 'Local cleaning'
+polychromy_research: 'Polychromy research'
+reconstruction_of_original: 'reconstruction of original'
+removing_material_tension: 'Removing material tension'
+removing_old_restoration: 'Removing old restoration'
+replacing_construction: 'Replacing construction'
+protective_layer: 'Protective layer'
+adding_fastening_system: 'Adding fastening system'
 retouching: Retouching
-filling_gap_elements: Filling gap elements
-
-setup_method: Setup method
-material_technical_research: Material technical research
+filling_gap_elements: 'Filling gap elements'
+setup_method: 'Setup method'
+material_technical_research: 'Material technical research'
 analysis: Analysis
-necessary_background_information: Necessary background information
-
+necessary_background_information: 'Necessary background information'
 support_carrier: Stretcher
-paint_layer: Paint layer
+paint_layer: 'Paint layer'
 condition_blanching: Blanching
-
 abrasions: Abrasions
 abrasions_note: Abrasions
 acid: Acid
 accretion: Accretion
 adhesion: Adhesion
-adhesive_tape: Adhesive tape
-animal_glue: Animal glue
+adhesive_tape: 'Adhesive tape'
+animal_glue: 'Animal glue'
 blanching: Blanching
 blanching_note: Blanching
 bleaching: Bleaching
@@ -142,109 +501,109 @@ blisters: Blisters
 bloom: Bloom
 blur: Blur
 bowing: Bowing
-broken_glass: Broken glass
-broken_glass_note: Broken glass
-broken_parts: Broken parts
+broken_glass: 'Broken glass'
+broken_glass_note: 'Broken glass'
+broken_parts: 'Broken parts'
 browning: Browning
 changes: Changes
-climate_box_sealed: Climate box sealed
+climate_box_sealed: 'Climate box sealed'
 condensation: Condensation
 consolidated: Consolidated
 crackle: Crackle
-cracks_damage_type: Cracks or Splits
+cracks_damage_type: 'Cracks or Splits'
 creases: Creases
 crizzling: Crizzling
 cupping: Cupping
 cutting: Cutting
-missing_edges: Damaged and missing corners and edges
-damaged_edges: Damaged edges
-damaged_edges_note: Damaged edges
+missing_edges: 'Damaged and missing corners and edges'
+damaged_edges: 'Damaged edges'
+damaged_edges_note: 'Damaged edges'
 dampness: Dampness
 darkening: Darkening
-daylight_opening_correct: Daylight opening correct
+daylight_opening_correct: 'Daylight opening correct'
 deformation: Deformation
 degradation: Degradation
-degradation_of_plastics: Degradation of plastics
+degradation_of_plastics: 'Degradation of plastics'
 degraded: Degraded
 degraded_note: Degraded
-degraded_medium: Degraded medium
+degraded_medium: 'Degraded medium'
 delamination_type: Delamination
 dents_type: Dents
-dirt_between_canvas_and_stretcher: Dirt between canvas and stretcher
-dirt_between_glass_and_artwork: Dirt between glass and artwork
+dirt_between_canvas_and_stretcher: 'Dirt between canvas and stretcher'
+dirt_between_glass_and_artwork: 'Dirt between glass and artwork'
 deterioration: Deterioration
 discoloration: Discoloration
-discolored_retouching: Discolored retouching
+discolored_retouching: 'Discolored retouching'
 distortion: Distortion
-drips_or_dripmarks: Drips or dripmarks
+drips_or_dripmarks: 'Drips or dripmarks'
 dust: Dust
 embrittlement: Embrittlement
-fiber_degradation: Fiber degradation
-fiber_degradation_note: Fiber degradation
+fiber_degradation: 'Fiber degradation'
+fiber_degradation_note: 'Fiber degradation'
 excrements: Excrements
 fading: Fading
 filling: Filling
-finger_marks: Finger marks
-fire_damage: Fire damage
+finger_marks: 'Finger marks'
+fire_damage: 'Fire damage'
 fixed_type: Fixed
 fixation: Fixation
 fixation_note: Fixation
 fixed_note: Fixed
 flaking_type: Flaking
-flattened_paint: Flattened paint
-flattened_paint_note: Flattened paint
-fly_out_openings: Fly out openings
+flattened_paint: 'Flattened paint'
+flattened_paint_note: 'Flattened paint'
+fly_out_openings: 'Fly out openings'
 folds: Folds
 foxing: Foxing
 fracture: Fracture
 frass: Frass
-glue_residues: Glue (residues)
-hair_tears_cracks: Hair tears / Cracks
-impurities_in_the_paper_fiber: Impurities in the paper fiber
-impurities_in_varnish: Impurities in varnish
-ink_corrosion: Ink corrosion
-ink_corrosion_note: Ink corrosion
+glue_residues: 'Glue (residues)'
+hair_tears_cracks: 'Hair tears / Cracks'
+impurities_in_the_paper_fiber: 'Impurities in the paper fiber'
+impurities_in_varnish: 'Impurities in varnish'
+ink_corrosion: 'Ink corrosion'
+ink_corrosion_note: 'Ink corrosion'
 inscriptions: Inscriptions
-insect_damage_type: Insect damage
-insect_feces: Insect feces
+insect_damage_type: 'Insect damage'
+insect_feces: 'Insect feces'
 instability: Instability
 joints: Joints
 joints_note: Joints
 keys: Keys
 labels: Labels
 lacunae: Lacunae
-losses_lacunae: Losses / lacunae
+losses_lacunae: 'Losses / lacunae'
 lined: Lined/Lining
-loose_parts: Loose parts
-loosening_in_composite_support: Loosening in composite support
-milky: Milky / hazy
-impregnation: Moisture barrier at reverse / impregnation
+loose_parts: 'Loose parts'
+loosening_in_composite_support: 'Loosening in composite support'
+milky: 'Milky / hazy'
+impregnation: 'Moisture barrier at reverse / impregnation'
 mold: Mold
-not_lined: Not lined
-old_repairs: Old repairs / restoration
-open_joints: Open joints
+not_lined: 'Not lined'
+old_repairs: 'Old repairs / restoration'
+open_joints: 'Open joints'
 overpaint: Overpaint
 oxidation_type: Oxidation
 patches: Patches
 perforations: Perforations
 pitting: Pitting
 powdering_type: Powdering
-remains: Remains of other materials
+remains: 'Remains of other materials'
 repairing: Repairing
 retouching_type: Retouching
-rodent_damage: Rodent damage
+rodent_damage: 'Rodent damage'
 seals: Seals
 seams: Seams
 silverfish: Silverfish
 smudged: Smudged
-silver_mirroring: Silver mirroring
+silver_mirroring: 'Silver mirroring'
 stains: Stains
 stains_spots: Stains/Spots
-sticking_together: Sticking together
+sticking_together: 'Sticking together'
 strainers: Strainers
 stretchers: Stretchers
-stretching_edges: Stretching edges
-stretching_marks: Stretching marks
+stretching_edges: 'Stretching edges'
+stretching_marks: 'Stretching marks'
 strip_lining: Strip-lining
 sugaring: Sugaring
 tears: Tears
@@ -252,138 +611,136 @@ tension: Tension/Stress
 tidelines: Tidelines
 undulation: Undulation
 warping: Warping/Bowing
-wax_residues: Wax residues
-wax_residues_note: Wax residues
+wax_residues: 'Wax residues'
+wax_residues_note: 'Wax residues'
 wax_resin: Wax-resin
-weak_corner_joints: Weak corner joints
+weak_corner_joints: 'Weak corner joints'
 wear: Wear/Wearage
-wood_borers: Wood borers
+wood_borers: 'Wood borers'
 wrinkle: Wrinkle
 wrinkles: Wrinkles
 yellowing: Yellowing
-
-# To translate from Dutch to English
 Geschaafd: Abrasions
-Algemene verzuring: Acid
+'Algemene verzuring': Acid
 Accretie: Accretion
 Hechting: Adhesion
-Plakbank: Adhesive tape
-Dierlijke lijm: Animal glue
+Plakbank: 'Adhesive tape'
+'Dierlijke lijm': 'Animal glue'
 Blindgeslagen: Blanching
 Gebleekt: Bleaching
 Blazen: Blisters
-Waas, vochtaanslag: Bloom
+'Waas, vochtaanslag': Bloom
 Wazigheid: Blur
 Kromtrekking: Bowing
-Gebroken glas: Broken glass
-Afgebroken stukken: Broken parts
+'Gebroken glas': 'Broken glass'
+'Afgebroken stukken': 'Broken parts'
 Verbruining: Browning
-Verbruining (papier/vernis): Browning
+'Verbruining (papier/vernis)': Browning
 Vormveranderingen: Changes
-Klimaatbox goed gesealed: Climate box sealed
+'Klimaatbox goed gesealed': 'Climate box sealed'
 Condenseren: Condensation
 Verstevigen: Consolidated
 Craquelé: Crackle
-Barsten: Cracks or Splits
-Geïncrusteerd vuil: Crusted dirt
+Barsten: 'Cracks or Splits'
+'Geïncrusteerd vuil': 'Crusted dirt'
 canvas_oxidation: Oxidation
 Plooien: Creases
-Ziek (glas): Crizzling
+'Ziek (glas)': Crizzling
 Schotelvorming: Cupping
 Schotelvorming/cupping: Cupping
 Snede: Cutting
-Afgebroken of ontbrekende hoeken en randen: Damaged and missing corners and edges
-Randen beschadigd: Damaged edges
-Beschadigde randen: Damaged edges
+'Afgebroken of ontbrekende hoeken en randen': 'Damaged and missing corners and edges'
+'Randen beschadigd': 'Damaged edges'
+'Beschadigde randen': 'Damaged edges'
 Vochtigheid: Dampness
-Verdonkeren (retouches): Darkening
-Dagmaat passend: Daylight opening correct
+'Verdonkeren (retouches)': Darkening
+'Dagmaat passend': 'Daylight opening correct'
 Deformatie: Deformation
 Degradatie: Degradation
-Degradatie van kunststoffen: Degradation of plastics
+'Degradatie van kunststoffen': 'Degradation of plastics'
 Gecrepeerd: Degraded
-Poederende/loskomende verf: Degraded medium
+'Poederende/loskomende verf': 'Degraded medium'
 Delamineren: Delamination
 Deuken: Dents
-Vuil tussen raam en doek: Dirt between canvas and stretcher
-Vuil tussen glas en werk: Dirt between glass and artwork
+'Vuil tussen raam en doek': 'Dirt between canvas and stretcher'
+'Vuil tussen glas en werk': 'Dirt between glass and artwork'
 Verkleuring: Discoloration
-Verkleurde retouches: Discolored retouching
+'Verkleurde retouches': 'Discolored retouching'
 Vervorming: Distortion
-Druppels of druipsporen: Drips or dripmarks
+'Druppels of druipsporen': 'Drips or dripmarks'
 Stof: Dust
-Bros geworden: Embrittlement
-Vezelaantasting: Fiber degradation
-Vezelaantasting/geschaafd: Fiber degradation
+'Bros geworden': Embrittlement
+Vezelaantasting: 'Fiber degradation'
+Vezelaantasting/geschaafd: 'Fiber degradation'
 Dierenuitwerpselen: Excrements
 Vervagen: Fading
 Vulling: Filling
-Vingerafdrukken: Finger marks
-Brandschade: Fire damage
-Gefixeerd (de materialen): Fixed
-Gefixeerd (de verschillende objectdelen): Fixation
+Vingerafdrukken: 'Finger marks'
+Brandschade: 'Fire damage'
+'Gefixeerd (de materialen)': Fixed
+'Gefixeerd (de verschillende objectdelen)': Fixation
 Afschilferen: Flaking
-Geplette verf: Flattened paint
-Uitvliegopeningen: Fly out openings
+'Geplette verf': 'Flattened paint'
+Uitvliegopeningen: 'Fly out openings'
 Vouwen: Folds
-Roestbruine verkleuring/Foxing: Foxing
+'Roestbruine verkleuring/Foxing': Foxing
 Breuk: Fracture
 Houtpoeder: Frass
-Lijm(resten): Glue (residues)
-Haarscheurtjes: Hair tears / Cracks
-Onzuiverheden in de papiervezel: Impurities in the paper fiber
-Onzuiverheden in vernis: Impurities in varnish
-Inktvraat: Ink corrosion
+Lijm(resten): 'Glue (residues)'
+Haarscheurtjes: 'Hair tears / Cracks'
+'Onzuiverheden in de papiervezel': 'Impurities in the paper fiber'
+'Onzuiverheden in vernis': 'Impurities in varnish'
+Inktvraat: 'Ink corrosion'
 Inscripties: Inscriptions
-Insectenvraat: Insect damage
-Insectenpoep: Insect feces
+Insectenvraat: 'Insect damage'
+Insectenpoep: 'Insect feces'
 Instabiliteit: Instability
-Voegen (open, hersteld, verstevigd): Joints
+'Voegen (open, hersteld, verstevigd)': Joints
 Spieën: Keys
 Etiketten: Labels
 Lacunes: Lacunae
 Gedoubleerd: Lined
-Losse delen: Loose parts
-Loskomen in samengestelde drager: Loosening in composite support
+'Losse delen': 'Loose parts'
+'Loskomen in samengestelde drager': 'Loosening in composite support'
 Wazig: Milky
-Vochtbarrière aan de achterkant / impregnatie met verf: Impregnation
+'Vochtbarrière aan de achterkant / impregnatie met verf': Impregnation
 Schimmel: Mold
-Niet gedoubleerd: Not lined
-Oude ingrepen / restauraties: Old repairs
-Open verbindingen: Open joints
+'Niet gedoubleerd': 'Not lined'
+'Oude ingrepen / restauraties': 'Old repairs'
+'Open verbindingen': 'Open joints'
 Overschildering: Overpaint
 Oxideren: Oxidation
-Weefsel geoxideerd: Oxidation
+'Weefsel geoxideerd': Oxidation
 Herstellappen: Patches
 Perforaties: Perforations
 Verpoederen: Powdering
 Holtevorming: Pitting
-Restanten van andere materialen: Remains of other materials
+'Restanten van andere materialen': 'Remains of other materials'
 Herstelling: Repairing
 Retouches: Retouches
-Knaagdiervraat: Rodent damage
+Knaagdiervraat: 'Rodent damage'
 Zegels: Seals
 Naad: Seams
 Zilvervisje: Silverfish
-Verzilvering: Silver mirroring
+Verzilvering: 'Silver mirroring'
 Uitgeveegd: Smudged
 Vlekken: Stains/Spots
-Verkleving: Sticking together
+Verkleving: 'Sticking together'
 Spanramen: Strainers
 Spieraam: Stretchers
-Omslagranden: Stretching edges
-Spanguirlandes: Stretching marks
+Omslagranden: 'Stretching edges'
+Spanguirlandes: 'Stretching marks'
 Strip-lining: Strip-lining
 Versuikeren: Sugaring
 Scheuren: Tears
 Spanning: Tension
 Vochtkringen: Tidelines
 Golving: Undulation
-Wax(resten): Wax residues
-Washars: Wax resin
-Zwakke hoekverbindingen: Weak corner joints
+Wax(resten): 'Wax residues'
+Washars: 'Wax resin'
+'Zwakke hoekverbindingen': 'Weak corner joints'
 Slijtage: Wear
-Houtboorders: Wood borers
+Houtboorders: 'Wood borers'
 Plooivorming: Wrinkles
 Vergelen: Yellowing
 Vergeling: Yellowing

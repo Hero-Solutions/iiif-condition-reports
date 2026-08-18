@@ -1,0 +1,2423 @@
+---
+# Directe formulierconfiguratie voor de drie compacte rapporttabs.
+# control: search | single | multiple | input | condition | treatment
+# single is één deselecteerbare radiogroep; multiple bestaat uit onafhankelijke
+# checkboxknoppen. Een gemengde multiple-groep kan met radio_groups bepaalde
+# keuzes toch exclusief maken. condition ondersteunt hetzelfde via
+# rating_radio_groups. treatment bevat twee aparte radiogroepen.
+# prefix wordt voor elke sleutel onder choices, rating en issues geplaatst.
+# Een gewone choice is `veld: Label`; `type: detail` leest ook oude _text-data
+# en `type: custom` is een vrije keuze. search kan extra vrije plaatsen krijgen.
+# condition combineert één rating met een lijst kenmerken of schades.
+# treatment gebruikt vaste statusknoppen, een datum en het aantal uren.
+parameters:
+  report_compact_sections:
+    painting:
+      materials:
+        blocks:
+          -
+            id: materials-block-0
+            title: 'Material type'
+            groups:
+              -
+                id: materials_material_type_support_0
+                title: Support
+                control: search
+                prefix: material_painting_support_
+                choices:
+                  canvas: Canvas
+                  wood: { type: detail, label: Wood }
+                  metal: { type: detail, label: Metal }
+                  paper: Paper
+                  cardboard: Cardboard
+                  hardboard: Hardboard
+                  marouflage: Marouflage
+                  custom: { type: custom }
+                custom_slots: 10
+              -
+                id: materials_material_type_paint_layer_1
+                title: 'Paint layer'
+                control: search
+                custom_slots: 10
+              -
+                id: materials_material_type_varnish_layer_2
+                title: 'Varnish layer'
+                control: single
+                prefix: material_painting_varnish_layer_present_
+                choices:
+                  complete: reports.varnish_complete_short
+                  local: reports.varnish_local_short
+                  absent: Absent
+                  unclear: Unclear
+          -
+            id: materials-block-1
+            title: Frame
+            groups:
+              -
+                id: materials_frame_type_of_frame_0
+                title: 'Type of frame'
+                control: search
+                prefix: material_painting_frame_type_
+                choices:
+                  ornament: 'Ornament frame'
+                  tight: 'Tight or modern frame'
+                  picture: 'Picture frame'
+                  historical: 'Historical frame'
+                  recent: 'Modern or recent frame'
+                  inner: 'Frame with inner frame'
+                  original: 'Original frame'
+                  custom: { type: custom }
+                custom_slots: 10
+              -
+                id: materials_frame_material_1
+                title: Material
+                control: search
+                prefix: material_painting_frame_material_
+                choices:
+                  gypsum: Gypsum
+                  wood: Wood
+                  metal: Metal
+                  custom: { type: custom }
+                custom_slots: 10
+              -
+                id: materials_frame_inner_frame_2
+                title: 'Inner frame'
+                control: search
+                prefix: material_painting_frame_inner_
+                choices:
+                  paper: Paper
+                  cardboard: Cardboard
+                  textile: Textile
+                  custom: { type: custom }
+                custom_slots: 10
+              -
+                id: materials_frame_painting_fixed_in_frame_with_4
+                title: 'Painting fixed in frame with'
+                control: search
+                prefix: material_painting_frame_framing_fixation_
+                choices:
+                  clips: Clips
+                  metal_plates: 'Metal plates'
+                  wooden_plates: 'Wooden plates'
+                  custom: { type: custom }
+                custom_slots: 10
+              -
+                id: materials_frame_material_in_rabbet_5
+                title: 'Material in rabbet'
+                control: search
+                prefix: material_painting_frame_framing_material_rabbet_
+                choices:
+                  felt: Felt
+                  custom: { type: custom }
+                custom_slots: 10
+              -
+                id: materials_frame_filling_material_in_rabbet_6
+                title: 'Filling material in rabbet'
+                control: search
+                prefix: material_painting_frame_framing_filling_material_rabbet_
+                choices:
+                  balsa_wood: 'Balsa wood'
+                  evazote: Evazote
+                  custom: { type: custom }
+                custom_slots: 10
+              -
+                id: materials_frame_curvature_in_rabbet_7
+                title: 'Curvature in rabbet'
+                control: single
+                prefix: material_painting_frame_framing_curvuture_profiles_present_
+                choices:
+                  present: Present
+                  absent: Absent
+              -
+                id: materials_frame_back_frame_build_up_bfbu_8
+                title: 'Back frame build-up (BFBU)'
+                control: single
+                prefix: material_painting_frame_framing_bfbu_present_
+                choices:
+                  present: Present
+                  absent: Absent
+              -
+                id: materials_frame_back_protection_9
+                title: 'Back protection'
+                control: search
+                prefix: material_painting_frame_framing_back_protection_
+                choices:
+                  kapaline: Kapaline
+                  lexaan: Lexaan
+                  custom: { type: custom }
+                custom_slots: 10
+              -
+                id: materials_frame_labels_10
+                title: Labels
+                control: single
+                prefix: material_painting_frame_framing_labels_present_
+                choices:
+                  present: Present
+                  absent: Absent
+              -
+                id: materials_frame_glazed_11
+                title: Glazed
+                control: single
+                prefix: material_painting_frame_framing_glass_present_
+                choices:
+                  present: Present
+                  absent: Absent
+              -
+                id: materials_frame_type_of_glass_12
+                title: 'Type of glass'
+                control: search
+                prefix: material_painting_frame_framing_type_of_glass_
+                choices:
+                  plexi: { type: detail, label: Plexi }
+                  museum_glass: { type: detail, label: 'Museum glass' }
+                  custom: { type: detail, label: 'No museum glass' }
+                custom_slots: 10
+              -
+                id: materials_frame_glass_taped_13
+                title: 'Glass taped'
+                control: single
+                prefix: material_painting_frame_framing_tape_present_
+                choices:
+                  taped: Taped
+                  not_taped: 'Not taped'
+              -
+                id: materials_frame_climate_box_incorporated_in_frame_14
+                title: 'Climate box (incorporated in frame)'
+                control: single
+                prefix: material_painting_frame_framing_climate_box_present_
+                choices:
+                  present: Present
+                  absent: Absent
+              -
+                id: materials_frame_hanging_system_15
+                title: 'Hanging system'
+                control: search
+                prefix: material_painting_frame_framing_hanging_system_
+                choices:
+                  mirror_plate: 'Mirror plate'
+                  steddie: Steddie
+                  icn: 'ICN with loose screw eye'
+                  brace: 'Large suspension brace'
+                  track_slide: 'Track & slide'
+                  plain_screw_eye: 'Plain screw eye'
+                  hook: 'Picture hanger (hook)'
+                  custom: { type: custom }
+                custom_slots: 10
+            presence:
+              present: material_painting_frame_framing_present_frame_present
+              absent: material_painting_frame_framing_present_frame_absent
+      condition:
+        blocks:
+          -
+            id: condition-block-0
+            title: 'Condition of the object'
+            groups:
+              -
+                id: condition_condition_of_the_object_general_condition_0
+                title: 'General condition'
+                control: single
+                prefix: condition_painting_general_condition_
+                choices:
+                  good: Good
+                  average: Average
+                  bad: Bad
+              -
+                id: condition_condition_of_the_object_general_condition_1
+                title: 'General condition'
+                control: multiple
+                prefix: condition_painting_general_condition_not_
+                choices:
+                  transportable: 'Not transportable'
+                  displayable: 'Not displayable'
+          -
+            id: condition-block-1
+            title: 'Specific condition of the object'
+            groups:
+              -
+                id: condition_specific_condition_of_the_object_condition_support_0
+                title: 'Condition support'
+                control: single
+                prefix: condition_painting_specific_condition_support_
+                choices:
+                  good: Good
+                  average: Average
+                  bad: Bad
+              -
+                id: condition_specific_condition_of_the_object_support_type_1
+                title: 'Support type'
+                control: search
+                prefix: condition_painting_specific_condition_support_type_
+                choices:
+                  canvas: Canvas
+                  wood: { type: detail, label: panel_type }
+                  metal: { type: detail, label: Metal }
+                  paper: Paper
+                  cardboard: Cardboard
+                  hardboard: Hardboard
+                  marouflage: Marouflage
+                  custom: { type: custom }
+                custom_slots: 1
+              -
+                id: condition_specific_condition_of_the_object_water_damage_2
+                title: 'Water damage'
+                control: single
+                prefix: condition_painting_specific_condition_support_water_damage_
+                choices:
+                  'yes': 'Yes'
+                  'no': 'No'
+              -
+                id: condition_specific_condition_of_the_object_fungi_3
+                title: Fungi
+                control: single
+                prefix: condition_painting_specific_condition_support_fungi_
+                choices:
+                  'yes': 'Yes'
+                  'no': 'No'
+              -
+                id: condition_specific_condition_of_the_object_backside_4
+                title: Backside
+                control: search
+                prefix: condition_painting_specific_condition_support_backside_
+                choices:
+                  dirt: Dirt
+                  spots: Spots
+                  seals: Seals
+                  labels: Labels
+                  inscriptions: Inscriptions
+                  custom: { type: custom }
+                custom_slots: 1
+              -
+                id: condition_specific_condition_of_the_object_moisture_barrier_at_reverse_impregnation_5
+                title: 'Moisture barrier at reverse / impregnation'
+                control: search
+                prefix: condition_painting_specific_condition_support_impregnation_
+                choices:
+                  wax_resin: Wax-resin
+                  paint: Paint
+                  custom: { type: custom }
+                custom_slots: 1
+              -
+                id: condition_specific_condition_of_the_object_canvas_7
+                title: Canvas
+                control: condition
+                prefix: condition_painting_specific_condition_canvas_
+                rating:
+                  good: Good
+                  average: Average
+                  bad: Bad
+                issues:
+                  not_lined: 'Not lined'
+                  lined: Lined
+                  lined_paint: Paint
+                  lined_wax_resin: Wax-resin
+                  lined_custom: { type: custom }
+                  strip_lining: Strip-lining
+                  patches: Patches
+                  changes: { type: detail, label: 'Changes (additions, altered pieces, â€¦)' }
+                  deformations: { type: detail, label: Deformations }
+                  stretching_marks: 'Stretching marks'
+                  dents: Dents
+                  seam: Seam
+                  tears: Tears/holes
+                  edges: { type: detail, label: Edges }
+                  oxidation: canvas_oxidation
+                  dirt: 'Dirt between canvas and stretcher'
+                custom_slots: 1
+              -
+                id: condition_specific_condition_of_the_object_tension_8
+                title: Tension
+                control: single
+                prefix: condition_painting_specific_condition_canvas_tension_
+                choices:
+                  good: Good
+                  slack: Slack
+              -
+                id: condition_specific_condition_of_the_object_support_carrier_10
+                title: support_carrier
+                control: condition
+                prefix: condition_painting_specific_condition_stretcher_
+                rating:
+                  good: Good
+                  average: Average
+                  bad: Bad
+                issues:
+                  stretcher: Stretcher
+                  strainer: Strainer
+                  deformations: Deformations
+                  keys: 'Keys (complete and secured)'
+                  corner_joints: 'Insufficient/open corner joints'
+                  not_stable: 'Not stable'
+                  splits: Splits
+                  woodworm_active: reports.woodworm_active
+                  woodworm_old: reports.woodworm_old
+                custom_slots: 1
+              -
+                id: condition_specific_condition_of_the_object_grain_direction_12
+                title: 'Grain direction'
+                control: single
+                prefix: condition_painting_specific_condition_panel_grain_direction_
+                choices:
+                  horizontal: Horizontal
+                  vertical: Vertical
+              -
+                id: condition_specific_condition_of_the_object_cradle_13
+                title: Cradle
+                control: single
+                prefix: condition_painting_specific_condition_panel_cradle_
+                choices:
+                  blocked: Blocked
+                  not_blocked: 'Not blocked'
+              -
+                id: condition_specific_condition_of_the_object_panel_14
+                title: Panel
+                control: condition
+                prefix: condition_painting_specific_condition_panel_
+                rating:
+                  good: Good
+                  average: Average
+                  bad: Bad
+                issues:
+                  reinforcements: { type: detail, label: 'Reinforcements (clamps, dovetails, etc.)' }
+                  changes: { type: detail, label: 'Changes (additions, altered pieces, â€¦)' }
+                  joints: 'Joints (open, repared, strengthened, â€¦)'
+                  splits: 'Splits (position/length)'
+                  deformations: { type: detail, label: 'Deformations (convex, concave, wrapped, â€¦)' }
+                  woodworm_active: reports.woodworm_active
+                  woodworm_old: reports.woodworm_old
+                  dents: Dents
+                  holes: Holes
+                  damaged_edges: 'Damaged edges'
+                  missing_parts: { type: detail, label: 'Missing parts' }
+                custom_slots: 1
+              -
+                id: condition_specific_condition_of_the_object_metal_16
+                title: Metal
+                control: condition
+                prefix: condition_painting_specific_condition_metal_
+                rating:
+                  good: Good
+                  average: Average
+                  bad: Bad
+                reveal_issues_after: [average, bad]
+                issues:
+                  corrosion: Corrosion
+                  deformations: { type: detail, label: 'Deformations (dents, undulations, â€¦)' }
+                  tears: Tears
+                  missing_parts: 'Missing parts'
+                  weakened: Weakened
+                  broken_parts: 'Broken parts'
+                  damaged_edges: 'Damaged edges'
+                  scratches: Scratches
+                custom_slots: 1
+              -
+                id: condition_specific_condition_of_the_object_paint_layer_18
+                title: paint_layer
+                control: condition
+                prefix: condition_painting_specific_condition_paint_layer_
+                rating:
+                  good: Good
+                  average: Average
+                  bad: Bad
+                reveal_issues_after: [average, bad]
+                issues:
+                  scratches: Scratches
+                  dents: Dents
+                  crackle: { type: detail, label: 'Crackle (pronounced, irregular, micro, bump/pressure craquelure, youth cracks,...)' }
+                  cupping: Cupping
+                  flaking: Flaking
+                  degraded_medium: 'Degraded medium'
+                  blisters: 'Blisters/flaking paint (checked and stable)'
+                  losses: { type: detail, label: Losses }
+                  old_fillings: 'Old fillings'
+                  discolored_retouches: 'Discolored retouches'
+                  overpaints: Overpaints
+                  damaged_edges: 'Damaged edges'
+                  water_damage: 'Water damage'
+                  blanching: condition_blanching
+                  fire_damage: 'Fire damage'
+                  flattened_paint: 'Flattened paint'
+                  abrasion: Abraded/abrasion
+                  spots: Spots
+                  surface_dirt: 'Surface dirt'
+                  insect_feces: 'Insect feces'
+                  fingerprints: Fingerprints
+                custom_slots: 1
+              -
+                id: condition_specific_condition_of_the_object_varnish_layer_19
+                title: 'Varnish layer'
+                control: condition
+                prefix: condition_painting_specific_condition_varnish_layer_
+                rating:
+                  good: Good
+                  average: Average
+                  bad: Bad
+                issues:
+                  present_complete: reports.varnish_complete_short
+                  present_local: reports.varnish_local_short
+                  present_absent: Absent
+                  present_unclear: Unclear
+                  yellowed: Yellowed
+                  drips: 'Drips or drip marks'
+                  water_damage: 'Water damage'
+                  milky: Milky/hazy
+                  blanched: Blanched
+                  degraded: Degraded
+                  scratches: Scratches
+                  wipes: Wipes
+                  crackle: { type: detail, label: Crackle }
+                  damaged_edges: 'Damaged edges'
+                  impurities: 'Impurities in varnish (dust, brush hairs, ...)'
+                  spots: Spots
+                  surface_dirt: 'Surface dirt'
+                  insect_feces: 'Insect feces'
+                  fingerprints: Fingerprints
+                custom_slots: 1
+              -
+                id: condition_specific_condition_of_the_object_varnish_21
+                title: Varnish
+                control: single
+                prefix: condition_painting_specific_condition_varnish_layer_varnish_
+                choices:
+                  glossy: Glossy
+                  matte: Matte
+                  irregular: Irregular
+              -
+                id: condition_specific_condition_of_the_object_frame_23
+                title: Frame
+                control: condition
+                prefix: condition_painting_specific_condition_frame_
+                rating:
+                  good: Good
+                  average: Average
+                  bad: Bad
+                issues:
+                  present_present: Present
+                  present_absent: Absent
+                  inscriptions: Inscriptions
+                  labels: Labels
+                  open_joints: 'Open joints'
+                  weak_corner_connections: 'Weak corner connections'
+                  deformations: Deformations
+                  splits: Splits
+                  missing_loose_parts: 'Missing / loose parts or ornaments'
+                  losses: 'Losses in the finishing layer (eg. gilding, paint coating, wood, etc.)'
+                  losses_old: Old
+                  losses_recent: Recent
+                  adhesion: { type: detail, label: 'Adhesion of the finishing coat (e.g., tortoise shell, veneer, etc.)' }
+                  scratches: Scratches
+                  scratches_old: Old
+                  scratches_recent: Recent
+                  abrasion: Abraded/abrasion
+                  abrasions: Abrasions
+                  surface_dirt: 'Surface dirt'
+                  oxidation: 'Oxidation of sheet metal'
+                  fungi: 'Fungi//moisture spots'
+                  spots: Spots
+                  discolored_retouchings: 'Discolored retouchings'
+                  woodworm: Woodworm
+                  woodworm_active: Active
+                  woodworm_old: Old
+                custom_slots: 1
+              -
+                id: condition_specific_condition_of_the_object_sufficiently_fixed_24
+                title: 'Sufficiently fixed'
+                control: single
+                prefix: condition_painting_specific_condition_framing_fixed_
+                choices:
+                  'yes': 'Yes'
+                  'no': 'No'
+              -
+                id: condition_specific_condition_of_the_object_climate_box_sealed_25
+                title: 'Climate box sealed'
+                control: single
+                prefix: condition_painting_specific_condition_framing_climate_box_
+                choices:
+                  'yes': 'Yes'
+                  'no': 'No'
+              -
+                id: condition_specific_condition_of_the_object_dirt_between_glass_and_artwork_26
+                title: 'Dirt between glass and artwork'
+                control: single
+                prefix: condition_painting_specific_condition_framing_dirt_
+                choices:
+                  'yes': 'Yes'
+                  'no': 'No'
+              -
+                id: condition_specific_condition_of_the_object_broken_glass_27
+                title: 'Broken glass'
+                control: single
+                prefix: condition_painting_specific_condition_framing_broken_glass_
+                choices:
+                  'yes': 'Yes'
+                  'no': 'No'
+              -
+                id: condition_specific_condition_of_the_object_scratches_or_stains_in_the_glass_or_plexi_28
+                title: 'Scratches or stains in the glass or plexi'
+                control: single
+                prefix: condition_painting_specific_condition_framing_scratches_
+                choices:
+                  'yes': 'Yes'
+                  'no': 'No'
+              -
+                id: condition_specific_condition_of_the_object_daylight_opening_correct_29
+                title: 'Daylight opening correct'
+                control: single
+                prefix: condition_painting_specific_condition_framing_daylight_opening_
+                choices:
+                  'yes': 'Yes'
+                  'no': 'No'
+              -
+                id: condition_painting_conservation_heading
+                title: Conservation
+                control: heading
+              -
+                id: condition_specific_condition_of_the_object_conservation_for_transport_needed_30
+                title: 'Conservation for transport needed'
+                control: single
+                prefix: condition_painting_specific_condition_conservation_transport_
+                choices:
+                  'yes': 'Yes'
+                  'no': 'No'
+                  preferable: Preferable
+              -
+                id: condition_specific_condition_of_the_object_conservation_treatment_31
+                title: 'Conservation treatment'
+                control: treatment
+                prefix: condition_painting_specific_condition_conservation_treatment_
+              -
+                id: condition_specific_condition_of_the_object_condition_description_32
+                title: 'Condition description'
+                control: treatment
+                prefix: condition_painting_specific_condition_conservation_description_
+              -
+                id: condition_specific_condition_of_the_object_consolidation_33
+                title: Consolidation
+                control: treatment
+                prefix: condition_painting_specific_condition_consolidation_
+              -
+                id: condition_specific_condition_of_the_object_surface_cleaning_dusting_and_framing_34
+                title: 'Surface cleaning, dusting and framing'
+                control: treatment
+                prefix: condition_painting_specific_condition_dusting_
+              -
+                id: condition_specific_condition_of_the_object_structural_treatment_35
+                title: 'Structural treatment'
+                control: treatment
+                prefix: condition_painting_specific_condition_structural_treatment_
+              -
+                id: condition_specific_condition_of_the_object_filling_of_losses_36
+                title: 'Filling of losses'
+                control: treatment
+                prefix: condition_painting_specific_condition_filling_
+              -
+                id: condition_specific_condition_of_the_object_retouching_37
+                title: Retouching
+                control: treatment
+                prefix: condition_painting_specific_condition_retouching_
+              -
+                id: condition_specific_condition_of_the_object_varnishing_or_corrections_of_the_varnish_38
+                title: 'Varnishing or corrections of the varnish'
+                control: treatment
+                prefix: condition_painting_specific_condition_varnishing_
+              -
+                id: condition_specific_condition_of_the_object_other_additional_interventions_39
+                title: 'Other/additional interventions'
+                control: treatment
+                prefix: condition_painting_specific_condition_other_
+              -
+                id: condition_specific_condition_of_the_object_treatment_of_the_frame_40
+                title: 'Treatment of the frame'
+                control: treatment
+                prefix: condition_painting_specific_condition_treatment_frame_
+              -
+                id: condition_specific_condition_of_the_object_framing_bfbu_climate_box_41
+                title: 'Framing: BFBU/climate box, ...'
+                control: treatment
+                prefix: condition_painting_specific_condition_framing_
+              -
+                id: condition_specific_condition_of_the_object_report_and_documentation_42
+                title: 'Report and documentation'
+                control: treatment
+                prefix: condition_painting_specific_condition_report_
+      recommendations:
+        blocks:
+          -
+            id: recommendations-block-0
+            title: Presentation
+            groups:
+              -
+                id: recommendations_presentation_security_conditions_0
+                title: 'Security conditions'
+                control: search
+                prefix: recommendations_painting_presentation_security_conditions_
+                choices:
+                  barriers: Barriers
+                  showcase: Showcase
+                  glass: Glass
+                  climate_box: 'Climate box'
+                  alarm: { type: detail, label: Alarm }
+                  security_screws: 'Security screws'
+                  other: { type: custom }
+                custom_slots: 1
+              -
+                id: recommendations_presentation_setup_plan_guidelines_1
+                title: 'Setup plan / guidelines'
+                control: multiple
+                prefix: recommendations_painting_presentation_guidelines_
+                radio_groups:
+                  availability: [present, absent]
+                choices:
+                  present: Present
+                  absent: Absent
+                  not_necessary: 'Not necessary'
+              -
+                id: recommendations_presentation_setup_2
+                title: Setup
+                control: search
+                prefix: recommendations_painting_presentation_setup_
+                choices:
+                  standing: Standing
+                  hanging: Hanging
+                  hanging_system: 'Hanging system'
+                  security_device_required: 'Security device required'
+                  other: { type: custom }
+                custom_slots: 1
+              -
+                id: recommendations_presentation_hanging_system_3
+                title: 'Hanging system'
+                control: single
+                prefix: recommendations_painting_presentation_setup_hanging_system_
+                choices:
+                  present: Present
+                  absent: Absent
+          -
+            id: recommendations-block-1
+            title: 'Environmental and climatic conditions during storage, transport and presentations'
+            groups:
+              -
+                id: recommendations_environmental_and_climatic_conditions_during_storage_transport_and_presentations_guidelines_temperature_temp_0
+                title: 'Guidelines temperature (temp)'
+                control: input
+                input:
+                  name: recommendations_painting_environmental_climatic_conditions_temp
+                  type: textarea
+              -
+                id: recommendations_environmental_and_climatic_conditions_during_storage_transport_and_presentations_guidelines_relative_humidity_rh_1
+                title: 'Guidelines relative humidity (RH)'
+                control: input
+                input:
+                  name: recommendations_painting_environmental_climatic_conditions_rh
+                  type: textarea
+              -
+                id: recommendations_environmental_and_climatic_conditions_during_storage_transport_and_presentations_guidelines_brightness_lux_2
+                title: 'Guidelines brightness (Lux)'
+                control: input
+                input:
+                  name: recommendations_painting_environmental_climatic_conditions_lux
+                  type: textarea
+              -
+                id: recommendations_environmental_and_climatic_conditions_during_storage_transport_and_presentations_guidelines_ultraviolet_light_uv_3
+                title: 'Guidelines ultraviolet light (UV)'
+                control: input
+                input:
+                  name: recommendations_painting_environmental_climatic_conditions_uv
+                  type: textarea
+              -
+                id: recommendations_environmental_and_climatic_conditions_during_storage_transport_and_presentations_maximum_exhibition_duration_4
+                title: 'Maximum exhibition duration'
+                control: input
+                input:
+                  name: recommendations_painting_environmental_climatic_conditions_exhibition_duration
+                  type: textarea
+              -
+                id: recommendations_environmental_and_climatic_conditions_during_storage_transport_and_presentations_how_long_to_acclimatize_before_unpacking_6
+                title: 'How long to acclimatize before unpacking?'
+                control: search
+                prefix: recommendations_painting_environmental_climatic_conditions_acclimatize_
+                choices:
+                  24h: '24 h'
+                  other: { type: custom }
+                custom_slots: 1
+          -
+            id: recommendations-block-2
+            title: 'Manipulation / transport'
+            groups:
+              -
+                id: recommendations_manipulation_transport_manipulation_transport_0
+                title: 'Manipulation / transport'
+                control: multiple
+                prefix: recommendations_painting_manipulation_transport_
+                choices:
+                  museum_staff: 'Qualified museum staff'
+                  courier: Courier
+              -
+                id: recommendations_manipulation_transport_number_of_people_1
+                title: 'Number of people'
+                control: input
+                input:
+                  name: recommendations_painting_manipulation_transport_people
+                  type: number
+                  min: 0
+              -
+                id: recommendations_manipulation_transport_moving_equipment_2
+                title: 'Moving equipment'
+                control: search
+                prefix: recommendations_painting_manipulation_transport_moving_equipment_
+                choices:
+                  gloves: 'Please wear gloves when manipulating the art piece'
+                  car: 'Car with pneumatic tires'
+                  pallet_truck: 'Pallet truck'
+                  trolley: Trolley
+                  other: { type: custom }
+                custom_slots: 1
+              -
+                id: recommendations_manipulation_transport_transport_equipment_3
+                title: 'Transport equipment'
+                control: search
+                prefix: recommendations_painting_manipulation_transport_transport_equipment_
+                choices:
+                  elevator_truck: 'Truck with elevator'
+                  air_suspended_truck: 'Air suspended truck'
+                  air_conditioned_truck: 'Air-conditioned truck'
+                  direct: 'Direct transport required (no other artwork to pick up)'
+                custom_slots: 1
+              -
+                id: recommendations_manipulation_transport_points_of_attention_with_transport_4
+                title: 'Points of attention with transport'
+                control: search
+                prefix: recommendations_painting_manipulation_transport_attention_
+                choices:
+                  direction_upright: Upright
+                  direction_lying_down: 'Lying down'
+                  no_respect_direction: 'No respect for direction of travel'
+                  stacking_allowed: 'Stacking allowed'
+                  other: { type: custom }
+                custom_slots: 1
+          -
+            id: recommendations-block-3
+            title: Packing
+            groups:
+              -
+                id: recommendations_packing_packing_0
+                title: Packing
+                control: search
+                choices:
+                  recommendations_painting_manipulation_transport_packing_not_touching_paint_layer: 'General remark: It’s important that the packing material doesn’t touch the paint layer'
+                custom_slots: 1
+              -
+                id: recommendations_packing_packing_packing_1
+                title: packing_packing
+                control: search
+                prefix: recommendations_painting_manipulation_transport_packing_
+                choices:
+                  direction_face_down: 'Face down'
+                  direction_face_up: 'Face up'
+                  direction_pack_pack_upright: 'Pack upright'
+                  direction_pack_pack_lying_down: 'Pack lying down'
+                  datalogger_in_crate: 'Datalogger in the crate'
+                  datalogger: Datalogger
+                  supporting_construction: 'Supporting construction needed'
+                  tape_glass: 'Please do tape the glass'
+                  other: { type: custom }
+                custom_slots: 1
+              -
+                id: recommendations_packing_other_materials_2
+                title: 'Other materials'
+                control: search
+                prefix: recommendations_painting_manipulation_transport_materials_
+                choices:
+                  ribbon: Ribbon
+                  other: { type: custom }
+                custom_slots: 1
+              -
+                id: recommendations_packing_inner_packing_3
+                title: 'Inner packing'
+                control: search
+                prefix: recommendations_painting_manipulation_transport_inner_packing_
+                choices:
+                  not_packed: 'Not packed'
+                  local_protection: 'Only local protection'
+                  silk_paper: 'Silk paper'
+                  paper: { type: detail, label: Paper }
+                  tyvek: Tyvek
+                  ethafoam: 'Ethafoam for supporting construction'
+                  lexan_envelope: 'Lexan envelope'
+                  polyethylene: 'Polyethylene film/foil'
+                  bubble_wrap: 'Bubble wrap'
+                  other: { type: custom }
+                custom_slots: 1
+              -
+                id: recommendations_packing_polyethylene_film_foil_4
+                title: 'Polyethylene film/foil'
+                control: single
+                prefix: recommendations_painting_manipulation_transport_inner_packing_polyethylene_
+                choices:
+                  sealed_with_tape: 'Sealed with tape'
+                  not_sealed: 'Not sealed'
+              -
+                id: recommendations_packing_outer_packing_5
+                title: 'Outer packing'
+                control: search
+                prefix: recommendations_painting_manipulation_transport_outer_packing_
+                choices:
+                  soft: 'Soft packing'
+                  travel_frame: 'Travel frame'
+                  delvaux_frame: 'Delvaux frame'
+                  climate_box: 'Climate box/double crate'
+                  special_crate: 'Special made crate'
+                  hired_crate: 'Hired crate'
+                  collecting_crate: 'Collecting crate'
+                  vibrometer_on_crate: 'Vibrometer on the crate'
+                  tilt_meter_on_crate: 'Tilt and shockmeter on the crate'
+                  other: { type: custom }
+                custom_slots: 1
+              -
+                id: recommendations_packing_soft_packing_6
+                title: 'Soft packing'
+                control: multiple
+                prefix: recommendations_painting_manipulation_transport_outer_packing_soft_
+                choices:
+                  bubble_wrap: 'Bubble wrap'
+                  cardboard: Cardboard
+              -
+                id: recommendations_packing_special_made_crate_7
+                title: 'Special made crate'
+                control: single
+                prefix: recommendations_painting_manipulation_transport_outer_packing_special_crate_
+                choices:
+                  at_your_disposal: 'At your disposal'
+                  should_be_made: 'Should be made'
+    work_on_paper:
+      materials:
+        blocks:
+          -
+            id: materials-block-0
+            title: 'Material type'
+            groups:
+              -
+                id: materials_material_type_support_0
+                title: Support
+                control: search
+                prefix: material_paper_support_
+                choices:
+                  paper: Paper
+                  paper_rag: 'Rag paper'
+                  paper_wood_pulp: 'Wood pulp paper'
+                  paper_tracing: 'Tracing paper'
+                  paper_japanese: 'Japanese paper'
+                  paper_colored: 'Colored paper'
+                  cardboard: Cardboard
+                  cardboard_acid_free: 'Acid-free cardboard'
+                  multilayered: { type: detail, label: 'Multilayered support' }
+                  custom: { type: custom }
+                custom_slots: 10
+              -
+                id: materials_material_type_pictorial_layer_1
+                title: 'Pictorial layer'
+                control: search
+                prefix: material_paper_pictorial_layer_
+                choices:
+                  graphite: Graphite
+                  charcoal: Charcoal
+                  colored_pencil: 'Colored pencil'
+                  chalk: Chalk
+                  chalk_black: 'Black chalk'
+                  chalk_red: 'Sanguine (red chalk)'
+                  chalk_white: 'White chalk'
+                  chalk_custom: { type: custom }
+                  pastel: Pastel
+                  oil_pastel: 'Oil pastel'
+                  ink: Ink
+                  ink_printing: 'Printing ink'
+                  ink_india: 'India ink'
+                  ink_bister: 'Bister (pigment)'
+                  ink_custom: { type: custom }
+                  paint: Paint
+                  paint_gouache: Gouache
+                  paint_watercolour: Watercolour
+                  paint_oil: 'Oil paint'
+                  paint_acrylic: 'Acrylic paint'
+                  paint_tempera: Tempera
+                  paint_casein: 'Casein paint'
+                  paint_custom: { type: custom }
+                  collage: { type: detail, label: Collage }
+                  custom: { type: custom }
+                custom_slots: 10
+              -
+                id: materials_material_type_protection_layer_2
+                title: 'Protection layer'
+                control: search
+                prefix: material_paper_protection_layer_
+                choices:
+                  varnish: Varnish
+                  fixative: Fixative
+                  glue: Glue
+                  'no': 'No protection layer'
+                  custom: { type: custom }
+                custom_slots: 10
+          -
+            id: materials-block-1
+            title: 'Construction techniques'
+            groups:
+              -
+                id: materials_construction_techniques_construction_techniques_0
+                title: 'Construction techniques'
+                control: search
+                custom_slots: 10
+          -
+            id: materials-block-2
+            title: 'Construction / composition'
+            groups:
+              -
+                id: materials_construction_composition_work_0
+                title: Work
+                control: single
+                prefix: material_paper_work_loose_
+                choices:
+                  loose: Loose
+                  fixed: fixed
+          -
+            id: materials-block-3
+            title: Frame
+            groups:
+              -
+                id: materials_frame_type_of_frame_0
+                title: 'Type of frame'
+                control: search
+                prefix: material_paper_frame_type_
+                choices:
+                  ornament: 'Ornament frame'
+                  tight: 'Tight or modern frame'
+                  picture: 'Picture frame'
+                  historical: 'Historical frame'
+                  recent: 'Modern or recent frame'
+                  inner: 'Frame with inner frame'
+                  original: 'Original frame'
+                  passe_partout: Passe-partout
+                  custom: { type: custom }
+                custom_slots: 10
+              -
+                id: materials_frame_material_1
+                title: Material
+                control: search
+                prefix: material_paper_frame_material_
+                choices:
+                  gypsum: Gypsum
+                  wood: Wood
+                  metal: Metal
+                  perspex: Perspex/plexi
+                  custom: { type: custom }
+                custom_slots: 10
+              -
+                id: materials_frame_passe_partout_2
+                title: Passe-partout
+                control: single
+                prefix: material_paper_frame_passe_partout_present_
+                choices:
+                  present: Present
+                  absent: Absent
+              -
+                id: materials_frame_if_present_3
+                title: 'If present'
+                control: search
+                prefix: material_paper_frame_passe_partout_
+                choices:
+                  historical: { type: detail, label: 'Historical mount' }
+                  recent: { type: detail, label: 'Recent mount' }
+                custom_slots: 10
+              -
+                id: materials_frame_material_passe_partout_4
+                title: 'Material passe-partout'
+                control: search
+                prefix: material_paper_frame_passe_partout_
+                choices:
+                  cardboard: Cardboard
+                  cardboard_acid_free: 'Acid-free cardboard'
+                  paper: Paper
+                  textile: Textile
+                  custom: { type: custom }
+                custom_slots: 10
+              -
+                id: materials_frame_mounting_paper_in_mount_3
+                title: 'Mounting paper in mount'
+                control: search
+                custom_slots: 10
+              -
+                id: materials_frame_fixed_in_frame_with_5
+                title: 'Fixed in frame with'
+                control: search
+                prefix: material_paper_frame_framing_fixation_
+                choices:
+                  clips: Clips
+                  metal_plates: 'Metal plates'
+                  wooden_plates: 'Wooden plates'
+                  flex_stapling: 'Flex stapling'
+                  hinges: Hinges
+                  nails: Nails
+                  tape: Tape
+                  glued: Pasted/glued
+                  sealed: Sealed
+                  custom: { type: custom }
+                custom_slots: 10
+              -
+                id: materials_frame_material_in_rabbet_6
+                title: 'Material in rabbet'
+                control: search
+                prefix: material_paper_frame_framing_material_rabbet_
+                choices:
+                  felt: Felt
+                  museum_cardboard: 'Museum cardboard'
+                  balsa_wood: 'Balsa wood'
+                  evazote: Evazote
+                  custom: { type: custom }
+                custom_slots: 10
+              -
+                id: materials_frame_back_protection_7
+                title: 'Back protection'
+                control: search
+                prefix: material_paper_frame_framing_back_protection_
+                choices:
+                  kapaline: Kapaline
+                  lexaan: Lexaan
+                  fiberboard: 'Fiberboard, hardboard'
+                  unalit: Unalit
+                  mdf: MDF
+                  cardboard: Cardboard
+                  cardboard_acid_free: 'Acid-free (corrugated) board'
+                  custom: { type: custom }
+                custom_slots: 10
+              -
+                id: materials_frame_inscriptions_8
+                title: Inscriptions
+                control: single
+                prefix: material_paper_frame_framing_inscription_present_custom_
+                choices:
+                  present: Present
+                  absent: Absent
+              -
+                id: materials_frame_labels_9
+                title: Labels
+                control: single
+                prefix: material_paper_frame_framing_labels_present_
+                choices:
+                  present: Present
+                  absent: Absent
+              -
+                id: materials_frame_glazed_10
+                title: Glazed
+                control: single
+                prefix: material_paper_frame_framing_glass_present_
+                choices:
+                  present: Present
+                  absent: Absent
+              -
+                id: materials_frame_type_of_glass_11
+                title: 'Type of glass'
+                control: search
+                prefix: material_paper_frame_framing_type_of_glass_
+                choices:
+                  plexi: { type: detail, label: Plexi }
+                  museum_glass: { type: detail, label: 'Museum glass' }
+                  custom: { type: detail, label: 'No museum glass' }
+                custom_slots: 10
+              -
+                id: materials_frame_glass_taped_12
+                title: 'Glass taped'
+                control: single
+                prefix: material_paper_frame_framing_tape_present_
+                choices:
+                  taped: Taped
+                  not_taped: 'Not taped'
+              -
+                id: materials_frame_climate_box_incorporated_in_frame_13
+                title: 'Climate box (incorporated in frame)'
+                control: single
+                prefix: material_paper_frame_framing_climate_box_present_
+                choices:
+                  present: Present
+                  absent: Absent
+              -
+                id: materials_frame_hanging_system_14
+                title: 'Hanging system'
+                control: search
+                prefix: material_paper_frame_framing_hanging_system_
+                choices:
+                  mirror_plate: 'Mirror plate'
+                  steddie: Steddie
+                  icn: 'ICN with loose screw eye'
+                  brace: 'Large suspension brace'
+                  track_slide: 'Track & slide'
+                  plain_screw_eye: 'Plain screw eye'
+                  hook: 'Picture hanger (hook)'
+                  custom: { type: custom }
+                custom_slots: 10
+            presence:
+              present: material_paper_frame_present_present
+              absent: material_paper_frame_present_absent
+      condition:
+        blocks:
+          -
+            id: condition-block-0
+            title: 'Condition of the object'
+            groups:
+              -
+                id: condition_condition_of_the_object_general_condition_0
+                title: 'General condition'
+                control: single
+                prefix: condition_work_on_paper_general_condition_
+                choices:
+                  good: Good
+                  average: Average
+                  bad: Bad
+              -
+                id: condition_condition_of_the_object_general_condition_1
+                title: 'General condition'
+                control: multiple
+                prefix: condition_work_on_paper_general_condition_not_
+                choices:
+                  transportable: 'Not transportable'
+                  displayable: 'Not displayable'
+          -
+            id: condition-block-1
+            title: 'Specific condition of the object'
+            groups:
+              -
+                id: condition_specific_condition_of_the_object_support_1
+                title: Support
+                control: condition
+                prefix: condition_work_on_paper_specific_condition_support_
+                rating:
+                  good: Good
+                  average: Average
+                  bad: Bad
+                reveal_issues_after: [average, bad]
+                issues:
+                  brittle: Brittle
+                  fiber_degradation: 'Fiber degradation'
+                  delamination: 'Delamination / flaking / loosening in composite support'
+                  holes: { type: detail, label: 'Holes / lacunae  / perforations' }
+                  scratches: Scratches
+                  edges: 'Damaged or missing corners and edges'
+                  tears: Tears
+                  folds: 'Folds, wrinkles, dents'
+                  tensions: 'Undulations/Wrinkling / tensions'
+                  tensions_little: Little
+                  tensions_strong: Strong
+                  acidification: Acidification
+                  yellowing: Yellowing
+                  yellowing_little: Little
+                  yellowing_strong: Strong
+                  browning: Browning
+                  browning_little: Little
+                  browning_strong: Strong
+                  foxing: { type: detail, label: Foxing }
+                  bleaching: Bleaching
+                  water_damage: 'Water damage (tideline)'
+                  insect_damage: 'Insect damage and damage by microorganisms'
+                  silverfish: Silverfish
+                  wood_worm: 'Wood worm/wood borers'
+                  mould: Mould
+                  old_restorations: { type: detail, label: 'Old restorations' }
+                  dirt: 'Encrusted dirt, stains or impurities in the paper fiber'
+                  glue: 'Residue of glue'
+                  tape: '(Remains of) adhesive tape'
+                  glue_other: { type: custom }
+                  further_specifications_other: { type: custom }
+                custom_slots: 1
+              -
+                id: condition_specific_condition_of_the_object_pictorial_layer_3
+                title: 'Pictorial layer'
+                control: condition
+                prefix: condition_work_on_paper_specific_condition_pictorial_layer_
+                rating:
+                  good: Good
+                  average: Average
+                  bad: Bad
+                reveal_issues_after: [average, bad]
+                issues:
+                  dirt: 'Surface dirt/dust/stains/spots'
+                  dusty: Dusty
+                  oxidation: Oxidation
+                  paint: Paint
+                  excrements_of_insects: 'Excrements of insects'
+                  other: { type: custom }
+                  ink_corrosion: 'Ink corrosion'
+                  scratches: Scratches
+                  crackle: { type: detail, label: Crackle }
+                  cupping: Cupping
+                  flaking: Flaking
+                  degraded_medium: 'Degraded medium'
+                  blisters: 'Blisters/flaking paint'
+                  blisters_checked: Checked
+                  blisters_stable: Stable
+                  losses: { type: detail, label: Losses }
+                  flattened_paint: 'Flattened paint'
+                  retouches: '(Discolored) retouches/overpaints'
+                  damaged_edges: 'Damaged edges'
+                  water_damage: { type: detail, label: 'Water damage' }
+                  blanching: condition_blanching
+                  fire_damage: 'Fire damage'
+                  abrasion: Abraded/abrasion
+                  fingerprints: Fingerprints
+                  remains: 'Remains of other materials'
+                  smudged: Smudged
+                  discoloration: Discoloration
+                  bleaching: Bleaching
+                  old_restorations: { type: detail, label: 'Old restorations' }
+                custom_slots: 1
+              -
+                id: condition_specific_condition_of_the_object_protective_layer_5
+                title: 'Protective layer'
+                control: condition
+                prefix: condition_work_on_paper_specific_condition_protective_layer_
+                rating:
+                  good: Good
+                  average: Average
+                  bad: Bad
+                issues:
+                  glossy: Glossy
+                  matte: Matte
+                  irregular: Irregular
+                  yellowed: Yellowed
+                  other: { type: custom }
+                custom_slots: 1
+              -
+                id: condition_specific_condition_of_the_object_condition_passe_partout_and_external_support_6
+                title: 'Condition passe-partout and external support'
+                control: multiple
+                prefix: condition_work_on_paper_specific_condition_passe_partout_
+                radio_groups:
+                  condition: [good, average, bad]
+                choices:
+                  good: Good
+                  average: Average
+                  bad: Bad
+                  to_be_replaced: 'To be replaced'
+              -
+                id: condition_specific_condition_of_the_object_frame_8
+                title: Frame
+                control: condition
+                prefix: condition_work_on_paper_specific_condition_frame_
+                rating:
+                  good: Good
+                  average: Average
+                  bad: Bad
+                  to_be_replaced: 'To be replaced'
+                rating_radio_groups:
+                  condition: [good, average, bad]
+                reveal_issues_after: [average, bad, to_be_replaced]
+                issues:
+                  other: { type: custom }
+                  open_joints: 'Open joints'
+                  weak_corner_connections: 'Weak corner connections'
+                  deformations: Deformations
+                  splits: Splits
+                  missing_parts: 'Missing / loose parts or ornaments'
+                  losses_finishing_layer: 'Losses in the finishing layer (eg. gilding, paint coating, wood, etc.)'
+                  losses_finishing_layer_old: Old
+                  losses_finishing_layer_recent: Recent
+                  adhesion_finishing_layer: { type: detail, label: 'Adhesion of the finishing layer (e.g., tortoise shell, veneer, etc.)' }
+                  scratches: Scratches
+                  scratches_old: Old
+                  scratches_recent: Recent
+                  broken_glass: 'Broken glass'
+                  abrasion: Abraded/abrasion
+                  abrasions: Abrasions
+                  surface_dirt: 'Surface dirt'
+                  oxidation_sheet_metal: 'Oxidation of sheet metal'
+                  mold: Mould
+                  spots: Spots
+                  discolored_retouchings: 'Discolored retouchings'
+                  woodworm: Woodworm
+                  woodworm_active: Active
+                  woodworm_old: Old
+                  other_checkbox: { type: custom }
+                custom_slots: 1
+              -
+                id: condition_specific_condition_of_the_object_sufficiently_fixed_9
+                title: 'Sufficiently fixed'
+                control: single
+                prefix: condition_work_on_paper_specific_condition_framing_fixed_
+                choices:
+                  'yes': 'Yes'
+                  'no': 'No'
+              -
+                id: condition_specific_condition_of_the_object_climate_box_sealed_10
+                title: 'Climate box sealed'
+                control: single
+                prefix: condition_work_on_paper_specific_condition_framing_climate_box_
+                choices:
+                  'yes': 'Yes'
+                  'no': 'No'
+              -
+                id: condition_specific_condition_of_the_object_dirt_between_glass_and_artwork_11
+                title: 'Dirt between glass and artwork'
+                control: single
+                prefix: condition_work_on_paper_specific_condition_framing_dirt_
+                choices:
+                  'yes': 'Yes'
+                  'no': 'No'
+              -
+                id: condition_specific_condition_of_the_object_broken_glass_12
+                title: 'Broken glass'
+                control: single
+                prefix: condition_work_on_paper_specific_condition_framing_broken_glass_
+                choices:
+                  'yes': 'Yes'
+                  'no': 'No'
+              -
+                id: condition_specific_condition_of_the_object_scratches_or_stains_in_the_glass_or_plexi_13
+                title: 'Scratches or stains in the glass or plexi'
+                control: single
+                prefix: condition_work_on_paper_specific_condition_framing_scratches_
+                choices:
+                  'yes': 'Yes'
+                  'no': 'No'
+              -
+                id: condition_specific_condition_of_the_object_daylight_opening_correct_14
+                title: 'Daylight opening correct'
+                control: single
+                prefix: condition_work_on_paper_specific_condition_framing_daylight_opening_
+                choices:
+                  'yes': 'Yes'
+                  'no': 'No'
+              -
+                id: condition_work_on_paper_conservation_heading
+                title: Conservation
+                control: heading
+              -
+                id: condition_specific_condition_of_the_object_conservation_for_transport_needed_15
+                title: 'Conservation for transport needed'
+                control: single
+                prefix: condition_work_on_paper_specific_condition_conservation_transport_
+                choices:
+                  'yes': 'Yes'
+                  'no': 'No'
+                  preferable: Preferable
+              -
+                id: condition_specific_condition_of_the_object_conservation_treatment_16
+                title: 'Conservation treatment'
+                control: treatment
+                prefix: condition_work_on_paper_specific_condition_conservation_treatment_
+              -
+                id: condition_specific_condition_of_the_object_condition_description_17
+                title: 'Condition description'
+                control: treatment
+                prefix: condition_work_on_paper_specific_condition_conservation_description_
+              -
+                id: condition_specific_condition_of_the_object_consolidation_18
+                title: Consolidation
+                control: treatment
+                prefix: condition_work_on_paper_specific_condition_consolidation_
+              -
+                id: condition_specific_condition_of_the_object_surface_cleaning_dusting_and_framing_19
+                title: 'Surface cleaning, dusting and framing'
+                control: treatment
+                prefix: condition_work_on_paper_specific_condition_dusting_
+              -
+                id: condition_specific_condition_of_the_object_dry_cleaning_20
+                title: 'Dry cleaning'
+                control: treatment
+                prefix: condition_work_on_paper_specific_condition_dry_cleaning_
+              -
+                id: condition_specific_condition_of_the_object_wet_cleaning_21
+                title: 'Wet cleaning'
+                control: treatment
+                prefix: condition_work_on_paper_specific_condition_wet_cleaning_
+              -
+                id: condition_specific_condition_of_the_object_local_treatment_stains_stain_reduction_22
+                title: 'Local treatment stains/stain reduction'
+                control: treatment
+                prefix: condition_work_on_paper_specific_condition_local_treatment_stains_
+              -
+                id: condition_specific_condition_of_the_object_local_treatment_tidelines_23
+                title: 'Local treatment tidelines'
+                control: treatment
+                prefix: condition_work_on_paper_specific_condition_local_treatment_tidelines_
+              -
+                id: condition_specific_condition_of_the_object_hinge_tape_and_adhesive_removal_24
+                title: 'Hinge, tape and adhesive removal'
+                control: treatment
+                prefix: condition_work_on_paper_specific_condition_adhesive_removal_
+              -
+                id: condition_specific_condition_of_the_object_removal_of_old_interventions_restorations_25
+                title: 'Removal of old interventions/restorations'
+                control: treatment
+                prefix: condition_work_on_paper_specific_condition_removal_old_interventions_
+              -
+                id: condition_specific_condition_of_the_object_consolidation_of_paint_and_or_finishing_layers_26
+                title: 'Consolidation of paint and/or finishing layers'
+                control: treatment
+                prefix: condition_work_on_paper_specific_condition_consolidation_paint_finishing_layers_
+              -
+                id: condition_specific_condition_of_the_object_structural_treatment_27
+                title: 'Structural treatment'
+                control: treatment
+                prefix: condition_work_on_paper_specific_condition_structural_treatment_
+              -
+                id: condition_specific_condition_of_the_object_filling_of_losses_28
+                title: 'Filling of losses'
+                control: treatment
+                prefix: condition_work_on_paper_specific_condition_filling_
+              -
+                id: condition_specific_condition_of_the_object_retouching_29
+                title: Retouching
+                control: treatment
+                prefix: condition_work_on_paper_specific_condition_retouching_
+              -
+                id: condition_specific_condition_of_the_object_disassembling_30
+                title: Disassembling
+                control: treatment
+                prefix: condition_work_on_paper_specific_condition_disassembling_
+              -
+                id: condition_specific_condition_of_the_object_new_assembly_31
+                title: 'New assembly'
+                control: treatment
+                prefix: condition_work_on_paper_specific_condition_new_assembly_
+              -
+                id: condition_specific_condition_of_the_object_mounting_on_new_support_32
+                title: 'Mounting on new support'
+                control: treatment
+                prefix: condition_work_on_paper_specific_condition_mounting_new_support_
+              -
+                id: condition_specific_condition_of_the_object_mount_matting_33
+                title: Mount/Matting
+                control: treatment
+                prefix: condition_work_on_paper_specific_condition_treatment_frame_mount_
+                hours_name: condition_work_on_paper_specific_condition_treatment_frame
+              -
+                id: condition_specific_condition_of_the_object_reframing_34
+                title: Reframing
+                control: search
+                prefix: condition_work_on_paper_specific_condition_treatment_frame_reframing_
+                choices:
+                  climate_box: 'Climate box'
+                  climate_box_necessary_necessary: Necessary
+                  climate_box_necessary_not_necessary: 'Not necessary'
+                  climate_box_happened_not_happened_yet: 'Not happened yet'
+                  restoration_frame: 'Restoration frame'
+                  restoration_frame_necessary_necessary: Necessary
+                  restoration_frame_necessary_not_necessary: 'Not necessary'
+                  restoration_frame_happened_not_happened_yet: 'Not happened yet'
+                custom_slots: 1
+              -
+                id: condition_specific_condition_of_the_object_other_additional_interventions_35
+                title: 'Other/additional interventions'
+                control: treatment
+                prefix: condition_work_on_paper_specific_condition_other_
+              -
+                id: condition_specific_condition_of_the_object_report_and_documentation_36
+                title: 'Report and documentation'
+                control: treatment
+                prefix: condition_work_on_paper_specific_condition_report_
+      recommendations:
+        blocks:
+          -
+            id: recommendations-block-0
+            title: Presentation
+            groups:
+              -
+                id: recommendations_presentation_security_conditions_0
+                title: 'Security conditions'
+                control: search
+                prefix: recommendations_work_on_paper_presentation_security_conditions_
+                choices:
+                  barriers: Barriers
+                  showcase: Showcase
+                  glass: Glass
+                  climate_box: 'Climate box'
+                  alarm: { type: detail, label: Alarm }
+                  security_screws: 'Security screws'
+                  other: { type: custom }
+                custom_slots: 1
+              -
+                id: recommendations_presentation_setup_plan_guidelines_1
+                title: 'Setup plan / guidelines'
+                control: multiple
+                prefix: recommendations_work_on_paper_presentation_guidelines_
+                radio_groups:
+                  availability: [present, absent]
+                choices:
+                  present: Present
+                  absent: Absent
+                  not_necessary: 'Not necessary'
+              -
+                id: recommendations_presentation_setup_2
+                title: Setup
+                control: search
+                prefix: recommendations_work_on_paper_presentation_setup_
+                choices:
+                  standing: Standing
+                  hanging: Hanging
+                  lying: Lying
+                  hanging_system: 'Hanging system'
+                  security_device_required: 'Security device required'
+                  other: { type: custom }
+                custom_slots: 1
+              -
+                id: recommendations_presentation_hanging_system_3
+                title: 'Hanging system'
+                control: single
+                prefix: recommendations_work_on_paper_presentation_setup_hanging_system_
+                choices:
+                  present: Present
+                  absent: Absent
+          -
+            id: recommendations-block-1
+            title: 'Environmental and climatic conditions during storage, transport and presentations'
+            groups:
+              -
+                id: recommendations_environmental_and_climatic_conditions_during_storage_transport_and_presentations_guidelines_temperature_temp_0
+                title: 'Guidelines temperature (temp)'
+                control: input
+                input:
+                  name: recommendations_work_on_paper_environmental_climatic_conditions_temp
+                  type: textarea
+              -
+                id: recommendations_environmental_and_climatic_conditions_during_storage_transport_and_presentations_guidelines_relative_humidity_rh_1
+                title: 'Guidelines relative humidity (RH)'
+                control: input
+                input:
+                  name: recommendations_work_on_paper_environmental_climatic_conditions_rh
+                  type: textarea
+              -
+                id: recommendations_environmental_and_climatic_conditions_during_storage_transport_and_presentations_guidelines_brightness_lux_2
+                title: 'Guidelines brightness (Lux)'
+                control: input
+                input:
+                  name: recommendations_work_on_paper_environmental_climatic_conditions_lux
+                  type: textarea
+              -
+                id: recommendations_environmental_and_climatic_conditions_during_storage_transport_and_presentations_guidelines_ultraviolet_light_uv_3
+                title: 'Guidelines ultraviolet light (UV)'
+                control: input
+                input:
+                  name: recommendations_work_on_paper_environmental_climatic_conditions_uv
+                  type: textarea
+              -
+                id: recommendations_environmental_and_climatic_conditions_during_storage_transport_and_presentations_maximum_exhibition_duration_4
+                title: 'Maximum exhibition duration'
+                control: input
+                input:
+                  name: recommendations_work_on_paper_environmental_climatic_conditions_exhibition_duration
+                  type: textarea
+              -
+                id: recommendations_environmental_and_climatic_conditions_during_storage_transport_and_presentations_how_long_to_acclimatize_before_unpacking_6
+                title: 'How long to acclimatize before unpacking?'
+                control: search
+                prefix: recommendations_work_on_paper_environmental_climatic_conditions_acclimatize_
+                choices:
+                  24h: '24 h'
+                  other: { type: custom }
+                custom_slots: 1
+          -
+            id: recommendations-block-2
+            title: 'Manipulation / transport'
+            groups:
+              -
+                id: recommendations_manipulation_transport_manipulation_transport_0
+                title: 'Manipulation / transport'
+                control: multiple
+                prefix: recommendations_work_on_paper_manipulation_transport_
+                choices:
+                  museum_staff: 'Qualified museum staff'
+                  courier: Courier
+              -
+                id: recommendations_manipulation_transport_number_of_people_1
+                title: 'Number of people'
+                control: input
+                input:
+                  name: recommendations_work_on_paper_manipulation_transport_people
+                  type: number
+                  min: 0
+              -
+                id: recommendations_manipulation_transport_moving_equipment_2
+                title: 'Moving equipment'
+                control: search
+                prefix: recommendations_work_on_paper_manipulation_transport_moving_equipment_
+                choices:
+                  gloves: 'Please wear gloves when manipulating the art piece'
+                  car: 'Car with pneumatic tires'
+                  pallet_truck: 'Pallet truck'
+                  trolley: Trolley
+                  other: { type: custom }
+                custom_slots: 1
+              -
+                id: recommendations_manipulation_transport_transport_equipment_3
+                title: 'Transport equipment'
+                control: search
+                prefix: recommendations_work_on_paper_manipulation_transport_transport_equipment_
+                choices:
+                  elevator_truck: 'Truck with elevator'
+                  air_suspended_truck: 'Air suspended truck'
+                  air_conditioned_truck: 'Air-conditioned truck'
+                  direct: 'Direct transport required (no other artwork to pick up)'
+                custom_slots: 1
+              -
+                id: recommendations_manipulation_transport_points_of_attention_with_transport_4
+                title: 'Points of attention with transport'
+                control: search
+                prefix: recommendations_work_on_paper_manipulation_transport_attention_
+                choices:
+                  direction_upright: Upright
+                  direction_lying_down: 'Lying down'
+                  no_respect_direction: 'No respect for direction of travel'
+                  stacking_allowed: 'Stacking allowed'
+                  other: { type: custom }
+                custom_slots: 1
+          -
+            id: recommendations-block-3
+            title: Packing
+            groups:
+              -
+                id: recommendations_packing_packing_0
+                title: Packing
+                control: search
+                choices:
+                  recommendations_work_on_paper_manipulation_transport_packing_not_touching_paint_layer: 'General remark: It’s important that the packing material doesn’t touch the paint layer'
+                custom_slots: 1
+              -
+                id: recommendations_packing_packing_packing_1
+                title: packing_packing
+                control: search
+                prefix: recommendations_work_on_paper_manipulation_transport_packing_
+                choices:
+                  direction_face_down: 'Face down'
+                  direction_face_up: 'Face up'
+                  direction_pack_pack_upright: 'Pack upright'
+                  direction_pack_pack_lying_down_powdery_medium: 'Pack lying down (powdery medium)'
+                  datalogger_in_crate: 'Datalogger in the crate'
+                  datalogger: Datalogger
+                  supporting_construction: 'Supporting construction needed'
+                  tape_glass: 'Please do tape the glass'
+                  other: { type: custom }
+                custom_slots: 1
+              -
+                id: recommendations_packing_other_materials_2
+                title: 'Other materials'
+                control: search
+                prefix: recommendations_work_on_paper_manipulation_transport_materials_
+                choices:
+                  ribbon: Ribbon
+                  other: { type: custom }
+                custom_slots: 1
+              -
+                id: recommendations_packing_inner_packing_3
+                title: 'Inner packing'
+                control: search
+                prefix: recommendations_work_on_paper_manipulation_transport_inner_packing_
+                choices:
+                  not_packed: 'Not packed'
+                  local_protection: 'Only local protection'
+                  silk_paper: 'Silk paper'
+                  paper: { type: detail, label: Paper }
+                  tyvek: Tyvek
+                  ethafoam: 'Ethafoam for supporting construction'
+                  lexan_envelope: 'Lexan envelope'
+                  polyethylene: 'Polyethylene film/foil'
+                  bubble_wrap: 'Bubble wrap'
+                  other: { type: custom }
+                custom_slots: 1
+              -
+                id: recommendations_packing_silk_paper_4
+                title: 'Silk paper'
+                control: single
+                prefix: recommendations_work_on_paper_manipulation_transport_inner_packing_silk_paper_
+                choices:
+                  buffered: Buffered
+                  unbuffered: Unbuffered
+              -
+                id: recommendations_packing_polyethylene_film_foil_5
+                title: 'Polyethylene film/foil'
+                control: single
+                prefix: recommendations_work_on_paper_manipulation_transport_inner_packing_polyethylene_
+                choices:
+                  sealed_with_tape: 'Sealed with tape'
+                  not_sealed: 'Not sealed'
+              -
+                id: recommendations_packing_outer_packing_6
+                title: 'Outer packing'
+                control: search
+                prefix: recommendations_work_on_
+                choices:
+                  paper_manipulation_transport_outer_packing_soft: 'Soft packing'
+                  paper_manipulation_transport_outer_packing_travel_frame: 'Travel frame'
+                  paper_manipulation_transport_outer_packing_delvaux_frame: 'Delvaux frame'
+                  paper_manipulation_transport_outer_packing_climate_box: 'Climate box/double crate'
+                  paperg_manipulation_transport_outer_packing_special_crate: 'Special made crate'
+                  paper_manipulation_transport_outer_packing_hired_crate: 'Hired crate'
+                  paper_manipulation_transport_outer_packing_collecting_crate: 'Collecting crate'
+                  paper_manipulation_transport_outer_packing_vibrometer_on_crate: 'Vibrometer on the crate'
+                  paper_manipulation_transport_outer_packing_tilt_meter_on_crate: 'Tilt and shockmeter on the crate'
+                  paper_manipulation_transport_outer_packing_other: { type: custom }
+                custom_slots: 1
+              -
+                id: recommendations_packing_soft_packing_7
+                title: 'Soft packing'
+                control: multiple
+                prefix: recommendations_work_on_paper_manipulation_transport_outer_packing_soft_
+                choices:
+                  bubble_wrap: 'Bubble wrap'
+                  cardboard: Cardboard
+    sculpture:
+      materials:
+        blocks:
+          -
+            id: materials-block-0
+            title: 'Material type'
+            groups:
+              -
+                id: materials_material_type_sculpture_0
+                title: Sculpture
+                control: search
+                prefix: material_
+                choices:
+                  sculpture_metal: { type: detail, label: Metal }
+                  sculpture_wood: { type: detail, label: Wood }
+                  sculpture_stone: { type: detail, label: Stone }
+                  sculpture_plaster: { type: detail, label: Plaster }
+                  sculpture_ceramic: { type: detail, label: Ceramic }
+                  sculpturet_plastic: { type: detail, label: Plastic }
+                  sculpture_textile: { type: detail, label: Textile }
+                  sculpture_glass: { type: detail, label: Glass }
+                  sculpture_paper: { type: detail, label: Paper }
+                  sculpture_custom: { type: custom }
+                custom_slots: 10
+              -
+                id: materials_material_type_finishing_layer_sculpture_1
+                title: finishing_layer_sculpture
+                control: search
+                prefix: material_sculpture_finishing_layer_
+                choices:
+                  absent: 'No finishing layer'
+                  polishing: Polishing
+                  patina: Patina
+                  patina_artificial: 'Artificial patina'
+                  patina_natural: 'Natural patina'
+                  wax: 'Wax layer'
+                  glaze: Glaze
+                  painting: painting_sculpture
+                  varnish: Varnish
+                  custom: { type: custom }
+                  traces_chop_marks: 'Chop marks'
+                  traces_chisel_marks: 'Chisel marks'
+                  traces_casting_channels: 'Casting channels'
+                  traces_casting_seams: 'Casting seams'
+                  traces_welds: Welds
+                  traces_baking_failure: 'Baking failure'
+                  traces_glaze_stain: 'Glaze stain'
+                  traces_custom: { type: custom }
+                custom_slots: 10
+              -
+                id: materials_material_type_pedestal_socle_2
+                title: Pedestal/Socle
+                control: search
+                prefix: material_sculpture_pedestal_
+                choices:
+                  original_original: Original
+                  original_not_original: 'Not original'
+                  metal: { type: detail, label: Metal }
+                  wood: { type: detail, label: Wood }
+                  stone: { type: detail, label: Stone }
+                  plaster: { type: detail, label: Plaster }
+                  plastic: { type: detail, label: Plastic }
+                  custom: { type: custom }
+                custom_slots: 10
+          -
+            id: materials-block-1
+            title: 'Construction techniques'
+            groups:
+              -
+                id: materials_construction_techniques_construction_techniques_0
+                title: 'Construction techniques'
+                control: search
+                prefix: material_sculpture_construction_techniques_
+                choices:
+                  metal: Metal
+                  metal_cast: Cast
+                  metal_assembled: Assembled
+                  metal_welded: Welded
+                  metal_brazed: Brazed
+                  metal_lost_wax_process: 'Lost-wax process'
+                  metal_cast_in_sand: 'Cast in sand'
+                  metal_custom: { type: custom }
+                  wood: Wood
+                  wood_cast: Sculptured
+                  wood_assembled: Assembled
+                  wood_custom: { type: custom }
+                  stone: Stone
+                  stone_stone_cutted: 'Stone cutted'
+                  stone_polished: Polished
+                  stone_sweetened: Sweetened
+                  stone_custom: { type: custom }
+                  plaster: { type: detail, label: Plaster }
+                  ceramic: { type: detail, label: Ceramic }
+                  plastic: { type: detail, label: Plastic }
+                  textile: { type: detail, label: Textile }
+                  glass: { type: detail, label: Glass }
+                  paper: { type: detail, label: Paper }
+                  custom: { type: custom }
+                custom_slots: 10
+              -
+                id: materials_construction_techniques_sculpture_without_pedestal_1
+                title: 'Sculpture (without pedestal)'
+                control: single
+                prefix: material_sculpture_construction_composition_sculpture_loose_
+                choices:
+                  loose: Loose
+                  fixed: fixed
+              -
+                id: materials_construction_techniques_pedestal_socle_2
+                title: Pedestal/Socle
+                control: single
+                prefix: material_sculpture_construction_composition_pedestal_loose_
+                choices:
+                  loose: Loose
+                  fixed: fixed
+              -
+                id: materials_construction_techniques_between_separate_parts_of_the_sculpture_3
+                title: 'Between separate parts of the sculpture'
+                control: search
+                prefix: material_sculpture_construction_connections_between_seperate_parts_
+                choices:
+                  not_applicable: 'Not applicable'
+                  welded: Welded
+                  brazed: Brazed
+                  pins: 'Pins and pegs'
+                  glue: glue
+                  screws: Screws
+                  nails: Nails
+                  bolts: Bolts
+                  custom: { type: custom }
+                custom_slots: 10
+              -
+                id: materials_construction_techniques_between_sculpture_and_pedestal_4
+                title: 'Between sculpture and pedestal'
+                control: search
+                prefix: material_sculpture_construction_connections_between_sculpture_and_pedestal_
+                choices:
+                  not_applicable: 'Not applicable'
+                  welded: Welded
+                  brazed: Brazed
+                  pegs: Pegs
+                  glue: glue
+                  screws: Screws
+                  nails: Nails
+                  bolts: Bolts
+                  custom: { type: custom }
+                custom_slots: 10
+      condition:
+        blocks:
+          -
+            id: condition-block-0
+            title: 'Condition of the object'
+            groups:
+              -
+                id: condition_condition_of_the_object_material_technical_condition_0
+                title: 'Material technical condition'
+                control: single
+                prefix: condition_sculpture_general_condition_technical_
+                choices:
+                  good: Good
+                  average: Average
+                  bad: Bad
+              -
+                id: condition_condition_of_the_object_reports_transport_restrictions_1
+                title: reports.transport_restrictions
+                control: multiple
+                choices:
+                  condition_sculpture_general_condition_technical_not_transportable: 'Not transportable'
+              -
+                id: condition_condition_of_the_object_optical_visual_condition_2
+                title: 'Optical visual condition'
+                control: single
+                prefix: condition_sculpture_general_condition_visual_
+                choices:
+                  good: Good
+                  average: Average
+                  bad: Bad
+              -
+                id: condition_condition_of_the_object_reports_display_restrictions_3
+                title: reports.display_restrictions
+                control: multiple
+                choices:
+                  condition_sculpture_general_condition_visual_not_displayable: 'Not displayable'
+          -
+            id: condition-block-1
+            title: 'Specific condition of the sculpture'
+            groups:
+              -
+                id: condition_specific_condition_of_the_sculpture_sculpture_0
+                title: Sculpture
+                control: search
+                prefix: condition_sculpture_specific_condition_sculpture_
+                choices:
+                  metal: Metal
+                  wood: Wood
+                  stone: Stone
+                  plaster: Plaster
+                  ceramic: Ceramic
+                  plastic: Plastic
+                  textile: Textile
+                  glass: Glass
+                  paper: Paper
+                custom_slots: 1
+              -
+                id: condition_specific_condition_of_the_sculpture_surface_pollution_1
+                title: 'Surface pollution'
+                control: search
+                prefix: condition_sculpture_specific_condition_sculpture_
+                choices:
+                  surface_dirt: 'Surface dirt'
+                  crusted_dirt: 'Crusted dirt'
+                  surface_spots: Spots
+                  surface_fingerprints: Fingerprints
+                custom_slots: 1
+              -
+                id: condition_specific_condition_of_the_sculpture_chemical_and_or_biological_damage_2
+                title: 'Chemical and/or biological damage'
+                control: search
+                prefix: condition_sculpture_specific_condition_sculpture_
+                choices:
+                  water_damage: 'Water damage'
+                  corrosion: Corrosion
+                  discoloration: Discoloration
+                  degradation_of_plastics: 'Degradation of plastics'
+                  salts: Salts
+                  insect_damage: insect_damage_sculpture
+                  insect_damage_active: Active
+                  insect_damage_old: Old
+                  mold: Mold
+                custom_slots: 1
+              -
+                id: condition_specific_condition_of_the_sculpture_physical_and_or_constructive_damage_3
+                title: 'Physical and/or constructive damage'
+                control: search
+                prefix: condition_sculpture_specific_condition_sculpture_
+                choices:
+                  abrasion: Abrasion
+                  wearage: Wearage
+                  scratches: Scratches
+                  hair_tears_cracks: 'Hair tears / cracks'
+                  flaking: flaking_sculpture
+                  gaps: Gaps
+                  delamination: delamination_sculpture
+                  powdering: Powdering/sugaring
+                  brittle: brittle_sculpture
+                  dents: dents_sculpture
+                  cracks: cracks_sculpture
+                  fracture: Fracture
+                  twists: Twists
+                  holes: Holes
+                  unstable: Shaky/unstable
+                  missing_parts: 'Missing parts'
+                custom_slots: 1
+              -
+                id: condition_specific_condition_of_the_sculpture_previous_restoration_4
+                title: 'Previous restoration'
+                control: search
+                prefix: condition_sculpture_specific_condition_sculpture_
+                choices:
+                  old_restoration: 'Old restoration'
+                  custom: { type: custom }
+                custom_slots: 1
+              -
+                id: condition_specific_condition_of_the_sculpture_surface_pollution_5
+                title: 'Surface pollution'
+                control: search
+                prefix: condition_sculpture_specific_condition_finishing_layer_
+                choices:
+                  surface_dirt: 'Surface dirt'
+                  crusted_dirt: 'Crusted dirt'
+                  surface_spots: Spots
+                  surface_fingerprints: Fingerprints
+                custom_slots: 1
+              -
+                id: condition_specific_condition_of_the_sculpture_chemical_and_or_biological_damage_6
+                title: 'Chemical and/or biological damage'
+                control: search
+                prefix: condition_sculpture_specific_condition_finishing_layer_
+                choices:
+                  water_damage: 'Water damage'
+                  corrosion: Corrosion
+                  discoloration: Discoloration
+                  degradation_of_plastics: 'Degradation of plastics'
+                  salts: Salts
+                  insect_damage: insect_damage_sculpture
+                  insect_damage_active: Active
+                  insect_damage_old: Old
+                  mold: Mold
+                custom_slots: 1
+              -
+                id: condition_specific_condition_of_the_sculpture_physical_and_or_constructive_damage_7
+                title: 'Physical and/or constructive damage'
+                control: search
+                prefix: condition_sculpture_specific_condition_finishing_layer_
+                choices:
+                  abrasion: Abrasion
+                  wearage: Wearage
+                  scratches: Scratches
+                  hair_tears_cracks: 'Hair tears / cracks'
+                  flaking: flaking_sculpture
+                  gaps: Gaps
+                  delamination: delamination_sculpture
+                  powdering: Powdering/sugaring
+                  brittle: brittle_sculpture
+                  dents: dents_sculpture
+                  cracks: cracks_sculpture
+                  fracture: Fracture
+                  twists: Twists
+                  holes: Holes
+                  unstable: Shaky/unstable
+                  missing_parts: 'Missing parts'
+                custom_slots: 1
+              -
+                id: condition_specific_condition_of_the_sculpture_previous_restoration_8
+                title: 'Previous restoration'
+                control: search
+                prefix: condition_sculpture_specific_condition_finishing_layer_
+                choices:
+                  old_restoration: 'Old restoration'
+                  custom: { type: custom }
+                custom_slots: 1
+              -
+                id: condition_sculpture_conservation_heading
+                title: Conservation/restauration
+                control: heading
+              -
+                id: condition_specific_condition_of_the_sculpture_conservation_for_transport_needed_9
+                title: 'Conservation for transport needed'
+                control: single
+                prefix: condition_sculpture_conservation_transport_
+                choices:
+                  'yes': 'Yes'
+                  'no': 'No'
+                  preferable: Preferable
+              -
+                id: condition_specific_condition_of_the_sculpture_conservation_treatment_10
+                title: 'Conservation treatment'
+                control: treatment
+                prefix: condition_sculpture_specific_condition_conservation_treatment_
+              -
+                id: condition_specific_condition_of_the_sculpture_cleaning_11
+                title: Cleaning
+                control: treatment
+                prefix: condition_sculpture_specific_condition_cleaning_
+              -
+                id: condition_specific_condition_of_the_sculpture_intervention_at_the_level_of_the_top_layer_12
+                title: 'Intervention at the level of the top layer'
+                control: treatment
+                prefix: condition_sculpture_specific_condition_intervention_
+              -
+                id: condition_specific_condition_of_the_sculpture_control_and_treatment_microbiological_infestation_13
+                title: 'Control and treatment microbiological infestation'
+                control: treatment
+                prefix: condition_sculpture_specific_condition_control_
+              -
+                id: condition_specific_condition_of_the_sculpture_fixating_14
+                title: Fixating
+                control: treatment
+                prefix: condition_sculpture_specific_condition_fixating_
+              -
+                id: condition_specific_condition_of_the_sculpture_further_research_needed_15
+                title: 'Further research needed'
+                control: treatment
+                prefix: condition_sculpture_specific_condition_research_
+              -
+                id: condition_specific_condition_of_the_sculpture_conservation_restauration_16
+                title: Conservation/restauration
+                control: treatment
+                prefix: condition_sculpture_specific_condition_custom_
+      recommendations:
+        blocks:
+          -
+            id: recommendations-block-0
+            title: Presentation
+            groups:
+              -
+                id: recommendations_presentation_security_conditions_0
+                title: 'Security conditions'
+                control: search
+                prefix: recommendations_sculpture_presentation_security_conditions_
+                choices:
+                  showcase: Showcase
+                  glass: Glass
+                  climate_box: 'Climate box'
+                  barriers: Barriers
+                  alarm: { type: detail, label: Alarm }
+                  mechanical_protection: 'Mechanical protection'
+                  other: { type: custom }
+                custom_slots: 1
+              -
+                id: recommendations_presentation_mechanical_protection_1
+                title: 'Mechanical protection'
+                control: search
+                prefix: recommendations_sculpture_presentation_security_conditions_mechanical_protection_
+                choices:
+                  security_screws: 'Security screws'
+                  safety_hooks: 'Safety hooks'
+                  bottom_support: 'Extra support at the bottom required'
+                  other: { type: custom }
+                custom_slots: 1
+              -
+                id: recommendations_presentation_setup_plan_guidelines_2
+                title: 'Setup plan / guidelines'
+                control: multiple
+                prefix: recommendations_sculpture_presentation_guidelines_
+                radio_groups:
+                  availability: [present, absent]
+                choices:
+                  present: Present
+                  absent: Absent
+                  not_necessary: 'Not necessary'
+              -
+                id: recommendations_presentation_recommendations_3
+                title: Recommendations
+                control: search
+                prefix: recommendations_sculpture_presentation_setup_
+                choices:
+                  standing: Standing
+                  hanging: Hanging
+                  lying: Lying
+                  other: { type: custom }
+                custom_slots: 1
+              -
+                id: recommendations_presentation_standing_4
+                title: Standing
+                control: search
+                prefix: recommendations_sculpture_presentation_setup_standing_
+                choices:
+                  free_in_the_room: 'Free in the room'
+                  on_pedestal: 'On pedestal'
+                  in_showcase: 'In showcase'
+                  with_hood: 'With hood'
+                  extra_bottom_support_required: 'Extra support at the bottom required'
+                custom_slots: 1
+              -
+                id: recommendations_presentation_on_pedestal_5
+                title: 'On pedestal'
+                control: multiple
+                prefix: recommendations_sculpture_presentation_setup_standing_on_pedestal_
+                choices:
+                  stabilizing: 'Stabilizing pedestal'
+                  weighted: 'Weighted pedestal'
+              -
+                id: recommendations_presentation_hanging_6
+                title: Hanging
+                control: multiple
+                prefix: recommendations_sculpture_presentation_setup_hanging_
+                choices:
+                  from_the_ceiling: 'From the ceiling'
+                  against_the_wall: 'Against the wall'
+                  system: 'Hanging system'
+              -
+                id: recommendations_presentation_hanging_system_7
+                title: 'Hanging system'
+                control: single
+                prefix: recommendations_sculpture_presentation_setup_hanging_system_
+                choices:
+                  present: Present
+                  absent: Absent
+              -
+                id: recommendations_presentation_tools_needed_for_setup_9
+                title: 'Tools needed for setup'
+                control: single
+                prefix: recommendations_sculpture_presentation_tools_setup_
+                choices:
+                  'no': 'No'
+                  unclear: Unclear
+          -
+            id: recommendations-block-1
+            title: 'Environmental and climatic conditions during storage, transport and presentations'
+            groups:
+              -
+                id: recommendations_environmental_and_climatic_conditions_during_storage_transport_and_presentations_guidelines_temperature_temp_0
+                title: 'Guidelines temperature (temp)'
+                control: input
+                input:
+                  name: recommendations_sculpture_environmental_climatic_conditions_temp
+                  type: textarea
+              -
+                id: recommendations_environmental_and_climatic_conditions_during_storage_transport_and_presentations_guidelines_relative_humidity_rh_1
+                title: 'Guidelines relative humidity (RH)'
+                control: input
+                input:
+                  name: recommendations_sculpture_environmental_climatic_conditions_rh
+                  type: textarea
+              -
+                id: recommendations_environmental_and_climatic_conditions_during_storage_transport_and_presentations_guidelines_brightness_lux_2
+                title: 'Guidelines brightness (Lux)'
+                control: input
+                input:
+                  name: recommendations_sculpture_environmental_climatic_conditions_lux
+                  type: textarea
+              -
+                id: recommendations_environmental_and_climatic_conditions_during_storage_transport_and_presentations_guidelines_ultraviolet_light_uv_3
+                title: 'Guidelines ultraviolet light (UV)'
+                control: input
+                input:
+                  name: recommendations_sculpture_environmental_climatic_conditions_uv
+                  type: textarea
+              -
+                id: recommendations_environmental_and_climatic_conditions_during_storage_transport_and_presentations_maximum_exhibition_duration_4
+                title: 'Maximum exhibition duration'
+                control: input
+                input:
+                  name: recommendations_sculpture_environmental_climatic_conditions_exhibition_duration
+                  type: textarea
+              -
+                id: recommendations_environmental_and_climatic_conditions_during_storage_transport_and_presentations_how_long_to_acclimatize_before_unpacking_6
+                title: 'How long to acclimatize before unpacking?'
+                control: search
+                prefix: recommendations_sculpture_environmental_climatic_conditions_acclimatize_
+                choices:
+                  24h: '24 h'
+                  other: { type: custom }
+                custom_slots: 1
+          -
+            id: recommendations-block-2
+            title: 'Manipulation / transport'
+            groups:
+              -
+                id: recommendations_manipulation_transport_manipulation_transport_0
+                title: 'Manipulation / transport'
+                control: multiple
+                prefix: recommendations_sculpture_manipulation_transport_
+                choices:
+                  museum_staff: 'Qualified museum staff'
+                  courier: Courier
+              -
+                id: recommendations_manipulation_transport_number_of_people_1
+                title: 'Number of people'
+                control: input
+                input:
+                  name: recommendations_sculpture_manipulation_transport_people
+                  type: number
+                  min: 0
+              -
+                id: recommendations_manipulation_transport_moving_and_installation_equipment_2
+                title: 'Moving and installation equipment'
+                control: search
+                prefix: recommendations_sculpture_manipulation_transport_moving_equipment_
+                choices:
+                  gloves: 'Please wear gloves when manipulating the art piece'
+                  car: 'Car with pneumatic tires'
+                  pallet_truck: 'Pallet truck'
+                  trolley: Trolley
+                  telehandler: Telehandler
+                  stacker: Stacker
+                  gantry_crane: 'Gantry crane'
+                  other: { type: custom }
+                custom_slots: 1
+              -
+                id: recommendations_manipulation_transport_transport_equipment_3
+                title: 'Transport equipment'
+                control: search
+                prefix: recommendations_sculpture_manipulation_transport_transport_equipment_
+                choices:
+                  truck_with_tailgate: 'Truck with tailgate'
+                  crane: Crane
+                  air_suspended_truck: 'Air suspended truck'
+                  air_conditioned_truck: 'Air-conditioned truck'
+                  direct: 'Direct transport required (no other artwork to pick up)'
+                custom_slots: 1
+              -
+                id: recommendations_manipulation_transport_points_of_attention_with_transport_4
+                title: 'Points of attention with transport'
+                control: search
+                prefix: recommendations_sculpture_manipulation_transport_attention_
+                choices:
+                  direction_upright: Upright
+                  direction_lying_down: 'Lying down'
+                  stacking_allowed: 'Stacking allowed'
+                  other: { type: custom }
+                custom_slots: 1
+          -
+            id: recommendations-block-3
+            title: Packing
+            groups:
+              -
+                id: recommendations_packing_packing_packing_1
+                title: packing_packing
+                control: search
+                prefix: recommendations_sculpture_manipulation_transport_packing_
+                choices:
+                  direction_pack_pack_upright: 'Pack upright'
+                  direction_pack_pack_lying_down: 'Pack lying down'
+                  other: { type: custom }
+                custom_slots: 1
+              -
+                id: recommendations_packing_packaging_2
+                title: Packaging
+                control: multiple
+                choices:
+                  recommendations_sculpture_manipulation_transport_packaging_local_protection: 'Only local protection'
+              -
+                id: recommendations_packing_inner_packing_3
+                title: 'Inner packing'
+                control: search
+                prefix: recommendations_sculpture_manipulation_transport_inner_packing_
+                choices:
+                  reinforcing: 'Reinforcing / support structure for transporting'
+                  cushion: Cushion
+                  ethafoam: Ethafoam
+                  filler_cushion: 'Filler cushion'
+                  silk_paper: 'Silk paper'
+                  tyvek: Tyvek
+                  bubble_wrap: 'Bubble wrap'
+                  cardboard: Cardboard
+                  polyethylene_film: 'Polyethylene film/foil sealed with tape'
+                  polyethylene_film_not_sealed: 'Polyethylene film/foil not sealed'
+                  other: { type: custom }
+                custom_slots: 1
+              -
+                id: recommendations_packing_outer_packing_4
+                title: 'Outer packing'
+                control: search
+                prefix: recommendations_sculpture_manipulation_transport_outer_packing_
+                choices:
+                  climate_box: 'Climate box/double crate'
+                  closed_crate: 'Closed crate'
+                  open_crate: 'Open crate'
+                  custom_crate: 'Custom made crate'
+                  plastic_crate: 'Plastic crate'
+                  pallet: Pallet
+                  frame: frame_sculpture
+                  other: { type: custom }
+                custom_slots: 1
+              -
+                id: recommendations_packing_custom_made_crate_5
+                title: 'Custom made crate'
+                control: single
+                prefix: recommendations_sculpture_manipulation_transport_outer_packing_custom_crate_
+                choices:
+                  at_your_disposal: 'At your disposal'
+                  should_be_made: 'Should be made'
+              -
+                id: recommendations_packing_pallet_6
+                title: Pallet
+                control: multiple
+                choices:
+                  recommendations_sculpture_manipulation_transport_outer_packing_lashing_straps: lashing_straps_sculpture
+          -
+            id: recommendations-block-4
+            title: Extra
+            groups:
+              -
+                id: recommendations_extra_extra_0
+                title: Extra
+                control: search
+                prefix: recommendations_sculpture_packing_extra_
+                choices:
+                  datalogger_in_the_crate: 'Datalogger in the crate'
+                  datalogger: Datalogger
+                  vibrometer_in_the_crate: 'Vibrometer in the crate'
+                  tilt_and_shockmeter_on_the_crate: 'Tilt and shockmeter on the crate'
+                custom_slots: 1
+    default:
+      materials:
+        blocks: {  }
+      condition:
+        blocks: {  }
+      recommendations:
+        blocks: {  }

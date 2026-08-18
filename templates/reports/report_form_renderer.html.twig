@@ -1,0 +1,307 @@
+{% macro render_measurements(measurements, data) %}
+    <div class="report-section">
+        <h3>{{ 'reports.measurements'|trans }}</h3>
+        {% if measurements.header is defined and measurements.header %}
+            <h4>{{ measurements.header|trans }}</h4>
+        {% endif %}
+
+        {% if measurements.items is defined %}
+            <div class="report-field-grid">
+                {% for name, label in measurements.items %}
+                    {{ _self.number_input(name, label, data) }}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if measurements.repeat is defined %}
+            {% for group in measurements.repeat %}
+                <div class="report-subsection">
+                    {% if group.header is defined and group.header %}
+                        <h4>{{ group.header|trans }}</h4>
+                    {% endif %}
+                    <div class="report-field-grid">
+                        {% for name, label in group.items|default([]) %}
+                            {% if name == 'type' %}
+                                {{ _self.text_input(name, label, data) }}
+                            {% else %}
+                                {{ _self.number_input(name, label, data) }}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+{% endmacro %}
+
+{% macro render_compact_section(section, data) %}
+    <div class="compact-report-section" data-compact-section="{{ section.key }}">
+        {% if section.blocks is empty %}
+            <p class="muted">{{ 'reports.no_fields'|trans }}</p>
+        {% endif %}
+
+        {% for block in section.blocks %}
+            {% set has_presence = block.presence is defined %}
+            {% set present_field = has_presence ? block.presence.present : null %}
+            {% set absent_field = has_presence ? block.presence.absent : null %}
+            {% set present_selected = has_presence and (attribute(data, present_field.name)|default(null) or attribute(data, '__enabled_' ~ present_field.name)|default(null)) %}
+            {% set absent_selected = has_presence and not present_selected and (attribute(data, absent_field.name)|default(null) or attribute(data, '__enabled_' ~ absent_field.name)|default(null)) %}
+            {% set block_note_name = '__note_block_' ~ block.id %}
+            {% set block_note = attribute(data, block_note_name)|default('') %}
+            <section class="compact-report-block" {% if block.title %}aria-labelledby="{{ block.id }}-title"{% endif %} {% if has_presence %}data-conditional-block{% endif %}>
+                {% if has_presence %}
+                    <div class="compact-report-block-heading">
+                        {% if block.title %}
+                            <h3 id="{{ block.id }}-title">{{ block.title|trans }}</h3>
+                        {% endif %}
+                        <div class="compact-presence-options" aria-label="{{ 'reports.frame_presence'|trans }}">
+                            {% for state, field in block.presence %}
+                                {% set selected = state == 'present' ? present_selected : absent_selected %}
+                                <button
+                                    type="button"
+                                    class="compact-presence-choice{% if selected %} is-selected{% endif %}"
+                                    data-presence-choice="{{ state }}"
+                                    aria-pressed="{{ selected ? 'true' : 'false' }}"
+                                >
+                                    <input type="checkbox" name="report_data[{{ field.name }}]" value="1" data-presence-control hidden {% if selected %}checked{% endif %}>
+                                    {{ field.label|trans }}
+                                </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% elseif block.title %}
+                    <h3 id="{{ block.id }}-title">{{ block.title|trans }}</h3>
+                {% endif %}
+
+                <div class="compact-report-groups" {% if has_presence %}data-conditional-content {% if not present_selected %}hidden{% endif %}{% endif %}>
+                    {% for group in block.groups %}
+                        {% if not group.note_only|default(false) %}
+                            {% if group.heading|default(false) %}
+                                <h4 class="compact-intermediate-title">{{ group.title|trans }}</h4>
+                            {% else %}
+                                {{ _self.render_compact_group(group, data) }}
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                <div class="compact-block-remarks">
+                    <label for="{{ block.id }}-remarks">{{ 'reports.remarks'|trans }}</label>
+                    <textarea id="{{ block.id }}-remarks" name="report_data[{{ block_note_name }}]" rows="1">{{ block_note }}</textarea>
+                </div>
+            </section>
+        {% endfor %}
+    </div>
+{% endmacro %}
+
+{% macro render_compact_group(group, data) %}
+    <section
+        class="compact-field-group{% if group.quick_select %} is-quick-select{% endif %}{% if group.direct_input is defined %} is-direct-input{% endif %}{% if group.condition|default(false) %} is-condition-group{% endif %}{% if group.treatment is defined %} is-treatment-group{% endif %}"
+        data-compact-group="{{ group.id }}"
+        {% if group.condition|default(false) %}data-condition-group{% endif %}
+        {% if group.issues_conditional|default(false) %}data-condition-issues-conditional{% endif %}
+        {% if group.treatment is defined %}data-treatment-group{% endif %}
+    >
+        <div class="compact-field-group-heading">
+            <h4>{{ group.title|trans }}</h4>
+        </div>
+
+        {% if group.direct_input is defined %}
+            {% set direct_value = attribute(data, group.direct_input.name)|default('') %}
+            <div class="compact-direct-input">
+                <input
+                    type="{{ group.direct_input.type == 'number' ? 'number' : 'text' }}"
+                    name="report_data[{{ group.direct_input.name }}]"
+                    value="{{ direct_value }}"
+                    aria-label="{{ group.title|trans }}"
+                    {% if group.direct_input.min is defined and group.direct_input.min is not null %}min="{{ group.direct_input.min }}"{% endif %}
+                >
+            </div>
+        {% elseif group.treatment is defined %}
+            {% set treatment_date = attribute(data, group.treatment.date_name)|default('') %}
+            {% set treatment_hours = attribute(data, group.treatment.hours_name)|default('') %}
+            {% set treatment_happened = attribute(data, group.treatment.happened_name)|default(null)
+                or attribute(data, '__enabled_' ~ group.treatment.happened_name)|default(null)
+                or treatment_date != '' %}
+            <div class="compact-treatment-controls">
+                <div class="compact-quick-list compact-treatment-status">
+                    {% for field in group.treatment.status_fields %}
+                        {{ _self.render_compact_quick_item(field, data) }}
+                    {% endfor %}
+                </div>
+                <div class="compact-treatment-details">
+                    <label class="compact-treatment-input" data-treatment-date-field {% if not treatment_happened %}hidden{% endif %}>
+                        <span>{{ 'reports.treatment_date'|trans }}</span>
+                        <input type="date" name="report_data[{{ group.treatment.date_name }}]" value="{{ treatment_date }}" data-treatment-date>
+                    </label>
+                    <label class="compact-treatment-input compact-treatment-hours">
+                        <span>{{ 'reports.number_of_hours'|trans }}</span>
+                        <input type="number" min="0" step="any" name="report_data[{{ group.treatment.hours_name }}]" value="{{ treatment_hours }}">
+                    </label>
+                </div>
+            </div>
+        {% elseif group.condition|default(false) %}
+            <div class="compact-quick-list compact-condition-rating">
+                {% for field in group.rating_fields %}
+                    {{ _self.render_compact_quick_item(field, data) }}
+                {% endfor %}
+            </div>
+            <div class="compact-condition-details" data-condition-details {% if group.issues_conditional %}hidden{% endif %}>
+                {{ _self.render_compact_picker(group, data) }}
+            </div>
+        {% elseif group.quick_select %}
+            <div class="compact-quick-list">
+                {% for field in group.fields %}
+                    {% if not field.open_custom %}
+                        {{ _self.render_compact_quick_item(field, data) }}
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% else %}
+            {{ _self.render_compact_picker(group, data) }}
+        {% endif %}
+
+    </section>
+{% endmacro %}
+
+{% macro render_compact_picker(group, data) %}
+    <div class="compact-combobox" data-compact-combobox>
+        <div class="compact-search-control">
+            <svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>
+            <input
+                type="search"
+                autocomplete="off"
+                role="combobox"
+                aria-autocomplete="list"
+                aria-expanded="false"
+                aria-controls="compact-options-{{ group.id }}"
+                placeholder="{{ 'reports.search_add'|trans }}"
+                data-compact-search
+            >
+        </div>
+        <div class="compact-options" id="compact-options-{{ group.id }}" role="listbox" data-compact-options hidden>
+            {% for field in group.fields %}
+                {% set field_value = attribute(data, field.name)|default(null) %}
+                {% set enabled_value = attribute(data, '__enabled_' ~ field.name)|default(null) %}
+                {% set detail_value = field.type == 'checkbox_custom' ? attribute(data, field.name ~ '_text')|default('') : '' %}
+                {% if field.type == 'checkbox' %}
+                    {% set selected = field_value or enabled_value %}
+                {% elseif field.type == 'checkbox_custom' %}
+                    {% set selected = field_value or enabled_value or detail_value != '' %}
+                {% else %}
+                    {% set selected = enabled_value or (field_value is not null and field_value != '') %}
+                {% endif %}
+                {% if not field.open_custom %}
+                    {% set option_label = field.label|trans %}
+                    <button
+                        type="button"
+                        role="option"
+                        data-compact-option="{{ field.name }}"
+                        data-search-text="{{ option_label|lower }}"
+                        data-option-label="{{ option_label|lower }}"
+                        {% if selected %}hidden{% endif %}
+                    >
+                        {{ option_label }}
+                    </button>
+                {% endif %}
+            {% endfor %}
+            <button type="button" class="compact-use-custom" data-use-custom hidden>
+                <span data-custom-query></span>
+            </button>
+            <p data-no-options hidden>{{ 'reports.no_matching_options'|trans }}</p>
+        </div>
+    </div>
+
+    <div class="compact-selected-list" data-selected-list>
+        {% for field in group.fields %}
+            {{ _self.render_compact_item(field, data) }}
+        {% endfor %}
+    </div>
+{% endmacro %}
+
+{% macro render_compact_quick_item(field, data) %}
+    {% set field_value = attribute(data, field.name)|default(null) %}
+    {% set enabled_name = '__enabled_' ~ field.name %}
+    {% set enabled_value = attribute(data, enabled_name)|default(null) %}
+    {% set detail_value = field.type == 'checkbox_custom' ? attribute(data, field.name ~ '_text')|default('') : '' %}
+    {% set selection_value = field.selection_value_name is defined ? attribute(data, field.selection_value_name)|default('') : '' %}
+    {% set selected = field_value or enabled_value or detail_value != '' or selection_value != '' %}
+
+    <div
+        class="compact-quick-item{% if selected %} is-selected{% endif %}"
+        data-compact-item="{{ field.name }}"
+        data-compact-quick-item
+        {% if field.selection_group is defined %}data-selection-group="{{ field.selection_group }}"{% endif %}
+        {% if field.reveals_issues|default(false) %}data-reveals-condition-details{% endif %}
+        {% if field.treatment_happened|default(false) %}data-treatment-happened{% endif %}
+    >
+        <input type="hidden" name="report_data[{{ enabled_name }}]" value="1" data-option-control {% if not selected %}disabled{% endif %}>
+        <input type="checkbox" name="report_data[{{ field.name }}]" value="1" data-option-control checked hidden {% if not selected %}disabled{% endif %}>
+
+        <button type="button" class="compact-quick-choice" data-compact-quick-toggle aria-pressed="{{ selected ? 'true' : 'false' }}">
+            {{ field.label|trans }}
+        </button>
+    </div>
+{% endmacro %}
+
+{% macro render_compact_item(field, data) %}
+    {% set field_value = attribute(data, field.name)|default(null) %}
+    {% set enabled_name = '__enabled_' ~ field.name %}
+    {% set enabled_value = attribute(data, enabled_name)|default(null) %}
+    {% set detail_value = field.type == 'checkbox_custom' ? attribute(data, field.name ~ '_text')|default('') : '' %}
+    {% if field.type == 'checkbox' %}
+        {% set selected = field_value or enabled_value %}
+    {% elseif field.type == 'checkbox_custom' %}
+        {% set selected = field_value or enabled_value or detail_value != '' %}
+    {% else %}
+        {% set selected = enabled_value or (field_value is not null and field_value != '') %}
+    {% endif %}
+    {% set custom_label = field.type == 'checkbox_custom' ? detail_value : field_value %}
+
+    <div
+        class="compact-selected-item"
+        data-compact-item="{{ field.name }}"
+        {% if field.open_custom %}data-open-custom{% endif %}
+        {% if not selected %}hidden{% endif %}
+    >
+        <input type="hidden" name="report_data[{{ enabled_name }}]" value="1" data-option-control data-presence-control {% if not selected %}disabled{% endif %}>
+
+        <div class="compact-item-content">
+            <div class="compact-item-label" data-item-label>
+                {{ field.open_custom and custom_label ? custom_label : field.label|trans }}
+            </div>
+
+            {% if field.type == 'checkbox' %}
+                <input type="checkbox" name="report_data[{{ field.name }}]" value="1" data-option-control data-primary-control checked hidden {% if not selected %}disabled{% endif %}>
+            {% elseif field.type == 'checkbox_custom' %}
+                <input type="checkbox" name="report_data[{{ field.name }}]" value="1" data-option-control data-primary-control checked hidden {% if not selected %}disabled{% endif %}>
+                {% if field.open_custom %}
+                    <input type="hidden" name="report_data[{{ field.name }}_text]" value="{{ detail_value }}" data-option-control data-custom-value {% if not selected %}disabled{% endif %}>
+                {% endif %}
+            {% else %}
+                <input type="hidden" name="report_data[{{ field.name }}]" value="{{ field_value }}" data-option-control data-custom-value {% if not selected %}disabled{% endif %}>
+            {% endif %}
+
+        </div>
+
+        <div class="compact-item-actions">
+            <button type="button" class="compact-icon-button compact-remove-item" data-remove-compact-item aria-label="{{ 'actions.remove'|trans }}" title="{{ 'actions.remove'|trans }}">
+                <svg class="icon" aria-hidden="true"><use href="#i-minus"/></svg>
+            </button>
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro text_input(name, label, data, placeholder = null) %}
+    <label class="report-field">
+        {% if label %}<span>{{ label|trans }}</span>{% endif %}
+        <input type="text" name="report_data[{{ name }}]" value="{{ attribute(data, name)|default('') }}" {% if placeholder %}placeholder="{{ placeholder|trans }}"{% endif %}>
+    </label>
+{% endmacro %}
+
+{% macro number_input(name, label, data, min = null, max = null, placeholder = null) %}
+    <label class="report-field">
+        {% if label %}<span>{{ label|trans }}</span>{% endif %}
+        <input type="number" name="report_data[{{ name }}]" value="{{ attribute(data, name)|default('') }}" {% if min is not null %}min="{{ min }}"{% endif %} {% if max is not null %}max="{{ max }}"{% endif %} {% if placeholder %}placeholder="{{ placeholder|trans }}"{% endif %}>
+    </label>
+{% endmacro %}

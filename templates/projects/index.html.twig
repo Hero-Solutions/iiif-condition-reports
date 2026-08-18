@@ -1,0 +1,78 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'projects.title'|trans }} | {{ 'app.title'|trans }}{% endblock %}
+
+{% block body %}
+    {% set project_status_chips = {'planned': 'accent', 'active': 'success', 'completed': 'muted', 'cancelled': 'danger'} %}
+    <div class="page-header">
+        <h1>{{ 'projects.title'|trans }}</h1>
+        <a class="button" href="{{ path('projects_new', {'_locale': app.request.locale}) }}">{{ 'projects.new'|trans }}</a>
+    </div>
+
+    <section class="panel">
+        <form class="filters" method="get">
+            <input type="search" name="q" value="{{ q }}" placeholder="{{ 'projects.search'|trans }}">
+            <button type="submit">{{ 'actions.search'|trans }}</button>
+        </form>
+    </section>
+
+    {% if projects is empty %}
+        <section class="empty-state">
+            <h2>{{ 'projects.empty_title'|trans }}</h2>
+            <p>{{ 'projects.empty_text'|trans }}</p>
+        </section>
+    {% else %}
+        <section class="panel">
+            <div class="table-scroll">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>{{ 'projects.project_title'|trans }}</th>
+                        <th>{{ 'projects.type'|trans }}</th>
+                        <th>{{ 'projects.status'|trans }}</th>
+                        <th class="col-optional">{{ 'projects.period'|trans }}</th>
+                        <th>{{ 'projects.objects'|trans }}</th>
+                        <th>{{ 'reports.title'|trans }}</th>
+                        <th class="col-optional"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for project in projects %}
+                        {% set project_url = path('projects_edit', {'_locale': app.request.locale, id: project.id}) %}
+                        {% set report_count = report_counts[project.id]|default(null) %}
+                        <tr data-row-href="{{ project_url }}">
+                            <td>
+                                <a href="{{ project_url }}"><strong>{{ project.title }}</strong></a>
+                                {% if project.referenceCode %}
+                                    <span class="table-sub">{{ project.referenceCode }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ project.type == 'other' and project.customType ? project.customType : ('project_type.' ~ project.type)|trans }}</td>
+                            <td><span class="chip chip-{{ project_status_chips[project.status]|default('muted') }}">{{ ('project_status.' ~ project.status)|trans }}</span></td>
+                            <td class="col-optional">
+                                {% if project.startDate or project.endDate %}
+                                    {{ project.startDate ? project.startDate|date('Y-m-d') : '?' }}
+                                    -
+                                    {{ project.endDate ? project.endDate|date('Y-m-d') : '?' }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td class="table-count">{{ object_counts[project.id]|default(0) }}</td>
+                            <td class="table-count">
+                                {{ report_count ? report_count.total : 0 }}
+                                {% if report_count and report_count.finalized > 0 %}
+                                    <span class="table-sub">{{ 'reports.finalized_count'|trans({'%count%': report_count.finalized}) }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="table-actions col-optional">
+                                <a href="{{ project_url }}">{{ 'actions.open'|trans }}</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+        </section>
+    {% endif %}
+{% endblock %}

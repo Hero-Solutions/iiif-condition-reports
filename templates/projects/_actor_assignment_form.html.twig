@@ -1,0 +1,49 @@
+<form class="actor-form" method="post" action="{{ action }}">
+    <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_id) }}">
+    <h3>{{ 'actors.add_actor'|trans }}</h3>
+    <div class="actor-form-row actor-form-primary">
+        <label class="actor-form-field actor-form-existing">
+            <span>{{ 'actors.actor'|trans }}</span>
+            <select name="actor_id" data-smart-select data-existing-actor-select data-smart-select-custom-value="__new__" data-smart-select-key="actor-name" required>
+                <option value="">{{ 'actors.choose_actor'|trans }}</option>
+                {% for actor in actor_options|default([]) %}
+                    <option
+                        value="{{ actor.id }}"
+                        data-actor-name="{{ actor.name|e('html_attr') }}"
+                        data-actor-type="{{ actor.type|e('html_attr') }}"
+                    >{{ actor.displayName }}</option>
+                {% endfor %}
+                <option value="__new__">{{ 'actors.other_actor'|trans }}</option>
+            </select>
+        </label>
+        <div class="actor-new-fields" data-new-actor-fields hidden>
+            <label class="actor-form-field actor-form-new-name" hidden>
+                <span>{{ 'actors.name'|trans }}</span>
+                <input type="text" name="actor_name" data-smart-select-custom-input="actor-name">
+            </label>
+            <label class="actor-form-field actor-form-new-type">
+                <span>{{ 'actors.type'|trans }}</span>
+                <select name="actor_type" data-actor-type-select required>
+                    {% for label, value in actor_type_choices %}
+                        <option value="{{ value }}">{{ label|trans }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+        </div>
+        <label class="actor-form-field actor-form-role" data-actor-role-field hidden>
+            <span>{{ 'actors.role'|trans }}</span>
+            <select name="role" data-smart-select data-actor-role-select data-smart-select-custom-value="other" data-smart-select-key="actor-role" required>
+                {% for label, value in actor_role_choices %}
+                    <option value="{{ value }}">{{ label|trans }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <div class="actor-form-field actor-form-custom-role" data-actor-custom-role-row hidden>
+            <label>
+                <span>{{ 'actors.custom_role'|trans }}</span>
+                <input type="text" name="custom_role" data-smart-select-custom-input="actor-role">
+            </label>
+        </div>
+        <button type="submit" data-actor-submit hidden>{{ 'actors.add'|trans }}</button>
+    </div>
+</form>

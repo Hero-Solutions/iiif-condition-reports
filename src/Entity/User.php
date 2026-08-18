@@ -1,104 +1,125 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
-use App\Repository\UserRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-#[ORM\Entity(repositoryClass: UserRepository::class)]
+#[ORM\Entity]
+#[ORM\Table(name: 'users')]
+#[ORM\UniqueConstraint(name: 'uniq_user_email', columns: ['email'])]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
+    public const ROLE_USER = 'ROLE_USER';
+    public const ROLE_ADMIN = 'ROLE_ADMIN';
+    public const ROLE_READ_ONLY = 'ROLE_READ_ONLY';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: "integer")]
-    private $id;
+    #[ORM\Column(type: Types::INTEGER)]
+    private ?int $id = null;
 
-    #[ORM\Column(type: "string", length: 180, unique: true)]
-    private $email;
+    #[ORM\Column(length: 180)]
+    private string $email = '';
 
-    #[ORM\Column(type: "string", length: "255")]
-    private $fullName;
+    #[ORM\Column(length: 255)]
+    private string $fullName = '';
 
-    #[ORM\Column(type: "json")]
-    private $roles =  [];
+    #[ORM\Column(type: Types::JSON)]
+    private array $roles = [self::ROLE_USER];
 
-    /**
-     * @var string The hashed password
-     */
-    #[ORM\Column(type: "string")]
-    private $password;
+    #[ORM\Column(length: 255)]
+    private string $password = '';
+
+    #[ORM\Column(type: Types::BOOLEAN)]
+    private bool $active = true;
+
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    private \DateTimeImmutable $createdAt;
+
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    private \DateTimeImmutable $updatedAt;
+
+    public function __construct()
+    {
+        $now = new \DateTimeImmutable();
+        $this->createdAt = $now;
+        $this->updatedAt = $now;
+    }
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getEmail(): ?string
+    public function getEmail(): string
+    {
+        return $this->email;
+    }
+
+    public function getUserIdentifier(): string
     {
         return $this->email;
     }
 
     public function setEmail(string $email): self
     {
-        $this->email = $email;
+        $this->email = mb_strtolower(trim($email));
+        $this->touch();
 
         return $this;
-    }
-
-    /**
-     * A visual identifier that represents this user.
-     *
-     * @see UserInterface
-     */
-    public function getUserIdentifier(): string
-    {
-        return (string) $this->email;
-    }
-
-    /**
-     * @deprecated since Symfony 5.3, use getUserIdentifier instead
-     */
-    public function getUsername(): string
-    {
-        return (string) $this->email;
     }
 
     public function getFullName(): string
     {
-        return (string) $this->fullName;
+        return $this->fullName;
     }
 
     public function setFullName(string $fullName): self
     {
-        $this->fullName = $fullName;
+        $this->fullName = trim($fullName);
+        $this->touch();
 
         return $this;
     }
 
-    /**
-     * @see UserInterface
-     */
     public function getRoles(): array
     {
         $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
-        $roles[] = 'ROLE_USER';
+        $roles[] = self::ROLE_USER;
 
-        return array_unique($roles);
+        return array_values(array_unique($roles));
     }
 
     public function setRoles(array $roles): self
     {
+        $allowed = [self::ROLE_USER, self::ROLE_ADMIN, self::ROLE_READ_ONLY];
+        $roles = array_values(array_intersect($roles, $allowed));
+
+        if ($roles === []) {
+            $roles = [self::ROLE_USER];
+        }
+
         $this->roles = $roles;
+        $this->touch();
 
         return $this;
     }
 
-    /**
-     * @see PasswordAuthenticatedUserInterface
-     */
+    public function isAdmin(): bool
+    {
+        return in_array(self::ROLE_ADMIN, $this->roles, true);
+    }
+
+    public function isReadOnly(): bool
+    {
+        return in_array(self::ROLE_READ_ONLY, $this->roles, true);
+    }
+
     public function getPassword(): string
     {
         return $this->password;
@@ -107,27 +128,40 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPassword(string $password): self
     {
         $this->password = $password;
+        $this->touch();
 
         return $this;
     }
 
-    /**
-     * Returning a salt is only needed, if you are not using a modern
-     * hashing algorithm (e.g. bcrypt or sodium) in your security.yaml.
-     *
-     * @see UserInterface
-     */
-    public function getSalt(): ?string
+    public function isActive(): bool
     {
-        return null;
+        return $this->active;
     }
 
-    /**
-     * @see UserInterface
-     */
+    public function setActive(bool $active): self
+    {
+        $this->active = $active;
+        $this->touch();
+
+        return $this;
+    }
+
+    public function getCreatedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function getUpdatedAt(): \DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
     public function eraseCredentials(): void
     {
-        // If you store any temporary, sensitive data on the user, clear it here
-        // $this->plainPassword = null;
+    }
+
+    private function touch(): void
+    {
+        $this->updatedAt = new \DateTimeImmutable();
     }
 }

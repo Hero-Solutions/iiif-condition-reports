@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ is_new ? 'actors.contact_new'|trans : 'actors.contact_edit'|trans }} | {{ 'app.title'|trans }}{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <div>
+            <h1>{{ is_new ? 'actors.contact_new'|trans : 'actors.contact_edit'|trans }}</h1>
+            <p class="page-subtitle">{{ actor.displayName }}</p>
+        </div>
+        <a class="button secondary" href="{{ path('admin_actors_edit', {'_locale': app.request.locale, id: actor.id}) }}">{{ 'actions.back'|trans }}</a>
+    </div>
+
+    <section class="panel admin-panel">
+        {{ form_start(form, {'attr': {'class': 'edit-form compact-edit-form'}}) }}
+            {{ form_row(form.person) }}
+            {{ form_row(form.functionTitle) }}
+            <button type="submit">{{ 'actions.save'|trans }}</button>
+        {{ form_end(form) }}
+        <p class="muted">{{ 'actors.contact_person_data_hint'|trans }}</p>
+    </section>
+{% endblock %}

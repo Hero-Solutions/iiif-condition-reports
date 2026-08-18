@@ -1,0 +1,306 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ is_new ? 'projects.new'|trans : project.title }} | {{ 'app.title'|trans }}{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <div>
+            <nav class="breadcrumbs" aria-label="{{ 'nav.breadcrumb'|trans }}">
+                <a href="{{ path('projects_index', {'_locale': app.request.locale}) }}">{{ 'nav.projects'|trans }}</a>
+                {% if not is_new %}
+                    <span class="sep">/</span>
+                    <span>{{ project.referenceCode ?: project.title }}</span>
+                {% endif %}
+            </nav>
+            <h1>{{ is_new ? 'projects.new'|trans : project.title }}</h1>
+            {% if not is_new %}
+                <p class="page-subtitle">
+                    {{ project.type == 'other' and project.customType ? project.customType : ('project_type.' ~ project.type)|trans }}
+                    · {{ ('project_status.' ~ project.status)|trans }}
+                    {% if project.startDate or project.endDate %}
+                        · {{ project.startDate ? project.startDate|date('d/m/Y') : '?' }} - {{ project.endDate ? project.endDate|date('d/m/Y') : '?' }}
+                    {% endif %}
+                </p>
+            {% endif %}
+        </div>
+        <a class="button secondary" href="{{ path('projects_index', {'_locale': app.request.locale}) }}">{{ 'actions.back'|trans }}</a>
+    </div>
+
+    {% if is_new %}
+        <section class="panel">
+                {{ form_start(form, {'attr': {'class': 'edit-form'}}) }}
+                {{ form_row(form.title) }}
+                {{ form_row(form.type) }}
+                <div data-project-custom-type-row {% if form.type.vars.value != 'other' %}hidden{% endif %}>
+                    {{ form_row(form.customType) }}
+                </div>
+                {{ form_row(form.status) }}
+                {{ form_row(form.referenceCode) }}
+                {{ form_row(form.description) }}
+                {{ form_row(form.startDate) }}
+                {{ form_row(form.endDate) }}
+                <button type="submit">{{ 'actions.save'|trans }}</button>
+            {{ form_end(form) }}
+        </section>
+    {% else %}
+        <nav class="project-tabs" data-project-tabs aria-label="{{ 'projects.tabs'|trans }}">
+            <button type="button" data-project-tab-trigger="objects">{{ 'projects.objects'|trans }}</button>
+            <button type="button" data-project-tab-trigger="details">{{ 'projects.project_details'|trans }}</button>
+            <button type="button" data-project-tab-trigger="actors">{{ 'actors.title'|trans }}</button>
+        </nav>
+
+        <section class="panel project-objects-panel" data-project-tab-panel="objects">
+            <div class="section-header">
+                <div>
+                    <h2>{{ 'projects.objects'|trans }}</h2>
+                    <p>{{ 'projects.objects_count'|trans({'%count%': project_objects|length}) }}</p>
+                </div>
+                <button type="button" class="button" data-toggle-target="add-object-panel" aria-expanded="{{ object_inventory_number ? 'true' : 'false' }}">
+                    <svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg>
+                    {{ 'projects.add_object'|trans }}
+                </button>
+            </div>
+
+            <div id="add-object-panel" class="add-object-panel" {% if not object_inventory_number %}hidden{% endif %}>
+                <form class="filters object-add-search" method="get">
+                    <select name="object_match">
+                        <option value="exact" {% if object_match == 'exact' %}selected{% endif %}>{{ 'objects.match_exact'|trans }}</option>
+                        <option value="starts_with" {% if object_match == 'starts_with' %}selected{% endif %}>{{ 'objects.match_starts_with'|trans }}</option>
+                    </select>
+                    <input type="search" name="object_inventory_number" value="{{ object_inventory_number }}" placeholder="{{ 'objects.inventory_number'|trans }}">
+                    <button type="submit">{{ 'projects.find_object'|trans }}</button>
+                </form>
+                <p class="add-object-hint">
+                    {{ 'projects.add_object_hint'|trans }}
+                    <a href="{{ path('objects_new', {'_locale': app.request.locale}) }}">{{ 'objects.new'|trans }}</a>
+                </p>
+
+            {% if object_inventory_number %}
+                <div class="object-results">
+                    {% if object_results is empty %}
+                        <p class="muted">{{ 'projects.no_object_results'|trans }}</p>
+                    {% else %}
+                        <h3>{{ 'projects.search_results'|trans }}</h3>
+                        <div class="object-card-list compact">
+                            {% for object in object_results %}
+                                {% set thumbnail_url = thumbnail_urls[object.id]|default(null) %}
+                                <article class="object-card">
+                                    <div class="object-thumb">
+                                        {% if thumbnail_url %}
+                                            <img src="{{ thumbnail_url }}" alt="">
+                                        {% else %}
+                                            <span>{{ 'objects.no_thumbnail'|trans }}</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="object-card-main">
+                                        <strong>{{ object.inventoryNumber }}</strong>
+                                        <span>{{ object.displayTitle(app.request.locale) }}</span>
+                                        {% if object.creator %}
+                                            <span class="muted">{{ object.creator|nl2br }}</span>
+                                        {% endif %}
+                                        {% if object.publisher %}
+                                            <span class="muted">{{ object.publisher }}</span>
+                                        {% endif %}
+                                        {% if object.objectType %}
+                                            <span class="object-type-pill">{{ object.objectType == 'other' and object.customObjectType ? object.customObjectType : ('object_type.' ~ object.objectType)|trans }}</span>
+                                        {% else %}
+                                            <span class="object-type-missing">{{ 'objects.object_type_missing'|trans }}</span>
+                                        {% endif %}
+                                    </div>
+                                    {% if object.objectType %}
+                                        <form method="post" action="{{ path('projects_objects_add', {'_locale': app.request.locale, id: project.id, objectId: object.id}) }}">
+                                            <button type="submit">{{ 'projects.add_object'|trans }}</button>
+                                        </form>
+                                    {% else %}
+                                        {% set dialog_id = 'object-type-dialog-' ~ object.id %}
+                                        <button type="button" data-dialog-open="{{ dialog_id }}">{{ 'projects.add_object'|trans }}</button>
+                                        <dialog class="object-type-dialog" id="{{ dialog_id }}">
+                                            <form method="post" action="{{ path('projects_objects_add', {'_locale': app.request.locale, id: project.id, objectId: object.id}) }}">
+                                                <h3>{{ 'projects.choose_object_type_title'|trans }}</h3>
+                                                <p>{{ 'projects.choose_object_type_text'|trans({'%inventory_number%': object.inventoryNumber}) }}</p>
+                                                <label>
+                                                    {{ 'objects.object_type'|trans }}
+                                                    <select name="object_type" data-smart-select data-smart-select-custom-value="other" data-smart-select-key="object-type-{{ object.id }}" required>
+                                                        <option value="">{{ 'objects.choose_object_type'|trans }}</option>
+                                                        {% for label, value in object_type_choices %}
+                                                            <option value="{{ value }}">{{ label|trans }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                    <input type="hidden" name="custom_object_type" data-smart-select-custom-input="object-type-{{ object.id }}">
+                                                </label>
+                                                <div class="dialog-actions">
+                                                    <button type="button" class="button secondary" data-dialog-close>{{ 'actions.cancel'|trans }}</button>
+                                                    <button type="submit">{{ 'projects.add_object'|trans }}</button>
+                                                </div>
+                                            </form>
+                                        </dialog>
+                                    {% endif %}
+                                </article>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+            </div>
+        </section>
+
+        {% if project_objects is empty %}
+            <section class="empty-state" data-project-tab-panel="objects">
+                <h2>{{ 'projects.no_objects_title'|trans }}</h2>
+                <p>{{ 'projects.no_objects_text'|trans }}</p>
+            </section>
+        {% else %}
+            <section class="object-card-list" data-project-tab-panel="objects">
+                {% for project_object in project_objects %}
+                    {% set object = project_object.objectRecord %}
+                    {% set thumbnail_url = thumbnail_urls[object.id]|default(null) %}
+                    {% set object_series_list = report_series_by_object[object.id]|default([]) %}
+                    {% set object_series = object_series_list|first %}
+                    {% set object_reports = object_series ? reports_by_series[object_series.id]|default([]) : [] %}
+                    <article class="object-card linked-object-card">
+                        <div class="object-card-main">
+                            <div class="object-card-header">
+                                <div class="object-thumb object-card-thumb">
+                                    {% if thumbnail_url %}
+                                        <img src="{{ thumbnail_url }}" alt="">
+                                    {% else %}
+                                        <span>{{ 'objects.no_thumbnail'|trans }}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="object-card-summary">
+                                    <a href="{{ path('objects_edit', {'_locale': app.request.locale, id: object.id}) }}"><strong>{{ object.inventoryNumber }}</strong></a>
+                                    <span>{{ object.displayTitle(app.request.locale) }}</span>
+                                    {% if object.creator %}
+                                        <span class="muted">{{ object.creator|nl2br }}</span>
+                                    {% endif %}
+                                    {% if object.publisher %}
+                                        <span class="muted">{{ object.publisher }}</span>
+                                    {% endif %}
+                                    {% if object.objectType %}
+                                        <span class="object-type-pill">{{ object.objectType == 'other' and object.customObjectType ? object.customObjectType : ('object_type.' ~ object.objectType)|trans }}</span>
+                                    {% endif %}
+                                    {% if project_object.notes %}
+                                        <span>{{ project_object.notes|nl2br }}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="object-card-actions">
+                                    <a class="button secondary icon-button" href="{{ path('objects_edit', {'_locale': app.request.locale, id: object.id}) }}" aria-label="{{ 'objects.edit_object'|trans }}" title="{{ 'objects.edit_object'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-pencil"/></svg></a>
+                                    <form method="post" action="{{ path('projects_objects_remove', {'_locale': app.request.locale, projectId: project.id, id: project_object.id}) }}" onsubmit="return confirm('{{ 'projects.confirm_remove_object'|trans({'%inventory_number%': object.inventoryNumber})|e('js') }}');">
+                                        <button type="submit" class="button danger icon-button" aria-label="{{ 'objects.remove_from_project'|trans }}" title="{{ 'objects.remove_from_project'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-minus"/></svg></button>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="object-card-report-overview">
+                                <div class="object-card-report-heading">
+                                    <strong>{{ 'report_series.title'|trans }}</strong>
+                                    {% if object_series %}
+                                        <a class="button secondary icon-button report-add-button" href="{{ path('reports_new', {'_locale': app.request.locale, seriesId: object_series.id}) }}" aria-label="{{ 'report_series.new'|trans }}" title="{{ 'report_series.new'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg></a>
+                                    {% else %}
+                                        <a class="button secondary icon-button report-add-button" href="{{ path('report_series_new_project_object', {'_locale': app.request.locale, projectId: project.id, objectId: object.id}) }}" aria-label="{{ 'report_series.new'|trans }}" title="{{ 'report_series.new'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg></a>
+                                    {% endif %}
+                                </div>
+                                {% if object_reports is empty %}
+                                    <div class="object-report-empty">{{ 'report_series.empty_for_object'|trans }}</div>
+                                {% else %}
+                                    <ul class="object-report-list">
+                                        {% for object_report in object_reports %}
+                                            <li>
+                                                <a href="{{ path('reports_edit', {'_locale': app.request.locale, id: object_report.id}) }}">{{ object_report.title }}</a>
+                                                <span class="object-report-date">{{ object_report.createdAt|date('Y-m-d H:i') }}</span>
+                                                <span class="object-report-author">{{ report_author_names[object_report.id]|default('reports.unknown_reporter'|trans) }}</span>
+                                                <span class="object-report-status chip chip-{{ {'active': 'accent', 'finalized': 'success', 'archived': 'muted'}[object_report.status]|default('muted') }}">{{ ('status.' ~ object_report.status)|trans }}</span>
+                                                {% if object_report.status == constant('App\\Entity\\Report::STATUS_ACTIVE') %}
+                                                    <form class="object-report-delete-form" method="post" action="{{ path('reports_delete', {'_locale': app.request.locale, id: object_report.id}) }}" onsubmit="return confirm('{{ 'reports.confirm_delete'|trans({'%title%': object_report.title})|e('js') }}');">
+                                                        <input type="hidden" name="_token" value="{{ csrf_token('report_delete_' ~ object_report.id) }}">
+                                                        <button type="submit" class="button danger icon-button report-delete-button" aria-label="{{ 'reports.delete_draft'|trans }}" title="{{ 'reports.delete_draft'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg></button>
+                                                    </form>
+                                                {% else %}
+                                                    <span class="object-report-action-spacer"></span>
+                                                {% endif %}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </article>
+                {% endfor %}
+            </section>
+        {% endif %}
+
+        <section class="panel project-details-panel" data-project-tab-panel="details">
+            <div class="project-details-grid">
+                <section class="project-detail-section project-detail-fields">
+                    <h2>{{ 'projects.project_details'|trans }}</h2>
+                    {{ form_start(form, {'attr': {'class': 'project-edit-form'}}) }}
+                        <div class="project-form-grid">
+                            <div class="project-form-field project-form-field-wide">
+                                {{ form_row(form.title) }}
+                            </div>
+                            <div class="project-form-field">
+                                {{ form_row(form.type) }}
+                            </div>
+                            <div class="project-form-field" data-project-custom-type-row {% if form.type.vars.value != 'other' %}hidden{% endif %}>
+                                {{ form_row(form.customType) }}
+                            </div>
+                            <div class="project-form-field">
+                                {{ form_row(form.status) }}
+                            </div>
+                            <div class="project-form-field">
+                                {{ form_row(form.referenceCode) }}
+                            </div>
+                            <div class="project-form-field">
+                                {{ form_row(form.startDate) }}
+                            </div>
+                            <div class="project-form-field">
+                                {{ form_row(form.endDate) }}
+                            </div>
+                            <div class="project-form-field project-form-field-wide">
+                                {{ form_row(form.description) }}
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit">{{ 'actions.save'|trans }}</button>
+                        </div>
+                    {{ form_end(form) }}
+                </section>
+            </div>
+        </section>
+
+        <section class="panel project-actors-panel" data-project-tab-panel="actors">
+            <section class="project-detail-section project-detail-actors">
+                <div class="actor-scope-heading">
+                    <h2>{{ 'actors.title'|trans }}</h2>
+                    <p>{{ 'actors.general_text'|trans }}</p>
+                </div>
+                {% include 'projects/_actor_assignment_list.html.twig' with {
+                    actors: project_actors,
+                    empty_message: 'actors.empty_general',
+                    remove_route: 'projects_actors_remove',
+                    remove_params: {'_locale': app.request.locale, projectId: project.id},
+                    remove_token_prefix: 'project_actor_remove_',
+                    edit_route: 'projects_actors_edit_assignment',
+                    edit_params: {'_locale': app.request.locale, projectId: project.id},
+                    edit_token_prefix: 'project_actor_edit_',
+                    contact_route: 'projects_actors_contact',
+                    contact_params: {'_locale': app.request.locale, projectId: project.id},
+                    contact_token_prefix: 'project_actor_contact_'
+                } %}
+                {% include 'projects/_actor_assignment_form.html.twig' with {
+                    action: path('projects_actors_add', {'_locale': app.request.locale, id: project.id}),
+                    csrf_token_id: 'project_actor_add_' ~ project.id,
+                    actor_type_choices: actor_type_choices,
+                    actor_role_choices: actor_role_choices
+                } %}
+            </section>
+        </section>
+    {% endif %}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="/js/project-type-form.js?v=4" defer></script>
+    <script src="/js/project-object-type-dialogs.js" defer></script>
+    <script src="/js/actor-role-form.js?v=10" defer></script>
+    <script src="/js/project-tabs.js?v=1" defer></script>
+{% endblock %}

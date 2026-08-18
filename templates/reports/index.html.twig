@@ -1,0 +1,65 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'reports.title'|trans }} | {{ 'app.title'|trans }}{% endblock %}
+
+{% block body %}
+    {% set report_status_chips = {'active': 'accent', 'finalized': 'success', 'archived': 'muted'} %}
+    <div class="page-header">
+        <h1>{{ 'reports.title'|trans }}</h1>
+    </div>
+
+    <section class="panel">
+        <form class="filters" method="get">
+            <input type="search" name="q" value="{{ q }}" placeholder="{{ 'reports.search'|trans }}">
+            <button type="submit">{{ 'actions.search'|trans }}</button>
+        </form>
+    </section>
+
+    {% if reports is empty %}
+        <section class="empty-state">
+            <h2>{{ 'reports.empty_title'|trans }}</h2>
+            <p>{{ 'reports.empty_text'|trans }}</p>
+        </section>
+    {% else %}
+        <section class="panel">
+            <div class="table-scroll">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>{{ 'objects.thumbnail'|trans }}</th>
+                        <th>{{ 'reports.report'|trans }}</th>
+                        <th>{{ 'objects.object'|trans }}</th>
+                        <th>{{ 'reports.status'|trans }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for report in reports %}
+                        {% set object = report.objectRecord %}
+                        {% set thumbnail_url = thumbnail_urls[object.id]|default(null) %}
+                        <tr data-row-href="{{ path('reports_edit', {'_locale': app.request.locale, id: report.id}) }}">
+                            <td>
+                                <div class="object-thumb">
+                                    {% if thumbnail_url %}
+                                        <img src="{{ thumbnail_url }}" alt="">
+                                    {% else %}
+                                        <span>{{ 'objects.no_thumbnail'|trans }}</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                <a href="{{ path('reports_edit', {'_locale': app.request.locale, id: report.id}) }}"><strong>{{ report.title }}</strong></a>
+                                <br>{{ report.type == 'other' and report.customType ? report.customType : ('report_type.' ~ report.type)|trans }}
+                            </td>
+                            <td>
+                                {{ object.inventoryNumber }}
+                                <br>{{ object.displayTitle(app.request.locale) }}
+                            </td>
+                            <td><span class="chip chip-{{ report_status_chips[report.status]|default('muted') }}">{{ ('status.' ~ report.status)|trans }}</span></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+        </section>
+    {% endif %}
+{% endblock %}

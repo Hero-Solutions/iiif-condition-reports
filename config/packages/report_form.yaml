@@ -1,0 +1,923 @@
+---
+parameters:
+  # There must always be a 'default' object type as fallback at the end
+  object_types:
+    - painting
+    - work_on_paper
+    - sculpture
+    - default
+
+  # Do not forget to add the appropriate translations to messages.nl.yaml when editing the report reasons
+  # Each reason always needs a unique ID
+  report_reasons:
+    1:
+      name: Incoming object (depacking)
+      options:
+        100: Acquisition (collection donor / seller / ...)
+        101: Long term loan (third party collection)
+        102: Temporary loan (third party collection)
+        103: Returning loan (own collection)
+        104: Restoration
+    2:
+      name: Outgoing object (packing)
+      options:
+        201: Outgoing loan (own collection)
+        202: Returning loan (third party collection)
+        203: Decommissioning / rejection
+        204: Restoration
+    3:
+      name: Movement to another building / institution
+      options:
+        301: To location / depot
+        302: To exhibition room
+        303: To restoration room
+        304: To packing room
+    4:
+      name: Movement within the same building
+      options:
+        401: To location / depot
+        402: To exhibition room
+        403: To restoration room
+        404: To packing room
+    5:
+      name: Active and preventative conservation
+      options:
+        501: Preventative or periodic check
+        502: Check after event (flooding, accident, vandalism, abnormal climate fluctuation, ...)
+        503: Check after notification of altered state or damage
+        504: Risk management (environment, art handling)
+        505: Material technical research
+    6:
+      name: Valuation
+      options:
+        601: Insurance and indemnity
+        602: Loss and damage
+        603: Damage claim
+
+  actor_types:
+    - owner / lender
+    - borrower
+    - conservator
+    - courier
+    - art handler
+    - insurer
+
+  pictures:
+    rectangle_portrait_front:
+      name: 'Rectangle (portrait)'
+      hash: f0cb750841386053f9101da5fee15f164eec5e3a72a2d87df53cd625534cd4fc
+      image: /annotation_images/rectangle_portrait_front.svg
+    rectangle_landscape_front:
+      name: 'Rectangle (landscape)'
+      hash: cb11c44f66df0e56914c7bc1fea2c673170aa365d563a22b33ed8a98608afb5b
+      image: /annotation_images/rectangle_landscape_front.svg
+    square_front:
+      name: 'Square'
+      hash: a3063387f9101dd3e989348ee1feee6aefcc1b4558c4231a4ae0005e9c4a08e2
+      image: /annotation_images/square_front.svg
+    oval_portrait_front:
+      name: 'Oval (portrait)'
+      hash: abcb5b054a46a8d7998c451dd5ad7b6573c837feafa55c7a492d50143ea05e7b
+      image: /annotation_images/oval_portrait_front.svg
+    oval_landscape_front:
+      name: 'Oval (landscape)'
+      hash: 81dd7d912f3d1440b53eea877d06e275f002d50cf0e2b2fa6750883b8498af0d
+      image: /annotation_images/oval_landscape_front.svg
+    circle_front:
+      name: 'Circle'
+      hash: 674af98ba91fe1f17260eab65fd6a97a8f7aa82aaad46d4bf4eed1393880f737
+      image: /annotation_images/circle_front.svg
+    diamond_front:
+      name: 'Diamond'
+      hash: c3d10b7efed2d15868918fdb39ad678920e01d6d4f8d7fa6c0dfcc8a41f875cb
+      image: /annotation_images/diamond_front.svg
+    rectangle_portrait_back:
+      name: 'Rectangle (portrait)'
+      hash: 555e70ba359a7aad18c44d0fa04a6406407b305ec2923d145aeec153deb071ad
+      image: /annotation_images/rectangle_portrait_back.svg
+    rectangle_landscape_back:
+      name: 'Rectangle (landscape)'
+      hash: 304f4ff0d2e5f12768845a86658b70aeff545aaf43899537ade0026717e48743
+      image: /annotation_images/rectangle_landscape_back.svg
+    square_back:
+      name: 'Square'
+      hash: 29ec20e9cbeac21f12eef2b4a06cc242e89f7c007c449bee832f74a3332519af
+      image: /annotation_images/square_back.svg
+    oval_portrait_back:
+      name: 'Oval (portrait)'
+      hash: aa259545834915a6f05f7529007a5cc73c27f3c650637377748870da37809cf6
+      image: /annotation_images/oval_portrait_back.svg
+    oval_landscape_back:
+      name: 'Oval (landscape)'
+      hash: 67fc3c45e2f32de14bdb11eeb0231cad89d6d16673e513081bb58592240e9e9e
+      image: /annotation_images/oval_landscape_back.svg
+    circle_back:
+      name: 'Circle'
+      hash: 856a5313c2d266a1f78b93080f183fc4ee4a12299591c0b8a07ecad95534de75
+      image: /annotation_images/circle_back.svg
+    diamond_back:
+      name: 'Diamond'
+      hash: f1b77336762102a17e092e17697e85bd8d760afc12c8ebc217cc70d8ac5ceddf
+      image: /annotation_images/diamond_back.svg
+
+  # Do not forget to add the appropriate translations to messages.en.yaml and messages.nl.yaml when editing the report fields
+  # Supported types: default, painting, work_on_paper and sculpture
+  # You must always provide a default list as fallback (which ideally contains all elements of the other object types) and each list should end in 'custom'
+  # Spaces are not allowed in any of the list elements, only letters, numbers and underscores
+  report_fields:
+    number_of_parts:
+      default: 'Number of parts'
+      painting: 'Number of parts (in case of polyptychs / works in a series / ...)'
+      work_on_paper: 'Number of parts (in case of polyptychs / works in a series / ...)'
+      sculpture: 'Number of parts pedestal included'
+    # Measurements has a slightly more complex structure than the other fields. It is split into separate parts, each with its own header and items with labels, along with repeating elements for each part.
+    measurements:
+      default:
+        header: ''
+        items:
+          height_full: Height
+          width_full: Width
+          depth_full: Depth
+          weight_full: Weight
+        repeat:
+          none:
+            header: ''
+            items:
+              height: Height
+              width: Width
+              depth: Depth
+              weight: Weight
+      painting:
+        header: 'With frame, total work'
+        items:
+          height_full: Height
+          width_full: Width
+          depth_full: Depth
+          weight_full: Weight
+        repeat:
+          with_frame:
+            header: 'With frame'
+            items:
+              height_with_frame: Height
+              width_with_frame: Width
+              depth_with_frame: Depth
+              weight_with_frame: Weight
+          without_frame:
+            header: 'Without frame'
+            items:
+              height_without_frame: Height
+              width_without_frame: Width
+              depth_without_frame: Depth
+              weight_without_frame: Weight
+      work_on_paper:
+        header: 'Box'
+        items:
+          height_box: Height
+          width_box: Width
+          depth_box: Depth
+          weight_box: Total weight
+        repeat:
+          paper_with_frame:
+            header: 'Paper with frame'
+            items:
+              height_with_frame: Height
+              width_with_frame: Width
+              depth_with_frame: Depth
+              weight_with_frame: Weight
+          paper_without_frame:
+            header: 'Paper without frame'
+            items:
+              height_without_frame: Height
+              width_without_frame: Width
+          passe_partout:
+            header: 'Passe-partout'
+            items:
+              height_passe_partout: Height
+              width_passe_partout: Width
+          window_in_passe_partout:
+            header: 'Window in the passe-partout'
+            items:
+              height_window_passe_partout: Height
+              width_window_passe_partout: Width
+      sculpture:
+        header: 'Complete sculpture'
+        items:
+          height_full: Height
+          width_full: Width
+          depth_full: Depth
+          weight_full: Weight
+        repeat:
+          none:
+            header: ''
+            items:
+              type: Pedestal / Sculpture / ...
+              height: Height
+              width: Width
+              depth: Depth
+              weight: Weight
+
+    # See templates/form_builder.html.twig for implementation
+    # Supported types: div, html, div_text, textfield, textarea, number, checkbox, checkbox_date and checkbox_custom
+    # 'content' must always be a list or a string (the string may be empty)
+    # 'name' must always be a non-empty string in a textfield, textarea, number, checkbox, checkbox_date or checkbox_custom
+    damage_types:
+      abrasions:
+        note: abrasions_note
+        applies_to:
+          - sculpture
+          - frame
+      acid:
+        note: "Acid"
+        applies_to:
+          - work_on_paper
+      adhesion:
+        aat: http://vocab.getty.edu/page/aat/300053010
+        note: "Adhesion: The joining of two surfaces by means of a generally viscous, sticky composition such as an adhesive or through physical or chemical force."
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      blanching:
+        note: "blanching_note"
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+      bleaching:
+        aat: http://vocab.getty.edu/page/aat/300053047
+        note: "Bleaching: The process of whitening or lightening the color of a material by means of oxidation through the use of chemicals or exposure to sunlight."
+        applies_to:
+          - work_on_paper
+      blisters:
+        note: "Blisters: Swellings on a surface, often bubble-shaped, frequently caused by nonadherence or by separation of an applied substance."
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      broken_glass:
+        note:
+          - broken_glass_note
+          - "Broken: Splitting into pieces or smashing into parts or fragments, typically by a blow or stress and with suddenness or violence."
+          - "Glass: An amorphous, inorganic substance made by fusing silica (silicon dioxide) with a basic oxide; generally transparent but often translucent or opaque. Its characteristic properties are its hardness and rigidity at ordinary temperatures, its capacity for plastic working at elevated temperatures, and its resistance to weathering and to most chemicals except hydrofluoric acid. Used for both utilitarian and decorative purposes, it can be formed into various shapes, colored or decorated. Glass originated as a glaze in Mesopotamia in about 3500 BCE and the first objects made wholly of glass date to about 2500 BCE."
+        applies_to:
+          - painting
+          - work_on_paper
+          - frame
+      broken_parts:
+        note: "Broken parts"
+        applies_to:
+          - painting
+          - frame
+      browning:
+        note: "Browning"
+        applies_to:
+          - painting
+          - work_on_paper
+      changes:
+        note: "Changes (additions, altered piecesâ€¦)"
+        applies_to:
+          - painting
+          - work_on_paper
+      climate_box_sealed:
+        note:
+          - "Climate box sealed"
+          - "Sealing process: The action of closing a vessel, aperture, or package by placing a coating of material or a fastening on it that must be broken before access can be obtained."
+        applies_to:
+          - painting
+      consolidated:
+        aat: http://vocab.getty.edu/page/aat/300219960
+        note: "Consolidated: Stabilizing degraded or weakened areas by introducing or attaching materials capable of holding them together."
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      corrosion:
+        aat: http://vocab.getty.edu/page/aat/300054107
+        note: "Corrosion: The deterioration of metal or other substances by chemical or electrochemical reaction resulting from exposure to weathering, moisture, chemicals, or other agents."
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      crackle:
+        aat: http://vocab.getty.edu/page/aat/300228345
+        note: "Crackle: A network of fine fracture lines in a coating layer, such as a ground, paint layer, varnish, or glaze."
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      cracks_damage_type:
+        aat: http://vocab.getty.edu/page/aat/300209168
+        note:
+          - "Cracks: Fissures or systems of fissures without complete separation into pieces. Eerder voor verflaag die gebarsten is."
+          - "Splits: Splits eerder voor de drager die gebarsten is."
+        applies_to:
+          - painting
+          - sculpture
+          - frame
+      crusted_dirt:
+        note: "Crusted dirt"
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      cupping:
+        aat: http://vocab.getty.edu/page/aat/300220569
+        note: "Cupping: Formation of a concavity or cuplike hollow in a paint layer."
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      cutting:
+        aat: http://vocab.getty.edu/page/aat/300053069
+        note: "Cutting: Making incisions with a sharp-edged instrument, thus removing material or dividing something into parts."
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      damaged_edges:
+        note: "damaged_edges_note"
+        applies_to:
+          - painting
+          - work_on_paper
+          - frame
+      darkening:
+        aat: http://vocab.getty.edu/page/aat/300379491
+        note: "Darkening: To make or become dark in shade, value, or color; a form of discoloration: the blackening or browning of materials due to such causes as chemical process, exposure to light, the passage of time."
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      daylight_opening_correct:
+        note: "Daylight opening correct (yes / no)"
+        applies_to:
+          - painting
+          - work_on_paper
+          - frame
+      deformation:
+        aat: http://vocab.getty.edu/page/aat/300072976
+        note: "Deformation: Any change of form, shape, or dimensions produced in a body by a stress or force without a breach of the continuity of its parts."
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      degradation:
+        aat: http://vocab.getty.edu/page/aat/300228676
+        note: "Degradation: Gradual loss of quality; can be without structural change."
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      degradation_of_plastics:
+        note: "Degradation of plastics"
+        applies_to:
+          - sculpture
+      degraded:
+        note: "degraded_note"
+        applies_to:
+          - painting
+      degraded_medium:
+        note: "Degraded medium"
+        applies_to:
+          - painting
+          - work_on_paper
+      delamination_type:
+        aat: http://vocab.getty.edu/page/aat/300054128
+        note: "Delamination: Separation into constituent layers."
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      dents_type:
+        aat: http://vocab.getty.edu/page/aat/300400799
+        note: "Dents: Hollows or impressions in a surface, such as are made by a blow with a sharp or edged instrument."
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      dirt_between_canvas_and_stretcher:
+        note: "Dirt between canvas and stretcher"
+        applies_to:
+          - painting
+      dirt_between_glass_and_artwork:
+        note: "Dirt between glass and artwork"
+        applies_to:
+          - painting
+          - work_on_paper
+      discoloration:
+        aat: http://vocab.getty.edu/page/aat/300053045
+        note: "Discoloration: Any change in the color of an object."
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      discolored_retouching:
+        note:
+          - "Discolored retouching"
+          - "Retouching: Reworking small areas of a painting or photographic negative usually to cover damage or to mask unwanted features. For similar work done on paintings by conservators, use 'inpainting' or 'overpainting'."
+          - "Discoloration: Any change in the color of an object."
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      distortion:
+        aat: http://vocab.getty.edu/page/aat/300056332
+        note: "Distortion: The quality or state in a painting or of an object due to the use of optical illusions, manipulated surfaces, or discordantly juxtaposed images."
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      drips_or_dripmarks:
+        note: "Drips or dripmarks"
+        applies_to:
+          - painting
+          - sculpture
+          - frame
+      dust:
+        aat: http://vocab.getty.edu/page/aat/300014646
+        note: "Dust: Fine, dry particles of matter regarded as the result of disintegration."
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      embrittlement:
+        aat: http://vocab.getty.edu/page/aat/300077803
+        note: "Embrittlement: Process of becoming brittle; includes the loss of flexibilty or elasticity."
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      fiber_degradation:
+        note: "fiber_degradation_note"
+        applies_to:
+          - painting
+          - work_on_paper
+      filling:
+        aat: http://vocab.getty.edu/page/aat/300053092
+        note: "Filling: Inserting material into a hole, crack, or cavity. In the specific context of mosaic conservation, the application of mortar or other material into an area of loss of the mosaic surface."
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      finger_marks:
+        aat: http://vocab.getty.edu/page/aat/300251471
+        note: "Finger Marks: The impression of the markings from the inner surface of the finger."
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      fire_damage:
+        aat: http://vocab.getty.edu/page/aat/300386403
+        note: "Fire damage: Damage caused by fire, including burning and ash residue."
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      fixation:
+        note: "fixation_note"
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      fixed_type:
+        note: "fixed_note"
+        applies_to:
+          - painting
+          - sculpture
+      flaking_type:
+        aat: http://vocab.getty.edu/page/aat/300054129
+        note: "Flaking: Separating into thin flattened pieces or layers."
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      flattened_paint:
+        note: "flattened_paint_note"
+        applies_to:
+          - painting
+          - work_on_paper
+      fly_out_openings:
+        note: "Fly out openings"
+        applies_to:
+          - painting
+          - sculpture
+          - frame
+      folds:
+        aat: http://vocab.getty.edu/page/aat/300219528
+        note: "Folds: Parts of something that are folded, that is, where the object or material collapses onto itself. For ridges or grooves pressed into a material by folding, use 'creases'."
+        applies_to:
+          - painting
+          - work_on_paper
+      foxing:
+        aat: http://vocab.getty.edu/page/aat/300078853
+        note: "Foxing: Pale, brownish, diffuse spots that appear on paper or other surfaces, probably either from mold or fungus growth, metallic impurities in the paper, or other conditions in combination with dampness."
+        applies_to:
+          - work_on_paper
+      fracture:
+        note: "Fracture"
+        applies_to:
+          - sculpture
+      frass:
+        aat: http://vocab.getty.edu/page/aat/300251469
+        note: "Frass: Powdered debris produced by insects in the course of feeding and boring, often including excrement and food remains."
+        applies_to:
+          - painting
+          - sculpture
+          - frame
+      glue_residues:
+        aat: http://vocab.getty.edu/page/aat/300014815
+        note: "Glue (residues): Adhesive comprising an impure protein obtained by hydrolysis of collagenous material such as skin, bone, and connective tissue by various methods."
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      hair_tears_cracks:
+        note: "Hair (tears) / Cracks"
+        applies_to:
+          - sculpture
+      holes:
+        note: "Holes"
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      impurities_in_the_paper_fiber:
+        note: "Impurities in the paper fiber"
+        applies_to:
+          - work_on_paper
+      impurities_in_varnish:
+        note: "Impurities in varnish"
+        applies_to:
+          - painting
+      ink_corrosion:
+        note: "ink_corrosion_note"
+        applies_to:
+          - work_on_paper
+      inscriptions:
+        aat: http://vocab.getty.edu/page/aat/300028702
+        note: "Inscriptions: Words, texts, lettering, or symbols marked on a work, including texts, legends, documentation notes, or commemoration. For standardized symbols or notations on objects that convey official information, use 'marks (symbols)'."
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      insect_damage_type:
+        aat: http://vocab.getty.edu/page/aat/300230031
+        note: "Insect damage: Damage caused by insects."
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      insect_feces:
+        note: "Insect feces"
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      instability:
+        aat: http://vocab.getty.edu/page/aat/300221189
+        note: "Instability: The quality or state of lacking stability, of tending toward changeability, or of readily decomposing or changing chemically."
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      joints:
+        aat: http://vocab.getty.edu/page/aat/300048693
+        note: "joints_note"
+        applies_to:
+          - painting
+          - sculpture
+          - frame
+      keys:
+        aat: http://vocab.getty.edu/page/aat/300219680
+        note: "Keys (frame components): Wedges of wood set at the corners of frames."
+        applies_to:
+          - painting
+          - work_on_paper
+      labels:
+        aat: http://vocab.getty.edu/page/aat/300028730
+        note: "Labels: Pieces of paper, leather, fabric, or small tablets inscribed and affixed to something for identification or description. In the context of bookbinding, refers specifically to paper or other material separate from that used to cover a book, on which the author's name and the title are printed or engraved and glued to the spine or front board. For larger, more public identifying notices, use 'identification signs'."
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      lacunae:
+        aat: http://vocab.getty.edu/page/aat/300263354
+        note: "Lacunae: Blank spaces or missing portions of a written or printed text, of the media or support of a two-dimensional object, or of paint or a coating on a three dimensional object; objects subject to lacunae include paintings, mosaics, manuscripts, and painted sculptures. Lacunae result from damage or accidental omission; intentional omissions are not called 'lacunae'."
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      lined:
+        aat: http://vocab.getty.edu/page/aat/300162124
+        note: "Lined/Lining: The process of stregthening or stabilizing by use of an inner layer, usually using paper or fabric. In conservation and other contexts, the process of reinforcing a work by applying a paper or fabric lining with an adhesive, sewing, or another method; examples include lining applied to the support of a paper or canvas support of a work of art, or the lining applied to a garment as an inner layer of cloth."
+        applies_to:
+          - painting
+          - work_on_paper
+      loose_parts:
+        note: "Loose parts"
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      loosening_in_composite_support:
+        note: "Loosening in composite support"
+        applies_to:
+          - painting
+          - work_on_paper
+      milky:
+        note: "Milky / hazy"
+        applies_to:
+          - painting
+          - work_on_paper
+      missing_edges:
+        note: "Damaged and missing corners and edges"
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      missing_parts:
+        note: "Missing parts"
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      impregnation:
+        note: "Moisture barrier at reverse / impregnation"
+        applies_to:
+          - painting
+      mold:
+        aat: http://vocab.getty.edu/page/aat/300378932
+        note: "Mold: Condition of having a conspicuous furry growth on the surface of organic materials, comprising a mass of mycelium (masses of vegetative filaments, or hyphae) and fruiting structures of various fungi. The most common species are of the genera Aspergillus (black, yellow, and orange) and Penicillium (green). Molds can excrete organic acids, such as citric, oxalic, gluconic, etc., that can damage the growth substrate, resulting in discoloration of dyed textiles, paper, and leather. They also produce colored bodies that discolor materials. Mold growth can be inhibited by fungicides or minimized by a clean environment that has sunlight, dry circulating air, and relatively low temperatures."
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      not_lined:
+        note: "Not lined"
+        applies_to:
+          - painting
+          - work_on_paper
+      old_repairs:
+        note: "Old repairs / restoration"
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      open_joints:
+        note:
+          - "Open joints"
+          - "Joints: The apparatus used or the manner of joining two or more parts of an object or structure. In bookbinding, the term describes the flexing exterior junctions of the spine and covers of a book. Distinguished from 'hinges (fasteners)', which use strips of fabric or paper placed between the two halves of an endpaper where the body of the book is fixed to its cover."
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      overpaint:
+        aat: http://vocab.getty.edu/page/aat/300178448
+        note: "Overpaint: Paint applied to a painting over already dry areas. Sometimes used to include the original artist's glazes and scumbles; sometimes, especially in conservation, used to mean only later restorers' work. For restoration work that only fills in lost areas without covering original paint, use 'inpainting'."
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      oxidation_type:
+        aat: http://vocab.getty.edu/page/aat/300220235
+        note: "Oxidation: The process or result of combining with oxygen; sometimes contributing to the degradation of a surface, such as in corrosion."
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      patches:
+        note: "Patches"
+        applies_to:
+          - painting
+      perforations:
+        note: "Perforations"
+        applies_to:
+          - work_on_paper
+      powdering_type:
+        note: "Powdering"
+        applies_to:
+          - work_on_paper
+          - sculpture
+      remains:
+        note: Remains of other materials
+        applies_to:
+          - painting
+          - work_on_paper
+      retouching_type:
+        aat: http://vocab.getty.edu/page/aat/300136723
+        note: "Retouching: Reworking small areas of a painting or photographic negative usually to cover damage or to mask unwanted features. For similar work done on paintings by conservators, use 'inpainting' or 'overpainting'."
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      rodent_damage:
+        aat: http://vocab.getty.edu/page/aat/300380188
+        note: "Rodent damage: Damage caused by rodents, including chewing, nesting, and droppings."
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      salts:
+        note: "Salts"
+        applies_to:
+          - sculpture
+      scratches:
+        aat: http://vocab.getty.edu/page/aat/300380562
+        note: "Scratches: Surface damage produced by grinding contact; sharp-edged, narrow furrows often involving loss of surface material."
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      seals:
+        aat: http://vocab.getty.edu/page/aat/300028877
+        note: "Seals: Objects bearing designs, emblems, letters, names, words, etc. in intaglio that are used for stamping a flat surface or for making an impression in relief on some soft, tenacious substance such as clay or wax. They may be flat or cylindrical, the impression made by rolling the seal over the surface. Seals may be used to authenticate documents or for decoration."
+        applies_to:
+          - painting
+          - frame
+      seams:
+        aat: http://vocab.getty.edu/page/aat/300228472
+        note: "Seams: Generally, the lines of junction formed by the abutment or attachment of two edges, especially the edges of two portions of a single object, such as a garment or metal cylinder."
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+      silverfish:
+        aat: http://vocab.getty.edu/page/aat/300310506
+        note: "Silverfish (Lepisma saccharina): Species of slender, flat, wingless insect with three tail bristles and covered with silvery scales. It normally lives indoors, eating materials containing high percentages of starch, including paste, bookbindings, and wallpaper, causing damage to books and fabrics."
+        applies_to:
+          - work_on_paper
+      smudged:
+        note: "Smudged"
+        applies_to:
+          - work_on_paper
+      stains_spots:
+        aat: http://vocab.getty.edu/page/aat/300379497
+        note: "Stains/spots: Discolorations produced by the penetration of foreign matter into a fabric, wood, or coating. This term designates material damage and is not to be confused with a substance that is used as a protective coating or colorant."
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      sticking_together:
+        note: "Sticking together: The adhesion of loose parts as a result of dampness."
+        applies_to:
+          - work_on_paper
+      strainers:
+        aat: http://vocab.getty.edu/page/aat/300231557
+        note: "Strainers (framing and mounting equipment): Houten frames zonder verstelbare hoeken, die worden gebruikt voor het ondersteunen van canvas of ander textiel. Gebruik 'spanramen (benodigdheden voor inlijsten en monteren)' voor soortgelijke frames met verstelbare hoeken."
+        applies_to:
+          - painting
+          - work_on_paper
+      stretchers:
+        aat: http://vocab.getty.edu/page/aat/300022630
+        note: "Stretchers: Devices or appliances for expanding a material making it taut, removing wrinkles, or the like; used especially with reference to frames upon which canvas or other textile is stretched for painting, having mitered corners that can be forced apart by wedges or some other device to firmly stretch the fabric. For frames that support canvas or other textile and do not have expandable corners, use 'strainers (framing and mounting equipment)'."
+        applies_to:
+          - painting
+          - work_on_paper
+      stretching_edges:
+        note: "Stretching edges"
+        applies_to:
+          - painting
+      stretching_marks:
+        note: "Stretching marks"
+        applies_to:
+          - painting
+      strip_lining:
+        aat: http://vocab.getty.edu/page/aat/300053732
+        note: "Strip-lining: A painting conservation technique where a deteriorated canvas is strengthened by affixing a strip of canvas to its outside edge."
+        applies_to:
+          - painting
+      sugaring:
+        note: "Sugaring"
+        applies_to:
+          - sculpture
+      surface_dirt:
+        note: "Surface dirt"
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      tears:
+        aat: http://vocab.getty.edu/page/aat/300254138
+        note: "Tears: Separations in a flexible material caused by pulling or wrenching part from part."
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      tension:
+        aat: http://vocab.getty.edu/page/aat/300056434
+        note: "Tension/Stress: Resultant condition of applied force; condition existing in a body when its internal structure or surfaces resist a force that produces or tends to produce deformation in the body."
+        applies_to:
+          - painting
+          - work_on_paper
+      tidelines:
+        aat: http://vocab.getty.edu/page/aat/300379484
+        note: "Tidelines: Discolorations appearing as irregular dark lines on paper or board, created by a dried liquid. These lines indicate the limit of liquid migration. The visible lines are dirt transported by the liquid, which is embedded deeply into the paper fibers."
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      undulation:
+        note: Undulation
+        applies_to:
+          - work_on_paper
+      warping:
+        aat: http://vocab.getty.edu/page/aat/300389996
+        note: "Warping/Bowing (warping, surface or structural changes, ...): A type of warping usually associated with wood when one face of a length of lumber shrinks more than the other, resulting in a bowed curvature. Less commonly this process may occur in stone such as marble, due to residual stresses, anisotropic thermal expansion of calcitic grains, variation of fluid contents, and dissolution processes."
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      water_damage:
+        aat: http://vocab.getty.edu/page/aat/300379358
+        note: "Water damage: Damage caused by water. Usage often refers to water damaged library materials and buildings, and includes but is not limited to flood damage."
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      wax_residues:
+        aat: http://vocab.getty.edu/page/aat/300014585
+        note: "wax_residues_note"
+        applies_to:
+          - painting
+      weak_corner_joints:
+        note: "Weak corner joints"
+        applies_to:
+          - painting
+          - frame
+      wear:
+        aat: http://vocab.getty.edu/page/aat/300219449
+        note: "Wear/Wearage: Damage or deterioration occurring gradually as a result of continuing use or exposure, usually a gradual diminishing from such actions as rubbing, scraping, or washing."
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      wood_borers:
+        aat: http://vocab.getty.edu/page/aat/300379588
+        note: "Wood borers: Wood boring beetles in their larval and adult states. As larvae, commonly known as woodworms. Termites, though wood eating, are not beetles and thus not wood borers."
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame
+      wrinkle:
+        aat: http://vocab.getty.edu/page/aat/300228341
+        note: "Wrinkle: Small ridges or furrows in a formerly smooth surface."
+        applies_to:
+          - painting
+          - work_on_paper
+      yellowing:
+        aat: http://vocab.getty.edu/page/aat/300225196
+        note: "Yellowing: The process or result of becoming yellow, such as in fabric or paper due to aging or environment."
+        applies_to:
+          - painting
+          - work_on_paper
+          - sculpture
+          - frame

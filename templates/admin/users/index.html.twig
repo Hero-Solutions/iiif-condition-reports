@@ -1,0 +1,54 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'users.title'|trans }} | {{ 'app.title'|trans }}{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <h1>{{ 'users.title'|trans }}</h1>
+        <a class="button" href="{{ path('admin_users_new', {'_locale': app.request.locale}) }}">{{ 'users.new'|trans }}</a>
+    </div>
+
+    {% if users is empty %}
+        <section class="empty-state">
+            <h2>{{ 'users.empty_title'|trans }}</h2>
+            <p>{{ 'users.empty_text'|trans }}</p>
+        </section>
+    {% else %}
+        <section class="panel">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>{{ 'users.full_name'|trans }}</th>
+                        <th>{{ 'users.email'|trans }}</th>
+                        <th>{{ 'users.roles'|trans }}</th>
+                        <th>{{ 'users.status'|trans }}</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                        <tr>
+                            <td>{{ user.fullName }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>
+                                {% if user.admin %}{{ 'users.role_admin'|trans }}{% endif %}
+                                {% if user.readOnly %}{{ user.admin ? ', ' : '' }}{{ 'users.role_read_only'|trans }}{% endif %}
+                                {% if not user.admin and not user.readOnly %}{{ 'users.role_user'|trans }}{% endif %}
+                            </td>
+                            <td>{{ user.active ? 'users.active'|trans : 'users.inactive'|trans }}</td>
+                            <td class="table-actions">
+                                <a href="{{ path('admin_users_edit', {'_locale': app.request.locale, id: user.id}) }}">{{ 'actions.edit'|trans }}</a>
+                                {% if app.user.id != user.id %}
+                                    <form method="post" action="{{ path('admin_users_delete', {'_locale': app.request.locale, id: user.id}) }}" onsubmit="return confirm('{{ 'users.confirm_delete'|trans({'%email%': user.email})|e('js') }}');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('admin_user_delete_' ~ user.id) }}">
+                                        <button type="submit" class="link-button">{{ 'actions.delete'|trans }}</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    {% endif %}
+{% endblock %}

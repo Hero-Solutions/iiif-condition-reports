@@ -1,0 +1,86 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'objects.title'|trans }} | {{ 'app.title'|trans }}{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <h1>{{ 'objects.title'|trans }}</h1>
+        <a class="button" href="{{ path('objects_new', {'_locale': app.request.locale}) }}">{{ 'objects.new'|trans }}</a>
+    </div>
+
+    <section class="panel">
+        <form class="filters" method="get">
+            <select name="match">
+                <option value="exact" {% if match == 'exact' %}selected{% endif %}>{{ 'objects.match_exact'|trans }}</option>
+                <option value="starts_with" {% if match == 'starts_with' %}selected{% endif %}>{{ 'objects.match_starts_with'|trans }}</option>
+            </select>
+            <input type="search" name="inventory_number" value="{{ inventory_number }}" placeholder="{{ 'objects.inventory_number'|trans }}">
+            <button type="submit">{{ 'actions.search'|trans }}</button>
+        </form>
+    </section>
+
+    {% if objects is empty %}
+        <section class="empty-state">
+            <h2>{{ 'objects.empty_title'|trans }}</h2>
+            <p>{{ 'objects.empty_text'|trans }}</p>
+        </section>
+    {% else %}
+        <section class="panel">
+            <div class="table-scroll">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>{{ 'objects.thumbnail'|trans }}</th>
+                        <th>{{ 'objects.inventory_number'|trans }}</th>
+                        <th>{{ 'objects.object'|trans }}</th>
+                        <th>{{ 'objects.object_type'|trans }}</th>
+                        <th class="col-optional">{{ 'objects.last_synced'|trans }}</th>
+                        <th class="col-optional"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for object in objects %}
+                        {% set thumbnail_url = thumbnail_urls[object.id]|default(null) %}
+                        {% set object_url = path('objects_edit', {'_locale': app.request.locale, id: object.id}) %}
+                        <tr data-row-href="{{ object_url }}">
+                            <td>
+                                <div class="object-thumb">
+                                    {% if thumbnail_url %}
+                                        <img src="{{ thumbnail_url }}" alt="">
+                                    {% else %}
+                                        <span>{{ 'objects.no_thumbnail'|trans }}</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>{{ object.inventoryNumber }}</td>
+                            <td class="object-cell">
+                                <a class="object-cell-title" href="{{ object_url }}">{{ object.displayTitle(app.request.locale) }}</a>
+                                {% if object.creator %}
+                                    <span class="object-cell-sub" title="{{ object.creator }}">{{ object.creator|replace({"\r": '', "\n": ' · '}) }}</span>
+                                {% endif %}
+                                {% if object.publisher %}
+                                    <span class="object-cell-sub" title="{{ object.publisher }}">{{ object.publisher }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if object.objectType %}
+                                    {{ object.objectType == 'other' and object.customObjectType ? object.customObjectType : ('object_type.' ~ object.objectType)|trans }}
+                                {% else %}
+                                    <span class="muted">{{ 'objects.object_type_missing_short'|trans }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="col-optional">
+                                {{ object.lastSyncedAt ? object.lastSyncedAt|date('Y-m-d H:i') : '-' }}
+                                <span class="table-sub">{{ ('source.' ~ object.source)|trans }}</span>
+                            </td>
+                            <td class="table-actions col-optional">
+                                <a href="{{ object_url }}">{{ 'actions.open'|trans }}</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+        </section>
+    {% endif %}
+{% endblock %}

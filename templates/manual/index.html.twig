@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'manual.title'|trans }} | {{ 'app.title'|trans }}{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <h1>{{ 'manual.title'|trans }}</h1>
+    </div>
+
+    <section class="empty-state">
+        <h2>{{ 'manual.empty_title'|trans }}</h2>
+        <p>{{ 'manual.empty_text'|trans }}</p>
+    </section>
+{% endblock %}

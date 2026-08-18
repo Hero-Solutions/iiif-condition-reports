@@ -1,0 +1,81 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ is_new ? 'actors.new'|trans : 'actors.edit'|trans }} | {{ 'app.title'|trans }}{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <h1>{{ is_new ? 'actors.new'|trans : 'actors.edit'|trans }}</h1>
+        <a class="button secondary" href="{{ path('admin_actors_index', {'_locale': app.request.locale}) }}">{{ 'actions.back'|trans }}</a>
+    </div>
+
+    <section class="panel actor-detail-panel">
+        {{ form_start(form, {'attr': {'class': 'actor-detail-form'}}) }}
+            <div class="form-field span-3">{{ form_row(form.type) }}</div>
+            <div class="form-field span-4">{{ form_row(form.alias) }}</div>
+            <div class="form-field span-5">{{ form_row(form.name) }}</div>
+            <div class="form-field span-6">{{ form_row(form.logo) }}</div>
+            <div class="form-field span-6">{{ form_row(form.vat) }}</div>
+            <div class="form-field span-3">{{ form_row(form.address) }}</div>
+            <div class="form-field span-2">{{ form_row(form.postal) }}</div>
+            <div class="form-field span-3">{{ form_row(form.city) }}</div>
+            <div class="form-field span-2">{{ form_row(form.stateProvince) }}</div>
+            <div class="form-field span-2">{{ form_row(form.country) }}</div>
+            <div class="form-field span-6">{{ form_row(form.email) }}</div>
+            <div class="form-field span-6">{{ form_row(form.website) }}</div>
+            <div class="form-field span-6">{{ form_row(form.phone) }}</div>
+            <div class="form-field span-6">{{ form_row(form.mobile) }}</div>
+            <div class="form-field span-12">{{ form_row(form.notes) }}</div>
+            <button type="submit">{{ 'actions.save'|trans }}</button>
+        {{ form_end(form) }}
+    </section>
+
+    {% if not is_new and actor.type == 'organization' %}
+        <section class="panel">
+            <div class="section-header">
+                <div>
+                    <h2>{{ 'actors.contacts'|trans }}</h2>
+                    <p>{{ 'actors.contacts_text'|trans }}</p>
+                </div>
+                <div class="button-group">
+                    <a class="button secondary" href="{{ path('admin_actors_new', {'_locale': app.request.locale, 'contact_for': actor.id}) }}">{{ 'actors.contact_create_person'|trans }}</a>
+                    <a class="button secondary" href="{{ path('admin_actor_contacts_new', {'_locale': app.request.locale, actorId: actor.id}) }}">{{ 'actors.contact_link_person'|trans }}</a>
+                </div>
+            </div>
+
+            {% if contacts is empty %}
+                <p class="muted">{{ 'actors.empty_contacts'|trans }}</p>
+            {% else %}
+                <table class="data-table compact-table">
+                    <thead>
+                        <tr>
+                            <th>{{ 'actors.alias'|trans }}</th>
+                            <th>{{ 'actors.contact_name'|trans }}</th>
+                            <th>{{ 'actors.contact_function'|trans }}</th>
+                            <th>{{ 'actors.contact_email'|trans }}</th>
+                            <th>{{ 'actors.contact_phone'|trans }}</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for contact in contacts %}
+                            <tr>
+                                <td>{{ contact.alias ?: contact.name }}</td>
+                                <td><a href="{{ path('admin_actors_edit', {'_locale': app.request.locale, id: contact.person.id}) }}">{{ contact.name }}</a></td>
+                                <td>{{ contact.functionTitle }}</td>
+                                <td>{{ contact.email }}</td>
+                                <td>{{ contact.phone }}</td>
+                                <td class="table-actions">
+                                    <a href="{{ path('admin_actor_contacts_edit', {'_locale': app.request.locale, actorId: actor.id, id: contact.id}) }}">{{ 'actions.edit'|trans }}</a>
+                                    <form method="post" action="{{ path('admin_actor_contacts_delete', {'_locale': app.request.locale, actorId: actor.id, id: contact.id}) }}" onsubmit="return confirm('{{ 'actors.confirm_contact_delete'|trans({'%name%': contact.displayName})|e('js') }}');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('admin_contact_delete_' ~ contact.id) }}">
+                                        <button type="submit" class="link-button">{{ 'actions.delete'|trans }}</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </section>
+    {% endif %}
+{% endblock %}

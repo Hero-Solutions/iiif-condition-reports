@@ -1,0 +1,51 @@
+parameters:
+    datahub:
+        url: '%env(DATAHUB_URL)%'
+        language: 'nl'
+        namespace: 'lido'
+        metadata_prefix: 'oai_lido'
+        placeholder_images:
+            - 'https://iiif.kmska.be/c/iiif/2/public@27254.tif'
+        data_definition:
+            id:
+                xpath: 'descriptiveMetadata[@xml:lang="{language}"]/objectIdentificationWrap/repositoryWrap/repositorySet/workID[@type="object-number"]'
+            title_nl:
+                xpath: 'descriptiveMetadata[@xml:lang="{language}"]/objectIdentificationWrap/titleWrap/titleSet/appellationValue[@xml:lang="nl"]'
+            title_en:
+                xpath: 'descriptiveMetadata[@xml:lang="{language}"]/objectIdentificationWrap/titleWrap/titleSet/appellationValue[@xml:lang="en"]'
+            description_nl:
+                xpath: 'descriptiveMetadata[@xml:lang="{language}"]/objectIdentificationWrap/objectDescriptionWrap/objectDescriptionSet/descriptiveNoteValue'
+            object_type_nl:
+                xpath: 'descriptiveMetadata[@xml:lang="{language}"]/objectClassificationWrap/objectWorkTypeWrap/objectWorkType/term[@xml:lang="nl"]'
+            object_type_en:
+                xpath: 'descriptiveMetadata[@xml:lang="{language}"]/objectClassificationWrap/objectWorkTypeWrap/objectWorkType/term[@xml:lang="en"]'
+            creator_nl:
+                parent_xpath: 'descriptiveMetadata[@xml:lang="{language}"]/eventWrap/eventSet/event[eventType/term="production"]/eventActor[not(actorInRole/attributionQualifierActor)]/actorInRole'
+                xpath_main: 'actor/nameActorSet/appellationValue[@pref="preferred"]'
+                xpath_sub: 'roleActor/term[@xml:lang="nl"]'
+            creator_en:
+                parent_xpath: 'descriptiveMetadata[@xml:lang="{language}"]/eventWrap/eventSet/event[eventType/term="production"]/eventActor[not(actorInRole/attributionQualifierActor)]/actorInRole'
+                xpath_main: 'actor/nameActorSet/appellationValue[@pref="preferred"]'
+                xpath_sub: 'roleActor/term[@xml:lang="en"]'
+            creator_role:
+                xpath: 'descriptiveMetadata[@xml:lang="{language}"]/eventWrap/eventSet/event[eventType/term="production"]/eventActor[not(actorInRole/attributionQualifierActor)]/actorInRole/roleActor/term'
+            technique_nl:
+                xpath: '(descriptiveMetadata[@xml:lang="{language}"]/eventWrap/eventSet/event[eventType/term="production"]/eventMaterialsTech/displayMaterialsTech[@xml:lang="nl"])[1]'
+            technique_en:
+                xpath: '(descriptiveMetadata[@xml:lang="{language}"]/eventWrap/eventSet/event[eventType/term="production"]/eventMaterialsTech/displayMaterialsTech[@xml:lang="en"])[1]'
+            earliest_date:
+                xpath: 'descriptiveMetadata[@xml:lang="{language}"]/eventWrap/eventSet/event[eventType/term="production"]/eventDate/date/earliestDate'
+            latest_date:
+                xpath: 'descriptiveMetadata[@xml:lang="{language}"]/eventWrap/eventSet/event[eventType/term="production"]/eventDate/date/latestDate'
+            publisher:
+                xpath: 'administrativeMetadata[@xml:lang="{language}"]/recordWrap/recordSource/legalBodyName/appellationValue'
+            copyright:
+                xpath: 'administrativeMetadata[@xml:lang="{language}"]/rightsWorkWrap/rightsWorkSet/creditLine'
+            handling_nl:
+                xpath: 'descriptiveMetadata[@xml:lang="{language}"]/objectIdentificationWrap/objectDescriptionWrap/objectDescriptionSet[@type="handling"]/descriptiveNoteValue[@xml:lang="nl"]'
+            handling_en:
+                xpath: 'descriptiveMetadata[@xml:lang="{language}"]/objectIdentificationWrap/objectDescriptionWrap/objectDescriptionSet[@type="handling"]/descriptiveNoteValue[@xml:lang="en"]'
+            iiif_manifest_url:
+                xpath: 'administrativeMetadata[@xml:lang="{language}"]/resourceWrap/resourceSet[resourceType/term="IIIF Manifest"]/resourceID[starts-with(@source, "Imagehub")]'
+            iiif_image_url:
+                xpath: 'administrativeMetadata[@xml:lang="{language}"]/resourceWrap/resourceSet[resourceType/term="thumbnail"]/resourceID[starts-with(@source, "Imagehub")]'

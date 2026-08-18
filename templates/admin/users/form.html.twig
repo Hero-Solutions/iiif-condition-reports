@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ is_new ? 'users.new'|trans : 'users.edit'|trans }} | {{ 'app.title'|trans }}{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <h1>{{ is_new ? 'users.new'|trans : 'users.edit'|trans }}</h1>
+        <a class="button secondary" href="{{ path('admin_users_index', {'_locale': app.request.locale}) }}">{{ 'actions.back'|trans }}</a>
+    </div>
+
+    <section class="panel">
+        {{ form_start(form, {'attr': {'class': 'edit-form user-edit-form'}}) }}
+            {{ form_row(form.fullName) }}
+            {{ form_row(form.email) }}
+            {{ form_row(form.plainPassword) }}
+            <div class="user-options">
+                {% if is_self %}
+                    <p class="muted user-access-notice">{{ 'users.cannot_change_own_access'|trans }}</p>
+                {% endif %}
+                <div class="user-option">
+                    {{ form_widget(form.active) }}
+                    {{ form_label(form.active) }}
+                    {{ form_errors(form.active) }}
+                </div>
+                <div class="user-access-options">
+                    <span class="user-access-label">{{ form.accessLevel.vars.label|trans }}</span>
+                    <div class="user-access-choices">
+                        {% for choice in form.accessLevel %}
+                            <div class="user-option">
+                                {{ form_widget(choice) }}
+                                {{ form_label(choice) }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {{ form_errors(form.accessLevel) }}
+                </div>
+            </div>
+            <button type="submit">{{ 'actions.save'|trans }}</button>
+        {{ form_end(form) }}
+    </section>
+{% endblock %}

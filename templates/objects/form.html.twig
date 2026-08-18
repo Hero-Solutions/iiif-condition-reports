@@ -1,0 +1,128 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ is_new ? 'objects.new'|trans : object.inventoryNumber }} | {{ 'app.title'|trans }}{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <div>
+            <nav class="breadcrumbs" aria-label="{{ 'nav.breadcrumb'|trans }}">
+                <a href="{{ path('objects_index', {'_locale': app.request.locale}) }}">{{ 'nav.objects'|trans }}</a>
+                {% if not is_new %}
+                    <span class="sep">/</span>
+                    <span>{{ object.inventoryNumber }}</span>
+                {% endif %}
+            </nav>
+            <h1>{{ is_new ? 'objects.new'|trans : 'objects.object'|trans }}</h1>
+        </div>
+        <a class="button secondary" href="{{ path('objects_index', {'_locale': app.request.locale}) }}">{{ 'actions.back'|trans }}</a>
+    </div>
+
+    {% if not is_new %}
+        <section class="object-detail-header">
+            <div class="object-thumb object-thumb-hero">
+                {% if thumbnail_url %}
+                    <img src="{{ thumbnail_url }}" alt="">
+                {% else %}
+                    <span>{{ 'objects.no_thumbnail'|trans }}</span>
+                {% endif %}
+            </div>
+            <div class="object-detail-summary">
+                <dl>
+                    <dt>{{ 'objects.inventory_number'|trans }}</dt>
+                    <dd>{{ object.inventoryNumber }}</dd>
+                    <dt>{{ 'objects.object_title'|trans }}</dt>
+                    <dd>{{ object.displayTitle(app.request.locale) }}</dd>
+                    {% if object.creator %}
+                        <dt>{{ 'objects.creator'|trans }}</dt>
+                        <dd>{{ object.creator|nl2br }}</dd>
+                    {% endif %}
+                    {% if object.publisher %}
+                        <dt>{{ 'objects.publisher'|trans }}</dt>
+                        <dd>{{ object.publisher }}</dd>
+                    {% endif %}
+                    {% if object.objectType %}
+                        <dt>{{ 'objects.object_type'|trans }}</dt>
+                        <dd>{{ object.objectType == 'other' and object.customObjectType ? object.customObjectType : ('object_type.' ~ object.objectType)|trans }}</dd>
+                    {% endif %}
+                </dl>
+            </div>
+        </section>
+
+        <section class="panel">
+            <div class="section-header">
+                <div>
+                    <h2>{{ 'report_series.title'|trans }}</h2>
+                    <p>{{ 'report_series.reports_count'|trans({'%count%': reports_count}) }}</p>
+                </div>
+                <a class="button secondary" href="{{ path('report_series_new_object', {'_locale': app.request.locale, objectId: object.id}) }}">{{ 'report_series.new'|trans }}</a>
+            </div>
+
+            {% if reports_count == 0 %}
+                <p class="muted">{{ 'report_series.empty_for_object'|trans }}</p>
+            {% else %}
+                <ul class="series-list standalone">
+                    {% for series in report_series %}
+                        {% for object_report in reports_by_series[series.id]|default([]) %}
+                            <li>
+                                <a href="{{ path('reports_edit', {'_locale': app.request.locale, id: object_report.id}) }}">{{ object_report.title }}</a>
+                                <span class="chip chip-{{ {'active': 'accent', 'finalized': 'success', 'archived': 'muted'}[object_report.status]|default('muted') }}">{{ ('status.' ~ object_report.status)|trans }}</span>
+                                {% if series.project %}
+                                    <span>{{ series.project.title }}</span>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </section>
+    {% endif %}
+
+    <section class="panel">
+        {{ form_start(form, {'attr': {'class': 'edit-form'}}) }}
+            {{ form_row(form.inventoryNumber) }}
+            {{ form_row(form.title) }}
+            {{ form_row(form.creator) }}
+            {{ form_row(form.publisher) }}
+            {{ form_row(form.objectType) }}
+            {{ form_widget(form.customObjectType) }}
+            {{ form_row(form.currentLocation) }}
+            {{ form_row(form.description) }}
+            {{ form_row(form.iiifManifestUrl) }}
+            {{ form_row(form.iiifThumbnailUrl) }}
+
+            <button type="submit">{{ 'actions.save'|trans }}</button>
+        {{ form_end(form) }}
+    </section>
+
+    {% if not is_new %}
+        <section class="panel object-meta">
+            <h2>{{ 'objects.metadata'|trans }}</h2>
+            <dl>
+                <dt>{{ 'objects.source'|trans }}</dt>
+                <dd>{{ ('source.' ~ object.source)|trans }}</dd>
+
+                <dt>{{ 'objects.sync_status'|trans }}</dt>
+                <dd>{{ ('sync_status.' ~ object.syncStatus)|trans }}</dd>
+
+                <dt>{{ 'objects.last_synced'|trans }}</dt>
+                <dd>{{ object.lastSyncedAt ? object.lastSyncedAt|date('Y-m-d H:i') : '-' }}</dd>
+            </dl>
+        </section>
+
+        {% if source_data is not empty %}
+            <section class="panel">
+                <h2>{{ 'objects.source_data'|trans }}</h2>
+                <table class="data-table">
+                    <tbody>
+                        {% for key, value in source_data %}
+                            <tr>
+                                <th>{{ key }}</th>
+                                <td>{{ value is iterable ? value|json_encode : value|nl2br }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+        {% endif %}
+    {% endif %}
+{% endblock %}

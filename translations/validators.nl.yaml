@@ -1,0 +1,20 @@
+objects:
+  required_inventory_number: Inventarisnummer is verplicht.
+  required_title: Titel is verplicht.
+  invalid_url: Geef een geldige URL in.
+  max_100: Gebruik maximaal 100 tekens.
+  max_255: Gebruik maximaal 255 tekens.
+
+users:
+  required_full_name: Naam is verplicht.
+  required_email: E-mail is verplicht.
+  invalid_email: Geef een geldig e-mailadres in.
+  password_required: Wachtwoord is verplicht voor een nieuwe gebruiker.
+  max_180: Gebruik maximaal 180 tekens.
+  max_255: Gebruik maximaal 255 tekens.
+
+projects:
+  required_title: Projecttitel is verplicht.
+  required_inventory_number: Inventarisnummer is verplicht.
+  max_100: Gebruik maximaal 100 tekens.
+  max_255: Gebruik maximaal 255 tekens.

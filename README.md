@@ -1,19 +1,46 @@
 # IIIF Condition Reports
 
-Demo: https://conditierapporten.vlaamsekunstcollectie.be/
-
-## Project overview
-
-This tool is aimed toward the creation and management of condition reports using IIIF in cultural heritage institutions, such as museums. It relies on a [Datahub](https://github.com/thedatahub/Datahub) as its source for information about objects for which the reports are to be created.
-
+IIIF Condition Reports is a Symfony application for creating and managing condition reports for cultural heritage objects. Objects can be imported from a DataHub, linked to projects and documented through quick or detailed reports.
 
 ## Requirements
 
-* PHP >=8.2
-* php-imagick
+- PHP 8.4 or newer
+- Composer
+- MariaDB 10.6 or a compatible MySQL version
+- PHP extensions `ctype`, `iconv` and `simplexml`
 
-The tables as defined in `condition_report_tables.sql` have to be present in MySQL.
+## Installation
 
-## Architecture concept
+1. Copy `.env.sample` to `.env` and configure the database, application URL and DataHub URL.
+2. Install the PHP dependencies:
 
-![Alt text](architectuurConditierapporten.png?raw=true)
+   ```bash
+   composer install
+   ```
+
+3. Create and initialise the database:
+
+   ```bash
+   php bin/console doctrine:database:create --if-not-exists
+   php bin/console doctrine:migrations:migrate --no-interaction
+   ```
+
+4. Create an administrator:
+
+   ```bash
+   php bin/console app:user:create admin@example.com "Administrator" "change-me" --admin
+   ```
+
+Configure the web server with `public/` as its document root.
+
+## Main commands
+
+```bash
+php bin/console app:datahub:harvest
+php bin/console app:datahub:list-object-types
+php bin/console app:user:create
+```
+
+## License
+
+This project is licensed under the GNU General Public License version 3. See [LICENSE](LICENSE).

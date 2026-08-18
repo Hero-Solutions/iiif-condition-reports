@@ -1,0 +1,241 @@
+{% if actors is empty %}
+    <p class="muted actor-empty">{{ empty_message|trans }}</p>
+{% else %}
+    <ul class="actor-list">
+        {% for assignment in actors %}
+            {% set actor = assignment.actor %}
+            {% set contact = assignment.contactPerson %}
+            {% set role_label = assignment.role == 'other' and assignment.customRole ? assignment.customRole : ('actor_role.' ~ assignment.role)|trans %}
+            <li data-actor-assignment>
+                <div class="actor-list-content">
+                    <div class="actor-readonly" data-actor-readonly>
+                        <div class="actor-list-main">
+                            <strong>{{ actor.name }}</strong>
+                            <span class="actor-role">{{ role_label }}</span>
+                        </div>
+
+                        <dl class="actor-details-grid">
+                            <dt>{{ 'actors.type'|trans }}</dt>
+                            <dd>{{ ('actor_type.' ~ actor.type)|trans }}</dd>
+                            {% if actor.vat %}<dt>{{ 'actors.vat'|trans }}</dt><dd>{{ actor.vat }}</dd>{% endif %}
+                            {% if actor.address %}<dt>{{ 'actors.address'|trans }}</dt><dd>{{ actor.address }}</dd>{% endif %}
+                            {% if actor.postal %}<dt>{{ 'actors.postal'|trans }}</dt><dd>{{ actor.postal }}</dd>{% endif %}
+                            {% if actor.city %}<dt>{{ 'actors.city'|trans }}</dt><dd>{{ actor.city }}</dd>{% endif %}
+                            {% if actor.stateProvince %}<dt>{{ 'actors.state_province'|trans }}</dt><dd>{{ actor.stateProvince }}</dd>{% endif %}
+                            {% if actor.country %}<dt>{{ 'actors.country'|trans }}</dt><dd>{{ actor.country }}</dd>{% endif %}
+                            {% if actor.email %}<dt>{{ 'actors.email'|trans }}</dt><dd>{{ actor.email }}</dd>{% endif %}
+                            {% if actor.website %}<dt>{{ 'actors.website'|trans }}</dt><dd>{{ actor.website }}</dd>{% endif %}
+                            {% if actor.phone %}<dt>{{ 'actors.phone'|trans }}</dt><dd>{{ actor.phone }}</dd>{% endif %}
+                            {% if actor.mobile %}<dt>{{ 'actors.mobile'|trans }}</dt><dd>{{ actor.mobile }}</dd>{% endif %}
+                            {% if actor.logo %}<dt>{{ 'actors.logo'|trans }}</dt><dd>{{ actor.logo }}</dd>{% endif %}
+                            {% if actor.notes %}<dt>{{ 'actors.notes'|trans }}</dt><dd>{{ actor.notes|nl2br }}</dd>{% endif %}
+                        </dl>
+
+                        {% if actor.type == 'organization' %}
+                            <div class="actor-contact-readonly">
+                                <strong>{{ 'actors.contact_person'|trans }}</strong>
+                                {% if contact %}
+                                    <dl class="actor-details-grid">
+                                        <dt>{{ 'actors.contact_name'|trans }}</dt>
+                                        <dd>{{ contact.name }}</dd>
+                                        {% if contact.functionTitle %}<dt>{{ 'actors.contact_function'|trans }}</dt><dd>{{ contact.functionTitle }}</dd>{% endif %}
+                                        {% if contact.email %}<dt>{{ 'actors.contact_email'|trans }}</dt><dd>{{ contact.email }}</dd>{% endif %}
+                                        {% if contact.phone %}<dt>{{ 'actors.contact_phone'|trans }}</dt><dd>{{ contact.phone }}</dd>{% endif %}
+                                        {% if contact.notes %}<dt>{{ 'actors.notes'|trans }}</dt><dd>{{ contact.notes|nl2br }}</dd>{% endif %}
+                                    </dl>
+                                {% elseif contact_route is defined %}
+                                    <form class="actor-contact-form" method="post" action="{{ path(contact_route, contact_params|merge({'id': assignment.id})) }}">
+                                        <input type="hidden" name="_token" value="{{ csrf_token(contact_token_prefix ~ assignment.id) }}">
+                                        <label class="actor-form-field">
+                                            <span>{{ 'actors.contact_person'|trans }}</span>
+                                            <select name="contact_person_id" data-smart-select data-contact-assignment-select data-initial-value="" data-smart-select-custom-value="__new__" data-smart-select-key="contact-name">
+                                                <option value="">{{ 'actors.no_contact'|trans }}</option>
+                                                {% for contact_option in contact_options|default([]) %}
+                                                    {% if contact_option.organization.id == actor.id %}
+                                                        <option value="{{ contact_option.id }}">{{ contact_option.displayName }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                <option value="__new__">{{ 'actors.other_contact'|trans }}</option>
+                                            </select>
+                                        </label>
+                                        <div class="actor-new-contact-fields" data-new-contact-fields hidden>
+                                            <label class="actor-form-field" hidden>
+                                                <span>{{ 'actors.contact_name'|trans }}</span>
+                                                <input type="text" name="contact_name" data-smart-select-custom-input="contact-name">
+                                            </label>
+                                            <label class="actor-form-field">
+                                                <span>{{ 'actors.contact_function'|trans }}</span>
+                                                <input type="text" name="contact_function">
+                                            </label>
+                                            <label class="actor-form-field">
+                                                <span>{{ 'actors.contact_email'|trans }}</span>
+                                                <input type="email" name="contact_email">
+                                            </label>
+                                            <label class="actor-form-field">
+                                                <span>{{ 'actors.contact_phone'|trans }}</span>
+                                                <input type="text" name="contact_phone">
+                                            </label>
+                                        </div>
+                                        <button type="submit" data-contact-submit hidden>{{ 'actors.save_contact'|trans }}</button>
+                                    </form>
+                                {% else %}
+                                    <p class="muted">{{ 'actors.no_contact'|trans }}</p>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    {% if edit_route is defined %}
+                        <form class="actor-assignment-edit-form" method="post" action="{{ path(edit_route, edit_params|merge({'id': assignment.id})) }}" data-actor-edit-form hidden>
+                            <input type="hidden" name="_token" value="{{ csrf_token(edit_token_prefix ~ assignment.id) }}">
+
+                            <div class="actor-edit-grid">
+                                <label class="actor-form-field">
+                                    <span>{{ 'actors.name'|trans }}</span>
+                                    <input type="text" name="actor_name" value="{{ actor.name }}" required>
+                                </label>
+                                <label class="actor-form-field">
+                                    <span>{{ 'actors.type'|trans }}</span>
+                                    <select name="actor_type" required>
+                                        {% for label, value in actor_type_choices %}
+                                            <option value="{{ value }}" {% if actor.type == value %}selected{% endif %}>{{ label|trans }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </label>
+                                <label class="actor-form-field">
+                                    <span>{{ 'actors.role'|trans }}</span>
+                                    <select name="role" data-smart-select data-assignment-role-select data-smart-select-custom-value="other" data-smart-select-key="actor-role" required>
+                                        {% for label, value in actor_role_choices %}
+                                            <option value="{{ value }}" {% if assignment.role == value %}selected{% endif %}>{{ label|trans }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </label>
+                                <label class="actor-form-field" data-assignment-custom-role-row {% if assignment.role != 'other' %}hidden{% endif %}>
+                                    <span>{{ 'actors.custom_role'|trans }}</span>
+                                    <input type="text" name="custom_role" value="{{ assignment.customRole }}" data-smart-select-custom-input="actor-role">
+                                </label>
+                                <label class="actor-form-field">
+                                    <span>{{ 'actors.alias'|trans }}</span>
+                                    <input type="text" name="actor_alias" value="{{ actor.alias }}">
+                                </label>
+                                <label class="actor-form-field">
+                                    <span>{{ 'actors.vat'|trans }}</span>
+                                    <input type="text" name="actor_vat" value="{{ actor.vat }}">
+                                </label>
+                                <label class="actor-form-field actor-edit-wide">
+                                    <span>{{ 'actors.logo'|trans }}</span>
+                                    <input type="text" name="actor_logo" value="{{ actor.logo }}">
+                                </label>
+                                <label class="actor-form-field actor-edit-wide">
+                                    <span>{{ 'actors.address'|trans }}</span>
+                                    <input type="text" name="actor_address" value="{{ actor.address }}">
+                                </label>
+                                <label class="actor-form-field">
+                                    <span>{{ 'actors.postal'|trans }}</span>
+                                    <input type="text" name="actor_postal" value="{{ actor.postal }}">
+                                </label>
+                                <label class="actor-form-field">
+                                    <span>{{ 'actors.city'|trans }}</span>
+                                    <input type="text" name="actor_city" value="{{ actor.city }}">
+                                </label>
+                                <label class="actor-form-field">
+                                    <span>{{ 'actors.state_province'|trans }}</span>
+                                    <input type="text" name="actor_state_province" value="{{ actor.stateProvince }}">
+                                </label>
+                                <label class="actor-form-field">
+                                    <span>{{ 'actors.country'|trans }}</span>
+                                    <input type="text" name="actor_country" value="{{ actor.country }}">
+                                </label>
+                                <label class="actor-form-field">
+                                    <span>{{ 'actors.email'|trans }}</span>
+                                    <input type="email" name="actor_email" value="{{ actor.email }}">
+                                </label>
+                                <label class="actor-form-field">
+                                    <span>{{ 'actors.website'|trans }}</span>
+                                    <input type="text" name="actor_website" value="{{ actor.website }}">
+                                </label>
+                                <label class="actor-form-field">
+                                    <span>{{ 'actors.phone'|trans }}</span>
+                                    <input type="text" name="actor_phone" value="{{ actor.phone }}">
+                                </label>
+                                <label class="actor-form-field">
+                                    <span>{{ 'actors.mobile'|trans }}</span>
+                                    <input type="text" name="actor_mobile" value="{{ actor.mobile }}">
+                                </label>
+                                <label class="actor-form-field actor-edit-full">
+                                    <span>{{ 'actors.notes'|trans }}</span>
+                                    <textarea name="actor_notes">{{ actor.notes }}</textarea>
+                                </label>
+                            </div>
+
+                            {% if actor.type == 'organization' %}
+                                <section class="actor-edit-contact">
+                                    <h4>{{ 'actors.contact_person'|trans }}</h4>
+                                    {% if not contact %}
+                                        <div class="actor-edit-grid">
+                                            <label class="actor-form-field actor-edit-wide">
+                                                <span>{{ 'actors.contact_person'|trans }}</span>
+                                                <select name="contact_person_id" data-smart-select data-edit-contact-select data-smart-select-custom-value="__new__" data-smart-select-key="contact-name">
+                                                    <option value="">{{ 'actors.no_contact'|trans }}</option>
+                                                    {% for contact_option in contact_options|default([]) %}
+                                                        {% if contact_option.organization.id == actor.id %}
+                                                            <option value="{{ contact_option.id }}">{{ contact_option.displayName }}</option>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                    <option value="__new__">{{ 'actors.other_contact'|trans }}</option>
+                                                </select>
+                                            </label>
+                                        </div>
+                                    {% else %}
+                                        <input type="hidden" name="contact_person_id" value="__new__">
+                                    {% endif %}
+                                    <div class="actor-edit-grid" data-edit-new-contact-fields {% if not contact %}hidden{% endif %}>
+                                        <label class="actor-form-field" data-edit-new-contact-field>
+                                            <span>{{ 'actors.alias'|trans }}</span>
+                                            <input type="text" name="contact_alias" value="{{ contact ? contact.alias : '' }}">
+                                        </label>
+                                        <label class="actor-form-field" data-edit-new-contact-field {% if not contact %}hidden{% endif %}>
+                                            <span>{{ 'actors.contact_name'|trans }}</span>
+                                            <input type="text" name="contact_name" value="{{ contact ? contact.name : '' }}" {% if not contact %}data-smart-select-custom-input="contact-name"{% endif %}>
+                                        </label>
+                                        <label class="actor-form-field" data-edit-new-contact-field>
+                                            <span>{{ 'actors.contact_function'|trans }}</span>
+                                            <input type="text" name="contact_function" value="{{ contact ? contact.functionTitle : '' }}">
+                                        </label>
+                                        <label class="actor-form-field" data-edit-new-contact-field>
+                                            <span>{{ 'actors.contact_email'|trans }}</span>
+                                            <input type="email" name="contact_email" value="{{ contact ? contact.email : '' }}">
+                                        </label>
+                                        <label class="actor-form-field" data-edit-new-contact-field>
+                                            <span>{{ 'actors.contact_phone'|trans }}</span>
+                                            <input type="text" name="contact_phone" value="{{ contact ? contact.phone : '' }}">
+                                        </label>
+                                        <label class="actor-form-field actor-edit-full" data-edit-new-contact-field>
+                                            <span>{{ 'actors.notes'|trans }}</span>
+                                            <textarea name="contact_notes">{{ contact ? contact.notes : '' }}</textarea>
+                                        </label>
+                                    </div>
+                                </section>
+                            {% endif %}
+
+                            <div class="actor-edit-actions">
+                                <button type="submit">{{ 'actions.save'|trans }}</button>
+                                <button type="button" class="button secondary" data-actor-edit-cancel>{{ 'actions.cancel'|trans }}</button>
+                            </div>
+                        </form>
+                    {% endif %}
+                </div>
+
+                <div class="actor-list-actions">
+                    {% if edit_route is defined %}
+                        <button type="button" class="link-button" data-actor-edit-toggle>{{ 'actions.edit'|trans }}</button>
+                    {% endif %}
+                    <form method="post" action="{{ path(remove_route, remove_params|merge({'id': assignment.id})) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token(remove_token_prefix ~ assignment.id) }}">
+                        <button type="submit" class="link-button">{{ 'actions.delete'|trans }}</button>
+                    </form>
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}

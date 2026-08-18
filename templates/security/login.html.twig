@@ -1,0 +1,31 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'login.title'|trans }} | {{ 'app.title'|trans }}{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <h1>{{ 'login.title'|trans }}</h1>
+    </div>
+
+    <section class="panel login-panel">
+        {% if error %}
+            <div class="flash flash-error">{{ 'login.error'|trans }}</div>
+        {% endif %}
+
+        <form method="post" class="edit-form">
+            <label>
+                {{ 'users.email'|trans }}
+                <input type="email" name="_username" value="{{ last_username }}" autocomplete="email" required autofocus>
+            </label>
+
+            <label>
+                {{ 'users.password'|trans }}
+                <input type="password" name="_password" autocomplete="current-password" required>
+            </label>
+
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+            <button type="submit">{{ 'login.submit'|trans }}</button>
+        </form>
+    </section>
+{% endblock %}

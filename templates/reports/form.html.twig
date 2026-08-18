@@ -1,0 +1,191 @@
+{% extends 'base.html.twig' %}
+
+{% import 'reports/report_form_renderer.html.twig' as report_form %}
+
+{% block title %}{{ report.title }} | {{ 'app.title'|trans }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="/css/annotorious.min.css">
+{% endblock %}
+
+{% block body %}
+    <div class="page-header report-page-header">
+        <div class="report-title-header">
+            <div class="object-thumb report-title-thumb">
+                {% if thumbnail_url %}
+                    <img src="{{ thumbnail_url }}" alt="">
+                {% else %}
+                    <span>{{ 'objects.no_thumbnail'|trans }}</span>
+                {% endif %}
+            </div>
+            <div class="report-title-copy">
+                <nav class="breadcrumbs" aria-label="{{ 'nav.breadcrumb'|trans }}">
+                    {% if series.project %}
+                        <a href="{{ path('projects_index', {'_locale': app.request.locale}) }}">{{ 'nav.projects'|trans }}</a>
+                        <span class="sep">/</span>
+                        <a href="{{ path('projects_edit', {'_locale': app.request.locale, id: series.project.id}) }}">{{ series.project.referenceCode ?: series.project.title }}</a>
+                    {% else %}
+                        <a href="{{ path('objects_index', {'_locale': app.request.locale}) }}">{{ 'nav.objects'|trans }}</a>
+                    {% endif %}
+                    <span class="sep">/</span>
+                    <a href="{{ path('objects_edit', {'_locale': app.request.locale, id: object.id}) }}">{{ object.inventoryNumber }}</a>
+                </nav>
+                <div class="report-title-row">
+                    <h1>{{ report.title }}</h1>
+                    <span class="chip chip-{{ {'active': 'accent', 'finalized': 'success', 'archived': 'muted'}[report.status]|default('muted') }}">{{ ('status.' ~ report.status)|trans }}</span>
+                </div>
+                <p class="page-subtitle">{{ object.displayTitle(app.request.locale) }}</p>
+            </div>
+        </div>
+        <div class="report-header-actions">
+            <span
+                class="report-autosave-status"
+                data-report-autosave-status
+                data-saved-label="{{ 'reports.autosave_saved_at'|trans({'%time%': '__time__'}) }}"
+                data-saving-label="{{ 'reports.autosave_saving'|trans }}"
+                data-unsaved-label="{{ 'reports.autosave_unsaved'|trans }}"
+                data-failed-label="{{ 'reports.autosave_failed'|trans }}"
+            >{{ 'reports.autosave_saved_at'|trans({'%time%': report.updatedAt|date('H:i')}) }}</span>
+            <a class="button secondary" href="{{ back_url }}" data-report-back-link>{{ 'actions.back'|trans }}</a>
+            <button type="submit" form="report-edit-form" data-report-save-actions>{{ 'actions.save'|trans }}</button>
+        </div>
+    </div>
+
+    <section class="report-editor">
+        <nav class="report-nav" aria-label="{{ 'reports.form_fields'|trans }}">
+            <button type="button" class="active" data-report-tab="basis" aria-selected="true"><span>{{ 'reports.tab_basis'|trans }}</span><span class="report-nav-count is-empty" data-section-count hidden>0</span></button>
+            <button type="button" data-report-tab="actors" aria-selected="false"><span>{{ 'actors.title'|trans }}</span><span class="report-nav-count is-empty" data-section-count hidden>0</span></button>
+            <button type="button" data-report-tab="measurements" aria-selected="false"><span>{{ 'reports.tab_measurements'|trans }}</span><span class="report-nav-count is-empty" data-section-count hidden>0</span></button>
+            <button type="button" data-report-tab="materials" aria-selected="false"><span>{{ 'reports.section_materials'|trans }}</span><span class="report-nav-count is-empty" data-section-count hidden>0</span></button>
+            <button type="button" data-report-tab="condition" aria-selected="false"><span>{{ 'reports.section_condition'|trans }}</span><span class="report-nav-count is-empty" data-section-count hidden>0</span></button>
+            <button type="button" data-report-tab="recommendations" aria-selected="false"><span>{{ 'reports.section_recommendations'|trans }}</span><span class="report-nav-count is-empty" data-section-count hidden>0</span></button>
+            <button type="button" data-report-tab="damage" aria-selected="false"><span>{{ 'reports.section_damage_types'|trans }}</span><span class="report-nav-count is-empty" data-section-count hidden>0</span></button>
+        </nav>
+
+        <section class="panel report-tab-panel" data-report-tab-panel="actors" hidden>
+            <h2>{{ 'actors.title'|trans }}</h2>
+            {% include 'projects/_actor_assignment_list.html.twig' with {
+                actors: report_actors,
+                empty_message: 'actors.empty_report',
+                remove_route: 'reports_actors_remove',
+                remove_params: {'_locale': app.request.locale, reportId: report.id},
+                remove_token_prefix: 'report_actor_remove_',
+                edit_route: 'reports_actors_edit_assignment',
+                edit_params: {'_locale': app.request.locale, reportId: report.id},
+                edit_token_prefix: 'report_actor_edit_',
+                contact_route: 'reports_actors_contact',
+                contact_params: {'_locale': app.request.locale, reportId: report.id},
+                contact_token_prefix: 'report_actor_contact_'
+            } %}
+            {% include 'projects/_actor_assignment_form.html.twig' with {
+                action: path('reports_actors_add', {'_locale': app.request.locale, reportId: report.id}),
+                csrf_token_id: 'report_actor_add_' ~ report.id,
+                actor_type_choices: actor_type_choices,
+                actor_role_choices: actor_role_choices
+            } %}
+        </section>
+
+        <form
+            id="report-edit-form"
+            method="post"
+            class="report-form"
+            data-report-autosave-url="{{ path('reports_autosave', {'_locale': app.request.locale, id: report.id}) }}"
+            data-report-autosave-enabled="{{ report.status == 'active' ? '1' : '0' }}"
+            data-report-autosave-interval="120000"
+        >
+            <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_id) }}">
+
+            <section class="panel report-tab-panel active" data-report-tab-panel="basis">
+                <h2>{{ 'reports.tab_basis'|trans }}</h2>
+                <div class="edit-form report-metadata-form report-basis-form">
+                    <label>
+                        {{ 'reports.report_title'|trans }}
+                        <input type="text" name="title" value="{{ report.title }}" required>
+                    </label>
+                    <label>
+                        {{ 'reports.type'|trans }}
+                        <select name="type" data-smart-select data-smart-select-custom-value="other" data-smart-select-key="report-type" required>
+                            {% for label, value in report_types %}
+                                <option value="{{ value }}" {% if report.type == value %}selected{% endif %}>{{ label|trans }}</option>
+                            {% endfor %}
+                        </select>
+                        <input type="hidden" name="custom_type" value="{{ report.customType }}" data-smart-select-custom-input="report-type">
+                    </label>
+                    <label>
+                        {{ 'reports.status'|trans }}
+                        <select name="status" required>
+                            {% for label, value in report_statuses %}
+                                <option value="{{ value }}" {% if report.status == value %}selected{% endif %}>{{ label|trans }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>
+                        {{ 'reports.started_at'|trans }}
+                        <input type="date" name="started_at" value="{{ report.startedAt ? report.startedAt|date('Y-m-d') : '' }}">
+                    </label>
+                    <label>
+                        {{ 'reports.ended_at'|trans }}
+                        <input type="date" name="ended_at" value="{{ report.endedAt ? report.endedAt|date('Y-m-d') : '' }}">
+                    </label>
+                    <label class="form-field-wide">
+                        {{ 'reports.description'|trans }}
+                        <textarea name="description">{{ report.description }}</textarea>
+                    </label>
+                </div>
+            </section>
+
+            <section class="panel report-tab-panel" data-report-tab-panel="measurements" hidden>
+                <div class="report-section compact">
+                    <h3>{{ 'reports.number_of_parts'|trans }}</h3>
+                    <label class="report-field">
+                        <span>{{ definition.number_of_parts|trans }}</span>
+                        <input type="number" name="report_data[number_of_parts]" value="{{ report.data.number_of_parts|default('') }}" min="0">
+                    </label>
+                </div>
+                {{ report_form.render_measurements(definition.measurements, report.data) }}
+            </section>
+
+            <section class="panel report-tab-panel" data-report-tab-panel="materials" hidden>
+                {{ report_form.render_compact_section(definition.sections.materials, report.data) }}
+            </section>
+
+            <section class="panel report-tab-panel" data-report-tab-panel="condition" hidden>
+                {{ report_form.render_compact_section(definition.sections.condition, report.data) }}
+            </section>
+
+            <section class="panel report-tab-panel" data-report-tab-panel="recommendations" hidden>
+                {{ report_form.render_compact_section(definition.sections.recommendations, report.data) }}
+            </section>
+
+            <section class="panel report-tab-panel" data-report-tab-panel="damage" hidden>
+                <h2>{{ 'reports.section_damage_types'|trans }}</h2>
+                {% if annotation_manifest_url %}
+                    <div
+                        id="report-annotation-viewer"
+                        class="report-annotation-viewer"
+                        data-manifest-url="{{ annotation_manifest_url }}"
+                        data-error-message="{{ 'reports.annotation_viewer_error'|trans }}"
+                    ></div>
+                {% else %}
+                    <div class="empty-state compact">
+                        <p>{{ 'reports.no_annotation_manifest'|trans }}</p>
+                    </div>
+                {% endif %}
+            </section>
+
+        </form>
+    </section>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="/js/actor-role-form.js?v=10" defer></script>
+    <script src="/js/report-autosave.js?v=1" defer></script>
+    <script src="/js/report-form-tabs.js?v=2" defer></script>
+    <script src="/js/report-section-progress.js?v=4" defer></script>
+    <script src="/js/report-compact-fields.js?v=14" defer></script>
+    <script src="/js/openseadragon.2.4.2.min.js" defer></script>
+    <script src="/js/openseadragon-annotorious.min.js" defer></script>
+    <script src="/js/report-annotation-viewer.js?v=2" defer></script>
+{% endblock %}

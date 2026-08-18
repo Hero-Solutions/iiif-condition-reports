@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="{{ app.request.locale }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}{{ 'app.title'|trans }}{% endblock %}</title>
+    <script>try{if(localStorage.getItem('crSidebar')==='collapsed'){document.documentElement.classList.add('sidebar-collapsed')}}catch(e){}</script>
+    <link rel="stylesheet" href="/css/app.css?v=92">
+    <script src="/js/smart-single-select.js?v=6" defer></script>
+    {% block stylesheets %}{% endblock %}
+    {% block javascripts %}{% endblock %}
+</head>
+<body>
+    {% set current_route = app.request.attributes.get('_route') %}
+    {% set current_params = app.request.attributes.get('_route_params')|default({}) %}
+
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none" aria-hidden="true">
+        <symbol id="i-clipboard" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><path d="M9 3h6a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M9 13l2 2 4-4"/></g></symbol>
+        <symbol id="i-folders" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h3l2 2h5a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2"/><path d="M17 17v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h2"/></g></symbol>
+        <symbol id="i-image" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.5"/><path d="M21 15l-4.5-4.5L9 18"/></g></symbol>
+        <symbol id="i-file" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"/><path d="M9 13h6M9 17h6"/></g></symbol>
+        <symbol id="i-settings" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="14" cy="6" r="2"/><path d="M4 6h8M16 6h4"/><circle cx="8" cy="12" r="2"/><path d="M4 12h2M10 12h10"/><circle cx="17" cy="18" r="2"/><path d="M4 18h11M19 18h1"/></g></symbol>
+        <symbol id="i-book" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></g></symbol>
+        <symbol id="i-logout" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 8V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2v-2"/><path d="M9 12h12"/><path d="M18 9l3 3-3 3"/></g></symbol>
+        <symbol id="i-menu" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/></g></symbol>
+        <symbol id="i-collapse" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M11 7l-5 5 5 5M17 7l-5 5 5 5"/></g></symbol>
+        <symbol id="i-plus" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></g></symbol>
+        <symbol id="i-minus" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></g></symbol>
+        <symbol id="i-pencil" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L18.5 9.5a2.121 2.121 0 0 0-3-3L5 17v3z"/><path d="M13.5 6.5l3 3"/></g></symbol>
+        <symbol id="i-trash" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M10 11v6M14 11v6"/><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-12"/><path d="M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/></g></symbol>
+        <symbol id="i-x" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></g></symbol>
+        <symbol id="i-check" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></g></symbol>
+        <symbol id="i-search" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></g></symbol>
+        <symbol id="i-users" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M21 21v-2a4 4 0 0 0-3-3.85"/></g></symbol>
+        <symbol id="i-address-book" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="15" height="18" rx="2"/><circle cx="12.5" cy="9.5" r="2"/><path d="M9.5 16a3 3 0 0 1 6 0"/><path d="M3 8h2M3 12h2M3 16h2"/></g></symbol>
+        <symbol id="i-chevron-right" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></g></symbol>
+    </svg>
+
+    <div class="app-shell">
+        <aside class="sidebar" id="app-sidebar">
+            <div class="sidebar-brand">
+                <svg class="icon" aria-hidden="true"><use href="#i-clipboard"/></svg>
+                <span class="sidebar-label">{{ 'app.title'|trans }}</span>
+            </div>
+
+            {% if app.user %}
+                <nav class="sidebar-nav" aria-label="{{ 'nav.menu'|trans }}">
+                    <a href="{{ path('projects_index', {'_locale': app.request.locale}) }}" class="sidebar-link {{ current_route starts with 'projects_' ? 'active' : '' }}" title="{{ 'nav.projects'|trans }}">
+                        <svg class="icon" aria-hidden="true"><use href="#i-folders"/></svg>
+                        <span class="sidebar-label">{{ 'nav.projects'|trans }}</span>
+                    </a>
+                    <a href="{{ path('objects_index', {'_locale': app.request.locale}) }}" class="sidebar-link {{ current_route starts with 'objects_' ? 'active' : '' }}" title="{{ 'nav.objects'|trans }}">
+                        <svg class="icon" aria-hidden="true"><use href="#i-image"/></svg>
+                        <span class="sidebar-label">{{ 'nav.objects'|trans }}</span>
+                    </a>
+                    <a href="{{ path('reports_index', {'_locale': app.request.locale}) }}" class="sidebar-link {{ current_route starts with 'reports_' or current_route starts with 'report_series_' ? 'active' : '' }}" title="{{ 'nav.reports'|trans }}">
+                        <svg class="icon" aria-hidden="true"><use href="#i-file"/></svg>
+                        <span class="sidebar-label">{{ 'nav.reports'|trans }}</span>
+                    </a>
+                    <a href="{{ path('admin_index', {'_locale': app.request.locale}) }}" class="sidebar-link {{ current_route starts with 'admin_' ? 'active' : '' }}" title="{{ 'nav.admin'|trans }}">
+                        <svg class="icon" aria-hidden="true"><use href="#i-settings"/></svg>
+                        <span class="sidebar-label">{{ 'nav.admin'|trans }}</span>
+                    </a>
+                    <a href="{{ path('manual_index', {'_locale': app.request.locale}) }}" class="sidebar-link {{ current_route starts with 'manual_' ? 'active' : '' }}" title="{{ 'nav.manual'|trans }}">
+                        <svg class="icon" aria-hidden="true"><use href="#i-book"/></svg>
+                        <span class="sidebar-label">{{ 'nav.manual'|trans }}</span>
+                    </a>
+                </nav>
+            {% endif %}
+
+            <div class="sidebar-foot">
+                {% if app.user %}
+                    <div class="sidebar-user">
+                        <span class="sidebar-avatar" aria-hidden="true">{{ app.user.fullName|slice(0, 1)|upper }}</span>
+                        <span class="sidebar-label sidebar-user-name">{{ app.user.fullName }}</span>
+                        <a class="sidebar-logout" href="{{ path('app_logout', {'_locale': app.request.locale}) }}" title="{{ 'nav.logout'|trans }}" aria-label="{{ 'nav.logout'|trans }}">
+                            <svg class="icon" aria-hidden="true"><use href="#i-logout"/></svg>
+                        </a>
+                    </div>
+                {% endif %}
+                <div class="sidebar-utils">
+                    <nav class="language-switcher">
+                        <a href="{{ path(current_route, current_params|merge({'_locale': 'nl'})) }}" class="{{ app.request.locale == 'nl' ? 'active' : '' }}">NL</a>
+                        <a href="{{ path(current_route, current_params|merge({'_locale': 'en'})) }}" class="{{ app.request.locale == 'en' ? 'active' : '' }}">EN</a>
+                    </nav>
+                    <button type="button" class="sidebar-collapse" data-sidebar-collapse aria-label="{{ 'nav.collapse'|trans }}" title="{{ 'nav.collapse'|trans }}">
+                        <svg class="icon" aria-hidden="true"><use href="#i-collapse"/></svg>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <div class="app-main">
+            <header class="mobile-topbar">
+                <button type="button" class="mobile-nav-toggle" data-sidebar-open aria-label="{{ 'nav.menu'|trans }}">
+                    <svg class="icon" aria-hidden="true"><use href="#i-menu"/></svg>
+                </button>
+                <span class="mobile-topbar-title">{{ 'app.title'|trans }}</span>
+            </header>
+
+            <main class="page">
+                <div class="flash-stack" data-flash-stack>
+                    {% for type, messages in app.flashes %}
+                        {% for message in messages %}
+                            <div class="flash flash-{{ type }}" role="status">{{ message|trans }}</div>
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+
+                {% block body %}{% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <div class="sidebar-overlay" data-sidebar-overlay hidden></div>
+
+    <script src="/js/app-shell.js?v=2" defer></script>
+</body>
+</html>
