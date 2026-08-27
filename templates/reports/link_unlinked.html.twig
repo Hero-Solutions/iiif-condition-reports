@@ -1,0 +1,52 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'reports.link_existing_title'|trans }} | {{ 'app.title'|trans }}{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <h1>{{ 'reports.link_existing_title'|trans }}</h1>
+    </div>
+
+    <section class="panel report-context-panel">
+        <div class="report-context-object">
+            <strong>{{ object.inventoryNumber }}</strong>
+            <span>{{ object.displayTitle(app.request.locale) }}</span>
+            <span class="muted">{{ 'reports.project_label'|trans }}: {{ project.title }}</span>
+        </div>
+
+        <form method="post" class="report-context-form">
+            <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_id) }}">
+
+            {% if reports|length == 1 %}
+                <p>{{ 'reports.one_unlinked_found'|trans }}</p>
+                <input type="hidden" name="report_ids[]" value="{{ reports[0].id }}">
+                <div class="report-link-choice is-fixed">
+                    <strong>{{ reports[0].title }}</strong>
+                    <span class="muted">{{ reports[0].createdAt|date('Y-m-d H:i') }}</span>
+                </div>
+            {% else %}
+                <p>{{ 'reports.multiple_unlinked_found'|trans({'%count%': reports|length}) }}</p>
+                <div class="report-link-choices">
+                    {% for unlinked_report in reports %}
+                        <label class="report-link-choice">
+                            <input type="checkbox" name="report_ids[]" value="{{ unlinked_report.id }}" checked>
+                            <span>
+                                <strong>{{ unlinked_report.title }}</strong>
+                                <span class="muted">{{ unlinked_report.createdAt|date('Y-m-d H:i') }}</span>
+                            </span>
+                        </label>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {% if error %}
+                <p class="form-error">{{ error|trans }}</p>
+            {% endif %}
+
+            <div class="button-group">
+                <button type="submit">{{ 'reports.link_to_project'|trans }}</button>
+                <a class="button secondary" href="{{ path('projects_edit', {'_locale': app.request.locale, id: project.id}) }}">{{ 'reports.not_now'|trans }}</a>
+            </div>
+        </form>
+    </section>
+{% endblock %}

@@ -4,11 +4,15 @@ parameters:
         language: 'nl'
         namespace: 'lido'
         metadata_prefix: 'oai_lido'
+        sets:
+            - 'institution:koninklijk_museum_voor_schone_kunsten_antwerpen'
         placeholder_images:
             - 'https://iiif.kmska.be/c/iiif/2/public@27254.tif'
         data_definition:
             id:
                 xpath: 'descriptiveMetadata[@xml:lang="{language}"]/objectIdentificationWrap/repositoryWrap/repositorySet/workID[@type="object-number"]'
+            fallback_id:
+                xpath: 'administrativeMetadata[@xml:lang="{language}"]/recordWrap/recordID[@type="local"]'
             title_nl:
                 xpath: 'descriptiveMetadata[@xml:lang="{language}"]/objectIdentificationWrap/titleWrap/titleSet/appellationValue[@xml:lang="nl"]'
             title_en:

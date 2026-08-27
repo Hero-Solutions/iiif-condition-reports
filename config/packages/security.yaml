@@ -29,6 +29,8 @@ security:
 
     access_control:
         - { path: ^/(nl|en)/login$, roles: PUBLIC_ACCESS }
+        - { path: ^/(nl|en)/forgot-password$, roles: PUBLIC_ACCESS }
+        - { path: ^/(nl|en)/reset-password/, roles: PUBLIC_ACCESS }
         - { path: ^/(nl|en)/admin, roles: ROLE_ADMIN }
         - { path: ^/(nl|en), roles: ROLE_USER }
 

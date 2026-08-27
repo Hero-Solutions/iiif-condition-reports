@@ -5,24 +5,40 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\Actor;
+use App\Entity\Annotation;
+use App\Entity\DamageCase;
 use App\Entity\OrganizationContact;
 use App\Entity\IIIFManifest;
 use App\Entity\ObjectManifest;
+use App\Entity\ObjectRecord;
 use App\Entity\Project;
 use App\Entity\ProjectActor;
 use App\Entity\ProjectObject;
 use App\Entity\ProjectObjectActor;
 use App\Entity\Report;
 use App\Entity\ReportActor;
+use App\Entity\ReportDocument;
+use App\Entity\ReportImage;
 use App\Entity\ReportManifest;
 use App\Entity\ReportSeries;
 use App\Entity\User;
 use App\Service\ObjectThumbnailProvider;
+use App\Service\ObjectImageStorage;
+use App\Service\FrameSchemaCatalog;
+use App\Service\ProjectReportDefaults;
+use App\Service\ReportAuthorProvider;
+use App\Service\ReportDocumentBuilder;
+use App\Service\ReportDocumentStorage;
 use App\Service\ReportFormDefinition;
+use App\Service\ReportPdfRenderer;
+use App\Service\ReportImageStorage;
 use App\Value\ActorRole;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\OptimisticLockException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -35,20 +51,47 @@ final class ReportController extends AbstractController
         private readonly ReportFormDefinition $formDefinition,
         private readonly ObjectThumbnailProvider $thumbnailProvider,
         private readonly TranslatorInterface $translator,
+        private readonly ProjectReportDefaults $projectReportDefaults,
+        private readonly ReportDocumentBuilder $documentBuilder,
+        private readonly ReportPdfRenderer $pdfRenderer,
+        private readonly ReportAuthorProvider $authorProvider,
+        private readonly ObjectImageStorage $imageStorage,
+        private readonly ReportImageStorage $reportImageStorage,
+        private readonly ReportDocumentStorage $reportDocumentStorage,
+        private readonly FrameSchemaCatalog $frameSchemaCatalog,
     ) {
     }
 
     #[Route('/{_locale<nl|en>}/report-series/{seriesId}/reports/new', name: 'reports_new', methods: ['GET', 'POST'])]
     public function new(int $seriesId, Request $request): Response
     {
+        $this->assertWritableUser();
+
         $series = $this->entityManager->getRepository(ReportSeries::class)->find($seriesId);
 
         if (!$series instanceof ReportSeries) {
             throw $this->createNotFoundException();
         }
 
+        $activeDraft = $this->entityManager
+            ->getRepository(Report::class)
+            ->findOneBy([
+                'series' => $series,
+                'status' => Report::STATUS_ACTIVE,
+            ], ['updatedAt' => 'DESC']);
+
+        if ($activeDraft instanceof Report) {
+            return $this->redirectToRoute('reports_edit', [
+                '_locale' => $request->getLocale(),
+                'id' => $activeDraft->getId(),
+            ]);
+        }
+
         $previousReport = $this->latestReportForSeries($series);
-        $report = new Report($series, $previousReport?->getType() ?? Report::TYPE_INCOMING_CONDITION);
+        $report = new Report($series, $previousReport?->getType() ?? Report::TYPE_OTHER);
+        $projectDefaults = $series->getProject() instanceof Project
+            ? $this->projectReportDefaults->for($series->getProject(), $series->getObjectRecord())
+            : [];
         $user = $this->getUser();
 
         if ($user instanceof User) {
@@ -61,15 +104,19 @@ final class ReportController extends AbstractController
                 ->setCustomType($previousReport->getCustomType())
                 ->setTitle($previousReport->getTitle())
                 ->setDescription($previousReport->getDescription())
+                ->setReason($previousReport->getReason())
+                ->setCustomReason($previousReport->getCustomReason())
+                ->setReceiptAt($previousReport->getReceiptAt())
                 ->setStartedAt($previousReport->getStartedAt())
                 ->setEndedAt($previousReport->getEndedAt())
-                ->setData($previousReport->getData());
+                ->setData(array_replace($projectDefaults, $previousReport->getData()));
         } else {
             $report
-                ->setTitle($series->getTitle() !== '' ? $series->getTitle() : $this->translator->trans('report_type.incoming_condition'))
+                ->setTitle($series->getTitle())
                 ->setDescription($series->getDescription())
                 ->setStartedAt($series->getStartedAt())
-                ->setEndedAt($series->getEndedAt());
+                ->setEndedAt($series->getEndedAt())
+                ->setData($projectDefaults);
         }
 
         $this->entityManager->persist($report);
@@ -93,40 +140,390 @@ final class ReportController extends AbstractController
     #[Route('/{_locale<nl|en>}/reports/{id}/edit', name: 'reports_edit', methods: ['GET', 'POST'])]
     public function edit(Report $report, Request $request): Response
     {
+        if (!$report->isEditable() || $this->isGranted(User::ROLE_READ_ONLY)) {
+            return $this->redirectToRoute('reports_show', [
+                '_locale' => $request->getLocale(),
+                'id' => $report->getId(),
+            ]);
+        }
+
         return $this->handleReport($report, $request);
+    }
+
+    #[Route('/{_locale<nl|en>}/reports/{id}', name: 'reports_show', methods: ['GET'])]
+    public function show(Report $report, Request $request): Response
+    {
+        return $this->render('reports/show.html.twig', $this->documentContext(
+            $report,
+            $request,
+            $this->reportMainImageSource($report, false),
+        ));
+    }
+
+    #[Route('/{_locale<nl|en>}/reports/{id}/pdf', name: 'reports_pdf', methods: ['GET'])]
+    public function pdf(Report $report, Request $request): Response
+    {
+        if ($report->isEditable()) {
+            throw $this->createAccessDeniedException('Only finalized reports can be exported.');
+        }
+
+        $pdf = $this->pdfRenderer->render($this->documentContext(
+            $report,
+            $request,
+            $this->reportMainImageSource($report, true),
+            true,
+        ));
+        $filename = 'condition-report-' . $report->getId() . '.pdf';
+
+        return new Response($pdf, Response::HTTP_OK, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Content-Length' => (string) strlen($pdf),
+        ]);
+    }
+
+    #[Route('/{_locale<nl|en>}/reports/{id}/json', name: 'reports_json', methods: ['GET'])]
+    public function exportJson(Report $report): JsonResponse
+    {
+        $images = array_map(fn (ReportImage $image): array => [
+            'path' => $image->getPath(),
+            'thumbnail' => $image->getThumbnailPath(),
+            'source' => $image->getSource(),
+            'name' => $this->reportImageLabel($image),
+        ], $this->reportImages($report));
+        $documents = array_map(static fn (ReportDocument $document): array => [
+            'category' => $document->getCategory(),
+            'path' => $document->getPath(),
+            'name' => $document->getOriginalName(),
+            'mime_type' => $document->getMimeType(),
+            'size' => $document->getSize(),
+        ], $this->reportDocuments($report));
+
+        return $this->json([
+            'id' => $report->getId(),
+            'status' => $report->getStatus(),
+            'type' => $report->getType(),
+            'custom_type' => $report->getCustomType(),
+            'title' => $report->getTitle(),
+            'description' => $report->getDescription(),
+            'reason' => $report->getReason(),
+            'custom_reason' => $report->getCustomReason(),
+            'receipt_at' => $report->getReceiptAt()?->format('Y-m-d'),
+            'started_at' => $report->getStartedAt()?->format(\DateTimeInterface::ATOM),
+            'ended_at' => $report->getEndedAt()?->format(\DateTimeInterface::ATOM),
+            'object' => [
+                'id' => $report->getObjectRecord()->getId(),
+                'inventory_number' => $report->getObjectRecord()->getInventoryNumber(),
+                'title' => $report->getObjectRecord()->getDisplayTitle('nl'),
+            ],
+            'project' => $report->getProject() ? [
+                'id' => $report->getProject()?->getId(),
+                'reference' => $report->getProject()?->getReferenceCode(),
+                'title' => $report->getProject()?->getTitle(),
+            ] : null,
+            'data' => $report->getData(),
+            'images' => $images,
+            'documents' => $documents,
+            'created_at' => $report->getCreatedAt()->format(\DateTimeInterface::ATOM),
+            'updated_at' => $report->getUpdatedAt()->format(\DateTimeInterface::ATOM),
+            'finalized_at' => $report->getFinalizedAt()?->format(\DateTimeInterface::ATOM),
+        ]);
+    }
+
+    #[Route('/{_locale<nl|en>}/reports/{id}/images', name: 'reports_images_upload', methods: ['POST'])]
+    public function uploadImages(Report $report, Request $request): Response
+    {
+        $this->assertReportMediaRequest($report, $request, 'report_images_');
+        $files = $request->files->all('images');
+        $sortOrder = $this->nextReportImageSortOrder($report);
+        $stored = 0;
+
+        foreach ($files as $file) {
+            if (!$file instanceof UploadedFile) {
+                continue;
+            }
+
+            try {
+                $result = $this->reportImageStorage->store($file);
+                $image = (new ReportImage($report, $result['image_url']))
+                    ->setThumbnailPath($result['thumbnail_url'])
+                    ->setObjectRecord($report->getObjectRecord())
+                    ->setOriginalName($file->getClientOriginalName())
+                    ->setMimeType($file->getClientMimeType())
+                    ->setSortOrder($sortOrder++);
+                $this->entityManager->persist($image);
+                ++$stored;
+            } catch (FileException $exception) {
+                $this->addFlash('error', $exception->getMessage());
+            }
+        }
+
+        $this->entityManager->flush();
+
+        if ($stored > 0) {
+            $this->addFlash('success', 'reports.images_added');
+        }
+
+        return $this->redirectToReportTab($report, $request, 'photos');
+    }
+
+    #[Route('/{_locale<nl|en>}/reports/{id}/images/url', name: 'reports_images_url', methods: ['POST'])]
+    public function addImageUrl(Report $report, Request $request): Response
+    {
+        $this->assertReportMediaRequest($report, $request, 'report_images_');
+        $url = trim((string) $request->request->get('image_url'));
+
+        if ($url === '') {
+            $this->addFlash('error', 'reports.image_url_required');
+
+            return $this->redirectToReportTab($report, $request, 'photos');
+        }
+
+        try {
+            $result = $this->reportImageStorage->storeExternal($url);
+            $image = (new ReportImage($report, $result['image_url'], ReportImage::SOURCE_URL))
+                ->setThumbnailPath($result['thumbnail_url'])
+                ->setObjectRecord($report->getObjectRecord())
+                ->setOriginalName(basename((string) parse_url($url, PHP_URL_PATH)) ?: null)
+                ->setSortOrder($this->nextReportImageSortOrder($report));
+            $this->entityManager->persist($image);
+            $this->entityManager->flush();
+            $this->addFlash('success', 'reports.images_added');
+        } catch (FileException $exception) {
+            $this->addFlash('error', $exception->getMessage());
+        }
+
+        return $this->redirectToReportTab($report, $request, 'photos');
+    }
+
+    #[Route('/{_locale<nl|en>}/reports/{id}/images/iiif', name: 'reports_images_iiif', methods: ['POST'])]
+    public function addIiifImage(Report $report, Request $request): Response
+    {
+        $this->assertReportMediaRequest($report, $request, 'report_images_');
+        $manifestUrl = trim((string) $request->request->get('manifest_url'));
+
+        if ($manifestUrl === '') {
+            $this->addFlash('error', 'reports.iiif_url_required');
+
+            return $this->redirectToReportTab($report, $request, 'photos');
+        }
+
+        try {
+            $result = $this->reportImageStorage->storeIiifManifest($manifestUrl);
+            $image = (new ReportImage($report, $result['image_url'], ReportImage::SOURCE_IIIF))
+                ->setThumbnailPath($result['thumbnail_url'])
+                ->setObjectRecord($report->getObjectRecord())
+                ->setOriginalName('IIIF')
+                ->setSortOrder($this->nextReportImageSortOrder($report));
+            $this->entityManager->persist($image);
+            $this->entityManager->flush();
+            $this->addFlash('success', 'reports.images_added');
+        } catch (FileException $exception) {
+            $this->addFlash('error', $exception->getMessage());
+        }
+
+        return $this->redirectToReportTab($report, $request, 'photos');
+    }
+
+    #[Route('/{_locale<nl|en>}/reports/{id}/images/frame-schema', name: 'reports_images_frame_schema', methods: ['POST'])]
+    public function addFrameSchema(Report $report, Request $request): Response
+    {
+        $this->assertReportMediaRequest($report, $request, 'report_images_');
+        $schemaKey = trim((string) $request->request->get('schema'));
+        $schema = $this->frameSchemaCatalog->get($schemaKey);
+
+        if ($schema === null) {
+            $this->addFlash('error', 'reports.annotation_frame_invalid');
+
+            return $this->redirectToReportTab($report, $request, 'photos');
+        }
+
+        $existing = $this->entityManager->getRepository(ReportImage::class)->findOneBy([
+            'report' => $report,
+            'source' => ReportImage::SOURCE_SCHEMA,
+            'path' => $schema['path'],
+        ]);
+
+        if (!$existing instanceof ReportImage) {
+            $image = (new ReportImage($report, $schema['path'], ReportImage::SOURCE_SCHEMA))
+                ->setThumbnailPath($schema['path'])
+                ->setObjectRecord($report->getObjectRecord())
+                ->setOriginalName($schemaKey)
+                ->setMimeType('image/svg+xml')
+                ->setSortOrder($this->nextReportImageSortOrder($report));
+            $this->entityManager->persist($image);
+            $this->entityManager->flush();
+            $existing = $image;
+        }
+
+        return $this->redirectToReportTab($report, $request, 'photos');
+    }
+
+    #[Route('/{_locale<nl|en>}/reports/{reportId}/images/{imageId}/rotate', name: 'reports_images_rotate', methods: ['POST'])]
+    public function rotateImage(int $reportId, int $imageId, Request $request): Response
+    {
+        [$report, $image] = $this->reportImageForIds($reportId, $imageId);
+        $this->assertReportMediaRequest($report, $request, 'report_image_' . $imageId . '_');
+
+        try {
+            $this->reportImageStorage->rotate($image->getPath());
+            $this->addFlash('success', 'reports.image_rotated');
+        } catch (FileException $exception) {
+            $this->addFlash('error', $exception->getMessage());
+        }
+
+        return $this->redirectToReportTab($report, $request, 'photos');
+    }
+
+    #[Route('/{_locale<nl|en>}/reports/{reportId}/images/{imageId}/move', name: 'reports_images_move', methods: ['POST'])]
+    public function moveImage(int $reportId, int $imageId, Request $request): Response
+    {
+        [$report, $image] = $this->reportImageForIds($reportId, $imageId);
+        $this->assertReportMediaRequest($report, $request, 'report_image_' . $imageId . '_');
+        $direction = $request->request->get('direction') === 'up' ? -1 : 1;
+        $images = $this->reportPhotos($report);
+        $position = array_search($image, $images, true);
+        $target = is_int($position) ? $position + $direction : -1;
+
+        if (is_int($position) && isset($images[$target])) {
+            $currentOrder = $image->getSortOrder();
+            $image->setSortOrder($images[$target]->getSortOrder());
+            $images[$target]->setSortOrder($currentOrder);
+            $this->entityManager->flush();
+        }
+
+        return $this->redirectToReportTab($report, $request, 'photos');
+    }
+
+    #[Route('/{_locale<nl|en>}/reports/{reportId}/images/{imageId}/delete', name: 'reports_images_delete', methods: ['POST'])]
+    public function deleteImage(int $reportId, int $imageId, Request $request): Response
+    {
+        [$report, $image] = $this->reportImageForIds($reportId, $imageId);
+        $this->assertReportMediaRequest($report, $request, 'report_image_' . $imageId . '_');
+
+        foreach ($this->entityManager->getRepository(Annotation::class)->findBy(['reportImage' => $image]) as $annotation) {
+            $annotation->delete();
+        }
+
+        if ($image->getSource() !== ReportImage::SOURCE_SCHEMA) {
+            $this->reportImageStorage->remove($image->getPath());
+            $this->reportImageStorage->remove($image->getThumbnailPath());
+        }
+
+        $this->entityManager->remove($image);
+        $this->entityManager->flush();
+
+        return $this->redirectToReportTab($report, $request, 'photos');
+    }
+
+    #[Route('/{_locale<nl|en>}/reports/{id}/documents', name: 'reports_documents_upload', methods: ['POST'])]
+    public function uploadDocuments(Report $report, Request $request): Response
+    {
+        $this->assertReportMediaRequest($report, $request, 'report_documents_');
+        $files = $request->files->all('documents');
+        $category = (string) $request->request->get('category', ReportDocument::CATEGORY_GENERAL);
+        $sortOrder = count($this->reportDocuments($report));
+        $stored = 0;
+
+        foreach ($files as $file) {
+            if (!$file instanceof UploadedFile) {
+                continue;
+            }
+
+            try {
+                $result = $this->reportDocumentStorage->store($file);
+                $document = (new ReportDocument(
+                    $report,
+                    $result['path'],
+                    $file->getClientOriginalName(),
+                    $result['mime_type'],
+                ))
+                    ->setCategory($category)
+                    ->setSize($result['size'])
+                    ->setSortOrder($sortOrder++);
+                $this->entityManager->persist($document);
+                ++$stored;
+            } catch (FileException $exception) {
+                $this->addFlash('error', $exception->getMessage());
+            }
+        }
+
+        $this->entityManager->flush();
+
+        if ($stored > 0) {
+            $this->addFlash('success', 'reports.documents_added');
+        }
+
+        return $this->redirectToReportTab($report, $request, 'documents');
+    }
+
+    #[Route('/{_locale<nl|en>}/reports/{reportId}/documents/{documentId}/delete', name: 'reports_documents_delete', methods: ['POST'])]
+    public function deleteDocument(int $reportId, int $documentId, Request $request): Response
+    {
+        [$report, $document] = $this->reportDocumentForIds($reportId, $documentId);
+        $this->assertReportMediaRequest($report, $request, 'report_document_' . $documentId . '_');
+        $this->reportDocumentStorage->remove($document->getPath());
+        $this->entityManager->remove($document);
+        $this->entityManager->flush();
+
+        return $this->redirectToReportTab($report, $request, 'documents');
     }
 
     #[Route('/{_locale<nl|en>}/reports/{id}/autosave', name: 'reports_autosave', methods: ['POST'])]
     public function autosave(Report $report, Request $request): JsonResponse
     {
+        if (!$report->isEditable() || $this->isGranted(User::ROLE_READ_ONLY)) {
+            return new JsonResponse(['saved' => false, 'reason' => 'read_only'], Response::HTTP_FORBIDDEN);
+        }
+
         if (!$this->isCsrfTokenValid('report_edit_' . $report->getId(), (string) $request->request->get('_token'))) {
             return new JsonResponse(['saved' => false], Response::HTTP_FORBIDDEN);
         }
 
+        if (!$this->hasCurrentVersion($report, $request)) {
+            return new JsonResponse(['saved' => false, 'reason' => 'conflict'], Response::HTTP_CONFLICT);
+        }
+
         $this->applySubmittedReport($report, $request);
-        $this->entityManager->flush();
+
+        try {
+            $this->entityManager->flush();
+        } catch (OptimisticLockException) {
+            return new JsonResponse(['saved' => false, 'reason' => 'conflict'], Response::HTTP_CONFLICT);
+        }
 
         return new JsonResponse([
             'saved' => true,
             'saved_at' => $report->getUpdatedAt()->format(\DateTimeInterface::ATOM),
+            'version' => $report->getVersion(),
         ]);
     }
 
     #[Route('/{_locale<nl|en>}/reports/{id}/delete', name: 'reports_delete', methods: ['POST'])]
     public function delete(Report $report, Request $request): Response
     {
+        $this->assertWritableUser();
+
         if (!$this->isCsrfTokenValid('report_delete_' . $report->getId(), (string) $request->request->get('_token'))) {
             throw $this->createAccessDeniedException();
         }
 
-        $backUrl = $this->backUrl($report, $request);
+        $backUrl = match ($request->request->get('return_to')) {
+            'reports_index' => $this->generateUrl('reports_index', ['_locale' => $request->getLocale()]),
+            'object' => $this->generateUrl('objects_edit', [
+                '_locale' => $request->getLocale(),
+                'id' => $report->getObjectRecord()->getId(),
+            ]),
+            default => $this->backUrl($report, $request),
+        };
 
-        if ($report->getStatus() !== Report::STATUS_ACTIVE) {
+        if ($report->getStatus() !== Report::STATUS_ACTIVE && !$this->isGranted(User::ROLE_ADMIN)) {
             $this->addFlash('error', 'reports.delete_draft_only');
 
             return $this->redirect($backUrl);
         }
 
+        $this->removeReportFiles($report);
         $this->entityManager->remove($report);
         $this->entityManager->flush();
         $this->addFlash('success', 'reports.deleted');
@@ -138,6 +535,7 @@ final class ReportController extends AbstractController
     public function addReportActor(int $reportId, Request $request): Response
     {
         $report = $this->reportForId($reportId);
+        $this->assertReportEditable($report);
 
         if (!$this->isCsrfTokenValid('report_actor_add_' . $report->getId(), (string) $request->request->get('_token'))) {
             throw $this->createAccessDeniedException();
@@ -176,6 +574,7 @@ final class ReportController extends AbstractController
     public function removeReportActor(int $reportId, ReportActor $reportActor, Request $request): Response
     {
         $report = $this->reportForId($reportId);
+        $this->assertReportEditable($report);
 
         if ($reportActor->getReport()->getId() !== $report->getId()) {
             throw $this->createNotFoundException();
@@ -196,6 +595,7 @@ final class ReportController extends AbstractController
     public function editReportActorAssignment(int $reportId, ReportActor $reportActor, Request $request): Response
     {
         $report = $this->reportForId($reportId);
+        $this->assertReportEditable($report);
 
         if ($reportActor->getReport()->getId() !== $report->getId()) {
             throw $this->createNotFoundException();
@@ -221,6 +621,7 @@ final class ReportController extends AbstractController
     public function updateReportActorContact(int $reportId, ReportActor $reportActor, Request $request): Response
     {
         $report = $this->reportForId($reportId);
+        $this->assertReportEditable($report);
 
         if ($reportActor->getReport()->getId() !== $report->getId()) {
             throw $this->createNotFoundException();
@@ -245,6 +646,87 @@ final class ReportController extends AbstractController
         return $this->redirectToReport($report, $request);
     }
 
+    #[Route('/{_locale<nl|en>}/reports/{id}/finalize', name: 'reports_finalize', methods: ['POST'])]
+    public function finalize(Report $report, Request $request): Response
+    {
+        $this->assertReportEditable($report);
+
+        if (!$this->isCsrfTokenValid('report_edit_' . $report->getId(), (string) $request->request->get('_token'))) {
+            throw $this->createAccessDeniedException();
+        }
+
+        if (!$this->hasCurrentVersion($report, $request)) {
+            $this->addFlash('error', 'reports.edit_conflict');
+
+            return $this->redirectToReport($report, $request);
+        }
+
+        $this->applySubmittedReport($report, $request);
+        if (!$report->hasSelectedType()) {
+            try {
+                $this->entityManager->flush();
+            } catch (OptimisticLockException) {
+                $this->addFlash('error', 'reports.edit_conflict');
+
+                return $this->redirectToReport($report, $request);
+            }
+            $this->addFlash('error', 'reports.finalize_incomplete');
+
+            return $this->redirectToReport($report, $request);
+        }
+
+        $user = $this->getUser();
+        $report->finalize($user instanceof User ? $user->getId() : null);
+
+        try {
+            $this->entityManager->flush();
+        } catch (OptimisticLockException) {
+            $this->addFlash('error', 'reports.edit_conflict');
+
+            return $this->redirectToReport($report, $request);
+        }
+
+        $this->addFlash('success', 'reports.finalized');
+
+        return $this->redirectToRoute('reports_show', [
+            '_locale' => $request->getLocale(),
+            'id' => $report->getId(),
+        ]);
+    }
+
+    #[Route('/{_locale<nl|en>}/reports/{id}/archive', name: 'reports_archive', methods: ['POST'])]
+    public function archive(Report $report, Request $request): Response
+    {
+        $this->assertWritableUser();
+
+        if (!$this->isCsrfTokenValid('report_archive_' . $report->getId(), (string) $request->request->get('_token'))) {
+            throw $this->createAccessDeniedException();
+        }
+
+        if ($report->getStatus() !== Report::STATUS_FINALIZED) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $report->archive();
+
+        try {
+            $this->entityManager->flush();
+        } catch (OptimisticLockException) {
+            $this->addFlash('error', 'reports.edit_conflict');
+
+            return $this->redirectToRoute('reports_show', [
+                '_locale' => $request->getLocale(),
+                'id' => $report->getId(),
+            ]);
+        }
+        $this->addFlash('success', 'reports.archived');
+
+        return $this->redirectToRoute('reports_show', [
+            '_locale' => $request->getLocale(),
+            'id' => $report->getId(),
+        ]);
+    }
+
     private function handleReport(Report $report, Request $request): Response
     {
         if ($request->isMethod('POST')) {
@@ -254,21 +736,40 @@ final class ReportController extends AbstractController
                 throw $this->createAccessDeniedException();
             }
 
+            if (!$this->hasCurrentVersion($report, $request)) {
+                $this->addFlash('error', 'reports.edit_conflict');
+
+                return $this->redirectToReport($report, $request);
+            }
+
             $this->applySubmittedReport($report, $request);
-            $this->entityManager->flush();
+
+            try {
+                $this->entityManager->flush();
+            } catch (OptimisticLockException) {
+                $this->addFlash('error', 'reports.edit_conflict');
+
+                return $this->redirectToReport($report, $request);
+            }
             $this->addFlash('success', 'reports.saved');
 
             return $this->redirectToReport($report, $request);
         }
 
+        $reportActors = $this->reportActors($report);
+        $definition = $this->formDefinition->forObject($report->getObjectRecord());
+        $reportImages = $this->reportImages($report);
+        $reportPhotos = $this->reportPhotosFrom($reportImages);
+
         return $this->render('reports/form.html.twig', [
             'report' => $report,
             'series' => $report->getSeries(),
             'object' => $report->getObjectRecord(),
-            'definition' => $this->formDefinition->forObject($report->getObjectRecord()),
+            'definition' => $definition,
             'report_types' => Report::typeChoices(),
-            'report_statuses' => Report::statusChoices(),
-            'report_actors' => $this->reportActors($report),
+            'report_reasons' => $this->formDefinition->reasonChoices(),
+            'report_actors' => $reportActors,
+            'can_finalize' => $report->hasSelectedType(),
             'actor_type_choices' => Actor::typeChoices(),
             'actor_role_choices' => ActorRole::choices(),
             'actor_options' => $this->actorOptions(),
@@ -278,6 +779,14 @@ final class ReportController extends AbstractController
             'back_url' => $this->backUrl($report, $request),
             'thumbnail_url' => $this->thumbnailProvider->thumbnailForObject($report->getObjectRecord()),
             'annotation_manifest_url' => $this->annotationManifestUrl($report),
+            'annotation_image_url' => $report->getObjectRecord()->getImageUrl(),
+            'report_images' => $reportPhotos,
+            'annotation_images' => $this->annotationImageViews($reportImages),
+            'damage_case_count' => $this->activeDamageCaseCount($report),
+            'frame_schema_choices' => $this->frameSchemaChoices($reportImages),
+            'report_documents' => $this->reportDocuments($report),
+            'document_categories' => ReportDocument::categoryChoices(),
+            'can_link_project' => $report->getProject() === null && $this->objectBelongsToProject($report->getObjectRecord()),
         ]);
     }
 
@@ -285,19 +794,23 @@ final class ReportController extends AbstractController
     {
         $type = (string) $request->request->get('type', Report::TYPE_OTHER);
         $customType = mb_substr(trim((string) $request->request->get('custom_type', '')), 0, 100);
-        $status = (string) $request->request->get('status', Report::STATUS_ACTIVE);
         $title = trim((string) $request->request->get('title', ''));
         $data = $request->request->all('report_data');
 
         $report
             ->setType($type)
             ->setCustomType($customType);
-        $report->setStatus($status);
-        $defaultTitle = $report->getType() === Report::TYPE_OTHER && $report->getCustomType()
-            ? $report->getCustomType()
-            : $this->translator->trans('report_type.' . $report->getType());
+        $defaultTitle = $report->hasSelectedType()
+            ? ($report->getType() === Report::TYPE_OTHER
+                ? (string) $report->getCustomType()
+                : $this->translator->trans('report_type.' . $report->getType()))
+            : '';
         $report->setTitle($title !== '' ? $title : $defaultTitle);
-        $report->setDescription($this->requestText($request, 'description'));
+        $report
+            ->setDescription($this->requestText($request, 'description'))
+            ->setReason($this->requestText($request, 'reason'))
+            ->setCustomReason($this->requestText($request, 'custom_reason'))
+            ->setReceiptAt($this->requestDate($request, 'receipt_at'));
         $report->setStartedAt($this->requestDate($request, 'started_at'));
         $report->setEndedAt($this->requestDate($request, 'ended_at'));
         $report->setData($data);
@@ -789,6 +1302,478 @@ final class ReportController extends AbstractController
         return is_int($intValue) && $intValue > 0 ? $intValue : null;
     }
 
+    private function hasCurrentVersion(Report $report, Request $request): bool
+    {
+        $submittedVersion = filter_var($request->request->get('version'), FILTER_VALIDATE_INT);
+
+        return is_int($submittedVersion) && $submittedVersion === $report->getVersion();
+    }
+
+    private function assertWritableUser(): void
+    {
+        if ($this->isGranted(User::ROLE_READ_ONLY)) {
+            throw $this->createAccessDeniedException('Read-only users cannot make changes.');
+        }
+    }
+
+    private function assertReportEditable(Report $report): void
+    {
+        $this->assertWritableUser();
+
+        if (!$report->isEditable()) {
+            throw $this->createAccessDeniedException('A finalized or archived report cannot be changed.');
+        }
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function documentContext(
+        Report $report,
+        Request $request,
+        ?string $mainImageSource,
+        bool $embedImages = false,
+    ): array
+    {
+        $definition = $this->formDefinition->forObject($report->getObjectRecord());
+        $reportImages = $this->reportImages($report);
+        $reportPhotos = $this->reportPhotosFrom($reportImages);
+        $annotationImageSources = array_map(
+            fn (ReportImage $image): ?string => $this->reportImageDocumentSource($image, $embedImages),
+            $reportImages,
+        );
+        $reportImageSources = array_map(
+            fn (ReportImage $image): ?string => $this->reportImageDocumentSource($image, $embedImages),
+            $reportPhotos,
+        );
+
+        return [
+            'report' => $report,
+            'object' => $report->getObjectRecord(),
+            'report_actors' => $this->reportActors($report),
+            'report_sections' => $this->documentBuilder->sections($report, $definition),
+            'reason_label' => $this->reportReasonLabel($report),
+            'room_label' => $this->reportRoom($report),
+            'author_name' => $this->authorProvider->nameFor($report->getCreatedById()),
+            'finalizer_name' => $this->authorProvider->nameFor($report->getFinalizedById()),
+            'thumbnail_source' => $mainImageSource,
+            'back_url' => $this->backUrl($report, $request),
+            'report_images' => $reportPhotos,
+            'report_image_sources' => $reportImageSources,
+            'report_documents' => $this->reportDocuments($report),
+            'damage_annotations' => $this->damageAnnotationContext(
+                $report,
+                $mainImageSource,
+                $reportImages,
+                $annotationImageSources,
+            ),
+        ];
+    }
+
+    /**
+     * @param list<ReportImage>  $reportImages
+     * @param list<string|null> $reportImageSources
+     *
+     * @return array{legend: list<array<string, mixed>>, sources: list<array<string, mixed>>}
+     */
+    private function damageAnnotationContext(
+        Report $report,
+        ?string $mainImageSource,
+        array $reportImages,
+        array $reportImageSources,
+    ): array {
+        $damageCases = $this->entityManager->getRepository(DamageCase::class)->findBy(
+            ['report' => $report, 'deleted' => false],
+            ['sortOrder' => 'ASC', 'createdAt' => 'ASC', 'id' => 'ASC'],
+        );
+        $annotations = $this->entityManager->getRepository(Annotation::class)->findBy(
+            ['report' => $report, 'deleted' => false],
+            ['sortOrder' => 'ASC', 'createdAt' => 'ASC', 'id' => 'ASC'],
+        );
+        $imageSources = [];
+
+        foreach ($reportImages as $index => $image) {
+            if ($image->getId() !== null && is_string($reportImageSources[$index] ?? null)) {
+                $imageSources[$image->getId()] = $reportImageSources[$index];
+            }
+        }
+
+        $counts = [];
+        $sources = [];
+
+        foreach ($annotations as $annotation) {
+            $damageCase = $annotation->getDamageCase();
+
+            if ($damageCase->isDeleted()) {
+                continue;
+            }
+
+            $selector = $annotation->getTarget()['selector'] ?? null;
+            $dimensions = $this->annotationDimensions($annotation->getTarget());
+
+            if (!is_array($selector) || $dimensions === null) {
+                continue;
+            }
+
+            $caseId = $damageCase->getId();
+            $counts[$caseId] = ($counts[$caseId] ?? 0) + 1;
+            $sourceKey = $annotation->getSourceKey();
+            $reportImage = $annotation->getReportImage();
+            $imageSource = $reportImage instanceof ReportImage
+                ? ($imageSources[$reportImage->getId()] ?? null)
+                : (str_starts_with($sourceKey, 'main') ? $mainImageSource : null);
+
+            if (!is_string($imageSource) || $imageSource === '') {
+                continue;
+            }
+
+            if (!isset($sources[$sourceKey])) {
+                $sources[$sourceKey] = [
+                    'key' => $sourceKey,
+                    'label' => $reportImage instanceof ReportImage
+                        ? $this->reportImageLabel($reportImage)
+                        : $this->translator->trans('reports.annotation_main_image'),
+                    'imageSource' => $imageSource,
+                    'width' => $dimensions['width'],
+                    'height' => $dimensions['height'],
+                    'widthPercent' => min(100.0, max(32.0, ($dimensions['width'] / $dimensions['height']) * 82.0)),
+                    'annotations' => [],
+                ];
+            }
+
+            $sources[$sourceKey]['annotations'][] = [
+                'selector' => $selector,
+                'color' => $damageCase->getColor(),
+            ];
+        }
+
+        $legend = [];
+
+        foreach ($damageCases as $damageCase) {
+            $count = $counts[$damageCase->getId()] ?? 0;
+
+            if ($count === 0) {
+                continue;
+            }
+
+            $legend[] = [
+                'label' => $damageCase->getLabel(),
+                'color' => $damageCase->getColor(),
+                'geometry' => $damageCase->getLegendGeometry(),
+                'note' => $damageCase->getLegendNote(),
+                'strokeWidth' => $damageCase->getStrokeWidth(),
+                'legendStrokeWidth' => max(1.5, min(6.0, $damageCase->getStrokeWidth() * 1.35)),
+                'count' => $count,
+            ];
+        }
+
+        return [
+            'legend' => $legend,
+            'sources' => array_values($sources),
+        ];
+    }
+
+    /** @return array{width: float, height: float}|null */
+    private function annotationDimensions(array $target): ?array
+    {
+        $dimensions = $target['sourceDimensions'] ?? null;
+        $width = is_array($dimensions) && is_numeric($dimensions['width'] ?? null)
+            ? (float) $dimensions['width']
+            : 0.0;
+        $height = is_array($dimensions) && is_numeric($dimensions['height'] ?? null)
+            ? (float) $dimensions['height']
+            : 0.0;
+
+        return $width > 0.0 && $height > 0.0 ? ['width' => $width, 'height' => $height] : null;
+    }
+
+    /** @return list<ReportImage> */
+    private function reportImages(Report $report): array
+    {
+        return $this->entityManager->getRepository(ReportImage::class)->findBy(
+            ['report' => $report],
+            ['sortOrder' => 'ASC', 'createdAt' => 'ASC', 'id' => 'ASC'],
+        );
+    }
+
+    /** @return list<ReportImage> */
+    private function reportPhotos(Report $report): array
+    {
+        return $this->reportPhotosFrom($this->reportImages($report));
+    }
+
+    /**
+     * @param list<ReportImage> $images
+     *
+     * @return list<ReportImage>
+     */
+    private function reportPhotosFrom(array $images): array
+    {
+        return array_values(array_filter(
+            $images,
+            static fn (ReportImage $image): bool => $image->getSource() !== ReportImage::SOURCE_SCHEMA,
+        ));
+    }
+
+    /**
+     * @param list<ReportImage> $images
+     *
+     * @return list<array{id: int|null, path: string, thumbnailPath: string|null, label: string}>
+     */
+    private function annotationImageViews(array $images): array
+    {
+        $ordered = [
+            ...$this->reportPhotosFrom($images),
+            ...array_values(array_filter(
+                $images,
+                static fn (ReportImage $image): bool => $image->getSource() === ReportImage::SOURCE_SCHEMA,
+            )),
+        ];
+
+        return array_map(fn (ReportImage $image): array => [
+            'id' => $image->getId(),
+            'path' => $image->getPath(),
+            'thumbnailPath' => $image->getThumbnailPath(),
+            'label' => $this->reportImageLabel($image),
+        ], $ordered);
+    }
+
+    /**
+     * @param list<ReportImage> $images
+     *
+     * @return list<array{key: string, side: string, label: string, path: string, imageId: int|null}>
+     */
+    private function frameSchemaChoices(array $images): array
+    {
+        $existing = [];
+
+        foreach ($images as $image) {
+            if ($image->getSource() === ReportImage::SOURCE_SCHEMA) {
+                $existing[$image->getPath()] = $image->getId();
+            }
+        }
+
+        $choices = [];
+
+        foreach ($this->frameSchemaCatalog->all() as $key => $schema) {
+            $choices[] = [
+                'key' => $key,
+                'side' => $schema['side'],
+                'label' => $this->translator->trans($schema['label']),
+                'path' => $schema['path'],
+                'imageId' => $existing[$schema['path']] ?? null,
+            ];
+        }
+
+        return $choices;
+    }
+
+    private function reportImageLabel(ReportImage $image): string
+    {
+        $schema = $image->getSource() === ReportImage::SOURCE_SCHEMA
+            ? $this->frameSchemaCatalog->findByPath($image->getPath())
+            : null;
+
+        if ($schema !== null) {
+            return $this->translator->trans('reports.annotation_frame_label', [
+                '%side%' => $this->translator->trans('reports.annotation_frame_' . $schema['side']),
+                '%shape%' => $this->translator->trans($schema['label']),
+            ]);
+        }
+
+        return $image->getOriginalName() ?: $this->translator->trans('reports.photo');
+    }
+
+    private function reportImageDocumentSource(ReportImage $image, bool $embed): ?string
+    {
+        $source = $image->getPath();
+
+        if (!$embed) {
+            return $source;
+        }
+
+        return $image->getSource() === ReportImage::SOURCE_SCHEMA
+            ? $this->frameSchemaCatalog->dataUri($image->getPath())
+            : $this->reportImageStorage->dataUri($source);
+    }
+
+    private function activeDamageCaseCount(Report $report): int
+    {
+        return (int) $this->entityManager->createQueryBuilder()
+            ->select('COUNT(DISTINCT damageCase.id)')
+            ->from(Annotation::class, 'annotation')
+            ->innerJoin('annotation.damageCase', 'damageCase')
+            ->andWhere('annotation.report = :report')
+            ->andWhere('annotation.deleted = false')
+            ->andWhere('damageCase.deleted = false')
+            ->setParameter('report', $report)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    private function reportMainImageSource(Report $report, bool $embed): ?string
+    {
+        $object = $report->getObjectRecord();
+        $imageUrl = $object->getImageUrl();
+
+        if (is_string($imageUrl) && $imageUrl !== '') {
+            $source = $this->outputImageSource($imageUrl, $embed);
+
+            if ($source !== null) {
+                return $source;
+            }
+        }
+
+        $iiifInfoUrl = $object->getSourceData()['iiif_image_info_url'] ?? null;
+
+        if (is_string($iiifInfoUrl) && trim($iiifInfoUrl) !== '') {
+            $iiifImageUrl = rtrim((string) preg_replace('~/info\.json$~i', '', trim($iiifInfoUrl)), '/')
+                . '/full/2000,/0/default.jpg';
+            $source = $this->outputImageSource($iiifImageUrl, $embed);
+
+            if ($source !== null) {
+                return $source;
+            }
+        }
+
+        $manifestUrl = $this->annotationManifestUrl($report);
+
+        if ($manifestUrl !== null) {
+            try {
+                $source = $this->outputImageSource($this->imageStorage->resolveIiifImageUrl($manifestUrl), $embed);
+
+                if ($source !== null) {
+                    return $source;
+                }
+            } catch (FileException) {
+                // Fall back to the available thumbnail when the remote IIIF source is unavailable.
+            }
+        }
+
+        $thumbnailUrl = $this->thumbnailProvider->thumbnailForObject($object);
+
+        return $thumbnailUrl === null ? null : $this->outputImageSource($thumbnailUrl, $embed);
+    }
+
+    private function outputImageSource(string $url, bool $embed): ?string
+    {
+        if (!$embed) {
+            return $url;
+        }
+
+        $dataUri = $this->imageStorage->dataUri($url);
+
+        if ($dataUri !== null) {
+            return $dataUri;
+        }
+
+        try {
+            return $this->imageStorage->externalDataUri($url);
+        } catch (FileException) {
+            return null;
+        }
+    }
+
+    /** @return list<ReportDocument> */
+    private function reportDocuments(Report $report): array
+    {
+        return $this->entityManager->getRepository(ReportDocument::class)->findBy(
+            ['report' => $report],
+            ['sortOrder' => 'ASC', 'createdAt' => 'ASC', 'id' => 'ASC'],
+        );
+    }
+
+    private function nextReportImageSortOrder(Report $report): int
+    {
+        $images = $this->reportImages($report);
+
+        return $images === [] ? 0 : max(array_map(static fn (ReportImage $image): int => $image->getSortOrder(), $images)) + 1;
+    }
+
+    /** @return array{Report, ReportImage} */
+    private function reportImageForIds(int $reportId, int $imageId): array
+    {
+        $report = $this->reportForId($reportId);
+        $image = $this->entityManager->getRepository(ReportImage::class)->findOneBy(['id' => $imageId, 'report' => $report]);
+
+        if (!$image instanceof ReportImage) {
+            throw $this->createNotFoundException();
+        }
+
+        return [$report, $image];
+    }
+
+    /** @return array{Report, ReportDocument} */
+    private function reportDocumentForIds(int $reportId, int $documentId): array
+    {
+        $report = $this->reportForId($reportId);
+        $document = $this->entityManager->getRepository(ReportDocument::class)->findOneBy(['id' => $documentId, 'report' => $report]);
+
+        if (!$document instanceof ReportDocument) {
+            throw $this->createNotFoundException();
+        }
+
+        return [$report, $document];
+    }
+
+    private function assertReportMediaRequest(Report $report, Request $request, string $tokenPrefix): void
+    {
+        $this->assertReportEditable($report);
+
+        if (!$this->isCsrfTokenValid($tokenPrefix . $report->getId(), (string) $request->request->get('_token'))) {
+            throw $this->createAccessDeniedException();
+        }
+    }
+
+    /** @param array<string, scalar> $parameters */
+    private function redirectToReportTab(Report $report, Request $request, string $tab, array $parameters = []): Response
+    {
+        return $this->redirectToRoute('reports_edit', array_merge([
+            '_locale' => $request->getLocale(),
+            'id' => $report->getId(),
+            'tab' => $tab,
+        ], $parameters));
+    }
+
+    private function removeReportFiles(Report $report): void
+    {
+        foreach ($this->reportImages($report) as $image) {
+            $this->reportImageStorage->remove($image->getPath());
+            $this->reportImageStorage->remove($image->getThumbnailPath());
+        }
+
+        foreach ($this->reportDocuments($report) as $document) {
+            $this->reportDocumentStorage->remove($document->getPath());
+        }
+    }
+
+    private function reportReasonLabel(Report $report): ?string
+    {
+        if ($report->getReason() === 'other') {
+            return $report->getCustomReason();
+        }
+
+        foreach ($this->formDefinition->reasonChoices() as $label => $value) {
+            if ($value === $report->getReason()) {
+                return $this->translator->trans($label);
+            }
+        }
+
+        return null;
+    }
+
+    private function reportRoom(Report $report): ?string
+    {
+        if (!$report->getProject() instanceof Project) {
+            return null;
+        }
+
+        return $this->entityManager->getRepository(ProjectObject::class)->findOneBy([
+            'project' => $report->getProject(),
+            'objectRecord' => $report->getObjectRecord(),
+        ])?->getRoom();
+    }
+
     private function redirectToReport(Report $report, Request $request): Response
     {
         return $this->redirectToRoute('reports_edit', [
@@ -812,6 +1797,13 @@ final class ReportController extends AbstractController
             '_locale' => $request->getLocale(),
             'id' => $report->getObjectRecord()->getId(),
         ]);
+    }
+
+    private function objectBelongsToProject(ObjectRecord $object): bool
+    {
+        return $this->entityManager
+            ->getRepository(ProjectObject::class)
+            ->count(['objectRecord' => $object]) > 0;
     }
 
     private function annotationManifestUrl(Report $report): ?string

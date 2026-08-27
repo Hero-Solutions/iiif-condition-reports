@@ -23,7 +23,10 @@
                 </p>
             {% endif %}
         </div>
-        <a class="button secondary" href="{{ path('projects_index', {'_locale': app.request.locale}) }}">{{ 'actions.back'|trans }}</a>
+        <div class="page-header-actions">
+            {% if not is_new %}<a class="button secondary" href="{{ path('reports_index', {'_locale': app.request.locale, project: project.id}) }}">{{ 'projects.view_reports'|trans }}</a>{% endif %}
+            <a class="button secondary" href="{{ path('projects_index', {'_locale': app.request.locale}) }}">{{ 'actions.back'|trans }}</a>
+        </div>
     </div>
 
     {% if is_new %}
@@ -37,8 +40,12 @@
                 {{ form_row(form.status) }}
                 {{ form_row(form.referenceCode) }}
                 {{ form_row(form.description) }}
+                {{ form_row(form.address) }}
+                {{ form_row(form.website) }}
                 {{ form_row(form.startDate) }}
                 {{ form_row(form.endDate) }}
+                {{ form_row(form.insuranceStartDate) }}
+                {{ form_row(form.insuranceEndDate) }}
                 <button type="submit">{{ 'actions.save'|trans }}</button>
             {{ form_end(form) }}
         </section>
@@ -46,6 +53,9 @@
         <nav class="project-tabs" data-project-tabs aria-label="{{ 'projects.tabs'|trans }}">
             <button type="button" data-project-tab-trigger="objects">{{ 'projects.objects'|trans }}</button>
             <button type="button" data-project-tab-trigger="details">{{ 'projects.project_details'|trans }}</button>
+            {% if project.type == constant('App\\Entity\\Project::TYPE_LOAN') %}
+                <button type="button" data-project-tab-trigger="environment">{{ 'projects.environmental_conditions'|trans }}</button>
+            {% endif %}
             <button type="button" data-project-tab-trigger="actors">{{ 'actors.title'|trans }}</button>
         </nav>
 
@@ -157,7 +167,14 @@
                     {% set object_series_list = report_series_by_object[object.id]|default([]) %}
                     {% set object_series = object_series_list|first %}
                     {% set object_reports = object_series ? reports_by_series[object_series.id]|default([]) : [] %}
-                    <article class="object-card linked-object-card">
+                    {% set unlinked_reports = unlinked_reports_by_object[object.id]|default([]) %}
+                    {% set object_has_draft = false %}
+                    {% for object_report in object_reports %}
+                        {% if object_report.status == constant('App\\Entity\\Report::STATUS_ACTIVE') %}
+                            {% set object_has_draft = true %}
+                        {% endif %}
+                    {% endfor %}
+                    <article class="object-card linked-object-card" id="object-{{ project_object.id }}">
                         <div class="object-card-main">
                             <div class="object-card-header">
                                 <div class="object-thumb object-card-thumb">
@@ -182,6 +199,12 @@
                                     {% if project_object.notes %}
                                         <span>{{ project_object.notes|nl2br }}</span>
                                     {% endif %}
+                                    <form class="project-object-context-form" method="post" action="{{ path('projects_objects_context', {'_locale': app.request.locale, projectId: project.id, id: project_object.id}) }}">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('project_object_context_' ~ project_object.id) }}">
+                                        <label>{{ 'projects.room'|trans }}<input type="text" name="room" value="{{ project_object.room }}" maxlength="255"></label>
+                                        <label>{{ 'projects.object_notes'|trans }}<input type="text" name="notes" value="{{ project_object.notes }}"></label>
+                                        <button type="submit" class="button secondary">{{ 'actions.save'|trans }}</button>
+                                    </form>
                                 </div>
                                 <div class="object-card-actions">
                                     <a class="button secondary icon-button" href="{{ path('objects_edit', {'_locale': app.request.locale, id: object.id}) }}" aria-label="{{ 'objects.edit_object'|trans }}" title="{{ 'objects.edit_object'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-pencil"/></svg></a>
@@ -193,10 +216,12 @@
                             <div class="object-card-report-overview">
                                 <div class="object-card-report-heading">
                                     <strong>{{ 'report_series.title'|trans }}</strong>
-                                    {% if object_series %}
-                                        <a class="button secondary icon-button report-add-button" href="{{ path('reports_new', {'_locale': app.request.locale, seriesId: object_series.id}) }}" aria-label="{{ 'report_series.new'|trans }}" title="{{ 'report_series.new'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg></a>
-                                    {% else %}
-                                        <a class="button secondary icon-button report-add-button" href="{{ path('report_series_new_project_object', {'_locale': app.request.locale, projectId: project.id, objectId: object.id}) }}" aria-label="{{ 'report_series.new'|trans }}" title="{{ 'report_series.new'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg></a>
+                                    {% if not object_has_draft and not is_granted('ROLE_READ_ONLY') %}
+                                        {% if object_series %}
+                                            <a class="button secondary icon-button report-add-button" href="{{ path('reports_new', {'_locale': app.request.locale, seriesId: object_series.id}) }}" aria-label="{{ 'report_series.new'|trans }}" title="{{ 'report_series.new'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg></a>
+                                        {% else %}
+                                            <a class="button secondary icon-button report-add-button" href="{{ path('report_series_new_project_object', {'_locale': app.request.locale, projectId: project.id, objectId: object.id}) }}" aria-label="{{ 'report_series.new'|trans }}" title="{{ 'report_series.new'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg></a>
+                                        {% endif %}
                                     {% endif %}
                                 </div>
                                 {% if object_reports is empty %}
@@ -204,15 +229,16 @@
                                 {% else %}
                                     <ul class="object-report-list">
                                         {% for object_report in object_reports %}
+                                            {% set report_route = object_report.editable and not is_granted('ROLE_READ_ONLY') ? 'reports_edit' : 'reports_show' %}
                                             <li>
-                                                <a href="{{ path('reports_edit', {'_locale': app.request.locale, id: object_report.id}) }}">{{ object_report.title }}</a>
+                                                <a href="{{ path(report_route, {'_locale': app.request.locale, id: object_report.id}) }}">{{ object_report.title }}</a>
                                                 <span class="object-report-date">{{ object_report.createdAt|date('Y-m-d H:i') }}</span>
                                                 <span class="object-report-author">{{ report_author_names[object_report.id]|default('reports.unknown_reporter'|trans) }}</span>
                                                 <span class="object-report-status chip chip-{{ {'active': 'accent', 'finalized': 'success', 'archived': 'muted'}[object_report.status]|default('muted') }}">{{ ('status.' ~ object_report.status)|trans }}</span>
-                                                {% if object_report.status == constant('App\\Entity\\Report::STATUS_ACTIVE') %}
-                                                    <form class="object-report-delete-form" method="post" action="{{ path('reports_delete', {'_locale': app.request.locale, id: object_report.id}) }}" onsubmit="return confirm('{{ 'reports.confirm_delete'|trans({'%title%': object_report.title})|e('js') }}');">
+                                                {% if not is_granted('ROLE_READ_ONLY') and (object_report.status == constant('App\\Entity\\Report::STATUS_ACTIVE') or is_granted('ROLE_ADMIN')) %}
+                                                    <form class="object-report-delete-form" method="post" action="{{ path('reports_delete', {'_locale': app.request.locale, id: object_report.id}) }}" onsubmit="return confirm('{{ 'reports.confirm_delete_any'|trans({'%title%': object_report.title})|e('js') }}');">
                                                         <input type="hidden" name="_token" value="{{ csrf_token('report_delete_' ~ object_report.id) }}">
-                                                        <button type="submit" class="button danger icon-button report-delete-button" aria-label="{{ 'reports.delete_draft'|trans }}" title="{{ 'reports.delete_draft'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg></button>
+                                                        <button type="submit" class="button danger icon-button report-delete-button" aria-label="{{ 'actions.delete'|trans }}" title="{{ 'actions.delete'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg></button>
                                                     </form>
                                                 {% else %}
                                                     <span class="object-report-action-spacer"></span>
@@ -220,6 +246,12 @@
                                             </li>
                                         {% endfor %}
                                     </ul>
+                                {% endif %}
+                                {% if unlinked_reports is not empty %}
+                                    <div class="object-report-unlinked">
+                                        <span>{{ 'reports.unlinked_notice'|trans({'%count%': unlinked_reports|length}) }}</span>
+                                        <a class="button secondary" href="{{ path('reports_link_unlinked', {'_locale': app.request.locale, projectId: project.id, objectId: object.id}) }}">{{ 'reports.link'|trans }}</a>
+                                    </div>
                                 {% endif %}
                             </div>
                         </div>
@@ -258,6 +290,18 @@
                             <div class="project-form-field project-form-field-wide">
                                 {{ form_row(form.description) }}
                             </div>
+                            <div class="project-form-field project-form-field-wide">
+                                {{ form_row(form.address) }}
+                            </div>
+                            <div class="project-form-field project-form-field-wide">
+                                {{ form_row(form.website) }}
+                            </div>
+                            <div class="project-form-field">
+                                {{ form_row(form.insuranceStartDate) }}
+                            </div>
+                            <div class="project-form-field">
+                                {{ form_row(form.insuranceEndDate) }}
+                            </div>
                         </div>
                         <div class="form-actions">
                             <button type="submit">{{ 'actions.save'|trans }}</button>
@@ -266,6 +310,45 @@
                 </section>
             </div>
         </section>
+
+        {% if project.type == constant('App\\Entity\\Project::TYPE_LOAN') %}
+            <section class="panel project-environment-panel" data-project-tab-panel="environment">
+                <div class="environment-defaults-heading">
+                    <h2>{{ 'projects.environmental_conditions'|trans }}</h2>
+                    <p>{{ 'projects.environmental_conditions_help'|trans }}</p>
+                </div>
+                <form class="environment-defaults-form" method="post" action="{{ path('projects_environmental_conditions', {'_locale': app.request.locale, id: project.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('project_environmental_conditions_' ~ project.id) }}">
+                    <label>
+                        {{ 'projects.environment_temperature'|trans }}
+                        <input type="text" name="environmental_conditions[temperature]" value="{{ project.getEnvironmentalCondition('temperature') }}" maxlength="500">
+                    </label>
+                    <label>
+                        {{ 'projects.environment_relative_humidity'|trans }}
+                        <input type="text" name="environmental_conditions[relative_humidity]" value="{{ project.getEnvironmentalCondition('relative_humidity') }}" maxlength="500">
+                    </label>
+                    <label>
+                        {{ 'projects.environment_light'|trans }}
+                        <input type="text" name="environmental_conditions[light]" value="{{ project.getEnvironmentalCondition('light') }}" maxlength="500">
+                    </label>
+                    <label>
+                        {{ 'projects.environment_uv'|trans }}
+                        <input type="text" name="environmental_conditions[uv]" value="{{ project.getEnvironmentalCondition('uv') }}" maxlength="500">
+                    </label>
+                    <label>
+                        {{ 'projects.environment_exhibition_duration'|trans }}
+                        <input type="text" name="environmental_conditions[exhibition_duration]" value="{{ project.getEnvironmentalCondition('exhibition_duration') }}" maxlength="500">
+                    </label>
+                    <label>
+                        {{ 'projects.environment_acclimatization'|trans }}
+                        <input type="text" name="environmental_conditions[acclimatization]" value="{{ project.getEnvironmentalCondition('acclimatization') }}" maxlength="500">
+                    </label>
+                    <div class="form-actions environment-defaults-actions">
+                        <button type="submit">{{ 'actions.save'|trans }}</button>
+                    </div>
+                </form>
+            </section>
+        {% endif %}
 
         <section class="panel project-actors-panel" data-project-tab-panel="actors">
             <section class="project-detail-section project-detail-actors">

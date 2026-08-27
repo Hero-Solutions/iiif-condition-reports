@@ -27,5 +27,6 @@
 
             <button type="submit">{{ 'login.submit'|trans }}</button>
         </form>
+        <p><a href="{{ path('password_forgot', {'_locale': app.request.locale}) }}">{{ 'password_reset.forgot_link'|trans }}</a></p>
     </section>
 {% endblock %}

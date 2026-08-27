@@ -1,0 +1,64 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ report.title }} | {{ 'app.title'|trans }}{% endblock %}
+
+{% block body %}
+    <div class="page-header report-view-header">
+        <div>
+            <nav class="breadcrumbs" aria-label="{{ 'nav.breadcrumb'|trans }}">
+                <a href="{{ back_url }}">{{ report.project ? 'nav.projects'|trans : 'nav.objects'|trans }}</a>
+                <span class="sep">/</span>
+                <span>{{ object.inventoryNumber }}</span>
+            </nav>
+            <div class="report-title-row">
+                <h1>{{ report.title }}</h1>
+                <span class="chip chip-{{ {'active': 'accent', 'finalized': 'success', 'archived': 'muted'}[report.status]|default('muted') }}">{{ ('status.' ~ report.status)|trans }}</span>
+            </div>
+        </div>
+        <div class="report-header-actions no-print">
+            <a class="button secondary" href="{{ back_url }}">{{ 'actions.back'|trans }}</a>
+            {% if report.editable and not is_granted('ROLE_READ_ONLY') %}
+                <a class="button" href="{{ path('reports_edit', {'_locale': app.request.locale, id: report.id}) }}">{{ 'actions.edit'|trans }}</a>
+            {% else %}
+                <details class="report-print-options">
+                    <summary class="button secondary">{{ 'reports.print_options'|trans }}</summary>
+                    <div class="report-print-options-panel">
+                        {% for key, label in {
+                            'metadata': 'reports.metadata',
+                            'description': 'reports.description',
+                            'actors': 'actors.title',
+                            'content': 'reports.report_content',
+                            'damage': 'reports.section_damage_types',
+                            'photos': 'reports.photos',
+                            'documents': 'reports.documents'
+                        } %}
+                            <label><input type="checkbox" value="{{ key }}" data-print-section-toggle checked> {{ label|trans }}</label>
+                        {% endfor %}
+                        <button type="button" data-report-print>{{ 'reports.print'|trans }}</button>
+                    </div>
+                </details>
+                <a class="button" href="{{ path('reports_pdf', {'_locale': app.request.locale, id: report.id}) }}">{{ 'reports.download_pdf'|trans }}</a>
+            {% endif %}
+            <a class="button secondary" href="{{ path('reports_json', {'_locale': app.request.locale, id: report.id}) }}">JSON</a>
+            {% if report.status == constant('App\\Entity\\Report::STATUS_FINALIZED') and not is_granted('ROLE_READ_ONLY') %}
+                <form method="post" action="{{ path('reports_archive', {'_locale': app.request.locale, id: report.id}) }}" onsubmit="return confirm('{{ 'reports.confirm_archive'|trans|e('js') }}');">
+                    <input type="hidden" name="_token" value="{{ csrf_token('report_archive_' ~ report.id) }}">
+                    <button type="submit" class="button secondary">{{ 'reports.archive'|trans }}</button>
+                </form>
+            {% endif %}
+            {% if not is_granted('ROLE_READ_ONLY') and (report.status == constant('App\\Entity\\Report::STATUS_ACTIVE') or is_granted('ROLE_ADMIN')) %}
+                <form method="post" action="{{ path('reports_delete', {'_locale': app.request.locale, id: report.id}) }}" onsubmit="return confirm('{{ 'reports.confirm_delete_any'|trans({'%title%': report.title})|e('js') }}');">
+                    <input type="hidden" name="_token" value="{{ csrf_token('report_delete_' ~ report.id) }}">
+                    <button type="submit" class="button danger icon-button" title="{{ 'actions.delete'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg><span class="visually-hidden">{{ 'actions.delete'|trans }}</span></button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+
+    {% include 'reports/_document.html.twig' %}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="/js/report-print-options.js?v=1" defer></script>
+{% endblock %}

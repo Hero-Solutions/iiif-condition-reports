@@ -10,14 +10,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const backLink = document.querySelector('[data-report-back-link]');
     const intervalMs = parseInt(form.dataset.reportAutosaveInterval || '120000', 10);
     const url = form.dataset.reportAutosaveUrl;
+    const version = form.querySelector('[data-report-version]');
 
     let dirty = false;
     let saving = false;
     let queued = false;
     let manualSubmit = false;
+    let conflicted = false;
     let currentSave = null;
 
     const serialize = () => new URLSearchParams(new FormData(form)).toString();
+    const fingerprint = () => {
+        const data = new FormData(form);
+        data.delete('version');
+
+        return new URLSearchParams(data).toString();
+    };
 
     const timeLabel = (date) => {
         return date.toLocaleTimeString(document.documentElement.lang || undefined, {
@@ -51,6 +59,12 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        if (state === 'conflict') {
+            status.textContent = status.dataset.conflictLabel || status.dataset.failedLabel || '';
+            status.classList.add('is-error');
+            return;
+        }
+
         const label = status.dataset.savedLabel || '';
         status.textContent = label.replace('__time__', timeLabel(savedAt || new Date()));
     };
@@ -61,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const saveNow = async () => {
-        if (!dirty || manualSubmit) {
+        if (!dirty || manualSubmit || conflicted) {
             return true;
         }
 
@@ -74,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
         queued = false;
         setStatus('saving');
 
-        const savedPayload = serialize();
+        const savedPayload = fingerprint();
 
         currentSave = (async () => {
             const response = await fetch(url, {
@@ -87,12 +101,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
             });
 
+            if (response.status === 409) {
+                conflicted = true;
+                setStatus('conflict');
+
+                return false;
+            }
+
             if (!response.ok) {
                 throw new Error('Autosave failed');
             }
 
             const json = await response.json();
-            const currentPayload = serialize();
+
+            if (version && json.version) {
+                version.value = String(json.version);
+            }
+
+            const currentPayload = fingerprint();
             dirty = currentPayload !== savedPayload;
 
             if (dirty) {
@@ -121,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const saveOnUnload = () => {
-        if (!dirty || manualSubmit) {
+        if (!dirty || manualSubmit || conflicted) {
             return;
         }
 

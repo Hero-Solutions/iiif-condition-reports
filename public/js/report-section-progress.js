@@ -6,6 +6,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const countPanel = (panel) => {
+        const annotationLegend = panel.querySelector('[data-annotation-legend]');
+
+        if (annotationLegend) {
+            const renderedCount = annotationLegend.querySelectorAll('.report-annotation-legend-row').length;
+
+            if (annotationLegend.dataset.annotationLegendLoaded === 'true') {
+                return renderedCount;
+            }
+
+            const initialCount = Number(annotationLegend.dataset.initialCount || 0);
+
+            return Number.isFinite(initialCount) ? initialCount : renderedCount;
+        }
+
+        const mediaItems = panel.querySelectorAll('[data-report-photo-card], [data-report-document-row]');
+
+        if (mediaItems.length > 0) {
+            return mediaItems.length;
+        }
+
         const actorList = panel.querySelector('.actor-list');
 
         if (actorList) {
@@ -78,6 +98,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.addEventListener('input', scheduleUpdate);
     document.addEventListener('change', scheduleUpdate);
+
+    const panelObserver = new MutationObserver(scheduleUpdate);
+
+    editor.querySelectorAll('[data-report-tab-panel]').forEach((panel) => {
+        panelObserver.observe(panel, { childList: true, subtree: true });
+    });
 
     updateCounts();
 });

@@ -120,6 +120,7 @@
         {% elseif group.treatment is defined %}
             {% set treatment_date = attribute(data, group.treatment.date_name)|default('') %}
             {% set treatment_hours = attribute(data, group.treatment.hours_name)|default('') %}
+            {% set treatment_details = attribute(data, group.treatment.detail_name)|default('') %}
             {% set treatment_happened = attribute(data, group.treatment.happened_name)|default(null)
                 or attribute(data, '__enabled_' ~ group.treatment.happened_name)|default(null)
                 or treatment_date != '' %}
@@ -137,6 +138,10 @@
                     <label class="compact-treatment-input compact-treatment-hours">
                         <span>{{ 'reports.number_of_hours'|trans }}</span>
                         <input type="number" min="0" step="any" name="report_data[{{ group.treatment.hours_name }}]" value="{{ treatment_hours }}">
+                    </label>
+                    <label class="compact-treatment-input compact-treatment-explanation">
+                        <span>{{ 'reports.further_explanation'|trans }}</span>
+                        <input type="text" name="report_data[{{ group.treatment.detail_name }}]" value="{{ treatment_details }}">
                     </label>
                 </div>
             </div>

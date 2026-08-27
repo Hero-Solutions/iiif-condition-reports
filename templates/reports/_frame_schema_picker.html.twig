@@ -1,0 +1,31 @@
+<details class="report-annotation-schema-picker">
+    <summary class="button secondary">{{ 'reports.annotation_add_frame'|trans }}</summary>
+    <div class="report-annotation-schema-menu">
+        {% for side in ['front', 'back'] %}
+            <section>
+                <h4>{{ ('reports.annotation_frame_' ~ side)|trans }}</h4>
+                <div class="report-annotation-schema-grid">
+                    {% for choice in frame_schema_choices|filter(choice => choice.side == side) %}
+                        <div class="report-annotation-schema-choice{% if choice.imageId %} is-added{% endif %}">
+                            {% if choice.imageId %}
+                                <span class="report-annotation-schema-preview" title="{{ choice.label }}">
+                                    <img src="{{ choice.path }}" alt="">
+                                    <span>{{ choice.label }}</span>
+                                </span>
+                                <svg class="report-annotation-schema-added-icon icon" aria-label="{{ 'reports.annotation_frame_added'|trans }}"><use href="#i-check"/></svg>
+                            {% else %}
+                                <button type="submit"
+                                        class="report-annotation-schema-preview"
+                                        form="report-frame-schema-add-{{ choice.key }}"
+                                        title="{{ choice.label }}">
+                                    <img src="{{ choice.path }}" alt="">
+                                    <span>{{ choice.label }}</span>
+                                </button>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </section>
+        {% endfor %}
+    </div>
+</details>

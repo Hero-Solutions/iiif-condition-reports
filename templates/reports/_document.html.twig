@@ -1,0 +1,222 @@
+{% if report.type == constant('App\\Entity\\Report::TYPE_QUICK_CHECK') %}
+<article class="report-document is-quick-report{{ report.status == constant('App\\Entity\\Report::STATUS_ACTIVE') ? ' is-draft-report' : '' }}">
+    {% if report.status == constant('App\\Entity\\Report::STATUS_ACTIVE') %}
+        <div class="report-document-draft">{{ 'status.active'|trans }}</div>
+    {% endif %}
+    <header class="report-document-header quick-report-header">
+        <div class="report-document-title">
+            <p>{{ 'report_type.quick_condition_check'|trans }}</p>
+            <h1>{{ report.title }}</h1>
+        </div>
+        {% if thumbnail_source %}<img class="report-document-image" src="{{ thumbnail_source }}" alt="">{% endif %}
+    </header>
+    <table class="report-document-meta quick-report-meta" data-print-section="metadata">
+        <tbody>
+            <tr>
+                <th>{{ 'objects.inventory_number'|trans }}</th><td>{{ object.inventoryNumber }}</td>
+                <th>{{ 'objects.object_title'|trans }}</th><td>{{ object.displayTitle(app.request.locale) }}</td>
+            </tr>
+            <tr>
+                <th>{{ 'objects.creator'|trans }}</th><td>{{ object.creator ?: '—' }}</td>
+                <th>{{ 'reports.project_label'|trans }}</th><td>{{ report.project ? report.project.title : '—' }}{% if room_label %}<br><span class="report-document-detail">{{ 'projects.room'|trans }}: {{ room_label }}</span>{% endif %}</td>
+            </tr>
+            {% if reason_label or report.receiptAt %}
+                <tr>
+                    <th>{{ 'reports.reason'|trans }}</th><td>{{ reason_label ?: '—' }}</td>
+                    <th>{{ 'reports.receipt_at'|trans }}</th><td>{{ report.receiptAt ? report.receiptAt|date('d/m/Y') : '—' }}</td>
+                </tr>
+            {% endif %}
+            <tr>
+                <th>{{ 'reports.date'|trans }}</th><td>{{ report.startedAt ? report.startedAt|date('d/m/Y') : report.createdAt|date('d/m/Y') }}</td>
+                <th>{{ 'reports.author'|trans }}</th><td>{{ author_name ?: 'reports.unknown_reporter'|trans }}</td>
+            </tr>
+        </tbody>
+    </table>
+    {% if report.description %}<section class="quick-report-note" data-print-section="description"><h2>{{ 'reports.description'|trans }}</h2><p>{{ report.description|nl2br }}</p></section>{% endif %}
+    {% if report_actors is not empty %}
+        <section class="quick-report-note" data-print-section="actors">
+            <h2>{{ 'actors.title'|trans }}</h2>
+            <p>{% for assignment in report_actors %}{% if not loop.first %} · {% endif %}{{ assignment.actor.displayName }} ({{ assignment.role == 'other' and assignment.customRole ? assignment.customRole : ('actor_role.' ~ assignment.role)|trans }}){% endfor %}</p>
+        </section>
+    {% endif %}
+    <div class="quick-report-sections" data-print-section="content">
+        {% for section in report_sections %}
+            <section class="quick-report-section">
+                <h2>{{ section.title }}</h2>
+                {% for block in section.blocks %}
+                    <div class="quick-report-block">
+                        {% if block.title %}<h3>{{ block.title }}</h3>{% endif %}
+                        <dl>
+                            {% for row in block.rows %}
+                                <dt>{{ row.label }}</dt>
+                                <dd>{% for value in row.values %}{% if not loop.first %}; {% endif %}{{ value|nl2br }}{% endfor %}</dd>
+                            {% endfor %}
+                        </dl>
+                    </div>
+                {% endfor %}
+            </section>
+        {% else %}
+            <p class="report-document-empty">{{ 'reports.no_report_content'|trans }}</p>
+        {% endfor %}
+    </div>
+    {% include 'reports/_damage_annotations.html.twig' %}
+    {% if report_image_sources is not empty %}
+        <section class="report-document-section report-document-photos" data-print-section="photos">
+            <h2>{{ 'reports.photos'|trans }}</h2>
+            <div class="report-output-photo-grid">
+                {% for source in report_image_sources %}{% if source %}<img src="{{ source }}" alt="">{% endif %}{% endfor %}
+            </div>
+        </section>
+    {% endif %}
+    {% if report_documents is not empty %}
+        <section class="report-document-section" data-print-section="documents">
+            <h2>{{ 'reports.documents'|trans }}</h2>
+            <ul class="report-output-document-list">
+                {% for document in report_documents %}<li>{{ document.originalName }} <span>({{ ('document_category.' ~ document.category)|trans }})</span></li>{% endfor %}
+            </ul>
+        </section>
+    {% endif %}
+    <footer class="report-document-finalization">
+        {% if report.finalizedAt %}{{ 'reports.finalized_by_on'|trans({'%name%': finalizer_name ?: 'reports.unknown_reporter'|trans, '%date%': report.finalizedAt|date('d/m/Y H:i')}) }}{% else %}{{ 'reports.draft_preview_notice'|trans }}{% endif %}
+    </footer>
+</article>
+{% else %}
+<article class="report-document{{ report.status == constant('App\\Entity\\Report::STATUS_ACTIVE') ? ' is-draft-report' : '' }}">
+    {% if report.status == constant('App\\Entity\\Report::STATUS_ACTIVE') %}
+        <div class="report-document-draft">{{ 'status.active'|trans }}</div>
+    {% endif %}
+
+    <header class="report-document-header">
+        <div class="report-document-title">
+            <p>{{ report.type == constant('App\\Entity\\Report::TYPE_OTHER') and report.customType ? report.customType : ('report_type.' ~ report.type)|trans }}</p>
+            <h1>{{ report.title }}</h1>
+        </div>
+        {% if thumbnail_source %}
+            <img class="report-document-image" src="{{ thumbnail_source }}" alt="">
+        {% endif %}
+    </header>
+
+    <table class="report-document-meta" data-print-section="metadata">
+        <tbody>
+            <tr>
+                <th>{{ 'objects.inventory_number'|trans }}</th>
+                <td>{{ object.inventoryNumber }}</td>
+                <th>{{ 'objects.object_title'|trans }}</th>
+                <td>{{ object.displayTitle(app.request.locale) }}</td>
+            </tr>
+            {% if object.creator or report.project %}
+                <tr>
+                    <th>{{ 'objects.creator'|trans }}</th>
+                    <td>{{ object.creator ?: '—' }}</td>
+                    <th>{{ 'reports.project_label'|trans }}</th>
+                    <td>{{ report.project ? report.project.title : '—' }}{% if room_label %}<span class="report-document-detail">{{ 'projects.room'|trans }}: {{ room_label }}</span>{% endif %}</td>
+                </tr>
+            {% endif %}
+            <tr>
+                <th>{{ 'reports.inspection_period'|trans }}</th>
+                <td>
+                    {% if report.startedAt %}{{ report.startedAt|date('d/m/Y') }}{% else %}—{% endif %}
+                    {% if report.endedAt and (not report.startedAt or report.endedAt != report.startedAt) %} – {{ report.endedAt|date('d/m/Y') }}{% endif %}
+                </td>
+                <th>{{ 'reports.author'|trans }}</th>
+                <td>{{ author_name ?: 'reports.unknown_reporter'|trans }}</td>
+            </tr>
+            {% if reason_label or report.receiptAt %}
+                <tr>
+                    <th>{{ 'reports.reason'|trans }}</th>
+                    <td>{{ reason_label ?: '—' }}</td>
+                    <th>{{ 'reports.receipt_at'|trans }}</th>
+                    <td>{{ report.receiptAt ? report.receiptAt|date('d/m/Y') : '—' }}</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+
+    {% if report.description %}
+        <section class="report-document-section report-document-description" data-print-section="description">
+            <h2>{{ 'reports.description'|trans }}</h2>
+            <p>{{ report.description|nl2br }}</p>
+        </section>
+    {% endif %}
+
+    {% if report_actors is not empty %}
+        <section class="report-document-section" data-print-section="actors">
+            <h2>{{ 'actors.title'|trans }}</h2>
+            <table class="report-document-table">
+                <tbody>
+                    {% for assignment in report_actors %}
+                        <tr>
+                            <th>{{ assignment.role == 'other' and assignment.customRole ? assignment.customRole : ('actor_role.' ~ assignment.role)|trans }}</th>
+                            <td>
+                                {{ assignment.actor.displayName }}
+                                {% if assignment.contactPerson %}
+                                    <span class="report-document-detail">{{ 'actors.contact_person_short'|trans }}: {{ assignment.contactPerson.displayName }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    {% endif %}
+
+    {% for section in report_sections %}
+        <section class="report-document-section" data-print-section="content">
+            <h2>{{ section.title }}</h2>
+            {% for block in section.blocks %}
+                <div class="report-document-block">
+                    {% if block.title %}<h3>{{ block.title }}</h3>{% endif %}
+                    <table class="report-document-table">
+                        <tbody>
+                            {% for row in block.rows %}
+                                <tr>
+                                    <th>{{ row.label }}</th>
+                                    <td>
+                                        {% for value in row.values %}
+                                            <span class="report-document-value">{{ value|nl2br }}</span>
+                                        {% endfor %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endfor %}
+        </section>
+    {% else %}
+        <p class="report-document-empty">{{ 'reports.no_report_content'|trans }}</p>
+    {% endfor %}
+
+    {% include 'reports/_damage_annotations.html.twig' %}
+
+    {% if report_image_sources is not empty %}
+        <section class="report-document-section report-document-photos" data-print-section="photos">
+            <h2>{{ 'reports.photos'|trans }}</h2>
+            <div class="report-output-photo-grid">
+                {% for source in report_image_sources %}{% if source %}<img src="{{ source }}" alt="">{% endif %}{% endfor %}
+            </div>
+        </section>
+    {% endif %}
+    {% if report_documents is not empty %}
+        <section class="report-document-section" data-print-section="documents">
+            <h2>{{ 'reports.documents'|trans }}</h2>
+            <ul class="report-output-document-list">
+                {% for document in report_documents %}
+                    <li><a href="{{ document.path }}" target="_blank" rel="noopener">{{ document.originalName }}</a> <span>({{ ('document_category.' ~ document.category)|trans }})</span></li>
+                {% endfor %}
+            </ul>
+        </section>
+    {% endif %}
+
+    <footer class="report-document-finalization">
+        {% if report.finalizedAt %}
+            {{ 'reports.finalized_by_on'|trans({
+                '%name%': finalizer_name ?: 'reports.unknown_reporter'|trans,
+                '%date%': report.finalizedAt|date('d/m/Y H:i')
+            }) }}
+        {% else %}
+            {{ 'reports.draft_preview_notice'|trans }}
+        {% endif %}
+    </footer>
+</article>
+{% endif %}

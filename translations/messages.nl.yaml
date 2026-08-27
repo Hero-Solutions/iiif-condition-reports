@@ -57,7 +57,7 @@ report_type:
   incoming_condition: 'Inkomend conditierapport'
   outgoing_condition: 'Uitgaand conditierapport'
   returning_condition: 'Terugkerend conditierapport'
-  quick_condition_check: 'Quick condition check'
+  quick_condition_check: 'Vlugge conditiecheck'
   restoration: Restauratie
   research: Onderzoek
   damage_claim: Schadeclaim
@@ -117,12 +117,29 @@ projects:
   no_objects_text: 'Gebruik "Object toevoegen" om objecten aan dit project te koppelen.'
   add_object_hint: 'Staat het object nog niet in de catalogus?'
   project_details: Projectgegevens
+  environmental_conditions: Omgevingsfactoren
+  environmental_conditions_help: 'Deze waarden worden als basis ingevuld in nieuwe conditierapporten binnen dit project. Ze kunnen per rapport worden aangepast.'
+  environmental_conditions_saved: 'Omgevingsfactoren opgeslagen.'
+  environment_temperature: 'Richtlijnen temperatuur'
+  environment_relative_humidity: 'Richtlijnen relatieve vochtigheid'
+  environment_light: 'Richtlijnen lichtsterkte (Lux)'
+  environment_uv: 'Richtlijnen ultraviolet licht (UV)'
+  environment_exhibition_duration: 'Maximale tentoonstellingsduur'
+  environment_acclimatization: 'Acclimatisatietijd vóór uitpakken'
   confirm_remove_object: 'Object %inventory_number% uit dit project verwijderen?'
   required_title: 'Projecttitel is verplicht.'
   required_custom_type: 'Vul het projecttype in.'
   required_inventory_number: 'Inventarisnummer is verplicht.'
   max_100: 'Gebruik maximaal 100 tekens.'
   max_255: 'Gebruik maximaal 255 tekens.'
+  max_500: 'Gebruik maximaal 500 tekens.'
+  address: Adres
+  website: Website
+  insurance_start_date: 'Verzekerd vanaf'
+  insurance_end_date: 'Verzekerd tot'
+  room: 'Zaal / ruimte'
+  object_context_saved: 'Objectcontext opgeslagen.'
+  view_reports: 'Rapporten bekijken'
   empty_title: 'Nog geen projecten'
   empty_text: 'Projecten worden de primaire ingang voor objecten en rapporten.'
 objects:
@@ -141,7 +158,18 @@ objects:
   current_location: 'Huidige locatie'
   description: Beschrijving
   iiif_manifest_url: 'IIIF manifest URL'
-  iiif_thumbnail_url: 'Thumbnail URL'
+  image: Hoofdafbeelding
+  image_help: 'Kies één beeldbron: een IIIF-manifest, een externe afbeelding of een eigen foto.'
+  external_image_url: 'Externe afbeeldings-URL'
+  image_load: Laden
+  image_upload: 'Foto opladen'
+  image_preview: Voorbeeld
+  image_preview_loading: 'Afbeelding laden…'
+  image_preview_failed: 'De afbeelding kon niet worden geladen.'
+  iiif_preview_failed: 'In dit IIIF-manifest kon geen voorbeeldafbeelding worden geladen.'
+  image_upload_help: 'JPG, PNG of WebP, maximaal 50 MB.'
+  upload_failed: 'De foto kon niet worden opgeladen. Probeer het opnieuw.'
+  external_image_failed: 'De externe afbeelding kon niet worden opgehaald. Controleer de URL en probeer opnieuw.'
   thumbnail: Thumbnail
   no_thumbnail: 'Geen beeld'
   edit_object: 'Object bewerken'
@@ -186,7 +214,68 @@ reports:
   section_damage_types: Schadebeelden
   section_recommendations: Aanbevelingen
   annotation_viewer_error: 'IIIF-viewer kon niet geladen worden.'
-  no_annotation_manifest: 'Geen IIIF manifest gekoppeld aan dit object.'
+  annotation_save_error: 'De tekening kon niet worden opgeslagen.'
+  no_annotation_manifest: 'Geen beeld of IIIF-manifest gekoppeld aan dit object.'
+  annotation_damage_case: Schadegeval
+  annotation_damage_placeholder: 'Typ of kies een schadegeval...'
+  annotation_color: Kleur
+  annotation_color_red: Rood
+  annotation_color_green: Groen
+  annotation_color_blue: Blauw
+  annotation_color_brown: Bruin
+  annotation_color_purple: Paars
+  annotation_color_yellow: Geel
+  annotation_stroke_width: Lijndikte
+  annotation_stroke_thin: Dun
+  annotation_stroke_normal: Normaal
+  annotation_stroke_thick: Dik
+  annotation_stroke_locked: 'Lijndikte ligt vast zodra dit schadegeval tekeningen bevat.'
+  annotation_start: Tekenen
+  annotation_done: Klaar
+  annotation_undo_stroke: 'Laatste tekening wissen'
+  annotation_eraser: Gom
+  annotation_eraser_width: Gomdikte
+  annotation_eraser_thin: Dunne gom
+  annotation_eraser_normal: Normale gom
+  annotation_eraser_thick: Dikke gom
+  annotation_delete_drawing: 'Geselecteerde tekening volledig verwijderen'
+  annotation_main_image: Hoofdafbeelding
+  annotation_add_frame: '+ Kaderschets'
+  annotation_remove_frame: 'Kaderschets verwijderen'
+  annotation_frame_added: 'Reeds toegevoegd'
+  annotation_frame_front: Voorzijde
+  annotation_frame_back: Achterzijde
+  annotation_frame_rectangle_portrait: 'Rechthoek staand'
+  annotation_frame_rectangle_landscape: 'Rechthoek liggend'
+  annotation_frame_square: Vierkant
+  annotation_frame_oval_portrait: 'Ovaal staand'
+  annotation_frame_oval_landscape: 'Ovaal liggend'
+  annotation_frame_circle: Rond
+  annotation_frame_diamond: Ruit
+  annotation_frame_label: 'Kaderschets — %side% — %shape%'
+  annotation_frame_invalid: 'Deze kaderschets bestaat niet.'
+  annotation_legend: Legende
+  annotation_empty_legend: 'De legende verschijnt zodra u een schadegeval tekent.'
+  annotation_history: Geschiedenis
+  annotation_confirm_delete_case: 'Dit schadegeval en alle bijbehorende tekeningen verwijderen?'
+  annotation_select_damage: 'Vul eerst een schadegeval in.'
+  annotation_drawing_active: 'Teken op de afbeelding. Klik op Klaar wanneer u gereed bent.'
+  annotation_select_drawing_for_eraser: 'Teken met de gom over een bestaande tekening.'
+  annotation_eraser_unavailable: 'De gom kon niet worden geladen. Herlaad de pagina.'
+  annotation_eraser_active: 'Gom actief — teken over het gedeelte dat u wilt verwijderen.'
+  annotation_saved: Opgeslagen
+  annotation_saving: Opslaan...
+  annotation_legend_edit: 'Legende aanpassen'
+  annotation_legend_save: Opslaan
+  annotation_legend_cancel: Annuleren
+  annotation_legend_clear: 'Schets wissen'
+  annotation_legend_note_placeholder: 'Notitie in de legende (optioneel)'
+  annotation_delete_case: 'Schadegeval verwijderen'
+  annotation_move_legend: 'Legende-item verslepen'
+  annotation_drawing_count_one: '1 tekening'
+  annotation_drawing_count_many: '%count% tekeningen'
+  annotation_added_by: 'Toegevoegd door %user% op %date%'
+  annotation_deleted_on: 'Verwijderd op %date%'
   custom_value: Andere
   other: Andere
   present: Aanwezig
@@ -198,6 +287,7 @@ reports:
   woodworm_old: 'Houtworm (oud)'
   treatment_date: Datum
   number_of_hours: 'Aantal uren'
+  further_explanation: 'Verdere toelichting'
   transport_and_display: 'Transport en presentatie'
   transport_restrictions: Transport
   display_restrictions: Presentatie
@@ -206,19 +296,101 @@ reports:
   no_matching_options: 'Geen overeenkomende keuzes.'
   remarks: Opmerkingen
   type: Type
+  reason: Aanleiding
+  choose_reason: 'Kies een aanleiding'
+  receipt_at: Ontvangstdatum
   status: Status
   search: 'Inventarisnummer, titel of rapport'
   empty_title: 'Nog geen rapporten'
   empty_text: 'Rapporten worden later hier getoond.'
   unknown_reporter: Onbekend
+  date: Datum
+  author: Maker
   deleted: 'Rapport verwijderd.'
-  delete_draft: 'Draftrapport verwijderen'
-  delete_draft_only: 'Alleen draftrapporten kunnen worden verwijderd.'
-  confirm_delete: 'Draftrapport %title% verwijderen?'
+  delete_draft: 'Ontwerp verwijderen'
+  delete_draft_only: 'Alleen rapporten met de status Ontwerp kunnen worden verwijderd.'
+  confirm_delete: 'Het ontwerp “%title%” volledig verwijderen? Dit kan niet ongedaan worden gemaakt.'
+  confirm_delete_any: 'Het rapport “%title%” volledig verwijderen? Dit kan niet ongedaan worden gemaakt.'
+  project_label: Project
+  no_project: 'Geen project'
+  choose_project_title: 'Nieuw rapport'
+  choose_project_link_title: 'Rapport aan project koppelen'
+  project_question: 'Bij welk project hoort dit rapport?'
+  choose_project: 'Kies een project'
+  project_choice_help: 'Een rapport zonder project blijft alleen bij het object zichtbaar.'
+  invalid_project: 'Kies een geldig project.'
+  create_report: 'Rapport maken'
+  create_without_project: 'Zonder project maken'
+  object_has_no_projects: 'Dit object is nog niet aan een project toegevoegd. Je kunt het rapport zonder project maken.'
+  object_has_no_projects_link: 'Voeg dit object eerst aan een project toe. Daarna kun je het rapport koppelen.'
+  link: Koppelen
+  link_to_project: 'Aan project koppelen'
+  project_linked: 'Rapport gekoppeld aan het project.'
+  link_existing_title: 'Bestaande rapporten koppelen'
+  one_unlinked_found: 'Dit object heeft al een rapport zonder project. Wil je het aan dit project koppelen?'
+  multiple_unlinked_found: 'Dit object heeft %count% rapporten zonder project. Kies welke bij dit project horen.'
+  select_report_to_link: 'Selecteer minstens één rapport.'
+  unlinked_notice: '%count% rapport(en) zonder project'
+  not_now: 'Niet nu'
   autosave_saved_at: 'Opgeslagen om %time%'
   autosave_saving: 'Opslaan...'
   autosave_unsaved: 'Niet opgeslagen wijzigingen'
   autosave_failed: 'Opslaan mislukt'
+  preview: Voorbeeld
+  finalize: Finaliseren
+  finalized: 'Rapport gefinaliseerd.'
+  archive: Archiveren
+  archived: 'Rapport gearchiveerd.'
+  confirm_finalize: 'Rapport finaliseren? Daarna kan het niet meer worden gewijzigd.'
+  confirm_archive: 'Dit finale rapport archiveren?'
+  choose_type: 'Kies een rapporttype'
+  finalize_incomplete: 'Kies eerst een rapporttype.'
+  edit_conflict: 'Dit rapport is intussen elders gewijzigd. Herlaad de pagina voordat je verdergaat.'
+  print: Afdrukken
+  print_options: 'Afdrukken…'
+  report_content: Rapportinhoud
+  download_pdf: 'PDF downloaden'
+  inspection_period: Periode
+  presence: Aanwezigheid
+  no_report_content: 'Er zijn nog geen rapportgegevens ingevuld.'
+  finalized_by_on: 'Gefinaliseerd door %name% op %date%.'
+  draft_preview_notice: 'Dit is een voorbeeld van een ontwerp en geen finaal rapport.'
+  final_report_locked: 'Een finaal of gearchiveerd rapport kan niet meer worden gewijzigd.'
+  all_projects: 'Alle projecten'
+  all_types: 'Alle rapporttypes'
+  all_statuses: 'Alle statussen'
+  export_csv: 'CSV exporteren'
+  photos: Foto's
+  photo: Foto
+  photos_help: 'Voeg rapportfoto’s of een kaderschets toe. Elk beeld kan bij Schadebeelden worden geannoteerd.'
+  no_photos: 'Nog geen rapportfoto’s.'
+  choose_photos: 'Foto’s kiezen'
+  take_photo: 'Foto nemen'
+  add_photo: 'Foto toevoegen'
+  add_photos: 'Foto’s toevoegen'
+  image_url: 'Afbeeldings-URL'
+  images_added: 'Foto’s toegevoegd.'
+  image_url_required: 'Geef een afbeeldings-URL in.'
+  iiif_url_required: 'Geef een IIIF-manifest-URL in.'
+  image_rotated: 'Foto gedraaid.'
+  rotate: Draaien
+  move_up: 'Naar voren'
+  move_down: 'Naar achteren'
+  confirm_delete_photo: 'Deze foto en de bijbehorende tekeningen verwijderen?'
+  confirm_delete_frame_schema: 'Deze kaderschets en de bijbehorende tekeningen verwijderen?'
+  documents: Documenten
+  documents_help: 'Voeg bijvoorbeeld een opstellingsplan, aanbeveling of extern rapport toe.'
+  no_documents: 'Nog geen documenten.'
+  document_category: 'Soort document'
+  choose_documents: 'Documenten kiezen'
+  add_documents: 'Documenten toevoegen'
+  documents_added: 'Documenten toegevoegd.'
+  confirm_delete_document: 'Dit document verwijderen?'
+document_category:
+  general: Algemeen
+  setup_plan: Opstellingsplan
+  recommendation: Aanbeveling
+  external_report: 'Extern rapport'
 report_series:
   title: Rapporten
   new: 'Nieuw rapport'
@@ -350,6 +522,7 @@ users:
   role_user: Gebruiker
   role_admin: Administrator
   role_read_only: 'Alleen lezen'
+  read_only_notice: 'Alleen-lezenmodus: je kunt gegevens bekijken, maar niet wijzigen.'
   saved: 'Gebruiker opgeslagen.'
   deleted: 'Gebruiker verwijderd.'
   cannot_delete_self: 'Je kunt je eigen gebruikersaccount niet verwijderen.'
@@ -372,6 +545,43 @@ login:
   submit: Inloggen
   error: 'Ongeldige login of wachtwoord.'
   inactive_user: 'Deze gebruiker is niet actief.'
+profile:
+  title: Profiel
+  change_password: 'Wachtwoord wijzigen'
+  password_help: 'Laat deze velden leeg wanneer je het wachtwoord niet wilt wijzigen.'
+  current_password: 'Huidig wachtwoord'
+  new_password: 'Nieuw wachtwoord'
+  repeat_password: 'Herhaal nieuw wachtwoord'
+  invalid_details: 'Controleer je naam en e-mailadres.'
+  invalid_password_change: 'Controleer je huidige wachtwoord. Het nieuwe wachtwoord moet minstens 8 tekens bevatten en beide velden moeten gelijk zijn.'
+  saved: 'Profiel opgeslagen.'
+password_reset:
+  forgot_link: 'Wachtwoord vergeten?'
+  forgot_title: 'Wachtwoord herstellen'
+  forgot_help: 'Vul je e-mailadres in. Als het account bestaat, ontvang je een herstel-link.'
+  send: 'Herstel-link versturen'
+  reset_title: 'Nieuw wachtwoord instellen'
+  save: 'Wachtwoord opslaan'
+  request_received: 'Als dit e-mailadres bij een actief account hoort, werd een herstel-link verstuurd.'
+  invalid_token: 'Deze herstel-link is ongeldig of vervallen.'
+  invalid_password: 'Gebruik minstens 8 tekens en vul twee keer hetzelfde wachtwoord in.'
+  saved: 'Je wachtwoord is gewijzigd.'
+  email_subject: 'Wachtwoord herstellen voor Conditierapporten'
+  email_text: "Gebruik deze link binnen één uur om je wachtwoord te herstellen:\n\n%url%\n\nHeb je dit niet aangevraagd, dan mag je deze e-mail negeren."
+feedback:
+  title: Feedback
+  help: 'Meld hier een inhoudelijk of technisch probleem met de tool.'
+  subject: Onderwerp
+  message: Bericht
+  send: Versturen
+  required: 'Vul een onderwerp en bericht in.'
+  sent: 'Bedankt. Je feedback is verstuurd.'
+  failed: 'De feedback kon niet worden verstuurd.'
+disclaimer:
+  title: Disclaimer
+  development: 'Deze toepassing werd ontwikkeld door Hero Solutions in opdracht van de Vlaamse Kunstcollectie en het Koninklijk Museum voor Schone Kunsten Antwerpen, met steun van de Vlaamse Overheid.'
+  scope: 'De gebruiker blijft verantwoordelijk voor de juistheid, volledigheid en professionele interpretatie van de ingevoerde gegevens en gegenereerde rapporten.'
+  license: 'De broncode wordt beschikbaar gesteld onder de GNU General Public License versie 3.'
 Reports: Rapporten
 Administration: Beheer
 Organisations: Organisaties
@@ -1199,7 +1409,7 @@ MDF: MDF
 'Filling material in rabbet': 'Vulmateriaal in sponning'
 'Balsa wood': 'Balsa hout'
 'Curvature in rabbet': 'Kromming in de sponning'
-'Back frame build-up (BFBU)': 'Opbouw rugzijde'
+'Back frame build-up (BFBU)': 'Opbouw rugzijde (backframe built-up)'
 'Back protection': Achterkantbescherming
 Labels: Etiketten
 Glass: Glas

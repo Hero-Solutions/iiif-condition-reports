@@ -41,6 +41,9 @@ class ProjectObject
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $notes = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $room = null;
+
     #[ORM\Column(type: Types::INTEGER)]
     private int $sortOrder = 0;
 
@@ -95,6 +98,19 @@ class ProjectObject
     public function setNotes(?string $notes): self
     {
         $this->notes = $this->nullableText($notes);
+        $this->touch();
+
+        return $this;
+    }
+
+    public function getRoom(): ?string
+    {
+        return $this->room;
+    }
+
+    public function setRoom(?string $room): self
+    {
+        $this->room = $this->nullableText($room);
         $this->touch();
 
         return $this;

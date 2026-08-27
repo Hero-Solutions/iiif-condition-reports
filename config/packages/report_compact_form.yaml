@@ -571,15 +571,6 @@ parameters:
                 title: Conservation
                 control: heading
               -
-                id: condition_specific_condition_of_the_object_conservation_for_transport_needed_30
-                title: 'Conservation for transport needed'
-                control: single
-                prefix: condition_painting_specific_condition_conservation_transport_
-                choices:
-                  'yes': 'Yes'
-                  'no': 'No'
-                  preferable: Preferable
-              -
                 id: condition_specific_condition_of_the_object_conservation_treatment_31
                 title: 'Conservation treatment'
                 control: treatment
@@ -750,6 +741,14 @@ parameters:
                 choices:
                   museum_staff: 'Qualified museum staff'
                   courier: Courier
+              -
+                id: recommendations_painting_courier_presence
+                title: Courier
+                control: single
+                prefix: recommendations_painting_courier_
+                choices:
+                  present: Present
+                  absent: Absent
               -
                 id: recommendations_manipulation_transport_number_of_people_1
                 title: 'Number of people'
@@ -1386,15 +1385,6 @@ parameters:
                 title: Conservation
                 control: heading
               -
-                id: condition_specific_condition_of_the_object_conservation_for_transport_needed_15
-                title: 'Conservation for transport needed'
-                control: single
-                prefix: condition_work_on_paper_specific_condition_conservation_transport_
-                choices:
-                  'yes': 'Yes'
-                  'no': 'No'
-                  preferable: Preferable
-              -
                 id: condition_specific_condition_of_the_object_conservation_treatment_16
                 title: 'Conservation treatment'
                 control: treatment
@@ -1622,6 +1612,14 @@ parameters:
                 choices:
                   museum_staff: 'Qualified museum staff'
                   courier: Courier
+              -
+                id: recommendations_work_on_paper_courier_presence
+                title: Courier
+                control: single
+                prefix: recommendations_work_on_paper_courier_
+                choices:
+                  present: Present
+                  absent: Absent
               -
                 id: recommendations_manipulation_transport_number_of_people_1
                 title: 'Number of people'
@@ -2085,15 +2083,6 @@ parameters:
                 title: Conservation/restauration
                 control: heading
               -
-                id: condition_specific_condition_of_the_sculpture_conservation_for_transport_needed_9
-                title: 'Conservation for transport needed'
-                control: single
-                prefix: condition_sculpture_conservation_transport_
-                choices:
-                  'yes': 'Yes'
-                  'no': 'No'
-                  preferable: Preferable
-              -
                 id: condition_specific_condition_of_the_sculpture_conservation_treatment_10
                 title: 'Conservation treatment'
                 control: treatment
@@ -2286,6 +2275,14 @@ parameters:
                 choices:
                   museum_staff: 'Qualified museum staff'
                   courier: Courier
+              -
+                id: recommendations_sculpture_courier_presence
+                title: Courier
+                control: single
+                prefix: recommendations_sculpture_courier_
+                choices:
+                  present: Present
+                  absent: Absent
               -
                 id: recommendations_manipulation_transport_number_of_people_1
                 title: 'Number of people'

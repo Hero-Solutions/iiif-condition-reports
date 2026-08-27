@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'profile.title'|trans }} | {{ 'app.title'|trans }}{% endblock %}
+
+{% block body %}
+    <div class="page-header"><h1>{{ 'profile.title'|trans }}</h1></div>
+    <section class="panel narrow-panel">
+        <form method="post" class="edit-form account-form">
+            <input type="hidden" name="_token" value="{{ csrf_token('profile_edit') }}">
+            <label>{{ 'users.full_name'|trans }}<input type="text" name="full_name" value="{{ user.fullName }}" maxlength="255" required></label>
+            <label>{{ 'users.email'|trans }}<input type="email" name="email" value="{{ user.email }}" maxlength="180" required></label>
+            <h2>{{ 'profile.change_password'|trans }}</h2>
+            <p class="muted">{{ 'profile.password_help'|trans }}</p>
+            <label>{{ 'profile.current_password'|trans }}<input type="password" name="current_password" autocomplete="current-password"></label>
+            <label>{{ 'profile.new_password'|trans }}<input type="password" name="new_password" autocomplete="new-password" minlength="8"></label>
+            <label>{{ 'profile.repeat_password'|trans }}<input type="password" name="password_confirmation" autocomplete="new-password" minlength="8"></label>
+            <div class="form-actions"><button type="submit">{{ 'actions.save'|trans }}</button></div>
+        </form>
+    </section>
+{% endblock %}

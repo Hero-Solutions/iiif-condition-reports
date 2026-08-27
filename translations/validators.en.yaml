@@ -2,6 +2,9 @@ objects:
   required_inventory_number: Inventory number is required.
   required_title: Title is required.
   invalid_url: Enter a valid URL.
+  invalid_image: Choose a valid JPG, PNG or WebP image.
+  image_too_large: The image must not be larger than 10 MB.
+  image_too_many_pixels: The image resolution is too large.
   max_100: Use at most 100 characters.
   max_255: Use at most 255 characters.
 

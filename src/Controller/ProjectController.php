@@ -13,9 +13,9 @@ use App\Entity\ProjectObjectActor;
 use App\Entity\ProjectObject;
 use App\Entity\Report;
 use App\Entity\ReportSeries;
-use App\Entity\User;
 use App\Form\ProjectType;
 use App\Service\ObjectThumbnailProvider;
+use App\Service\ReportAuthorProvider;
 use App\Value\ActorRole;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -28,6 +28,7 @@ final class ProjectController extends AbstractController
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly ObjectThumbnailProvider $thumbnailProvider,
+        private readonly ReportAuthorProvider $reportAuthorProvider,
     ) {
     }
 
@@ -193,7 +194,8 @@ final class ProjectController extends AbstractController
             'object_results' => $objectResults,
             'report_series_by_object' => $this->reportSeriesByObject($project),
             'reports_by_series' => $reportsBySeries,
-            'report_author_names' => $this->reportAuthorNames($reportsBySeries),
+            'unlinked_reports_by_object' => $this->unlinkedReportsByObject($projectObjects),
+            'report_author_names' => $this->reportAuthorProvider->namesFor(array_merge(...array_values($reportsBySeries))),
             'object_type_choices' => ObjectRecord::objectTypeChoices(),
             'actor_type_choices' => Actor::typeChoices(),
             'actor_role_choices' => ActorRole::choices(),
@@ -204,6 +206,27 @@ final class ProjectController extends AbstractController
             'thumbnail_urls' => $this->thumbnailProvider->thumbnailsForObjects($thumbnailObjects),
             'is_new' => false,
         ]);
+    }
+
+    #[Route('/{_locale<nl|en>}/projects/{id}/environmental-conditions', name: 'projects_environmental_conditions', methods: ['POST'])]
+    public function saveEnvironmentalConditions(Project $project, Request $request): Response
+    {
+        if ($project->getType() !== Project::TYPE_LOAN) {
+            throw $this->createNotFoundException();
+        }
+
+        if (!$this->isCsrfTokenValid('project_environmental_conditions_' . $project->getId(), (string) $request->request->get('_token'))) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $project->setEnvironmentalConditions($request->request->all('environmental_conditions'));
+        $this->entityManager->flush();
+        $this->addFlash('success', 'projects.environmental_conditions_saved');
+
+        return $this->redirect($this->generateUrl('projects_edit', [
+            '_locale' => $request->getLocale(),
+            'id' => $project->getId(),
+        ]) . '#project-tab-environment');
     }
 
     #[Route('/{_locale<nl|en>}/projects/{id}/objects/{objectId}/add', name: 'projects_objects_add', methods: ['POST'])]
@@ -254,6 +277,14 @@ final class ProjectController extends AbstractController
         $this->ensureReportSeriesForProjectObject($link);
         $this->entityManager->flush();
         $this->addFlash('success', 'projects.object_added');
+
+        if ($this->unlinkedReportsForObject($object) !== []) {
+            return $this->redirectToRoute('reports_link_unlinked', [
+                '_locale' => $request->getLocale(),
+                'projectId' => $project->getId(),
+                'objectId' => $object->getId(),
+            ]);
+        }
 
         return $this->redirectToProject($project, $request);
     }
@@ -526,6 +557,29 @@ final class ProjectController extends AbstractController
             '_locale' => $request->getLocale(),
             'id' => $projectId,
         ]);
+    }
+
+    #[Route('/{_locale<nl|en>}/projects/{projectId}/objects/{id}/context', name: 'projects_objects_context', methods: ['POST'])]
+    public function updateObjectContext(int $projectId, ProjectObject $projectObject, Request $request): Response
+    {
+        if ($projectObject->getProject()->getId() !== $projectId) {
+            throw $this->createNotFoundException();
+        }
+
+        if (!$this->isCsrfTokenValid('project_object_context_' . $projectObject->getId(), (string) $request->request->get('_token'))) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $projectObject
+            ->setRoom(mb_substr(trim((string) $request->request->get('room')), 0, 255))
+            ->setNotes((string) $request->request->get('notes', ''));
+        $this->entityManager->flush();
+        $this->addFlash('success', 'projects.object_context_saved');
+
+        return $this->redirect($this->generateUrl('projects_edit', [
+            '_locale' => $request->getLocale(),
+            'id' => $projectId,
+        ]) . '#object-' . $projectObject->getId());
     }
 
     /**
@@ -1071,55 +1125,54 @@ final class ProjectController extends AbstractController
     }
 
     /**
-     * @param array<int, list<Report>> $reportsBySeries
-     * @return array<int, string>
+     * @param list<ProjectObject> $projectObjects
+     * @return array<int, list<Report>>
      */
-    private function reportAuthorNames(array $reportsBySeries): array
+    private function unlinkedReportsByObject(array $projectObjects): array
     {
-        $userIds = [];
+        $objects = $this->objectsFromProjectObjects($projectObjects);
 
-        foreach ($reportsBySeries as $reports) {
-            foreach ($reports as $report) {
-                $userId = $report->getCreatedById();
-
-                if ($userId !== null) {
-                    $userIds[$userId] = $userId;
-                }
-            }
-        }
-
-        if ($userIds === []) {
+        if ($objects === []) {
             return [];
         }
 
-        $users = $this->entityManager
-            ->getRepository(User::class)
-            ->createQueryBuilder('user')
-            ->andWhere('user.id IN (:ids)')
-            ->setParameter('ids', array_values($userIds))
+        $reports = $this->entityManager
+            ->getRepository(Report::class)
+            ->createQueryBuilder('report')
+            ->andWhere('report.objectRecord IN (:objects)')
+            ->andWhere('report.project IS NULL')
+            ->andWhere('report.status = :status')
+            ->setParameter('objects', $objects)
+            ->setParameter('status', Report::STATUS_ACTIVE)
+            ->orderBy('report.createdAt', 'ASC')
+            ->addOrderBy('report.id', 'ASC')
             ->getQuery()
             ->getResult();
 
-        $usersById = [];
+        $grouped = [];
 
-        foreach ($users as $user) {
-            $name = $user->getFullName() !== '' ? $user->getFullName() : $user->getEmail();
-            $usersById[$user->getId()] = $name;
-        }
+        foreach ($reports as $report) {
+            $objectId = $report->getObjectRecord()->getId();
 
-        $authorNames = [];
-
-        foreach ($reportsBySeries as $reports) {
-            foreach ($reports as $report) {
-                $reportId = $report->getId();
-                $userId = $report->getCreatedById();
-
-                if ($reportId !== null && $userId !== null && isset($usersById[$userId])) {
-                    $authorNames[$reportId] = $usersById[$userId];
-                }
+            if ($objectId !== null) {
+                $grouped[$objectId][] = $report;
             }
         }
 
-        return $authorNames;
+        return $grouped;
     }
+
+    /**
+     * @return list<Report>
+     */
+    private function unlinkedReportsForObject(ObjectRecord $object): array
+    {
+        return $this->entityManager
+            ->getRepository(Report::class)
+            ->findBy(
+                ['objectRecord' => $object, 'project' => null, 'status' => Report::STATUS_ACTIVE],
+                ['createdAt' => 'ASC'],
+            );
+    }
+
 }

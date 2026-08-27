@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}{{ 'app.title'|trans }}{% endblock %}</title>
     <script>try{if(localStorage.getItem('crSidebar')==='collapsed'){document.documentElement.classList.add('sidebar-collapsed')}}catch(e){}</script>
-    <link rel="stylesheet" href="/css/app.css?v=92">
+    <link rel="stylesheet" href="/css/app.css?v=107">
     <script src="/js/smart-single-select.js?v=6" defer></script>
     {% block stylesheets %}{% endblock %}
     {% block javascripts %}{% endblock %}
 </head>
-<body>
+<body{% if is_granted('ROLE_READ_ONLY') %} class="is-read-only" data-read-only{% endif %}>
     {% set current_route = app.request.attributes.get('_route') %}
     {% set current_params = app.request.attributes.get('_route_params')|default({}) %}
 
@@ -28,6 +28,9 @@
         <symbol id="i-minus" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></g></symbol>
         <symbol id="i-pencil" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L18.5 9.5a2.121 2.121 0 0 0-3-3L5 17v3z"/><path d="M13.5 6.5l3 3"/></g></symbol>
         <symbol id="i-trash" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M10 11v6M14 11v6"/><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-12"/><path d="M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/></g></symbol>
+        <symbol id="i-rotate" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.34 5.66"/><path d="M20 4v7h-7"/></g></symbol>
+        <symbol id="i-up" viewBox="0 0 24 24"><path d="m6 15 6-6 6 6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="i-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></symbol>
         <symbol id="i-x" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></g></symbol>
         <symbol id="i-check" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></g></symbol>
         <symbol id="i-search" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></g></symbol>
@@ -72,13 +75,17 @@
                 {% if app.user %}
                     <div class="sidebar-user">
                         <span class="sidebar-avatar" aria-hidden="true">{{ app.user.fullName|slice(0, 1)|upper }}</span>
-                        <span class="sidebar-label sidebar-user-name">{{ app.user.fullName }}</span>
+                        <a class="sidebar-label sidebar-user-name" href="{{ path('profile_edit', {'_locale': app.request.locale}) }}">{{ app.user.fullName }}</a>
                         <a class="sidebar-logout" href="{{ path('app_logout', {'_locale': app.request.locale}) }}" title="{{ 'nav.logout'|trans }}" aria-label="{{ 'nav.logout'|trans }}">
                             <svg class="icon" aria-hidden="true"><use href="#i-logout"/></svg>
                         </a>
                     </div>
                 {% endif %}
                 <div class="sidebar-utils">
+                    <div class="sidebar-meta-links sidebar-label">
+                        <a href="{{ path('feedback', {'_locale': app.request.locale}) }}">{{ 'feedback.title'|trans }}</a>
+                        <a href="{{ path('disclaimer', {'_locale': app.request.locale}) }}">{{ 'disclaimer.title'|trans }}</a>
+                    </div>
                     <nav class="language-switcher">
                         <a href="{{ path(current_route, current_params|merge({'_locale': 'nl'})) }}" class="{{ app.request.locale == 'nl' ? 'active' : '' }}">NL</a>
                         <a href="{{ path(current_route, current_params|merge({'_locale': 'en'})) }}" class="{{ app.request.locale == 'en' ? 'active' : '' }}">EN</a>
@@ -99,6 +106,9 @@
             </header>
 
             <main class="page">
+                {% if is_granted('ROLE_READ_ONLY') %}
+                    <div class="read-only-notice" role="status">{{ 'users.read_only_notice'|trans }}</div>
+                {% endif %}
                 <div class="flash-stack" data-flash-stack>
                     {% for type, messages in app.flashes %}
                         {% for message in messages %}
@@ -114,6 +124,6 @@
 
     <div class="sidebar-overlay" data-sidebar-overlay hidden></div>
 
-    <script src="/js/app-shell.js?v=2" defer></script>
+    <script src="/js/app-shell.js?v=4" defer></script>
 </body>
 </html>

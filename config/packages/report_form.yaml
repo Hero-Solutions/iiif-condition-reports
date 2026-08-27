@@ -36,7 +36,6 @@ parameters:
       name: Movement within the same building
       options:
         401: To location / depot
-        402: To exhibition room
         403: To restoration room
         404: To packing room
     5:

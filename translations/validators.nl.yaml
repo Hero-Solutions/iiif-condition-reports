@@ -2,6 +2,9 @@ objects:
   required_inventory_number: Inventarisnummer is verplicht.
   required_title: Titel is verplicht.
   invalid_url: Geef een geldige URL in.
+  invalid_image: Kies een geldige JPG-, PNG- of WebP-afbeelding.
+  image_too_large: De afbeelding mag maximaal 10 MB groot zijn.
+  image_too_many_pixels: De resolutie van de afbeelding is te groot.
   max_100: Gebruik maximaal 100 tekens.
   max_255: Gebruik maximaal 255 tekens.
 

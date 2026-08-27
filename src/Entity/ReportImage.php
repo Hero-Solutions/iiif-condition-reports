@@ -13,12 +13,14 @@ use Doctrine\ORM\Mapping as ORM;
 class ReportImage
 {
     public const SOURCE_UPLOAD = 'upload';
+    public const SOURCE_URL = 'url';
     public const SOURCE_IIIF = 'iiif';
     public const SOURCE_DATAHUB = 'datahub';
     public const SOURCE_SCHEMA = 'schema';
 
     private const SOURCES = [
         self::SOURCE_UPLOAD,
+        self::SOURCE_URL,
         self::SOURCE_IIIF,
         self::SOURCE_DATAHUB,
         self::SOURCE_SCHEMA,

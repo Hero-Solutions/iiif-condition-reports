@@ -81,6 +81,15 @@ final class ProjectType extends AbstractType
                 'label' => 'projects.description',
                 'required' => false,
             ])
+            ->add('address', TextareaType::class, [
+                'label' => 'projects.address',
+                'required' => false,
+            ])
+            ->add('website', TextType::class, [
+                'label' => 'projects.website',
+                'required' => false,
+                'constraints' => [new Length(max: 500, maxMessage: 'projects.max_500')],
+            ])
             ->add('startDate', DateType::class, [
                 'label' => 'projects.start_date',
                 'required' => false,
@@ -89,6 +98,18 @@ final class ProjectType extends AbstractType
             ])
             ->add('endDate', DateType::class, [
                 'label' => 'projects.end_date',
+                'required' => false,
+                'widget' => 'single_text',
+                'input' => 'datetime_immutable',
+            ])
+            ->add('insuranceStartDate', DateType::class, [
+                'label' => 'projects.insurance_start_date',
+                'required' => false,
+                'widget' => 'single_text',
+                'input' => 'datetime_immutable',
+            ])
+            ->add('insuranceEndDate', DateType::class, [
+                'label' => 'projects.insurance_end_date',
                 'required' => false,
                 'widget' => 'single_text',
                 'input' => 'datetime_immutable',

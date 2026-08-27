@@ -26,6 +26,13 @@ class Project
     public const STATUS_COMPLETED = 'completed';
     public const STATUS_CANCELLED = 'cancelled';
 
+    public const ENVIRONMENT_TEMPERATURE = 'temperature';
+    public const ENVIRONMENT_RELATIVE_HUMIDITY = 'relative_humidity';
+    public const ENVIRONMENT_LIGHT = 'light';
+    public const ENVIRONMENT_UV = 'uv';
+    public const ENVIRONMENT_EXHIBITION_DURATION = 'exhibition_duration';
+    public const ENVIRONMENT_ACCLIMATIZATION = 'acclimatization';
+
     private const TYPES = [
         self::TYPE_LOAN,
         self::TYPE_EXHIBITION,
@@ -41,6 +48,15 @@ class Project
         self::STATUS_ACTIVE,
         self::STATUS_COMPLETED,
         self::STATUS_CANCELLED,
+    ];
+
+    private const ENVIRONMENTAL_CONDITION_KEYS = [
+        self::ENVIRONMENT_TEMPERATURE,
+        self::ENVIRONMENT_RELATIVE_HUMIDITY,
+        self::ENVIRONMENT_LIGHT,
+        self::ENVIRONMENT_UV,
+        self::ENVIRONMENT_EXHIBITION_DURATION,
+        self::ENVIRONMENT_ACCLIMATIZATION,
     ];
 
     #[ORM\Id]
@@ -65,6 +81,21 @@ class Project
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $address = null;
+
+    #[ORM\Column(length: 500, nullable: true)]
+    private ?string $website = null;
+
+    #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $insuranceStartDate = null;
+
+    #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $insuranceEndDate = null;
+
+    #[ORM\Column(type: Types::JSON)]
+    private array $environmentalConditions = [];
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $startDate = null;
@@ -190,6 +221,98 @@ class Project
     public function setDescription(?string $description): self
     {
         $this->description = $this->nullableText($description);
+        $this->touch();
+
+        return $this;
+    }
+
+    public function getAddress(): ?string
+    {
+        return $this->address;
+    }
+
+    public function setAddress(?string $address): self
+    {
+        $this->address = $this->nullableText($address);
+        $this->touch();
+
+        return $this;
+    }
+
+    public function getWebsite(): ?string
+    {
+        return $this->website;
+    }
+
+    public function setWebsite(?string $website): self
+    {
+        $this->website = $this->nullableText($website);
+        $this->touch();
+
+        return $this;
+    }
+
+    public function getInsuranceStartDate(): ?\DateTimeImmutable
+    {
+        return $this->insuranceStartDate;
+    }
+
+    public function setInsuranceStartDate(?\DateTimeImmutable $insuranceStartDate): self
+    {
+        $this->insuranceStartDate = $insuranceStartDate;
+        $this->touch();
+
+        return $this;
+    }
+
+    public function getInsuranceEndDate(): ?\DateTimeImmutable
+    {
+        return $this->insuranceEndDate;
+    }
+
+    public function setInsuranceEndDate(?\DateTimeImmutable $insuranceEndDate): self
+    {
+        $this->insuranceEndDate = $insuranceEndDate;
+        $this->touch();
+
+        return $this;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function getEnvironmentalConditions(): array
+    {
+        return $this->environmentalConditions;
+    }
+
+    public function getEnvironmentalCondition(string $key): string
+    {
+        return $this->environmentalConditions[$key] ?? '';
+    }
+
+    /**
+     * @param array<string, mixed> $conditions
+     */
+    public function setEnvironmentalConditions(array $conditions): self
+    {
+        $normalized = [];
+
+        foreach (self::ENVIRONMENTAL_CONDITION_KEYS as $key) {
+            $value = $conditions[$key] ?? null;
+
+            if (!is_scalar($value)) {
+                continue;
+            }
+
+            $value = trim((string) $value);
+
+            if ($value !== '') {
+                $normalized[$key] = mb_substr($value, 0, 500);
+            }
+        }
+
+        $this->environmentalConditions = $normalized;
         $this->touch();
 
         return $this;

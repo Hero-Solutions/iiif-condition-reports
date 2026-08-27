@@ -117,12 +117,29 @@ projects:
   no_objects_text: 'Use "Add object" to link objects to this project.'
   add_object_hint: 'Object not in the catalogue yet?'
   project_details: 'Project details'
+  environmental_conditions: 'Environmental conditions'
+  environmental_conditions_help: 'These values are used as the starting point for new condition reports in this project. They remain editable per report.'
+  environmental_conditions_saved: 'Environmental conditions saved.'
+  environment_temperature: 'Temperature guidelines'
+  environment_relative_humidity: 'Relative humidity guidelines'
+  environment_light: 'Light level guidelines (Lux)'
+  environment_uv: 'Ultraviolet light guidelines (UV)'
+  environment_exhibition_duration: 'Maximum exhibition duration'
+  environment_acclimatization: 'Acclimatization time before unpacking'
   confirm_remove_object: 'Remove object %inventory_number% from this project?'
   required_title: 'Project title is required.'
   required_custom_type: 'Enter the project type.'
   required_inventory_number: 'Inventory number is required.'
   max_100: 'Use at most 100 characters.'
   max_255: 'Use at most 255 characters.'
+  max_500: 'Use at most 500 characters.'
+  address: Address
+  website: Website
+  insurance_start_date: 'Insured from'
+  insurance_end_date: 'Insured until'
+  room: 'Room / location'
+  object_context_saved: 'Object context saved.'
+  view_reports: 'View reports'
   empty_title: 'No projects yet'
   empty_text: 'Projects will be the main entry point for objects and reports.'
 objects:
@@ -141,7 +158,18 @@ objects:
   current_location: 'Current location'
   description: Description
   iiif_manifest_url: 'IIIF manifest URL'
-  iiif_thumbnail_url: 'Thumbnail URL'
+  image: 'Main image'
+  image_help: 'Choose one image source: a IIIF manifest, an external image or your own photo.'
+  external_image_url: 'External image URL'
+  image_load: Load
+  image_upload: 'Upload photo'
+  image_preview: Preview
+  image_preview_loading: 'Loading image…'
+  image_preview_failed: 'The image could not be loaded.'
+  iiif_preview_failed: 'No preview image could be loaded from this IIIF manifest.'
+  image_upload_help: 'JPG, PNG or WebP, up to 50 MB.'
+  upload_failed: 'The photo could not be uploaded. Please try again.'
+  external_image_failed: 'The external image could not be downloaded. Check the URL and try again.'
   thumbnail: Thumbnail
   no_thumbnail: 'No image'
   edit_object: 'Edit object'
@@ -186,7 +214,68 @@ reports:
   section_damage_types: 'Damage types'
   section_recommendations: Recommendations
   annotation_viewer_error: 'IIIF viewer could not be loaded.'
-  no_annotation_manifest: 'No IIIF manifest linked to this object.'
+  annotation_save_error: 'The drawing could not be saved.'
+  no_annotation_manifest: 'No image or IIIF manifest linked to this object.'
+  annotation_damage_case: 'Damage case'
+  annotation_damage_placeholder: 'Type or choose a damage case...'
+  annotation_color: Colour
+  annotation_color_red: Red
+  annotation_color_green: Green
+  annotation_color_blue: Blue
+  annotation_color_brown: Brown
+  annotation_color_purple: Purple
+  annotation_color_yellow: Yellow
+  annotation_stroke_width: Line width
+  annotation_stroke_thin: Thin
+  annotation_stroke_normal: Normal
+  annotation_stroke_thick: Thick
+  annotation_stroke_locked: 'Line width is fixed once this damage case contains drawings.'
+  annotation_start: Draw
+  annotation_done: Done
+  annotation_undo_stroke: 'Remove last drawing'
+  annotation_eraser: Eraser
+  annotation_eraser_width: Eraser width
+  annotation_eraser_thin: Thin eraser
+  annotation_eraser_normal: Normal eraser
+  annotation_eraser_thick: Thick eraser
+  annotation_delete_drawing: 'Delete selected drawing completely'
+  annotation_main_image: 'Main image'
+  annotation_add_frame: '+ Frame sketch'
+  annotation_remove_frame: 'Remove frame sketch'
+  annotation_frame_added: 'Already added'
+  annotation_frame_front: Front
+  annotation_frame_back: Back
+  annotation_frame_rectangle_portrait: 'Portrait rectangle'
+  annotation_frame_rectangle_landscape: 'Landscape rectangle'
+  annotation_frame_square: Square
+  annotation_frame_oval_portrait: 'Portrait oval'
+  annotation_frame_oval_landscape: 'Landscape oval'
+  annotation_frame_circle: Circle
+  annotation_frame_diamond: Diamond
+  annotation_frame_label: 'Frame sketch — %side% — %shape%'
+  annotation_frame_invalid: 'This frame sketch does not exist.'
+  annotation_legend: Legend
+  annotation_empty_legend: 'The legend appears as soon as you draw a damage case.'
+  annotation_history: History
+  annotation_confirm_delete_case: 'Delete this damage case and all its drawings?'
+  annotation_select_damage: 'Enter a damage case first.'
+  annotation_drawing_active: 'Draw on the image. Click Done when you are finished.'
+  annotation_select_drawing_for_eraser: 'Draw with the eraser over an existing drawing.'
+  annotation_eraser_unavailable: 'The eraser could not be loaded. Reload the page.'
+  annotation_eraser_active: 'Eraser active — draw over the part you want to remove.'
+  annotation_saved: Saved
+  annotation_saving: Saving...
+  annotation_legend_edit: 'Edit legend'
+  annotation_legend_save: Save
+  annotation_legend_cancel: Cancel
+  annotation_legend_clear: 'Clear sketch'
+  annotation_legend_note_placeholder: 'Legend note (optional)'
+  annotation_delete_case: 'Delete damage case'
+  annotation_move_legend: 'Drag legend item'
+  annotation_drawing_count_one: '1 drawing'
+  annotation_drawing_count_many: '%count% drawings'
+  annotation_added_by: 'Added by %user% on %date%'
+  annotation_deleted_on: 'Deleted on %date%'
   custom_value: Other
   other: Other
   present: Present
@@ -198,6 +287,7 @@ reports:
   woodworm_old: 'Woodworm (old)'
   treatment_date: Date
   number_of_hours: 'Number of hours'
+  further_explanation: 'Further explanation'
   transport_and_display: 'Transport and display'
   transport_restrictions: Transport
   display_restrictions: Display
@@ -206,19 +296,101 @@ reports:
   no_matching_options: 'No matching choices.'
   remarks: Remarks
   type: Type
+  reason: Reason
+  choose_reason: 'Choose a reason'
+  receipt_at: 'Receipt date'
   status: Status
   search: 'Inventory number, title or report'
   empty_title: 'No reports yet'
   empty_text: 'Reports will later appear here.'
   unknown_reporter: Unknown
+  date: Date
+  author: 'Created by'
   deleted: 'Report deleted.'
-  delete_draft: 'Delete draft report'
+  delete_draft: 'Delete draft'
   delete_draft_only: 'Only draft reports can be deleted.'
-  confirm_delete: 'Delete draft report %title%?'
+  confirm_delete: 'Permanently delete the draft “%title%”? This cannot be undone.'
+  confirm_delete_any: 'Permanently delete the report “%title%”? This cannot be undone.'
+  project_label: Project
+  no_project: 'No project'
+  choose_project_title: 'New report'
+  choose_project_link_title: 'Link report to project'
+  project_question: 'Which project does this report belong to?'
+  choose_project: 'Choose a project'
+  project_choice_help: 'A report without a project remains visible only with the object.'
+  invalid_project: 'Choose a valid project.'
+  create_report: 'Create report'
+  create_without_project: 'Create without project'
+  object_has_no_projects: 'This object has not been added to a project yet. You can create the report without a project.'
+  object_has_no_projects_link: 'Add this object to a project first. You can then link the report.'
+  link: Link
+  link_to_project: 'Link to project'
+  project_linked: 'Report linked to the project.'
+  link_existing_title: 'Link existing reports'
+  one_unlinked_found: 'This object already has a report without a project. Do you want to link it to this project?'
+  multiple_unlinked_found: 'This object has %count% reports without a project. Choose which ones belong to this project.'
+  select_report_to_link: 'Select at least one report.'
+  unlinked_notice: '%count% report(s) without a project'
+  not_now: 'Not now'
   autosave_saved_at: 'Saved at %time%'
   autosave_saving: 'Saving...'
   autosave_unsaved: 'Unsaved changes'
   autosave_failed: 'Save failed'
+  preview: Preview
+  finalize: Finalize
+  finalized: 'Report finalized.'
+  archive: Archive
+  archived: 'Report archived.'
+  confirm_finalize: 'Finalize this report? It can no longer be changed afterwards.'
+  confirm_archive: 'Archive this final report?'
+  choose_type: 'Choose a report type'
+  finalize_incomplete: 'Choose a report type first.'
+  edit_conflict: 'This report was changed elsewhere. Reload the page before continuing.'
+  print: Print
+  print_options: 'Print…'
+  report_content: 'Report content'
+  download_pdf: 'Download PDF'
+  inspection_period: Period
+  presence: Presence
+  no_report_content: 'No report information has been entered yet.'
+  finalized_by_on: 'Finalized by %name% on %date%.'
+  draft_preview_notice: 'This is a draft preview, not a final report.'
+  final_report_locked: 'A finalized or archived report can no longer be changed.'
+  all_projects: 'All projects'
+  all_types: 'All report types'
+  all_statuses: 'All statuses'
+  export_csv: 'Export CSV'
+  photos: Photos
+  photo: Photo
+  photos_help: 'Add report photos or a frame sketch. Every image can be annotated under Damage types.'
+  no_photos: 'No report photos yet.'
+  choose_photos: 'Choose photos'
+  take_photo: 'Take photo'
+  add_photo: 'Add photo'
+  add_photos: 'Add photos'
+  image_url: 'Image URL'
+  images_added: 'Photos added.'
+  image_url_required: 'Enter an image URL.'
+  iiif_url_required: 'Enter an IIIF manifest URL.'
+  image_rotated: 'Photo rotated.'
+  rotate: Rotate
+  move_up: 'Move forward'
+  move_down: 'Move backward'
+  confirm_delete_photo: 'Delete this photo and its drawings?'
+  confirm_delete_frame_schema: 'Delete this frame sketch and its drawings?'
+  documents: Documents
+  documents_help: 'Add a setup plan, recommendation or external report, for example.'
+  no_documents: 'No documents yet.'
+  document_category: 'Document type'
+  choose_documents: 'Choose documents'
+  add_documents: 'Add documents'
+  documents_added: 'Documents added.'
+  confirm_delete_document: 'Delete this document?'
+document_category:
+  general: General
+  setup_plan: 'Setup plan'
+  recommendation: Recommendation
+  external_report: 'External report'
 report_series:
   title: Reports
   new: 'New report'
@@ -350,6 +522,7 @@ users:
   role_user: User
   role_admin: Administrator
   role_read_only: Read-only
+  read_only_notice: 'Read-only mode: you can view data, but cannot make changes.'
   saved: 'User saved.'
   deleted: 'User deleted.'
   cannot_delete_self: 'You cannot delete your own user account.'
@@ -372,6 +545,43 @@ login:
   submit: Login
   error: 'Invalid login or password.'
   inactive_user: 'This user is not active.'
+profile:
+  title: Profile
+  change_password: 'Change password'
+  password_help: 'Leave these fields empty if you do not want to change the password.'
+  current_password: 'Current password'
+  new_password: 'New password'
+  repeat_password: 'Repeat new password'
+  invalid_details: 'Check your name and email address.'
+  invalid_password_change: 'Check your current password. The new password must contain at least 8 characters and both fields must match.'
+  saved: 'Profile saved.'
+password_reset:
+  forgot_link: 'Forgot password?'
+  forgot_title: 'Reset password'
+  forgot_help: 'Enter your email address. If the account exists, you will receive a reset link.'
+  send: 'Send reset link'
+  reset_title: 'Set new password'
+  save: 'Save password'
+  request_received: 'If this email address belongs to an active account, a reset link was sent.'
+  invalid_token: 'This reset link is invalid or has expired.'
+  invalid_password: 'Use at least 8 characters and enter the same password twice.'
+  saved: 'Your password has been changed.'
+  email_subject: 'Reset your Condition Reports password'
+  email_text: "Use this link within one hour to reset your password:\n\n%url%\n\nIf you did not request this, you may ignore this email."
+feedback:
+  title: Feedback
+  help: 'Report a content-related or technical problem with the tool.'
+  subject: Subject
+  message: Message
+  send: Send
+  required: 'Enter a subject and message.'
+  sent: 'Thank you. Your feedback was sent.'
+  failed: 'The feedback could not be sent.'
+disclaimer:
+  title: Disclaimer
+  development: 'This application was developed by Hero Solutions for the Flemish Art Collection and the Royal Museum of Fine Arts Antwerp, with support from the Flemish Government.'
+  scope: 'The user remains responsible for the accuracy, completeness and professional interpretation of entered information and generated reports.'
+  license: 'The source code is made available under the GNU General Public License version 3.'
 painting: Painting
 work_on_paper: 'Work on paper'
 sculpture: Sculpture

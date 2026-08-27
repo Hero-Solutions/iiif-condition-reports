@@ -10,19 +10,28 @@ use App\Entity\ObjectRecord;
 use App\Entity\Report;
 use App\Entity\ReportSeries;
 use App\Form\ObjectRecordType;
+use App\Service\ObjectImageStorage;
 use App\Service\ObjectThumbnailProvider;
+use App\Service\ReportAuthorProvider;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class ObjectController extends AbstractController
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly ObjectThumbnailProvider $thumbnailProvider,
+        private readonly ObjectImageStorage $imageStorage,
+        private readonly TranslatorInterface $translator,
+        private readonly ReportAuthorProvider $reportAuthorProvider,
     ) {
     }
 
@@ -82,7 +91,7 @@ final class ObjectController extends AbstractController
     #[Route('/{_locale<nl|en>}/objects/{id}', name: 'objects_edit', methods: ['GET', 'POST'])]
     public function edit(ObjectRecord $object, Request $request): Response
     {
-        $form = $this->createObjectForm($object, $this->manifestUrl($object), $this->thumbnailProvider->thumbnailForObject($object) ?? '');
+        $form = $this->createObjectForm($object, $this->manifestUrl($object));
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid() && $this->saveObject($object, $form)) {
@@ -96,6 +105,7 @@ final class ObjectController extends AbstractController
 
         $reportSeries = $this->reportSeriesForObject($object);
         $reportsBySeries = $this->reportsBySeriesForObject($object);
+        $reports = array_merge(...array_values($reportsBySeries));
 
         return $this->render('objects/form.html.twig', [
             'form' => $form,
@@ -105,15 +115,23 @@ final class ObjectController extends AbstractController
             'thumbnail_url' => $this->thumbnailProvider->thumbnailForObject($object),
             'report_series' => $reportSeries,
             'reports_by_series' => $reportsBySeries,
-            'reports_count' => array_sum(array_map('count', $reportsBySeries)),
+            'reports_count' => count($reports),
+            'report_author_names' => $this->reportAuthorProvider->namesFor($reports),
         ]);
     }
 
-    private function createObjectForm(ObjectRecord $object, string $manifestUrl = '', string $thumbnailUrl = ''): FormInterface
+    private function createObjectForm(ObjectRecord $object, string $manifestUrl = ''): FormInterface
     {
+        $imageUrl = $object->getImageUrl();
+        $externalImageUrl = $object->getExternalImageUrl();
+
+        if ($externalImageUrl === null && !$this->imageStorage->isStoredImage($imageUrl)) {
+            $externalImageUrl = $imageUrl;
+        }
+
         return $this->createForm(ObjectRecordType::class, $object, [
             'manifest_url' => $manifestUrl,
-            'thumbnail_url' => $thumbnailUrl,
+            'external_image_url' => $externalImageUrl ?? '',
         ]);
     }
 
@@ -125,12 +143,20 @@ final class ObjectController extends AbstractController
             return false;
         }
 
+        $manifestUrl = trim((string) $form->get('iiifManifestUrl')->getData());
+        $hasNewImage = $form->get('imageUpload')->getData() instanceof UploadedFile
+            || trim((string) $form->get('externalImageUrl')->getData()) !== '';
+
+        if ($hasNewImage) {
+            $manifestUrl = '';
+        }
+
+        if (!$this->syncObjectImage($object, $form, $manifestUrl !== '')) {
+            return false;
+        }
+
         $this->entityManager->persist($object);
-        $this->syncManifestUrl(
-            $object,
-            (string) $form->get('iiifManifestUrl')->getData(),
-            (string) $form->get('iiifThumbnailUrl')->getData(),
-        );
+        $this->syncManifestUrl($object, $manifestUrl);
         $this->entityManager->flush();
 
         return true;
@@ -157,10 +183,89 @@ final class ObjectController extends AbstractController
         return $link instanceof ObjectManifest ? $link->getManifest()->getManifestId() : '';
     }
 
-    private function syncManifestUrl(ObjectRecord $object, string $manifestUrl, string $thumbnailUrl): void
+    private function syncObjectImage(ObjectRecord $object, FormInterface $form, bool $manifestSelected): bool
+    {
+        $uploadedImage = $form->get('imageUpload')->getData();
+        $externalImageUrl = trim((string) $form->get('externalImageUrl')->getData());
+        $currentImageUrl = $object->getImageUrl();
+        $currentThumbnailUrl = $object->getThumbnailUrl();
+        $currentExternalImageUrl = $object->getExternalImageUrl();
+
+        if ($manifestSelected) {
+            $this->imageStorage->remove($currentImageUrl);
+            $this->imageStorage->remove($currentThumbnailUrl);
+
+            if ($currentImageUrl !== null || $currentThumbnailUrl !== null || $currentExternalImageUrl !== null) {
+                $object
+                    ->setImageUrl(null)
+                    ->setThumbnailUrl(null)
+                    ->setExternalImageUrl(null);
+            }
+
+            return true;
+        }
+
+        if ($uploadedImage instanceof UploadedFile) {
+            try {
+                $storedImage = $this->imageStorage->store($uploadedImage);
+            } catch (FileException|\Random\RandomException) {
+                $form->get('imageUpload')->addError(new FormError($this->translator->trans('objects.upload_failed')));
+
+                return false;
+            }
+
+            $this->imageStorage->remove($currentImageUrl);
+            $this->imageStorage->remove($currentThumbnailUrl);
+            $object
+                ->setImageUrl($storedImage['image_url'])
+                ->setThumbnailUrl($storedImage['thumbnail_url'])
+                ->setExternalImageUrl(null);
+
+            return true;
+        }
+
+        if ($externalImageUrl !== '') {
+            if (
+                $externalImageUrl === $currentExternalImageUrl
+                && $this->imageStorage->exists($currentImageUrl)
+                && $this->imageStorage->exists($currentThumbnailUrl)
+            ) {
+                return true;
+            }
+
+            try {
+                $storedImage = $this->imageStorage->storeExternal($externalImageUrl);
+            } catch (FileException|\Random\RandomException) {
+                $form->get('externalImageUrl')->addError(new FormError($this->translator->trans('objects.external_image_failed')));
+
+                return false;
+            }
+
+            $this->imageStorage->remove($currentImageUrl);
+            $this->imageStorage->remove($currentThumbnailUrl);
+            $object
+                ->setImageUrl($storedImage['image_url'])
+                ->setThumbnailUrl($storedImage['thumbnail_url'])
+                ->setExternalImageUrl($externalImageUrl);
+
+            return true;
+        }
+
+        if ($currentExternalImageUrl !== null || ($currentImageUrl !== null && !$this->imageStorage->isStoredImage($currentImageUrl))) {
+            $this->imageStorage->remove($currentImageUrl);
+            $this->imageStorage->remove($currentThumbnailUrl);
+            $object
+                ->setImageUrl(null)
+                ->setThumbnailUrl(null)
+                ->setExternalImageUrl(null);
+        }
+
+        return true;
+    }
+
+    private function syncManifestUrl(ObjectRecord $object, string $manifestUrl): void
     {
         $manifestUrl = trim($manifestUrl);
-        $thumbnailUrl = trim($thumbnailUrl);
         $currentLink = $this->entityManager
             ->getRepository(ObjectManifest::class)
             ->findOneBy([
@@ -188,7 +293,6 @@ final class ObjectController extends AbstractController
             ->setManifestId($manifestUrl)
             ->setSource($object->getSource() === ObjectRecord::SOURCE_DATAHUB ? IIIFManifest::SOURCE_DATAHUB : IIIFManifest::SOURCE_MANUAL)
             ->setSourceUrl($manifestUrl)
-            ->setThumbnailUrl($thumbnailUrl)
             ->setTitle($object->getTitle())
             ->setData([]);
 

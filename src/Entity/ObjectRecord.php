@@ -60,7 +60,7 @@ class ObjectRecord
     #[ORM\Column(length: 255)]
     private string $title;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $creator = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -77,6 +77,15 @@ class ObjectRecord
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $imageUrl = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $thumbnailUrl = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $externalImageUrl = null;
 
     #[ORM\Column(length: 50)]
     private string $source = self::SOURCE_MANUAL;
@@ -237,6 +246,45 @@ class ObjectRecord
         return $this;
     }
 
+    public function getImageUrl(): ?string
+    {
+        return $this->imageUrl;
+    }
+
+    public function setImageUrl(?string $imageUrl): self
+    {
+        $this->imageUrl = $this->nullableText($imageUrl);
+        $this->markLocalChange();
+
+        return $this;
+    }
+
+    public function getThumbnailUrl(): ?string
+    {
+        return $this->thumbnailUrl;
+    }
+
+    public function setThumbnailUrl(?string $thumbnailUrl): self
+    {
+        $this->thumbnailUrl = $this->nullableText($thumbnailUrl);
+        $this->markLocalChange();
+
+        return $this;
+    }
+
+    public function getExternalImageUrl(): ?string
+    {
+        return $this->externalImageUrl;
+    }
+
+    public function setExternalImageUrl(?string $externalImageUrl): self
+    {
+        $this->externalImageUrl = $this->nullableText($externalImageUrl);
+        $this->markLocalChange();
+
+        return $this;
+    }
+
     public function getSource(): string
     {
         return $this->source;
@@ -297,7 +345,7 @@ class ObjectRecord
     ): self {
         $this->inventoryNumber = mb_substr(trim($inventoryNumber), 0, 100);
         $this->title = $this->shortText($title, 255) ?? $this->inventoryNumber;
-        $this->creator = $this->shortText($creator, 255);
+        $this->creator = $this->nullableText($creator);
         $this->publisher = $this->shortText($publisher, 255);
         $this->objectType = self::normalizeObjectType($objectType);
         $this->customObjectType = null;

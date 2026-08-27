@@ -11,7 +11,12 @@
     <section class="panel">
         <form class="filters" method="get">
             <input type="search" name="q" value="{{ q }}" placeholder="{{ 'reports.search'|trans }}">
+            <select name="project"><option value="">{{ 'reports.all_projects'|trans }}</option>{% for project in projects %}<option value="{{ project.id }}" {% if selected_project == project.id %}selected{% endif %}>{{ project.referenceCode ? project.referenceCode ~ ' — ' : '' }}{{ project.title }}</option>{% endfor %}</select>
+            <select name="type"><option value="">{{ 'reports.all_types'|trans }}</option>{% for label, value in report_types %}<option value="{{ value }}" {% if selected_type == value %}selected{% endif %}>{{ label|trans }}</option>{% endfor %}</select>
+            <select name="status"><option value="">{{ 'reports.all_statuses'|trans }}</option>{% for value in ['active', 'finalized', 'archived'] %}<option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ ('status.' ~ value)|trans }}</option>{% endfor %}</select>
+            <input type="search" name="room" value="{{ room }}" placeholder="{{ 'projects.room'|trans }}">
             <button type="submit">{{ 'actions.search'|trans }}</button>
+            <a class="button secondary" href="{{ path('reports_csv', app.request.query.all|merge({'_locale': app.request.locale})) }}">{{ 'reports.export_csv'|trans }}</a>
         </form>
     </section>
 
@@ -29,14 +34,20 @@
                         <th>{{ 'objects.thumbnail'|trans }}</th>
                         <th>{{ 'reports.report'|trans }}</th>
                         <th>{{ 'objects.object'|trans }}</th>
+                        <th>{{ 'reports.project_label'|trans }}</th>
+                        <th>{{ 'projects.room'|trans }}</th>
+                        <th>{{ 'reports.date'|trans }}</th>
+                        <th>{{ 'reports.author'|trans }}</th>
                         <th>{{ 'reports.status'|trans }}</th>
+                        <th class="report-table-actions"></th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for report in reports %}
                         {% set object = report.objectRecord %}
                         {% set thumbnail_url = thumbnail_urls[object.id]|default(null) %}
-                        <tr data-row-href="{{ path('reports_edit', {'_locale': app.request.locale, id: report.id}) }}">
+                        {% set report_route = report.editable and not is_granted('ROLE_READ_ONLY') ? 'reports_edit' : 'reports_show' %}
+                        <tr data-row-href="{{ path(report_route, {'_locale': app.request.locale, id: report.id}) }}">
                             <td>
                                 <div class="object-thumb">
                                     {% if thumbnail_url %}
@@ -47,14 +58,29 @@
                                 </div>
                             </td>
                             <td>
-                                <a href="{{ path('reports_edit', {'_locale': app.request.locale, id: report.id}) }}"><strong>{{ report.title }}</strong></a>
+                                <a href="{{ path(report_route, {'_locale': app.request.locale, id: report.id}) }}"><strong>{{ report.title }}</strong></a>
                                 <br>{{ report.type == 'other' and report.customType ? report.customType : ('report_type.' ~ report.type)|trans }}
                             </td>
                             <td>
                                 {{ object.inventoryNumber }}
                                 <br>{{ object.displayTitle(app.request.locale) }}
                             </td>
+                            <td>{{ report.project ? report.project.title : 'reports.no_project'|trans }}</td>
+                            <td>{{ report_rooms[report.id]|default('—') }}</td>
+                            <td>{{ report.createdAt|date('Y-m-d H:i') }}</td>
+                            <td>{{ report_author_names[report.id]|default('reports.unknown_reporter'|trans) }}</td>
                             <td><span class="chip chip-{{ report_status_chips[report.status]|default('muted') }}">{{ ('status.' ~ report.status)|trans }}</span></td>
+                            <td class="table-actions report-table-actions">
+                                {% if not is_granted('ROLE_READ_ONLY') and (report.status == constant('App\\Entity\\Report::STATUS_ACTIVE') or is_granted('ROLE_ADMIN')) %}
+                                    <form class="object-report-delete-form" method="post" action="{{ path('reports_delete', {'_locale': app.request.locale, id: report.id}) }}" onsubmit="return confirm('{{ 'reports.confirm_delete'|trans({'%title%': report.title})|e('js') }}');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('report_delete_' ~ report.id) }}">
+                                        <input type="hidden" name="return_to" value="reports_index">
+                                        <button type="submit" class="button danger icon-button report-delete-button" aria-label="{{ 'actions.delete'|trans }}" title="{{ 'actions.delete'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg></button>
+                                    </form>
+                                {% else %}
+                                    <span class="object-report-action-spacer"></span>
+                                {% endif %}
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>

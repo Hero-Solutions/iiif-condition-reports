@@ -7,6 +7,7 @@ namespace App\Form;
 use App\Entity\ObjectRecord;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -14,6 +15,7 @@ use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Choice;
+use Symfony\Component\Validator\Constraints\Image;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Url;
@@ -37,11 +39,12 @@ final class ObjectRecordType extends AbstractType
                     new Length(max: 255, maxMessage: 'objects.max_255'),
                 ],
             ])
-            ->add('creator', TextType::class, [
+            ->add('creator', TextareaType::class, [
                 'label' => 'objects.creator',
                 'required' => false,
-                'constraints' => [
-                    new Length(max: 255, maxMessage: 'objects.max_255'),
+                'attr' => [
+                    'rows' => 2,
+                    'data-auto-grow' => '1',
                 ],
             ])
             ->add('publisher', TextType::class, [
@@ -97,13 +100,33 @@ final class ObjectRecordType extends AbstractType
                     new Length(max: 255, maxMessage: 'objects.max_255'),
                 ],
             ])
-            ->add('iiifThumbnailUrl', UrlType::class, [
-                'label' => 'objects.iiif_thumbnail_url',
+            ->add('externalImageUrl', UrlType::class, [
+                'label' => 'objects.external_image_url',
                 'required' => false,
                 'mapped' => false,
-                'data' => $options['thumbnail_url'],
+                'data' => $options['external_image_url'],
                 'constraints' => [
                     new Url(message: 'objects.invalid_url'),
+                ],
+            ])
+            ->add('imageUpload', FileType::class, [
+                'label' => 'objects.image_upload',
+                'help' => 'objects.image_upload_help',
+                'required' => false,
+                'mapped' => false,
+                'attr' => [
+                    'accept' => 'image/jpeg,image/png,image/webp',
+                ],
+                'constraints' => [
+                    new Image(
+                        maxSize: '50M',
+                        maxPixels: 60_000_000,
+                        mimeTypes: ['image/jpeg', 'image/png', 'image/webp'],
+                        maxSizeMessage: 'objects.image_too_large',
+                        maxPixelsMessage: 'objects.image_too_many_pixels',
+                        mimeTypesMessage: 'objects.invalid_image',
+                        corruptedMessage: 'objects.invalid_image',
+                    ),
                 ],
             ]);
     }
@@ -114,10 +137,10 @@ final class ObjectRecordType extends AbstractType
             'data_class' => ObjectRecord::class,
             'translation_domain' => 'messages',
             'manifest_url' => '',
-            'thumbnail_url' => '',
+            'external_image_url' => '',
         ]);
 
         $resolver->setAllowedTypes('manifest_url', 'string');
-        $resolver->setAllowedTypes('thumbnail_url', 'string');
+        $resolver->setAllowedTypes('external_image_url', 'string');
     }
 }

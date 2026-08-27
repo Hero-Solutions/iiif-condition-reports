@@ -1,0 +1,60 @@
+{% extends 'base.html.twig' %}
+
+{% set is_linking = report is not null %}
+
+{% block title %}{{ (is_linking ? 'reports.choose_project_link_title' : 'reports.choose_project_title')|trans }} | {{ 'app.title'|trans }}{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <h1>{{ (is_linking ? 'reports.choose_project_link_title' : 'reports.choose_project_title')|trans }}</h1>
+    </div>
+
+    <section class="panel report-context-panel">
+        <div class="report-context-object">
+            <strong>{{ object.inventoryNumber }}</strong>
+            <span>{{ object.displayTitle(app.request.locale) }}</span>
+            {% if report %}
+                <span class="muted">{{ report.title }}</span>
+            {% endif %}
+        </div>
+
+        {% if projects is not empty %}
+            <form method="post" class="report-context-form">
+                <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_id) }}">
+                <label for="report-project">{{ 'reports.project_question'|trans }}</label>
+                <select id="report-project" name="project_id" required autofocus>
+                    <option value="" disabled {{ selection == '' ? 'selected' : '' }}>{{ 'reports.choose_project'|trans }}</option>
+                    {% for project in projects %}
+                        <option value="{{ project.id }}" {{ selection == (project.id ~ '') ? 'selected' : '' }}>
+                            {{ project.title }}{% if project.referenceCode %} — {{ project.referenceCode }}{% endif %}
+                        </option>
+                    {% endfor %}
+                    {% if allow_standalone %}
+                        <option value="standalone" {{ selection == 'standalone' ? 'selected' : '' }}>{{ 'reports.no_project'|trans }}</option>
+                    {% endif %}
+                </select>
+                {% if allow_standalone %}
+                    <p class="help-text">{{ 'reports.project_choice_help'|trans }}</p>
+                {% endif %}
+                {% if error %}
+                    <p class="form-error">{{ error|trans }}</p>
+                {% endif %}
+                <div class="button-group">
+                    <button type="submit">{{ (is_linking ? 'reports.link_to_project' : 'reports.create_report')|trans }}</button>
+                    <a class="button secondary" href="{{ back_url }}">{{ 'actions.cancel'|trans }}</a>
+                </div>
+            </form>
+        {% elseif allow_standalone %}
+            <p>{{ 'reports.object_has_no_projects'|trans }}</p>
+            <form method="post" class="button-group">
+                <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_id) }}">
+                <input type="hidden" name="project_id" value="standalone">
+                <button type="submit">{{ 'reports.create_without_project'|trans }}</button>
+                <a class="button secondary" href="{{ back_url }}">{{ 'actions.cancel'|trans }}</a>
+            </form>
+        {% else %}
+            <p>{{ 'reports.object_has_no_projects_link'|trans }}</p>
+            <a class="button secondary" href="{{ back_url }}">{{ 'actions.back'|trans }}</a>
+        {% endif %}
+    </section>
+{% endblock %}

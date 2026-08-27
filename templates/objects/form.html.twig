@@ -2,6 +2,11 @@
 
 {% block title %}{{ is_new ? 'objects.new'|trans : object.inventoryNumber }} | {{ 'app.title'|trans }}{% endblock %}
 
+{% block javascripts %}
+    {{ parent() }}
+    <script src="/js/object-image-preview.js?v=3" defer></script>
+{% endblock %}
+
 {% block body %}
     <div class="page-header">
         <div>
@@ -49,31 +54,50 @@
         </section>
 
         <section class="panel">
-            <div class="section-header">
-                <div>
-                    <h2>{{ 'report_series.title'|trans }}</h2>
-                    <p>{{ 'report_series.reports_count'|trans({'%count%': reports_count}) }}</p>
+            {% set object_has_draft = false %}
+            {% for series in report_series %}
+                {% for object_report in reports_by_series[series.id]|default([]) %}
+                    {% if object_report.status == constant('App\\Entity\\Report::STATUS_ACTIVE') %}
+                        {% set object_has_draft = true %}
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+            <div class="object-card-report-overview standalone-report-overview">
+                <div class="object-card-report-heading">
+                    <strong>{{ 'report_series.title'|trans }}</strong>
+                    {% if not object_has_draft and not is_granted('ROLE_READ_ONLY') %}
+                        <a class="button secondary icon-button report-add-button" href="{{ path('report_series_new_object', {'_locale': app.request.locale, objectId: object.id}) }}" aria-label="{{ 'report_series.new'|trans }}" title="{{ 'report_series.new'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg></a>
+                    {% endif %}
                 </div>
-                <a class="button secondary" href="{{ path('report_series_new_object', {'_locale': app.request.locale, objectId: object.id}) }}">{{ 'report_series.new'|trans }}</a>
-            </div>
 
-            {% if reports_count == 0 %}
-                <p class="muted">{{ 'report_series.empty_for_object'|trans }}</p>
-            {% else %}
-                <ul class="series-list standalone">
-                    {% for series in report_series %}
-                        {% for object_report in reports_by_series[series.id]|default([]) %}
-                            <li>
-                                <a href="{{ path('reports_edit', {'_locale': app.request.locale, id: object_report.id}) }}">{{ object_report.title }}</a>
-                                <span class="chip chip-{{ {'active': 'accent', 'finalized': 'success', 'archived': 'muted'}[object_report.status]|default('muted') }}">{{ ('status.' ~ object_report.status)|trans }}</span>
-                                {% if series.project %}
-                                    <span>{{ series.project.title }}</span>
-                                {% endif %}
-                            </li>
+                {% if reports_count == 0 %}
+                    <div class="object-report-empty">{{ 'report_series.empty_for_object'|trans }}</div>
+                {% else %}
+                    <ul class="object-report-list">
+                        {% for series in report_series %}
+                            {% for object_report in reports_by_series[series.id]|default([]) %}
+                                {% set report_route = object_report.editable and not is_granted('ROLE_READ_ONLY') ? 'reports_edit' : 'reports_show' %}
+                                <li>
+                                    <a href="{{ path(report_route, {'_locale': app.request.locale, id: object_report.id}) }}">{{ object_report.title }}</a>
+                                    <span class="object-report-date">{{ object_report.createdAt|date('Y-m-d H:i') }}</span>
+                                    <span class="object-report-author">{{ report_author_names[object_report.id]|default('reports.unknown_reporter'|trans) }}</span>
+                                    <span class="object-report-project {{ series.project ? '' : 'muted' }}">{{ series.project ? series.project.title : 'reports.no_project'|trans }}</span>
+                                    <span class="object-report-status chip chip-{{ {'active': 'accent', 'finalized': 'success', 'archived': 'muted'}[object_report.status]|default('muted') }}">{{ ('status.' ~ object_report.status)|trans }}</span>
+                                    {% if not is_granted('ROLE_READ_ONLY') and (object_report.status == constant('App\\Entity\\Report::STATUS_ACTIVE') or is_granted('ROLE_ADMIN')) %}
+                                        <form class="object-report-delete-form" method="post" action="{{ path('reports_delete', {'_locale': app.request.locale, id: object_report.id}) }}" onsubmit="return confirm('{{ 'reports.confirm_delete_any'|trans({'%title%': object_report.title})|e('js') }}');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('report_delete_' ~ object_report.id) }}">
+                                            <input type="hidden" name="return_to" value="object">
+                                            <button type="submit" class="button danger icon-button report-delete-button" aria-label="{{ 'actions.delete'|trans }}" title="{{ 'actions.delete'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg></button>
+                                        </form>
+                                    {% else %}
+                                        <span class="object-report-action-spacer"></span>
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
                         {% endfor %}
-                    {% endfor %}
-                </ul>
-            {% endif %}
+                    </ul>
+                {% endif %}
+            </div>
         </section>
     {% endif %}
 
@@ -87,8 +111,48 @@
             {{ form_widget(form.customObjectType) }}
             {{ form_row(form.currentLocation) }}
             {{ form_row(form.description) }}
-            {{ form_row(form.iiifManifestUrl) }}
-            {{ form_row(form.iiifThumbnailUrl) }}
+            <div class="object-image-fields">
+                <div>
+                    <h2>{{ 'objects.image'|trans }}</h2>
+                    <p class="muted">{{ 'objects.image_help'|trans }}</p>
+                </div>
+                <div class="object-image-manifest-field">
+                    {{ form_label(form.iiifManifestUrl) }}
+                    <div class="object-image-url-control">
+                        {{ form_widget(form.iiifManifestUrl, {'attr': {'data-object-manifest-url': '1'}}) }}
+                        <button type="button" class="secondary" data-object-manifest-load>{{ 'objects.image_load'|trans }}</button>
+                    </div>
+                    {{ form_errors(form.iiifManifestUrl) }}
+                </div>
+                <div class="object-image-url-field">
+                    {{ form_label(form.externalImageUrl) }}
+                    <div class="object-image-url-control">
+                        {{ form_widget(form.externalImageUrl, {'attr': {'data-object-image-url': '1'}}) }}
+                        <button type="button" class="secondary" data-object-image-load>{{ 'objects.image_load'|trans }}</button>
+                    </div>
+                    {{ form_errors(form.externalImageUrl) }}
+                </div>
+                {{ form_row(form.imageUpload) }}
+                <div
+                    class="object-image-preview"
+                    data-object-image-preview
+                    data-initial-url="{{ thumbnail_url|default('') }}"
+                    data-loading-message="{{ 'objects.image_preview_loading'|trans }}"
+                    data-error-message="{{ 'objects.image_preview_failed'|trans }}"
+                    data-manifest-error-message="{{ 'objects.iiif_preview_failed'|trans }}"
+                    hidden
+                >
+                    <span class="object-image-preview-label">{{ 'objects.image_preview'|trans }}</span>
+                    <div class="object-image-preview-frame">
+                        <img
+                            data-object-image-preview-image
+                            alt="{{ 'objects.image_preview'|trans }}"
+                            hidden
+                        >
+                        <span data-object-image-preview-status role="status" hidden></span>
+                    </div>
+                </div>
+            </div>
 
             <button type="submit">{{ 'actions.save'|trans }}</button>
         {{ form_end(form) }}

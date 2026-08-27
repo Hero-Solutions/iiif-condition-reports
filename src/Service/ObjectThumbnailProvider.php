@@ -28,6 +28,16 @@ final class ObjectThumbnailProvider
         }
 
         $thumbnails = [];
+
+        foreach ($objects as $object) {
+            $objectId = $object->getId();
+            $imageUrl = $object->getThumbnailUrl() ?? $object->getImageUrl();
+
+            if ($objectId !== null && $imageUrl !== null) {
+                $thumbnails[$objectId] = $imageUrl;
+            }
+        }
+
         $links = $this->entityManager
             ->getRepository(ObjectManifest::class)
             ->createQueryBuilder('link')
@@ -45,7 +55,7 @@ final class ObjectThumbnailProvider
             $objectId = $link->getObjectRecord()->getId();
             $thumbnailUrl = $link->getManifest()->getThumbnailUrl();
 
-            if ($objectId !== null && $thumbnailUrl !== null) {
+            if ($objectId !== null && $thumbnailUrl !== null && !isset($thumbnails[$objectId])) {
                 $thumbnails[$objectId] = $thumbnailUrl;
             }
         }
@@ -62,6 +72,10 @@ final class ObjectThumbnailProvider
             }
         }
 
+        foreach ($thumbnails as $objectId => $thumbnailUrl) {
+            $thumbnails[$objectId] = $this->displayThumbnailUrl($thumbnailUrl);
+        }
+
         return $thumbnails;
     }
 
@@ -70,5 +84,15 @@ final class ObjectThumbnailProvider
         $thumbnails = $this->thumbnailsForObjects([$object]);
 
         return $object->getId() === null ? null : ($thumbnails[$object->getId()] ?? null);
+    }
+
+    private function displayThumbnailUrl(string $url): string
+    {
+        return (string) preg_replace_callback(
+            '~(/full/)(\d+)(,/)~i',
+            static fn (array $match): string => $match[1] . max(480, (int) $match[2]) . $match[3],
+            $url,
+            1,
+        );
     }
 }

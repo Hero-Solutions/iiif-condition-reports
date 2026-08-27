@@ -46,6 +46,28 @@ final class ReportFormDefinition
     }
 
     /**
+     * @return array<string, string>
+     */
+    public function reasonChoices(): array
+    {
+        $choices = [];
+
+        foreach ($this->parameter('report_reasons') as $group) {
+            if (!is_array($group)) {
+                continue;
+            }
+
+            foreach ($group['options'] ?? [] as $value => $label) {
+                if (is_string($label) && $label !== '') {
+                    $choices[$label] = (string) $value;
+                }
+            }
+        }
+
+        return $choices;
+    }
+
+    /**
      * @param array<string, mixed> $config
      *
      * @return array{key: string, blocks: list<array<string, mixed>>}
@@ -150,6 +172,7 @@ final class ReportFormDefinition
                 'happened_name' => $prefix . 'happened_happened',
                 'date_name' => $dateName,
                 'hours_name' => (string) ($config['hours_name'] ?? $baseName),
+                'detail_name' => (string) ($config['detail_name'] ?? $baseName . '_details'),
             ];
             $group['fields'] = [];
         } elseif ($control === 'condition') {

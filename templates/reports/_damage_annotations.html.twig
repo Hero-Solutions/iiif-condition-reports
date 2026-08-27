@@ -1,0 +1,53 @@
+{% if damage_annotations.legend is not empty %}
+    <section class="report-document-section report-damage-output" data-print-section="damage">
+        <h2>{{ 'reports.section_damage_types'|trans }}</h2>
+
+        {% for source in damage_annotations.sources %}
+            <figure class="report-damage-figure">
+                {% if damage_annotations.sources|length > 1 %}<figcaption>{{ source.label }}</figcaption>{% endif %}
+                <div class="report-damage-canvas" style="width: {{ source.widthPercent }}%;">
+                    <img src="{{ source.imageSource }}" alt="">
+                    <svg viewBox="0 0 {{ source.width }} {{ source.height }}" preserveAspectRatio="none" aria-hidden="true">
+                        {% for annotation in source.annotations %}
+                            {% set selector = annotation.selector %}
+                            {% set geometry = selector.geometry %}
+                            {% if selector.type == 'ELLIPSE' %}
+                                <ellipse cx="{{ geometry.cx }}" cy="{{ geometry.cy }}" rx="{{ geometry.rx }}" ry="{{ geometry.ry }}" fill="{{ annotation.color }}" stroke="{{ annotation.color }}" />
+                            {% elseif selector.type == 'POLYGON' %}
+                                <polygon points="{% for point in geometry.points %}{{ point[0] }},{{ point[1] }} {% endfor %}" fill="{{ annotation.color }}" stroke="{{ annotation.color }}" />
+                            {% elseif selector.type == 'MULTIPOLYGON' %}
+                                {% for polygon in geometry.polygons %}
+                                    <path d="{% for ring in polygon.rings %}M{% for point in ring.points %} {{ point[0] }} {{ point[1] }}{% endfor %} Z {% endfor %}" fill="{{ annotation.color }}" stroke="{{ annotation.color }}" fill-rule="evenodd" />
+                                {% endfor %}
+                            {% endif %}
+                        {% endfor %}
+                    </svg>
+                </div>
+            </figure>
+        {% endfor %}
+
+        <div class="report-damage-legend">
+            {% for item in damage_annotations.legend %}
+                <div class="report-damage-legend-row">
+                    <svg viewBox="0 0 100 34" aria-hidden="true">
+                        {% if item.geometry is empty %}
+                            <line x1="8" y1="17" x2="92" y2="17" stroke="{{ item.color }}" stroke-width="{{ item.legendStrokeWidth }}" />
+                        {% else %}
+                            {% for stroke in item.geometry %}
+                                {% if stroke|length == 1 %}
+                                    <circle cx="{{ stroke[0][0] }}" cy="{{ stroke[0][1] * 0.34 }}" r="{{ item.legendStrokeWidth / 2 }}" fill="{{ item.color }}" />
+                                {% else %}
+                                    <polyline points="{% for point in stroke %}{{ point[0] }},{{ point[1] * 0.34 }} {% endfor %}" stroke="{{ item.color }}" stroke-width="{{ item.legendStrokeWidth }}" />
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    </svg>
+                    <span>
+                        {{ item.label }}
+                        {% if item.note %}<em>{{ item.note }}</em>{% endif %}
+                    </span>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+{% endif %}

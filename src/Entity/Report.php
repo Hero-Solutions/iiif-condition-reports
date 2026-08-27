@@ -78,8 +78,21 @@ class Report
     #[ORM\Column(length: 50)]
     private string $status = self::STATUS_ACTIVE;
 
+    #[ORM\Version]
+    #[ORM\Column(type: Types::INTEGER, options: ['default' => 1])]
+    private int $version = 1;
+
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
+
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $reason = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $customReason = null;
+
+    #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $receiptAt = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $startedAt = null;
@@ -95,6 +108,9 @@ class Report
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $finalizedAt = null;
+
+    #[ORM\Column(type: Types::INTEGER, nullable: true)]
+    private ?int $finalizedById = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private \DateTimeImmutable $createdAt;
@@ -124,6 +140,21 @@ class Report
         return $this->series;
     }
 
+    public function setSeries(ReportSeries $series): self
+    {
+        $this->ensureEditable();
+
+        if ($series->getObjectRecord() !== $this->objectRecord) {
+            throw new \InvalidArgumentException('A report can only be moved to a series for the same object.');
+        }
+
+        $this->series = $series;
+        $this->project = $series->getProject();
+        $this->touch();
+
+        return $this;
+    }
+
     public function getObjectRecord(): ObjectRecord
     {
         return $this->objectRecord;
@@ -141,6 +172,7 @@ class Report
 
     public function setBasedOnReport(?self $basedOnReport): self
     {
+        $this->ensureEditable();
         $this->basedOnReport = $basedOnReport;
         $this->touch();
 
@@ -154,6 +186,7 @@ class Report
 
     public function setType(string $type): self
     {
+        $this->ensureEditable();
         $this->type = in_array($type, self::TYPES, true) ? $type : self::TYPE_OTHER;
 
         if ($this->type !== self::TYPE_OTHER) {
@@ -170,8 +203,14 @@ class Report
         return $this->customType;
     }
 
+    public function hasSelectedType(): bool
+    {
+        return $this->type !== self::TYPE_OTHER || $this->customType !== null;
+    }
+
     public function setCustomType(?string $customType): self
     {
+        $this->ensureEditable();
         $customType = $customType === null ? null : trim($customType);
         $this->customType = $this->type === self::TYPE_OTHER && $customType !== ''
             ? mb_substr($customType, 0, 100)
@@ -214,6 +253,7 @@ class Report
 
     public function setTitle(string $title): self
     {
+        $this->ensureEditable();
         $this->title = trim($title);
         $this->touch();
 
@@ -225,14 +265,6 @@ class Report
         return $this->status;
     }
 
-    public function setStatus(string $status): self
-    {
-        $this->status = in_array($status, self::STATUSES, true) ? $status : self::STATUS_ACTIVE;
-        $this->touch();
-
-        return $this;
-    }
-
     public function getDescription(): ?string
     {
         return $this->description;
@@ -240,8 +272,58 @@ class Report
 
     public function setDescription(?string $description): self
     {
+        $this->ensureEditable();
         $description = $description === null ? '' : trim($description);
         $this->description = $description === '' ? null : $description;
+        $this->touch();
+
+        return $this;
+    }
+
+    public function getReason(): ?string
+    {
+        return $this->reason;
+    }
+
+    public function setReason(?string $reason): self
+    {
+        $this->ensureEditable();
+        $this->reason = $this->nullableText($reason, 50);
+
+        if ($this->reason !== 'other') {
+            $this->customReason = null;
+        }
+
+        $this->touch();
+
+        return $this;
+    }
+
+    public function getCustomReason(): ?string
+    {
+        return $this->customReason;
+    }
+
+    public function setCustomReason(?string $customReason): self
+    {
+        $this->ensureEditable();
+        $this->customReason = $this->reason === 'other'
+            ? $this->nullableText($customReason, 255)
+            : null;
+        $this->touch();
+
+        return $this;
+    }
+
+    public function getReceiptAt(): ?\DateTimeImmutable
+    {
+        return $this->receiptAt;
+    }
+
+    public function setReceiptAt(?\DateTimeImmutable $receiptAt): self
+    {
+        $this->ensureEditable();
+        $this->receiptAt = $receiptAt;
         $this->touch();
 
         return $this;
@@ -254,6 +336,7 @@ class Report
 
     public function setStartedAt(?\DateTimeImmutable $startedAt): self
     {
+        $this->ensureEditable();
         $this->startedAt = $startedAt;
         $this->touch();
 
@@ -267,6 +350,7 @@ class Report
 
     public function setEndedAt(?\DateTimeImmutable $endedAt): self
     {
+        $this->ensureEditable();
         $this->endedAt = $endedAt;
         $this->touch();
 
@@ -300,6 +384,7 @@ class Report
 
     public function setData(array $data): self
     {
+        $this->ensureEditable();
         $this->data = $data;
         $this->touch();
 
@@ -313,6 +398,7 @@ class Report
 
     public function setValue(string $key, mixed $value): self
     {
+        $this->ensureEditable();
         $key = trim($key);
 
         if ($key !== '') {
@@ -330,6 +416,7 @@ class Report
 
     public function setCreatedById(?int $createdById): self
     {
+        $this->ensureEditable();
         $this->createdById = $createdById;
         $this->touch();
 
@@ -341,13 +428,42 @@ class Report
         return $this->finalizedAt;
     }
 
-    public function finalize(?\DateTimeImmutable $finalizedAt = null): self
+    public function getFinalizedById(): ?int
     {
+        return $this->finalizedById;
+    }
+
+    public function finalize(?int $finalizedById, ?\DateTimeImmutable $finalizedAt = null): self
+    {
+        $this->ensureEditable();
         $this->status = self::STATUS_FINALIZED;
         $this->finalizedAt = $finalizedAt ?? new \DateTimeImmutable();
+        $this->finalizedById = $finalizedById;
         $this->touch();
 
         return $this;
+    }
+
+    public function archive(): self
+    {
+        if ($this->status !== self::STATUS_FINALIZED) {
+            throw new \LogicException('Only a finalized report can be archived.');
+        }
+
+        $this->status = self::STATUS_ARCHIVED;
+        $this->touch();
+
+        return $this;
+    }
+
+    public function isEditable(): bool
+    {
+        return $this->status === self::STATUS_ACTIVE;
+    }
+
+    public function getVersion(): int
+    {
+        return $this->version;
     }
 
     public function getCreatedAt(): \DateTimeImmutable
@@ -363,5 +479,19 @@ class Report
     private function touch(): void
     {
         $this->updatedAt = new \DateTimeImmutable();
+    }
+
+    private function ensureEditable(): void
+    {
+        if (!$this->isEditable()) {
+            throw new \LogicException('A finalized or archived report cannot be changed.');
+        }
+    }
+
+    private function nullableText(?string $value, int $maxLength): ?string
+    {
+        $value = $value === null ? '' : trim($value);
+
+        return $value === '' ? null : mb_substr($value, 0, $maxLength);
     }
 }

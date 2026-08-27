@@ -22,5 +22,25 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
+    App\Service\ObjectImageStorage:
+        arguments:
+            $uploadDirectory: '%kernel.project_dir%/public/uploads/objects'
+            $projectDirectory: '%kernel.project_dir%'
+            $caFile: '%env(default::IMAGE_DOWNLOAD_CA_FILE)%'
+
+    App\Service\ReportImageStorage:
+        arguments:
+            $uploadDirectory: '%kernel.project_dir%/public/uploads/reports/images'
+            $projectDirectory: '%kernel.project_dir%'
+            $caFile: '%env(default::IMAGE_DOWNLOAD_CA_FILE)%'
+
+    App\Service\FrameSchemaCatalog:
+        arguments:
+            $projectDirectory: '%kernel.project_dir%'
+
+    App\Service\ReportDocumentStorage:
+        arguments:
+            $uploadDirectory: '%kernel.project_dir%/public/uploads/reports/documents'
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
