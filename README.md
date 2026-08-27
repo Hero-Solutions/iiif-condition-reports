@@ -4,7 +4,7 @@ IIIF Condition Reports is a Symfony application for creating and managing condit
 
 ## Requirements
 
-- PHP 8.4 or newer
+- PHP 8.2 or newer
 - Composer
 - MariaDB 10.6 or a compatible MySQL version
 - PHP extensions `ctype`, `curl`, `gd`, `iconv` and `simplexml`
