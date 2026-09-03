@@ -40,6 +40,10 @@ final class AccountController extends AbstractController
             throw $this->createAccessDeniedException();
         }
 
+        if ($user->isSsoManaged()) {
+            return $this->render('account/profile.html.twig', ['user' => $user]);
+        }
+
         if ($request->isMethod('POST')) {
             if (!$this->isCsrfTokenValid('profile_edit', (string) $request->request->get('_token'))) {
                 throw $this->createAccessDeniedException();
@@ -84,7 +88,11 @@ final class AccountController extends AbstractController
             }
 
             $emailAddress = mb_strtolower(trim((string) $request->request->get('email')));
-            $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $emailAddress, 'active' => true]);
+            $user = $this->entityManager->getRepository(User::class)->findOneBy([
+                'email' => $emailAddress,
+                'active' => true,
+                'entraObjectId' => null,
+            ]);
 
             if ($user instanceof User) {
                 foreach ($this->entityManager->getRepository(PasswordResetToken::class)->findBy(['user' => $user]) as $existingToken) {

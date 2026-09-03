@@ -24,10 +24,12 @@ final class UserType extends AbstractType
         $isNew = (bool) $options['is_new'];
         /** @var User $user */
         $user = $options['data'];
+        $ssoManaged = $user->isSsoManaged();
 
         $builder
             ->add('fullName', TextType::class, [
                 'label' => 'users.full_name',
+                'disabled' => $ssoManaged,
                 'constraints' => [
                     new NotBlank(message: 'users.required_full_name'),
                     new Length(max: 255, maxMessage: 'users.max_255'),
@@ -35,6 +37,7 @@ final class UserType extends AbstractType
             ])
             ->add('email', EmailType::class, [
                 'label' => 'users.email',
+                'disabled' => $ssoManaged,
                 'constraints' => [
                     new NotBlank(message: 'users.required_email'),
                     new Email(message: 'users.invalid_email'),
@@ -44,9 +47,10 @@ final class UserType extends AbstractType
             ->add('plainPassword', PasswordType::class, [
                 'label' => $isNew ? 'users.password' : 'users.new_password',
                 'mapped' => false,
-                'required' => $isNew,
+                'required' => $isNew && !$ssoManaged,
+                'disabled' => $ssoManaged,
                 'constraints' => array_filter([
-                    $isNew ? new NotBlank(message: 'users.password_required') : null,
+                    $isNew && !$ssoManaged ? new NotBlank(message: 'users.password_required') : null,
                     new Length(max: 255, maxMessage: 'users.max_255'),
                 ]),
             ])
@@ -66,7 +70,7 @@ final class UserType extends AbstractType
                     'users.role_admin' => User::ROLE_ADMIN,
                 ],
                 'choice_translation_domain' => 'messages',
-                'disabled' => $options['lock_access'],
+                'disabled' => $options['lock_access'] || $ssoManaged,
                 'data' => $user->isAdmin()
                     ? User::ROLE_ADMIN
                     : ($user->isReadOnly() ? User::ROLE_READ_ONLY : User::ROLE_USER),

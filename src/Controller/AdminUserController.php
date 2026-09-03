@@ -89,6 +89,14 @@ final class AdminUserController extends AbstractController
             ]);
         }
 
+        if ($user->isSsoManaged()) {
+            $this->addFlash('error', 'users.cannot_delete_sso');
+
+            return $this->redirectToRoute('admin_users_index', [
+                '_locale' => $request->getLocale(),
+            ]);
+        }
+
         if (!$this->isCsrfTokenValid('admin_user_delete_' . $user->getId(), (string) $request->request->get('_token'))) {
             throw $this->createAccessDeniedException();
         }
@@ -122,7 +130,7 @@ final class AdminUserController extends AbstractController
             return false;
         }
 
-        if (!$lockAccess) {
+        if (!$lockAccess && !$user->isSsoManaged()) {
             $roles = [User::ROLE_USER];
             $accessLevel = (string) $form->get('accessLevel')->getData();
 
@@ -137,7 +145,7 @@ final class AdminUserController extends AbstractController
 
         $plainPassword = trim((string) $form->get('plainPassword')->getData());
 
-        if ($plainPassword !== '') {
+        if (!$user->isSsoManaged() && $plainPassword !== '') {
             $user->setPassword($this->passwordHasher->hashPassword($user, $plainPassword));
         }
 

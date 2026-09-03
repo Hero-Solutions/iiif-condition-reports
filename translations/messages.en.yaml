@@ -517,6 +517,9 @@ users:
   roles: Roles
   access_level: Access
   status: Status
+  source: Source
+  source_local: Local
+  source_sso: KMSKA SSO
   active: Active
   inactive: Inactive
   role_user: User
@@ -526,7 +529,9 @@ users:
   saved: 'User saved.'
   deleted: 'User deleted.'
   cannot_delete_self: 'You cannot delete your own user account.'
+  cannot_delete_sso: 'Remove SSO users in Microsoft Entra. You can deactivate this account here.'
   cannot_change_own_access: 'You cannot change your own status or access level.'
+  sso_managed_notice: 'Name, email and access are managed through Microsoft Entra and synchronized at every login.'
   required_fields: 'Name and e-mail are required.'
   invalid_email: 'Enter a valid e-mail address.'
   email_exists: 'A user with this e-mail address already exists.'
@@ -543,8 +548,17 @@ manual:
 login:
   title: Login
   submit: Login
+  sso_submit: 'Sign in with KMSKA account'
+  sso_help: 'Use your KMSKA work account.'
+  local_divider: 'Local emergency access'
   error: 'Invalid login or password.'
   inactive_user: 'This user is not active.'
+  sso_disabled: 'SSO is currently unavailable.'
+  sso_error: 'Signing in through KMSKA failed. Try again or contact ICT.'
+  sso_missing_identity: 'KMSKA did not provide a usable user identity.'
+  sso_wrong_tenant: 'This account does not belong to the permitted KMSKA environment.'
+  sso_not_authorized: 'You have not been assigned to the condition reports application.'
+  sso_email_conflict: 'This KMSKA account cannot safely be linked to a local user. Contact ICT.'
 profile:
   title: Profile
   change_password: 'Change password'
@@ -555,6 +569,7 @@ profile:
   invalid_details: 'Check your name and email address.'
   invalid_password_change: 'Check your current password. The new password must contain at least 8 characters and both fields must match.'
   saved: 'Profile saved.'
+  sso_managed: 'Your profile details and access are managed through your KMSKA account.'
 password_reset:
   forgot_link: 'Forgot password?'
   forgot_title: 'Reset password'

@@ -9,10 +9,13 @@
     </div>
 
     <section class="panel">
+        {% if form.vars.data.ssoManaged %}
+            <p class="muted user-access-notice">{{ 'users.sso_managed_notice'|trans }}</p>
+        {% endif %}
         {{ form_start(form, {'attr': {'class': 'edit-form user-edit-form'}}) }}
             {{ form_row(form.fullName) }}
             {{ form_row(form.email) }}
-            {{ form_row(form.plainPassword) }}
+            {% if not form.vars.data.ssoManaged %}{{ form_row(form.plainPassword) }}{% endif %}
             <div class="user-options">
                 {% if is_self %}
                     <p class="muted user-access-notice">{{ 'users.cannot_change_own_access'|trans }}</p>

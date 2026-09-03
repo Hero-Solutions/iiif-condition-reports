@@ -35,6 +35,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255)]
     private string $password = '';
 
+    #[ORM\Column(length: 36, unique: true, nullable: true)]
+    private ?string $entraObjectId = null;
+
     #[ORM\Column(type: Types::BOOLEAN)]
     private bool $active = true;
 
@@ -131,6 +134,25 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->touch();
 
         return $this;
+    }
+
+    public function getEntraObjectId(): ?string
+    {
+        return $this->entraObjectId;
+    }
+
+    public function setEntraObjectId(?string $entraObjectId): self
+    {
+        $entraObjectId = $entraObjectId !== null ? trim($entraObjectId) : null;
+        $this->entraObjectId = $entraObjectId !== '' ? $entraObjectId : null;
+        $this->touch();
+
+        return $this;
+    }
+
+    public function isSsoManaged(): bool
+    {
+        return $this->entraObjectId !== null;
     }
 
     public function isActive(): bool

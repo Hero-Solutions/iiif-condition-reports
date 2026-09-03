@@ -18,6 +18,9 @@ security:
             lazy: true
             provider: app_user_provider
             user_checker: App\Security\UserChecker
+            entry_point: form_login
+            custom_authenticators:
+                - App\Security\EntraAuthenticator
             form_login:
                 login_path: app_login
                 check_path: app_login
@@ -28,6 +31,8 @@ security:
                 target: /nl/login
 
     access_control:
+        - { path: ^/sso/callback$, roles: PUBLIC_ACCESS }
+        - { path: ^/(nl|en)/sso/login$, roles: PUBLIC_ACCESS }
         - { path: ^/(nl|en)/login$, roles: PUBLIC_ACCESS }
         - { path: ^/(nl|en)/forgot-password$, roles: PUBLIC_ACCESS }
         - { path: ^/(nl|en)/reset-password/, roles: PUBLIC_ACCESS }

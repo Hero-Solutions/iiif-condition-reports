@@ -17,6 +17,7 @@
         "doctrine/doctrine-migrations-bundle": "^3.7.1",
         "doctrine/orm": "^3.6.8",
         "dompdf/dompdf": "^3.1.6",
+        "knpuniversity/oauth2-client-bundle": "^2.20",
         "symfony/console": "7.4.*",
         "symfony/dotenv": "7.4.*",
         "symfony/flex": "^2.11",
@@ -29,7 +30,8 @@
         "symfony/translation": "7.4.*",
         "symfony/twig-bundle": "7.4.*",
         "symfony/validator": "7.4.*",
-        "symfony/yaml": "7.4.*"
+        "symfony/yaml": "7.4.*",
+        "thenetworg/oauth2-azure": "^2.2"
     },
     "config": {
         "allow-plugins": {

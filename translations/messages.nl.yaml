@@ -517,6 +517,9 @@ users:
   roles: Rollen
   access_level: Toegang
   status: Status
+  source: Bron
+  source_local: Lokaal
+  source_sso: KMSKA SSO
   active: Actief
   inactive: Inactief
   role_user: Gebruiker
@@ -526,7 +529,9 @@ users:
   saved: 'Gebruiker opgeslagen.'
   deleted: 'Gebruiker verwijderd.'
   cannot_delete_self: 'Je kunt je eigen gebruikersaccount niet verwijderen.'
+  cannot_delete_sso: 'Verwijder SSO-gebruikers in Microsoft Entra. Je kunt dit account hier wel deactiveren.'
   cannot_change_own_access: 'Je kunt je eigen status en toegang niet wijzigen.'
+  sso_managed_notice: 'Naam, e-mail en toegang worden beheerd via Microsoft Entra en bij elke login gesynchroniseerd.'
   required_fields: 'Naam en e-mail zijn verplicht.'
   invalid_email: 'Geef een geldig e-mailadres in.'
   email_exists: 'Er bestaat al een gebruiker met dit e-mailadres.'
@@ -543,8 +548,17 @@ manual:
 login:
   title: Inloggen
   submit: Inloggen
+  sso_submit: 'Inloggen met KMSKA-account'
+  sso_help: 'Gebruik je werkaccount van KMSKA.'
+  local_divider: 'Lokale noodtoegang'
   error: 'Ongeldige login of wachtwoord.'
   inactive_user: 'Deze gebruiker is niet actief.'
+  sso_disabled: 'SSO is momenteel niet beschikbaar.'
+  sso_error: 'Aanmelden via KMSKA is mislukt. Probeer opnieuw of neem contact op met ICT.'
+  sso_missing_identity: 'KMSKA leverde geen bruikbare gebruikersidentiteit aan.'
+  sso_wrong_tenant: 'Dit account behoort niet tot de toegelaten KMSKA-omgeving.'
+  sso_not_authorized: 'Je bent niet aan de conditierapporteringstool toegewezen.'
+  sso_email_conflict: 'Dit KMSKA-account kan niet veilig aan een lokale gebruiker worden gekoppeld. Neem contact op met ICT.'
 profile:
   title: Profiel
   change_password: 'Wachtwoord wijzigen'
@@ -555,6 +569,7 @@ profile:
   invalid_details: 'Controleer je naam en e-mailadres.'
   invalid_password_change: 'Controleer je huidige wachtwoord. Het nieuwe wachtwoord moet minstens 8 tekens bevatten en beide velden moeten gelijk zijn.'
   saved: 'Profiel opgeslagen.'
+  sso_managed: 'Je profielgegevens en toegang worden beheerd via je KMSKA-account.'
 password_reset:
   forgot_link: 'Wachtwoord vergeten?'
   forgot_title: 'Wachtwoord herstellen'

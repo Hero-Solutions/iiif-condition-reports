@@ -8,6 +8,14 @@
     </div>
 
     <section class="panel login-panel">
+        {% if sso_enabled %}
+            <div class="login-sso">
+                <a class="button login-sso-button" href="{{ path('sso_login', {'_locale': app.request.locale}) }}">{{ 'login.sso_submit'|trans }}</a>
+                <p class="muted">{{ 'login.sso_help'|trans }}</p>
+            </div>
+            <div class="login-divider"><span>{{ 'login.local_divider'|trans }}</span></div>
+        {% endif %}
+
         {% if error %}
             <div class="flash flash-error">{{ 'login.error'|trans }}</div>
         {% endif %}

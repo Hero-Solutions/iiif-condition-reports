@@ -775,6 +775,33 @@ label {
     margin: 8vh auto 0;
 }
 
+.login-sso {
+    display: grid;
+    gap: 10px;
+    text-align: center;
+}
+
+.login-sso-button {
+    width: 100%;
+}
+
+.login-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 24px 0;
+    color: var(--text-soft);
+    font-size: 13px;
+}
+
+.login-divider::before,
+.login-divider::after {
+    flex: 1;
+    height: 1px;
+    content: '';
+    background: var(--border);
+}
+
 /* =========================================================
    6. Panels and cards
    ========================================================= */

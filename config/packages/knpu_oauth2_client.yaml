@@ -1,0 +1,16 @@
+knpu_oauth2_client:
+    clients:
+        entra:
+            type: azure
+            client_id: '%env(SSO_ENTRA_CLIENT_ID)%'
+            client_secret: '%env(SSO_ENTRA_CLIENT_SECRET)%'
+            redirect_route: sso_callback
+            redirect_params: {}
+            tenant: '%env(SSO_ENTRA_TENANT_ID)%'
+            default_end_point_version: '2.0'
+            auth_with_resource: false
+            scope:
+                - openid
+                - profile
+                - email
+            use_state: true
