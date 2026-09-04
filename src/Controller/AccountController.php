@@ -28,6 +28,7 @@ final class AccountController extends AbstractController
         private readonly TranslatorInterface $translator,
         #[Autowire('%env(MAIL_FROM)%')] private readonly string $mailFrom,
         #[Autowire('%env(FEEDBACK_EMAIL)%')] private readonly string $feedbackEmail,
+        #[Autowire('%env(bool:LOCAL_LOGIN_ENABLED)%')] private readonly bool $localLoginEnabled,
     ) {
     }
 
@@ -82,6 +83,10 @@ final class AccountController extends AbstractController
     #[Route('/{_locale<nl|en>}/forgot-password', name: 'password_forgot', methods: ['GET', 'POST'])]
     public function forgotPassword(Request $request): Response
     {
+        if (!$this->localLoginEnabled) {
+            throw $this->createNotFoundException();
+        }
+
         if ($request->isMethod('POST')) {
             if (!$this->isCsrfTokenValid('password_forgot', (string) $request->request->get('_token'))) {
                 throw $this->createAccessDeniedException();
@@ -129,6 +134,10 @@ final class AccountController extends AbstractController
     #[Route('/{_locale<nl|en>}/reset-password/{token<[a-f0-9]{64}>}', name: 'password_reset', methods: ['GET', 'POST'])]
     public function resetPassword(string $token, Request $request): Response
     {
+        if (!$this->localLoginEnabled) {
+            throw $this->createNotFoundException();
+        }
+
         $resetToken = $this->entityManager->getRepository(PasswordResetToken::class)->findOneBy([
             'tokenHash' => PasswordResetToken::hash($token),
         ]);

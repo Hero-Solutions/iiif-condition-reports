@@ -12,6 +12,7 @@ IIIF Condition Reports is a Symfony application for creating and managing condit
 ## Microsoft Entra SSO
 
 See [docs/sso-entra.md](docs/sso-entra.md) for the Entra app registration, Ansible configuration and user-management procedure.
+Set `LOCAL_LOGIN_ENABLED=0` to disable local login, password reset and local user creation.
 
 For photo and document uploads up to 50 MB, the repository contains `public/.user.ini`. Verify the same `upload_max_filesize=50M` and `post_max_size=55M` limits in the web server configuration when `.user.ini` files are disabled.
 Set `IMAGE_DOWNLOAD_CA_FILE=config/cacert.pem` in `.env` to use the included Mozilla CA bundle. Leave the value empty to let PHP/cURL use its system trust store.

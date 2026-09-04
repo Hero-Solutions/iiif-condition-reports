@@ -8,6 +8,7 @@ use App\Entity\User;
 use App\Form\UserType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,6 +20,7 @@ final class AdminUserController extends AbstractController
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly UserPasswordHasherInterface $passwordHasher,
+        #[Autowire('%env(bool:LOCAL_LOGIN_ENABLED)%')] private readonly bool $localLoginEnabled,
     ) {
     }
 
@@ -31,12 +33,17 @@ final class AdminUserController extends AbstractController
 
         return $this->render('admin/users/index.html.twig', [
             'users' => $users,
+            'local_login_enabled' => $this->localLoginEnabled,
         ]);
     }
 
     #[Route('/{_locale<nl|en>}/admin/users/new', name: 'admin_users_new', methods: ['GET', 'POST'])]
     public function new(Request $request): Response
     {
+        if (!$this->localLoginEnabled) {
+            throw $this->createNotFoundException();
+        }
+
         $user = new User();
         $form = $this->createUserForm($user, true);
         $form->handleRequest($request);

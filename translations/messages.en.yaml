@@ -553,6 +553,7 @@ login:
   local_divider: 'Local emergency access'
   error: 'Invalid login or password.'
   inactive_user: 'This user is not active.'
+  local_disabled: 'Local accounts are disabled. Sign in with your KMSKA account.'
   sso_disabled: 'SSO is currently unavailable.'
   sso_error: 'Signing in through KMSKA failed. Try again or contact ICT.'
   sso_missing_identity: 'KMSKA did not provide a usable user identity.'

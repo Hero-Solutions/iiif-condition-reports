@@ -11,7 +11,7 @@ Als KMSKA nog ADFS gebruikt voor de eigen accounts, kan Entra die login op de ac
 - Naam, e-mail en rol worden bij elke SSO-login gesynchroniseerd.
 - De hoogste toegewezen rol wint: administrator, alleen-lezen, gebruiker.
 - Een lokaal gedeactiveerd account wordt bij de volgende aanvraag uitgelogd.
-- Lokale accounts blijven mogelijk als noodtoegang. Gebruik daarvoor een afzonderlijk account dat niet aan dezelfde Entra-identiteit wordt gekoppeld.
+- Lokale accounts kunnen via de deploymentconfiguratie volledig worden uitgeschakeld.
 
 ## Eenmalige configuratie door de Entra-beheerder
 
@@ -115,6 +115,7 @@ Voeg in het bestaande `condition_reports`-blok toe:
 
 ```yaml
 condition_reports:
+  local_login_enabled: false
   sso:
     enabled: true
     tenant_id: 'DIRECTORY-TENANT-ID'
@@ -126,6 +127,10 @@ condition_reports:
 ```
 
 Gebruik bij `client_secret` de **Value**, niet de Secret ID.
+
+Met `local_login_enabled: false` verdwijnen de lokale login en het wachtwoordherstel, wordt het aanmaken van lokale gebruikers geblokkeerd en worden bestaande lokale sessies afgemeld. Entra-gebruikers houden een technisch lokaal profiel voor applicatiegegevens, maar kunnen uitsluitend via SSO aanmelden.
+
+De Ansible-role maakt geen lokaal administratoraccount aan. Verwijder een eventueel oud `condition_reports.admin`-blok uit de hostconfiguratie.
 
 ### 2. Deployen
 

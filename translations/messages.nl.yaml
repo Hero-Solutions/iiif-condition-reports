@@ -553,6 +553,7 @@ login:
   local_divider: 'Lokale noodtoegang'
   error: 'Ongeldige login of wachtwoord.'
   inactive_user: 'Deze gebruiker is niet actief.'
+  local_disabled: 'Lokale accounts zijn uitgeschakeld. Meld je aan met je KMSKA-account.'
   sso_disabled: 'SSO is momenteel niet beschikbaar.'
   sso_error: 'Aanmelden via KMSKA is mislukt. Probeer opnieuw of neem contact op met ICT.'
   sso_missing_identity: 'KMSKA leverde geen bruikbare gebruikersidentiteit aan.'

@@ -13,28 +13,32 @@
                 <a class="button login-sso-button" href="{{ path('sso_login', {'_locale': app.request.locale}) }}">{{ 'login.sso_submit'|trans }}</a>
                 <p class="muted">{{ 'login.sso_help'|trans }}</p>
             </div>
-            <div class="login-divider"><span>{{ 'login.local_divider'|trans }}</span></div>
+            {% if local_login_enabled %}
+                <div class="login-divider"><span>{{ 'login.local_divider'|trans }}</span></div>
+            {% endif %}
         {% endif %}
 
-        {% if error %}
-            <div class="flash flash-error">{{ 'login.error'|trans }}</div>
+        {% if local_login_enabled %}
+            {% if error %}
+                <div class="flash flash-error">{{ 'login.error'|trans }}</div>
+            {% endif %}
+
+            <form method="post" class="edit-form">
+                <label>
+                    {{ 'users.email'|trans }}
+                    <input type="email" name="_username" value="{{ last_username }}" autocomplete="email" required autofocus>
+                </label>
+
+                <label>
+                    {{ 'users.password'|trans }}
+                    <input type="password" name="_password" autocomplete="current-password" required>
+                </label>
+
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+                <button type="submit">{{ 'login.submit'|trans }}</button>
+            </form>
+            <p><a href="{{ path('password_forgot', {'_locale': app.request.locale}) }}">{{ 'password_reset.forgot_link'|trans }}</a></p>
         {% endif %}
-
-        <form method="post" class="edit-form">
-            <label>
-                {{ 'users.email'|trans }}
-                <input type="email" name="_username" value="{{ last_username }}" autocomplete="email" required autofocus>
-            </label>
-
-            <label>
-                {{ 'users.password'|trans }}
-                <input type="password" name="_password" autocomplete="current-password" required>
-            </label>
-
-            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
-
-            <button type="submit">{{ 'login.submit'|trans }}</button>
-        </form>
-        <p><a href="{{ path('password_forgot', {'_locale': app.request.locale}) }}">{{ 'password_reset.forgot_link'|trans }}</a></p>
     </section>
 {% endblock %}

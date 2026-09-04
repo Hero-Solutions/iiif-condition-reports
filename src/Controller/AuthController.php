@@ -17,6 +17,7 @@ final class AuthController extends AbstractController
 {
     public function __construct(
         #[Autowire('%env(bool:SSO_ENABLED)%')] private readonly bool $ssoEnabled,
+        #[Autowire('%env(bool:LOCAL_LOGIN_ENABLED)%')] private readonly bool $localLoginEnabled,
     ) {
     }
 
@@ -27,6 +28,7 @@ final class AuthController extends AbstractController
             'last_username' => $authenticationUtils->getLastUsername(),
             'error' => $authenticationUtils->getLastAuthenticationError(),
             'sso_enabled' => $this->ssoEnabled,
+            'local_login_enabled' => $this->localLoginEnabled,
         ]);
     }
 

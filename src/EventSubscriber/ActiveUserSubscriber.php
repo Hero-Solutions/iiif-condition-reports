@@ -6,6 +6,7 @@ namespace App\EventSubscriber;
 
 use App\Entity\User;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
@@ -20,6 +21,7 @@ final class ActiveUserSubscriber
         private readonly Security $security,
         private readonly TokenStorageInterface $tokenStorage,
         private readonly UrlGeneratorInterface $urlGenerator,
+        #[Autowire('%env(bool:LOCAL_LOGIN_ENABLED)%')] private readonly bool $localLoginEnabled,
     ) {
     }
 
@@ -31,7 +33,15 @@ final class ActiveUserSubscriber
 
         $user = $this->security->getUser();
 
-        if (!$user instanceof User || $user->isActive()) {
+        if (!$user instanceof User) {
+            return;
+        }
+
+        $message = !$user->isActive()
+            ? 'login.inactive_user'
+            : 'login.local_disabled';
+
+        if ($user->isActive() && ($this->localLoginEnabled || $user->isSsoManaged())) {
             return;
         }
 
@@ -40,7 +50,7 @@ final class ActiveUserSubscriber
 
         $this->tokenStorage->setToken(null);
         $request->getSession()->invalidate();
-        $request->getSession()->getFlashBag()->add('error', 'login.inactive_user');
+        $request->getSession()->getFlashBag()->add('error', $message);
         $event->setResponse(new RedirectResponse($this->urlGenerator->generate('app_login', [
             '_locale' => $locale,
         ])));
