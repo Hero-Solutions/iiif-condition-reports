@@ -1,0 +1,43 @@
+{{ form_start(form, {'attr': {'class': 'project-edit-form'}}) }}
+    <div class="project-form-grid">
+        <div class="project-form-field">
+            {{ form_row(form.title) }}
+        </div>
+        <div class="project-form-field">
+            {{ form_row(form.referenceCode) }}
+        </div>
+        <div class="project-form-field">
+            {{ form_row(form.type) }}
+        </div>
+        <div class="project-form-field">
+            {{ form_row(form.status) }}
+        </div>
+        <div class="project-form-field project-form-field-wide" data-project-custom-type-row {% if form.type.vars.value != 'other' %}hidden{% endif %}>
+            {{ form_row(form.customType) }}
+        </div>
+        <div class="project-form-field">
+            {{ form_row(form.startDate) }}
+        </div>
+        <div class="project-form-field">
+            {{ form_row(form.endDate) }}
+        </div>
+        <div class="project-form-field">
+            {{ form_row(form.insuranceStartDate) }}
+        </div>
+        <div class="project-form-field">
+            {{ form_row(form.insuranceEndDate) }}
+        </div>
+        <div class="project-form-field project-form-field-wide">
+            {{ form_row(form.description) }}
+        </div>
+        <div class="project-form-field project-form-field-wide">
+            {{ form_row(form.address) }}
+        </div>
+        <div class="project-form-field project-form-field-wide">
+            {{ form_row(form.website) }}
+        </div>
+    </div>
+    <div class="form-actions">
+        <button type="submit">{{ 'actions.save'|trans }}</button>
+    </div>
+{{ form_end(form) }}

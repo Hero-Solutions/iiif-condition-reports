@@ -28,18 +28,24 @@ final class PageController extends AbstractController
     #[Route('/{_locale<nl|en>}/reports', name: 'reports_index')]
     public function reports(Request $request, EntityManagerInterface $entityManager, ObjectThumbnailProvider $thumbnailProvider, ReportAuthorProvider $reportAuthorProvider): Response
     {
+        $projectId = filter_var($request->query->get('project'), FILTER_VALIDATE_INT);
+        $selectedProject = null;
+
+        if (is_int($projectId) && $projectId > 0) {
+            $selectedProject = $entityManager->getRepository(Project::class)->find($projectId);
+
+            if ($selectedProject === null) {
+                throw $this->createNotFoundException();
+            }
+        }
+
         $reports = $this->filteredReports($request, $entityManager, 500);
         $objects = array_map(static fn (Report $report) => $report->getObjectRecord(), $reports);
 
         return $this->render('reports/index.html.twig', [
             'reports' => $reports,
             'q' => trim((string) $request->query->get('q', '')),
-            'selected_project' => (string) $request->query->get('project', ''),
-            'selected_type' => (string) $request->query->get('type', ''),
-            'selected_status' => (string) $request->query->get('status', ''),
-            'room' => trim((string) $request->query->get('room', '')),
-            'projects' => $entityManager->getRepository(Project::class)->findBy([], ['title' => 'ASC']),
-            'report_types' => Report::typeChoices(),
+            'selected_project' => $selectedProject,
             'report_rooms' => $this->reportRooms($reports, $entityManager),
             'thumbnail_urls' => $thumbnailProvider->thumbnailsForObjects($objects),
             'report_author_names' => $reportAuthorProvider->namesFor($reports),
@@ -90,16 +96,12 @@ final class PageController extends AbstractController
     {
         $q = trim((string) $request->query->get('q', ''));
         $projectId = filter_var($request->query->get('project'), FILTER_VALIDATE_INT);
-        $type = (string) $request->query->get('type', '');
-        $status = (string) $request->query->get('status', '');
-        $room = trim((string) $request->query->get('room', ''));
         $queryBuilder = $entityManager
             ->getRepository(Report::class)
             ->createQueryBuilder('report')
             ->addSelect('objectRecord', 'project')
             ->join('report.objectRecord', 'objectRecord')
             ->leftJoin('report.project', 'project')
-            ->leftJoin(ProjectObject::class, 'projectObject', 'WITH', 'projectObject.project = project AND projectObject.objectRecord = objectRecord')
             ->orderBy('report.updatedAt', 'DESC');
 
         if ($limit !== null) {
@@ -108,24 +110,12 @@ final class PageController extends AbstractController
 
         if ($q !== '') {
             $queryBuilder
-                ->andWhere('report.title LIKE :q OR objectRecord.inventoryNumber LIKE :q OR objectRecord.title LIKE :q OR project.title LIKE :q OR project.referenceCode LIKE :q')
+                ->andWhere('objectRecord.inventoryNumber LIKE :q OR objectRecord.title LIKE :q')
                 ->setParameter('q', '%' . $q . '%');
         }
 
         if (is_int($projectId) && $projectId > 0) {
             $queryBuilder->andWhere('project.id = :projectId')->setParameter('projectId', $projectId);
-        }
-
-        if (in_array($type, array_values(Report::typeChoices()), true)) {
-            $queryBuilder->andWhere('report.type = :type')->setParameter('type', $type);
-        }
-
-        if (in_array($status, [Report::STATUS_ACTIVE, Report::STATUS_FINALIZED, Report::STATUS_ARCHIVED], true)) {
-            $queryBuilder->andWhere('report.status = :status')->setParameter('status', $status);
-        }
-
-        if ($room !== '') {
-            $queryBuilder->andWhere('projectObject.room LIKE :room')->setParameter('room', '%' . $room . '%');
         }
 
         return $queryBuilder->getQuery()->getResult();

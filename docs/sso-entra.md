@@ -9,6 +9,7 @@ Als KMSKA nog ADFS gebruikt voor de eigen accounts, kan Entra die login op de ac
 - Alleen accounts met een toegewezen Entra-app-rol worden toegelaten.
 - De gebruiker wordt bij de eerste login lokaal aangemaakt.
 - Naam, e-mail en rol worden bij elke SSO-login gesynchroniseerd.
+- Tijdens een bestaande applicatiesessie wordt Entra niet opnieuw bevraagd. Ingetrokken toegang of gewijzigde rollen worden pas bij een nieuwe SSO-login gecontroleerd; het lokale gebruikersoverzicht toont de laatst opgeslagen gegevens, geen actuele Entra-status.
 - De hoogste toegewezen rol wint: administrator, alleen-lezen, gebruiker.
 - Een lokaal gedeactiveerd account wordt bij de volgende aanvraag uitgelogd.
 - Lokale accounts kunnen via de deploymentconfiguratie volledig worden uitgeschakeld.
@@ -130,6 +131,8 @@ Gebruik bij `client_secret` de **Value**, niet de Secret ID.
 
 Met `local_login_enabled: false` verdwijnen de lokale login en het wachtwoordherstel, wordt het aanmaken van lokale gebruikers geblokkeerd en worden bestaande lokale sessies afgemeld. Entra-gebruikers houden een technisch lokaal profiel voor applicatiegegevens, maar kunnen uitsluitend via SSO aanmelden.
 
+Gebruikersbeheer is dan volledig alleen-lezen, ook voor eventueel resterende lokale accounts. **Bekijken** toont de gebruikersgegevens als vaste tekst, zonder wachtwoordveld of knoppen om gegevens op te slaan of gebruikers te verwijderen. Rechtstreekse verzoeken om gebruikers te wijzigen of te verwijderen worden eveneens geblokkeerd. Beheer SSO-gebruikers en hun toegang via Microsoft Entra.
+
 De Ansible-role maakt geen lokaal administratoraccount aan. Verwijder een eventueel oud `condition_reports.admin`-blok uit de hostconfiguratie.
 
 ### 2. Deployen
@@ -187,7 +190,7 @@ Het lokale account verschijnt automatisch zodra die persoon de eerste keer inlog
 2. Selecteer de gebruiker of groep.
 3. Klik **Remove** en bevestig.
 
-Hierdoor kan de gebruiker geen nieuwe SSO-login meer uitvoeren. Een bestaande sessie kan nog actief zijn tot de sessie verloopt. Voor onmiddellijke blokkering zet een applicatiebeheerder de gebruiker daarnaast onder **Beheer > Gebruikers** op **Inactief**.
+Hierdoor kan de gebruiker geen nieuwe SSO-login meer uitvoeren. Een bestaande sessie kan nog actief zijn tot de sessie verloopt. Alleen wanneer lokale accounts zijn ingeschakeld, kan een applicatiebeheerder de gebruiker daarnaast onder **Beheer > Gebruikers** op **Inactief** zetten; bij uitgeschakelde lokale accounts is ook deze status alleen te bekijken.
 
 ## Veelvoorkomende fouten
 

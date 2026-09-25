@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const customOptionPrefix = document.documentElement.dataset.customOptionPrefix || 'Anders:';
+
     const dispatchChange = (element) => {
         element.dispatchEvent(new Event('input', { bubbles: true }));
         element.dispatchEvent(new Event('change', { bubbles: true }));
@@ -118,7 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (customValue && customInput) {
                 const customText = search.value.trim();
-                customButton.textContent = customText;
+                customButton.textContent = `${customOptionPrefix} ${customText}`;
                 customButton.hidden = showAll || customText === '' || exactMatch;
             }
 

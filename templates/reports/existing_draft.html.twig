@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'reports.existing_draft_title'|trans }} | {{ 'app.title'|trans }}{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <h1>{{ 'reports.existing_draft_title'|trans }}</h1>
+    </div>
+
+    <section class="panel report-context-panel">
+        <div class="report-context-object">
+            <strong>{{ report.objectRecord.inventoryNumber }}</strong>
+            <span>{{ report.objectRecord.displayTitle(app.request.locale) }}</span>
+            <span class="muted">{{ report.title }}</span>
+        </div>
+
+        {% if report.project %}
+            <p>{{ 'reports.existing_draft_project'|trans({'%project%': report.project.title}) }}</p>
+        {% else %}
+            <p>{{ 'reports.existing_draft_no_project'|trans }}</p>
+        {% endif %}
+        <p>{{ 'reports.existing_draft_help'|trans }}</p>
+
+        <div class="button-group">
+            <a class="button" href="{{ path('reports_edit', {'_locale': app.request.locale, id: report.id}) }}">{{ 'reports.open_draft'|trans }}</a>
+            <a class="button secondary" href="{{ back_url }}">{{ 'actions.back'|trans }}</a>
+        </div>
+    </section>
+{% endblock %}

@@ -5,18 +5,18 @@
 {% block body %}
     {% set report_status_chips = {'active': 'accent', 'finalized': 'success', 'archived': 'muted'} %}
     <div class="page-header">
-        <h1>{{ 'reports.title'|trans }}</h1>
+        <div>
+            <h1>{{ 'reports.title'|trans }}</h1>
+            {% if selected_project %}<p class="muted">{{ 'reports.project_label'|trans }}: {{ selected_project.title }}</p>{% endif %}
+        </div>
+        <a class="button secondary" href="{{ path('reports_csv', {'_locale': app.request.locale, q: q, project: selected_project ? selected_project.id : null}) }}">{{ 'reports.export_csv'|trans }}</a>
     </div>
 
     <section class="panel">
-        <form class="filters" method="get">
-            <input type="search" name="q" value="{{ q }}" placeholder="{{ 'reports.search'|trans }}">
-            <select name="project"><option value="">{{ 'reports.all_projects'|trans }}</option>{% for project in projects %}<option value="{{ project.id }}" {% if selected_project == project.id %}selected{% endif %}>{{ project.referenceCode ? project.referenceCode ~ ' — ' : '' }}{{ project.title }}</option>{% endfor %}</select>
-            <select name="type"><option value="">{{ 'reports.all_types'|trans }}</option>{% for label, value in report_types %}<option value="{{ value }}" {% if selected_type == value %}selected{% endif %}>{{ label|trans }}</option>{% endfor %}</select>
-            <select name="status"><option value="">{{ 'reports.all_statuses'|trans }}</option>{% for value in ['active', 'finalized', 'archived'] %}<option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ ('status.' ~ value)|trans }}</option>{% endfor %}</select>
-            <input type="search" name="room" value="{{ room }}" placeholder="{{ 'projects.room'|trans }}">
+        <form class="report-search" method="get" role="search">
+            {% if selected_project %}<input type="hidden" name="project" value="{{ selected_project.id }}">{% endif %}
+            <input type="search" name="q" value="{{ q }}" placeholder="{{ 'reports.search'|trans }}" aria-label="{{ 'reports.search'|trans }}">
             <button type="submit">{{ 'actions.search'|trans }}</button>
-            <a class="button secondary" href="{{ path('reports_csv', app.request.query.all|merge({'_locale': app.request.locale})) }}">{{ 'reports.export_csv'|trans }}</a>
         </form>
     </section>
 

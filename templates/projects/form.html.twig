@@ -31,23 +31,7 @@
 
     {% if is_new %}
         <section class="panel">
-                {{ form_start(form, {'attr': {'class': 'edit-form'}}) }}
-                {{ form_row(form.title) }}
-                {{ form_row(form.type) }}
-                <div data-project-custom-type-row {% if form.type.vars.value != 'other' %}hidden{% endif %}>
-                    {{ form_row(form.customType) }}
-                </div>
-                {{ form_row(form.status) }}
-                {{ form_row(form.referenceCode) }}
-                {{ form_row(form.description) }}
-                {{ form_row(form.address) }}
-                {{ form_row(form.website) }}
-                {{ form_row(form.startDate) }}
-                {{ form_row(form.endDate) }}
-                {{ form_row(form.insuranceStartDate) }}
-                {{ form_row(form.insuranceEndDate) }}
-                <button type="submit">{{ 'actions.save'|trans }}</button>
-            {{ form_end(form) }}
+            {% include 'projects/_form.html.twig' with {form: form} only %}
         </section>
     {% else %}
         <nav class="project-tabs" data-project-tabs aria-label="{{ 'projects.tabs'|trans }}">
@@ -196,14 +180,11 @@
                                     {% if object.objectType %}
                                         <span class="object-type-pill">{{ object.objectType == 'other' and object.customObjectType ? object.customObjectType : ('object_type.' ~ object.objectType)|trans }}</span>
                                     {% endif %}
-                                    {% if project_object.notes %}
-                                        <span>{{ project_object.notes|nl2br }}</span>
-                                    {% endif %}
                                     <form class="project-object-context-form" method="post" action="{{ path('projects_objects_context', {'_locale': app.request.locale, projectId: project.id, id: project_object.id}) }}">
                                         <input type="hidden" name="_token" value="{{ csrf_token('project_object_context_' ~ project_object.id) }}">
                                         <label>{{ 'projects.room'|trans }}<input type="text" name="room" value="{{ project_object.room }}" maxlength="255"></label>
-                                        <label>{{ 'projects.object_notes'|trans }}<input type="text" name="notes" value="{{ project_object.notes }}"></label>
-                                        <button type="submit" class="button secondary">{{ 'actions.save'|trans }}</button>
+                                        <label class="project-object-notes">{{ 'projects.object_notes'|trans }}<textarea name="notes" rows="3">{{ project_object.notes }}</textarea></label>
+                                        <button type="submit" class="button secondary" disabled>{{ 'actions.save'|trans }}</button>
                                     </form>
                                 </div>
                                 <div class="object-card-actions">
@@ -264,49 +245,7 @@
             <div class="project-details-grid">
                 <section class="project-detail-section project-detail-fields">
                     <h2>{{ 'projects.project_details'|trans }}</h2>
-                    {{ form_start(form, {'attr': {'class': 'project-edit-form'}}) }}
-                        <div class="project-form-grid">
-                            <div class="project-form-field project-form-field-wide">
-                                {{ form_row(form.title) }}
-                            </div>
-                            <div class="project-form-field">
-                                {{ form_row(form.type) }}
-                            </div>
-                            <div class="project-form-field" data-project-custom-type-row {% if form.type.vars.value != 'other' %}hidden{% endif %}>
-                                {{ form_row(form.customType) }}
-                            </div>
-                            <div class="project-form-field">
-                                {{ form_row(form.status) }}
-                            </div>
-                            <div class="project-form-field">
-                                {{ form_row(form.referenceCode) }}
-                            </div>
-                            <div class="project-form-field">
-                                {{ form_row(form.startDate) }}
-                            </div>
-                            <div class="project-form-field">
-                                {{ form_row(form.endDate) }}
-                            </div>
-                            <div class="project-form-field project-form-field-wide">
-                                {{ form_row(form.description) }}
-                            </div>
-                            <div class="project-form-field project-form-field-wide">
-                                {{ form_row(form.address) }}
-                            </div>
-                            <div class="project-form-field project-form-field-wide">
-                                {{ form_row(form.website) }}
-                            </div>
-                            <div class="project-form-field">
-                                {{ form_row(form.insuranceStartDate) }}
-                            </div>
-                            <div class="project-form-field">
-                                {{ form_row(form.insuranceEndDate) }}
-                            </div>
-                        </div>
-                        <div class="form-actions">
-                            <button type="submit">{{ 'actions.save'|trans }}</button>
-                        </div>
-                    {{ form_end(form) }}
+                    {% include 'projects/_form.html.twig' with {form: form} only %}
                 </section>
             </div>
         </section>
@@ -384,6 +323,7 @@
     {{ parent() }}
     <script src="/js/project-type-form.js?v=4" defer></script>
     <script src="/js/project-object-type-dialogs.js" defer></script>
+    <script src="/js/project-object-context-form.js?v=1" defer></script>
     <script src="/js/actor-role-form.js?v=10" defer></script>
-    <script src="/js/project-tabs.js?v=1" defer></script>
+    <script src="/js/project-tabs.js?v=2" defer></script>
 {% endblock %}

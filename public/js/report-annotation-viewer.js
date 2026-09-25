@@ -498,7 +498,8 @@ class ReportAnnotationWorkbench {
         }
 
         const customValue = this.damageInput.value.trim();
-        this.damageCustomButton.textContent = customValue;
+        const customOptionPrefix = document.documentElement.dataset.customOptionPrefix || 'Anders:';
+        this.damageCustomButton.textContent = `${customOptionPrefix} ${customValue}`;
         this.damageCustomButton.hidden = showAll || customValue === '' || exactMatch;
         const hasOptions = visibleCount > 0 || !this.damageCustomButton.hidden;
         this.damageMenu.hidden = !hasOptions;

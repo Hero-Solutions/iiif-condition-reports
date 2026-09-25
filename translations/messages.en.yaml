@@ -15,11 +15,14 @@ actions:
   save: Save
   remove: Remove
   edit: Edit
+  view: View
   open: Open
   delete: Delete
   back: Back
   cancel: Cancel
   details: Details
+forms:
+  custom_option_prefix: 'Other:'
 filters:
   all_types: 'All types'
   all_statuses: 'All statuses'
@@ -149,8 +152,10 @@ objects:
   inventory_number: 'Inventory number'
   object: Object
   object_title: Title
-  creator: Creator
+  creator: 'Creator(s)'
   publisher: 'Owner / lender'
+  choose_publisher: 'Choose an actor or enter a name'
+  custom_publisher: Other
   object_type: 'Object type'
   choose_object_type: 'Choose an object type'
   object_type_missing: 'Object type missing'
@@ -300,7 +305,7 @@ reports:
   choose_reason: 'Choose a reason'
   receipt_at: 'Receipt date'
   status: Status
-  search: 'Inventory number, title or report'
+  search: 'Find an object by inventory number or title…'
   empty_title: 'No reports yet'
   empty_text: 'Reports will later appear here.'
   unknown_reporter: Unknown
@@ -308,6 +313,11 @@ reports:
   author: 'Created by'
   deleted: 'Report deleted.'
   delete_draft: 'Delete draft'
+  existing_draft_title: 'A draft already exists'
+  existing_draft_project: 'A draft already exists for this object in project “%project%”.'
+  existing_draft_no_project: 'A draft already exists for this object without a project.'
+  existing_draft_help: 'Open the existing draft to continue working. Finalize it before starting a new report.'
+  open_draft: 'Open draft'
   delete_draft_only: 'Only draft reports can be deleted.'
   confirm_delete: 'Permanently delete the draft “%title%”? This cannot be undone.'
   confirm_delete_any: 'Permanently delete the report “%title%”? This cannot be undone.'
@@ -436,7 +446,7 @@ actors:
   type: Type
   role: Role
   alias: Alias
-  logo: Logo
+  logo: 'Logo URL'
   vat: 'VAT number'
   address: Address
   postal: 'Postal code'
@@ -500,7 +510,7 @@ admin:
   users: Users
   users_text: 'Create, edit and deactivate accounts.'
   actors: 'Actors / organizations'
-  actors_text: 'Reusable organizations and people. Contact people are persons linked to an organization.'
+  actors_text: 'Manage organizations, people and their contact details.'
   organisations: Organisations
   contacts: Contacts
   report_types: 'Report types'
@@ -508,13 +518,15 @@ users:
   title: Users
   new: 'New user'
   edit: 'Edit user'
+  view: 'View user'
   empty_title: 'No users yet'
   empty_text: 'Add a first user.'
+  empty_sso_text: 'Users appear here after their first SSO sign-in.'
   full_name: Name
   email: E-mail
   password: Password
   new_password: 'New password'
-  roles: Roles
+  roles: Role
   access_level: Access
   status: Status
   source: Source
@@ -526,6 +538,7 @@ users:
   role_admin: Administrator
   role_read_only: Read-only
   read_only_notice: 'Read-only mode: you can view data, but cannot make changes.'
+  management_read_only_notice: 'View only: local accounts are disabled. You cannot add, edit or delete users here. Manage SSO users and their access through Microsoft Entra.'
   saved: 'User saved.'
   deleted: 'User deleted.'
   cannot_delete_self: 'You cannot delete your own user account.'

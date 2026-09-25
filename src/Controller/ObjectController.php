@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Entity\Actor;
 use App\Entity\IIIFManifest;
 use App\Entity\ObjectManifest;
 use App\Entity\ObjectRecord;
@@ -132,6 +133,7 @@ final class ObjectController extends AbstractController
         return $this->createForm(ObjectRecordType::class, $object, [
             'manifest_url' => $manifestUrl,
             'external_image_url' => $externalImageUrl ?? '',
+            'actors' => $this->entityManager->getRepository(Actor::class)->findBy([], ['name' => 'ASC']),
         ]);
     }
 

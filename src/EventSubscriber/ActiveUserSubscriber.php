@@ -51,8 +51,9 @@ final class ActiveUserSubscriber
         $this->tokenStorage->setToken(null);
         $request->getSession()->invalidate();
         $request->getSession()->getFlashBag()->add('error', $message);
-        $event->setResponse(new RedirectResponse($this->urlGenerator->generate('app_login', [
+        $response = new RedirectResponse($this->urlGenerator->generate('app_login', [
             '_locale' => $locale,
-        ])));
+        ]));
+        $event->setController(static fn (): RedirectResponse => $response);
     }
 }

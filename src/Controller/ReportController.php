@@ -33,6 +33,7 @@ use App\Service\ReportFormDefinition;
 use App\Service\ReportPdfRenderer;
 use App\Service\ReportImageStorage;
 use App\Value\ActorRole;
+use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\OptimisticLockException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -73,63 +74,30 @@ final class ReportController extends AbstractController
             throw $this->createNotFoundException();
         }
 
-        $activeDraft = $this->entityManager
-            ->getRepository(Report::class)
-            ->findOneBy([
-                'series' => $series,
-                'status' => Report::STATUS_ACTIVE,
-            ], ['updatedAt' => 'DESC']);
+        $report = $this->entityManager->wrapInTransaction(function () use ($series): Report {
+            // Serialize draft creation for this object, including requests from other projects.
+            $this->entityManager->lock($series->getObjectRecord(), LockMode::PESSIMISTIC_WRITE);
 
-        if ($activeDraft instanceof Report) {
-            return $this->redirectToRoute('reports_edit', [
-                '_locale' => $request->getLocale(),
-                'id' => $activeDraft->getId(),
+            $activeDraft = $this->entityManager
+                ->getRepository(Report::class)
+                ->findOneBy([
+                    'objectRecord' => $series->getObjectRecord(),
+                    'status' => Report::STATUS_ACTIVE,
+                ], ['createdAt' => 'DESC', 'id' => 'DESC']);
+
+            return $activeDraft ?? $this->createDraft($series);
+        });
+
+        if ($report->getSeries() !== $series) {
+            $project = $series->getProject();
+
+            return $this->render('reports/existing_draft.html.twig', [
+                'report' => $report,
+                'back_url' => $project instanceof Project
+                    ? $this->generateUrl('projects_edit', ['_locale' => $request->getLocale(), 'id' => $project->getId()])
+                    : $this->generateUrl('objects_edit', ['_locale' => $request->getLocale(), 'id' => $series->getObjectRecord()->getId()]),
             ]);
         }
-
-        $previousReport = $this->latestReportForSeries($series);
-        $report = new Report($series, $previousReport?->getType() ?? Report::TYPE_OTHER);
-        $projectDefaults = $series->getProject() instanceof Project
-            ? $this->projectReportDefaults->for($series->getProject(), $series->getObjectRecord())
-            : [];
-        $user = $this->getUser();
-
-        if ($user instanceof User) {
-            $report->setCreatedById($user->getId());
-        }
-
-        if ($previousReport instanceof Report) {
-            $report
-                ->setBasedOnReport($previousReport)
-                ->setCustomType($previousReport->getCustomType())
-                ->setTitle($previousReport->getTitle())
-                ->setDescription($previousReport->getDescription())
-                ->setReason($previousReport->getReason())
-                ->setCustomReason($previousReport->getCustomReason())
-                ->setReceiptAt($previousReport->getReceiptAt())
-                ->setStartedAt($previousReport->getStartedAt())
-                ->setEndedAt($previousReport->getEndedAt())
-                ->setData(array_replace($projectDefaults, $previousReport->getData()));
-        } else {
-            $report
-                ->setTitle($series->getTitle())
-                ->setDescription($series->getDescription())
-                ->setStartedAt($series->getStartedAt())
-                ->setEndedAt($series->getEndedAt())
-                ->setData($projectDefaults);
-        }
-
-        $this->entityManager->persist($report);
-
-        $copiedActorKeys = [];
-
-        if ($previousReport instanceof Report) {
-            $this->copyReportActors($previousReport, $report, $copiedActorKeys);
-        }
-
-        $this->copyProjectActors($report, $copiedActorKeys);
-        $this->copyProjectObjectActors($report, $copiedActorKeys);
-        $this->entityManager->flush();
 
         return $this->redirectToRoute('reports_edit', [
             '_locale' => $request->getLocale(),
@@ -816,13 +784,60 @@ final class ReportController extends AbstractController
         $report->setData($data);
     }
 
-    private function latestReportForSeries(ReportSeries $series): ?Report
+    private function createDraft(ReportSeries $series): Report
+    {
+        $previousReport = $this->latestReportForObject($series->getObjectRecord());
+        $report = new Report($series, $previousReport?->getType() ?? Report::TYPE_OTHER);
+        $projectDefaults = $series->getProject() instanceof Project
+            ? $this->projectReportDefaults->for($series->getProject(), $series->getObjectRecord())
+            : [];
+        $user = $this->getUser();
+
+        if ($user instanceof User) {
+            $report->setCreatedById($user->getId());
+        }
+
+        if ($previousReport instanceof Report) {
+            $report
+                ->setBasedOnReport($previousReport)
+                ->setCustomType($previousReport->getCustomType())
+                ->setTitle($previousReport->getTitle())
+                ->setDescription($previousReport->getDescription())
+                ->setReason($previousReport->getReason())
+                ->setCustomReason($previousReport->getCustomReason())
+                ->setReceiptAt($previousReport->getReceiptAt())
+                ->setStartedAt($previousReport->getStartedAt())
+                ->setEndedAt($previousReport->getEndedAt())
+                ->setData(array_replace($projectDefaults, $previousReport->getData()));
+        } else {
+            $report
+                ->setTitle($series->getTitle())
+                ->setDescription($series->getDescription())
+                ->setStartedAt($series->getStartedAt())
+                ->setEndedAt($series->getEndedAt())
+                ->setData($projectDefaults);
+        }
+
+        $this->entityManager->persist($report);
+        $copiedActorKeys = [];
+
+        if ($previousReport instanceof Report) {
+            $this->copyReportActors($previousReport, $report, $copiedActorKeys);
+        }
+
+        $this->copyProjectActors($report, $copiedActorKeys);
+        $this->copyProjectObjectActors($report, $copiedActorKeys);
+
+        return $report;
+    }
+
+    private function latestReportForObject(ObjectRecord $object): ?Report
     {
         return $this->entityManager
             ->getRepository(Report::class)
             ->createQueryBuilder('report')
-            ->andWhere('report.series = :series')
-            ->setParameter('series', $series)
+            ->andWhere('report.objectRecord = :object')
+            ->setParameter('object', $object)
             ->orderBy('report.createdAt', 'DESC')
             ->addOrderBy('report.id', 'DESC')
             ->setMaxResults(1)

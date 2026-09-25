@@ -57,9 +57,8 @@ final class AdminActorController extends AbstractController
                 return $this->redirectToActor($contactOrganization, $request);
             }
 
-            return $this->redirectToRoute('admin_actors_edit', [
+            return $this->redirectToRoute('admin_actors_index', [
                 '_locale' => $request->getLocale(),
-                'id' => $actor->getId(),
             ]);
         }
 

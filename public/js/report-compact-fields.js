@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.querySelector('#report-edit-form');
+    const customOptionPrefix = document.documentElement.dataset.customOptionPrefix || 'Anders:';
 
     if (!form) {
         return;
@@ -181,8 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const canUseCustom = query !== '' && !exactMatch && customItem !== null;
 
             useCustom.hidden = !canUseCustom;
-            customQuery.textContent = search.value.trim();
-            useCustom.setAttribute('aria-label', search.value.trim());
+            customQuery.textContent = `${customOptionPrefix} ${search.value.trim()}`;
             noOptions.hidden = query === '' || visibleCount > 0 || canUseCustom;
 
             return visibleCount > 0 || canUseCustom || query !== '';

@@ -1,12 +1,12 @@
 <!doctype html>
-<html lang="{{ app.request.locale }}">
+<html lang="{{ app.request.locale }}" data-custom-option-prefix="{{ 'forms.custom_option_prefix'|trans }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}{{ 'app.title'|trans }}{% endblock %}</title>
     <script>try{if(localStorage.getItem('crSidebar')==='collapsed'){document.documentElement.classList.add('sidebar-collapsed')}}catch(e){}</script>
-    <link rel="stylesheet" href="/css/app.css?v=108">
-    <script src="/js/smart-single-select.js?v=6" defer></script>
+    <link rel="stylesheet" href="/css/app.css?v=118">
+    <script src="/js/smart-single-select.js?v=7" defer></script>
     {% block stylesheets %}{% endblock %}
     {% block javascripts %}{% endblock %}
 </head>
@@ -82,10 +82,6 @@
                     </div>
                 {% endif %}
                 <div class="sidebar-utils">
-                    <div class="sidebar-meta-links sidebar-label">
-                        <a href="{{ path('feedback', {'_locale': app.request.locale}) }}">{{ 'feedback.title'|trans }}</a>
-                        <a href="{{ path('disclaimer', {'_locale': app.request.locale}) }}">{{ 'disclaimer.title'|trans }}</a>
-                    </div>
                     <nav class="language-switcher">
                         <a href="{{ path(current_route, current_params|merge({'_locale': 'nl'})) }}" class="{{ app.request.locale == 'nl' ? 'active' : '' }}">NL</a>
                         <a href="{{ path(current_route, current_params|merge({'_locale': 'en'})) }}" class="{{ app.request.locale == 'en' ? 'active' : '' }}">EN</a>
@@ -94,6 +90,12 @@
                         <svg class="icon" aria-hidden="true"><use href="#i-collapse"/></svg>
                     </button>
                 </div>
+                {% if app.user %}
+                    <div class="sidebar-meta-links sidebar-label">
+                        <a href="{{ path('feedback', {'_locale': app.request.locale}) }}">{{ 'feedback.title'|trans }}</a>
+                        <a href="{{ path('disclaimer', {'_locale': app.request.locale}) }}">{{ 'disclaimer.title'|trans }}</a>
+                    </div>
+                {% endif %}
             </div>
         </aside>
 

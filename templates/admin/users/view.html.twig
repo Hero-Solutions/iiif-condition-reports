@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'users.view'|trans }} | {{ 'app.title'|trans }}{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <h1>{{ 'users.view'|trans }}</h1>
+        <a class="button secondary" href="{{ path('admin_users_index', {'_locale': app.request.locale}) }}">{{ 'actions.back'|trans }}</a>
+    </div>
+
+    <p class="read-only-notice">{{ 'users.management_read_only_notice'|trans }}</p>
+
+    <section class="panel">
+        <dl class="context-list">
+            <dt>{{ 'users.full_name'|trans }}</dt><dd>{{ user.fullName }}</dd>
+            <dt>{{ 'users.email'|trans }}</dt><dd>{{ user.email }}</dd>
+            <dt>{{ 'users.source'|trans }}</dt><dd>{{ (user.ssoManaged ? 'users.source_sso' : 'users.source_local')|trans }}</dd>
+            <dt>{{ 'users.status'|trans }}</dt><dd>{{ (user.active ? 'users.active' : 'users.inactive')|trans }}</dd>
+            <dt>{{ 'users.access_level'|trans }}</dt>
+            <dd>{{ (user.admin ? 'users.role_admin' : (user.readOnly ? 'users.role_read_only' : 'users.role_user'))|trans }}</dd>
+        </dl>
+    </section>
+{% endblock %}

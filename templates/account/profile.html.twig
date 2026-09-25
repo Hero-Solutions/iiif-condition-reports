@@ -7,9 +7,15 @@
     <section class="panel narrow-panel">
         {% if user.ssoManaged %}
             <p>{{ 'profile.sso_managed'|trans }}</p>
-            <dl class="metadata-list">
-                <dt>{{ 'users.full_name'|trans }}</dt><dd>{{ user.fullName }}</dd>
-                <dt>{{ 'users.email'|trans }}</dt><dd>{{ user.email }}</dd>
+            <dl class="profile-details">
+                <div>
+                    <dt>{{ 'users.full_name'|trans }}</dt>
+                    <dd>{{ user.fullName }}</dd>
+                </div>
+                <div>
+                    <dt>{{ 'users.email'|trans }}</dt>
+                    <dd>{{ user.email }}</dd>
+                </div>
             </dl>
         {% else %}
             <form method="post" class="edit-form account-form">

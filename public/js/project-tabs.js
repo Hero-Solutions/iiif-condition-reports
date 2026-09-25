@@ -8,12 +8,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const triggers = Array.from(tabs.querySelectorAll('[data-project-tab-trigger]'));
     const panels = Array.from(document.querySelectorAll('[data-project-tab-panel]'));
     const validTabs = new Set(triggers.map((trigger) => trigger.dataset.projectTabTrigger));
-    const storageKey = `project-tab:${window.location.pathname}`;
     const hashTab = window.location.hash.startsWith('#project-tab-')
         ? window.location.hash.replace('#project-tab-', '')
         : '';
-    const storedTab = window.localStorage.getItem(storageKey);
-    const initialTab = validTabs.has(hashTab) ? hashTab : (validTabs.has(storedTab) ? storedTab : 'objects');
+    const initialTab = validTabs.has(hashTab) ? hashTab : 'objects';
 
     const activateTab = (tab, updateHash) => {
         triggers.forEach((trigger) => {
@@ -25,8 +23,6 @@ document.addEventListener('DOMContentLoaded', () => {
         panels.forEach((panel) => {
             panel.hidden = panel.dataset.projectTabPanel !== tab;
         });
-
-        window.localStorage.setItem(storageKey, tab);
 
         if (updateHash) {
             window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}#project-tab-${tab}`);

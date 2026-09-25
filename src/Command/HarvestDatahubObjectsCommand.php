@@ -158,7 +158,7 @@ final class HarvestDatahubObjectsCommand extends Command
     ): void {
         $adapter = $this->httpAdapter($input);
         $endpoint = $this->baseUrl($input, $config) . '/api/v1/data.json';
-        $pageSize = 99;
+        $pageSize = 25;
         $offset = 0;
         $matched = 0;
         $batch = [];
@@ -181,6 +181,10 @@ final class HarvestDatahubObjectsCommand extends Command
             if ($records === []) {
                 break;
             }
+
+            $recordCount = count($records);
+            $total = isset($payload['total']) ? (int) $payload['total'] : null;
+            unset($payload);
 
             foreach ($records as $record) {
                 if (!is_array($record)) {
@@ -212,10 +216,10 @@ final class HarvestDatahubObjectsCommand extends Command
                 }
             }
 
-            $offset += count($records);
-            $total = isset($payload['total']) ? (int) $payload['total'] : null;
+            $offset += $recordCount;
+            unset($records, $record, $prepared);
 
-            if (($total !== null && $offset >= $total) || count($records) < $pageSize) {
+            if (($total !== null && $offset >= $total) || $recordCount < $pageSize) {
                 break;
             }
         }

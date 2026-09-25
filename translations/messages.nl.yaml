@@ -15,11 +15,14 @@ actions:
   save: Opslaan
   remove: Verwijderen
   edit: Bewerken
+  view: Bekijken
   open: Openen
   delete: Verwijderen
   back: Terug
   cancel: Annuleren
   details: Details
+forms:
+  custom_option_prefix: 'Anders:'
 filters:
   all_types: 'Alle types'
   all_statuses: 'Alle statussen'
@@ -149,8 +152,10 @@ objects:
   inventory_number: Inventarisnummer
   object: Object
   object_title: Titel
-  creator: Vervaardiger
+  creator: 'Vervaardiger(s)'
   publisher: 'Eigenaar / bruikleengever'
+  choose_publisher: 'Kies een actor of typ een naam'
+  custom_publisher: Anders
   object_type: Objecttype
   choose_object_type: 'Kies een objecttype'
   object_type_missing: 'Objecttype ontbreekt'
@@ -300,7 +305,7 @@ reports:
   choose_reason: 'Kies een aanleiding'
   receipt_at: Ontvangstdatum
   status: Status
-  search: 'Inventarisnummer, titel of rapport'
+  search: 'Zoek object op inventarisnummer of titel…'
   empty_title: 'Nog geen rapporten'
   empty_text: 'Rapporten worden later hier getoond.'
   unknown_reporter: Onbekend
@@ -308,6 +313,11 @@ reports:
   author: Maker
   deleted: 'Rapport verwijderd.'
   delete_draft: 'Ontwerp verwijderen'
+  existing_draft_title: 'Er bestaat al een ontwerp'
+  existing_draft_project: 'Voor dit object bestaat al een ontwerp in project “%project%”.'
+  existing_draft_no_project: 'Voor dit object bestaat al een ontwerp zonder project.'
+  existing_draft_help: 'Open het bestaande ontwerp om verder te werken. Rond het eerst definitief af voordat je een nieuw rapport start.'
+  open_draft: 'Ontwerp openen'
   delete_draft_only: 'Alleen rapporten met de status Ontwerp kunnen worden verwijderd.'
   confirm_delete: 'Het ontwerp “%title%” volledig verwijderen? Dit kan niet ongedaan worden gemaakt.'
   confirm_delete_any: 'Het rapport “%title%” volledig verwijderen? Dit kan niet ongedaan worden gemaakt.'
@@ -436,7 +446,7 @@ actors:
   type: Type
   role: Rol
   alias: Alias
-  logo: Logo
+  logo: 'Logo URL'
   vat: Btw-nummer
   address: Adres
   postal: Postcode
@@ -500,7 +510,7 @@ admin:
   users: Gebruikers
   users_text: 'Accounts aanmaken, bewerken en deactiveren.'
   actors: 'Actoren / organisaties'
-  actors_text: 'Herbruikbare organisaties en personen. Contactpersonen zijn personen die aan een organisatie gekoppeld zijn.'
+  actors_text: 'Organisaties, personen en hun contactgegevens beheren.'
   organisations: Organisaties
   contacts: Contactpersonen
   report_types: Rapporttypes
@@ -508,13 +518,15 @@ users:
   title: Gebruikers
   new: 'Nieuwe gebruiker'
   edit: 'Gebruiker bewerken'
+  view: 'Gebruiker bekijken'
   empty_title: 'Nog geen gebruikers'
   empty_text: 'Voeg een eerste gebruiker toe.'
+  empty_sso_text: 'Gebruikers verschijnen hier na hun eerste SSO-aanmelding.'
   full_name: Naam
   email: E-mail
   password: Wachtwoord
   new_password: 'Nieuw wachtwoord'
-  roles: Rollen
+  roles: Rol
   access_level: Toegang
   status: Status
   source: Bron
@@ -526,6 +538,7 @@ users:
   role_admin: Administrator
   role_read_only: 'Alleen lezen'
   read_only_notice: 'Alleen-lezenmodus: je kunt gegevens bekijken, maar niet wijzigen.'
+  management_read_only_notice: 'Alleen bekijken: lokale accounts zijn uitgeschakeld. Je kunt hier geen gebruikers toevoegen, wijzigen of verwijderen. Beheer SSO-gebruikers en hun toegang via Microsoft Entra.'
   saved: 'Gebruiker opgeslagen.'
   deleted: 'Gebruiker verwijderd.'
   cannot_delete_self: 'Je kunt je eigen gebruikersaccount niet verwijderen.'
@@ -1151,7 +1164,7 @@ Insurer: Verzekeraar
 'Fill in another role ...': 'Vul een andere rol in ...'
 'Inventory number': Inventarisnummer
 Title: Titel
-Creator: Vervaardiger
+Creator: 'Vervaardiger(s)'
 Editor: Editor
 'Last modification': 'Laatste wijziging'
 'Last reason': 'Laatste aanleiding'

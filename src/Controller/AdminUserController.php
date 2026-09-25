@@ -66,6 +66,14 @@ final class AdminUserController extends AbstractController
     #[Route('/{_locale<nl|en>}/admin/users/{id}/edit', name: 'admin_users_edit', methods: ['GET', 'POST'])]
     public function edit(User $user, Request $request): Response
     {
+        if (!$this->localLoginEnabled) {
+            if ($request->isMethod('POST')) {
+                throw $this->createAccessDeniedException();
+            }
+
+            return $this->render('admin/users/view.html.twig', ['user' => $user]);
+        }
+
         $isSelf = $this->isCurrentUser($user);
         $form = $this->createUserForm($user, false, $isSelf);
         $form->handleRequest($request);
@@ -88,6 +96,10 @@ final class AdminUserController extends AbstractController
     #[Route('/{_locale<nl|en>}/admin/users/{id}/delete', name: 'admin_users_delete', methods: ['POST'])]
     public function delete(User $user, Request $request): Response
     {
+        if (!$this->localLoginEnabled) {
+            throw $this->createAccessDeniedException();
+        }
+
         if ($this->isCurrentUser($user)) {
             $this->addFlash('error', 'users.cannot_delete_self');
 
@@ -150,10 +162,12 @@ final class AdminUserController extends AbstractController
             $user->setRoles($roles);
         }
 
-        $plainPassword = trim((string) $form->get('plainPassword')->getData());
+        if (!$user->isSsoManaged()) {
+            $plainPassword = trim((string) $form->get('plainPassword')->getData());
 
-        if (!$user->isSsoManaged() && $plainPassword !== '') {
-            $user->setPassword($this->passwordHasher->hashPassword($user, $plainPassword));
+            if ($plainPassword !== '') {
+                $user->setPassword($this->passwordHasher->hashPassword($user, $plainPassword));
+            }
         }
 
         $this->entityManager->persist($user);

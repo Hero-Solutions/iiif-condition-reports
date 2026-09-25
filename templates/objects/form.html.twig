@@ -102,17 +102,35 @@
     {% endif %}
 
     <section class="panel">
-        {{ form_start(form, {'attr': {'class': 'edit-form'}}) }}
-            {{ form_row(form.inventoryNumber) }}
-            {{ form_row(form.title) }}
-            {{ form_row(form.creator) }}
-            {{ form_row(form.publisher) }}
-            {{ form_row(form.objectType) }}
-            {{ form_widget(form.customObjectType) }}
-            {{ form_row(form.currentLocation) }}
-            {{ form_row(form.description) }}
-            <div class="object-image-fields">
-                <div>
+        {{ form_start(form, {'attr': {'class': 'object-edit-form'}}) }}
+            <div class="object-form-grid">
+                <div class="object-form-field">
+                    {{ form_row(form.inventoryNumber) }}
+                </div>
+                <div class="object-form-field">
+                    {{ form_row(form.title) }}
+                </div>
+                <div class="object-form-field">
+                    {{ form_row(form.creator) }}
+                </div>
+                <div class="object-form-field">
+                    {{ form_row(form.publisherChoice) }}
+                    {{ form_widget(form.publisher) }}
+                    {{ form_errors(form.publisher) }}
+                </div>
+                <div class="object-form-field">
+                    {{ form_row(form.objectType) }}
+                    {{ form_widget(form.customObjectType) }}
+                </div>
+                <div class="object-form-field">
+                    {{ form_row(form.currentLocation) }}
+                </div>
+                <div class="object-form-field object-form-field-wide">
+                    {{ form_row(form.description) }}
+                </div>
+            </div>
+            <div class="object-image-fields object-form-grid">
+                <div class="object-form-field-wide">
                     <h2>{{ 'objects.image'|trans }}</h2>
                     <p class="muted">{{ 'objects.image_help'|trans }}</p>
                 </div>
@@ -132,9 +150,11 @@
                     </div>
                     {{ form_errors(form.externalImageUrl) }}
                 </div>
-                {{ form_row(form.imageUpload) }}
+                <div class="object-form-field object-form-field-wide">
+                    {{ form_row(form.imageUpload) }}
+                </div>
                 <div
-                    class="object-image-preview"
+                    class="object-image-preview object-form-field-wide"
                     data-object-image-preview
                     data-initial-url="{{ thumbnail_url|default('') }}"
                     data-loading-message="{{ 'objects.image_preview_loading'|trans }}"
@@ -154,7 +174,9 @@
                 </div>
             </div>
 
-            <button type="submit">{{ 'actions.save'|trans }}</button>
+            <div class="form-actions">
+                <button type="submit">{{ 'actions.save'|trans }}</button>
+            </div>
         {{ form_end(form) }}
     </section>
 

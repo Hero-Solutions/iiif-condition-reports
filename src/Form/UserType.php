@@ -44,16 +44,6 @@ final class UserType extends AbstractType
                     new Length(max: 180, maxMessage: 'users.max_180'),
                 ],
             ])
-            ->add('plainPassword', PasswordType::class, [
-                'label' => $isNew ? 'users.password' : 'users.new_password',
-                'mapped' => false,
-                'required' => $isNew && !$ssoManaged,
-                'disabled' => $ssoManaged,
-                'constraints' => array_filter([
-                    $isNew && !$ssoManaged ? new NotBlank(message: 'users.password_required') : null,
-                    new Length(max: 255, maxMessage: 'users.max_255'),
-                ]),
-            ])
             ->add('active', CheckboxType::class, [
                 'label' => 'users.active',
                 'required' => false,
@@ -75,6 +65,18 @@ final class UserType extends AbstractType
                     ? User::ROLE_ADMIN
                     : ($user->isReadOnly() ? User::ROLE_READ_ONLY : User::ROLE_USER),
             ]);
+
+        if (!$ssoManaged) {
+            $builder->add('plainPassword', PasswordType::class, [
+                'label' => $isNew ? 'users.password' : 'users.new_password',
+                'mapped' => false,
+                'required' => $isNew,
+                'constraints' => array_filter([
+                    $isNew ? new NotBlank(message: 'users.password_required') : null,
+                    new Length(max: 255, maxMessage: 'users.max_255'),
+                ]),
+            ]);
+        }
     }
 
     public function configureOptions(OptionsResolver $resolver): void

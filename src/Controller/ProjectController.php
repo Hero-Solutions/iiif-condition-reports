@@ -301,7 +301,7 @@ final class ProjectController extends AbstractController
         if ($actorData === null) {
             $this->addFlash('error', 'actors.invalid');
 
-            return $this->redirectToProject($project, $request);
+            return $this->redirectToProject($project, $request, 'actors');
         }
 
         $actor = $this->findOrCreateActor($actorData);
@@ -309,7 +309,7 @@ final class ProjectController extends AbstractController
         if (!$actor instanceof Actor) {
             $this->addFlash('error', 'actors.invalid');
 
-            return $this->redirectToProject($project, $request);
+            return $this->redirectToProject($project, $request, 'actors');
         }
 
         $projectActor = new ProjectActor($project, $actor);
@@ -322,7 +322,7 @@ final class ProjectController extends AbstractController
         $this->entityManager->flush();
         $this->addFlash('success', 'actors.added');
 
-        return $this->redirectToProject($project, $request);
+        return $this->redirectToProject($project, $request, 'actors');
     }
 
     #[Route('/{_locale<nl|en>}/projects/{projectId}/actors/{id}/remove', name: 'projects_actors_remove', methods: ['POST'])]
@@ -340,10 +340,7 @@ final class ProjectController extends AbstractController
         $this->entityManager->flush();
         $this->addFlash('success', 'actors.removed');
 
-        return $this->redirectToRoute('projects_edit', [
-            '_locale' => $request->getLocale(),
-            'id' => $projectId,
-        ]);
+        return $this->redirectToProject($projectActor->getProject(), $request, 'actors');
     }
 
     #[Route('/{_locale<nl|en>}/projects/{projectId}/actors/{id}/edit', name: 'projects_actors_edit_assignment', methods: ['POST'])]
@@ -360,19 +357,13 @@ final class ProjectController extends AbstractController
         if (!$this->updateActorAssignment($projectActor, $request)) {
             $this->addFlash('error', 'actors.invalid');
 
-            return $this->redirectToRoute('projects_edit', [
-                '_locale' => $request->getLocale(),
-                'id' => $projectId,
-            ]);
+            return $this->redirectToProject($projectActor->getProject(), $request, 'actors');
         }
 
         $this->entityManager->flush();
         $this->addFlash('success', 'actors.saved');
 
-        return $this->redirectToRoute('projects_edit', [
-            '_locale' => $request->getLocale(),
-            'id' => $projectId,
-        ]);
+        return $this->redirectToProject($projectActor->getProject(), $request, 'actors');
     }
 
     #[Route('/{_locale<nl|en>}/projects/{projectId}/actors/{id}/contact', name: 'projects_actors_contact', methods: ['POST'])]
@@ -391,20 +382,14 @@ final class ProjectController extends AbstractController
         if (!$contactResult['valid']) {
             $this->addFlash('error', 'actors.invalid_contact');
 
-            return $this->redirectToRoute('projects_edit', [
-                '_locale' => $request->getLocale(),
-                'id' => $projectId,
-            ]);
+            return $this->redirectToProject($projectActor->getProject(), $request, 'actors');
         }
 
         $projectActor->setContactPerson($contactResult['contact_person']);
         $this->entityManager->flush();
         $this->addFlash('success', 'actors.contact_saved');
 
-        return $this->redirectToRoute('projects_edit', [
-            '_locale' => $request->getLocale(),
-            'id' => $projectId,
-        ]);
+        return $this->redirectToProject($projectActor->getProject(), $request, 'actors');
     }
 
     #[Route('/{_locale<nl|en>}/projects/{projectId}/objects/{projectObjectId}/actors/add', name: 'projects_objects_actors_add', methods: ['POST'])]
@@ -636,12 +621,14 @@ final class ProjectController extends AbstractController
         return $queryBuilder->getQuery()->getResult();
     }
 
-    private function redirectToProject(Project $project, Request $request): Response
+    private function redirectToProject(Project $project, Request $request, ?string $tab = null): Response
     {
-        return $this->redirectToRoute('projects_edit', [
+        $url = $this->generateUrl('projects_edit', [
             '_locale' => $request->getLocale(),
             'id' => $project->getId(),
         ]);
+
+        return $this->redirect($tab === null ? $url : $url . '#project-tab-' . $tab);
     }
 
     /**

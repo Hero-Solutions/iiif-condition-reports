@@ -211,7 +211,7 @@ class Report
     public function setCustomType(?string $customType): self
     {
         $this->ensureEditable();
-        $customType = $customType === null ? null : trim($customType);
+        $customType = trim((string) $customType);
         $this->customType = $this->type === self::TYPE_OTHER && $customType !== ''
             ? mb_substr($customType, 0, 100)
             : null;

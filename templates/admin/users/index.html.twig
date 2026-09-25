@@ -5,15 +5,22 @@
 {% block body %}
     <div class="page-header">
         <h1>{{ 'users.title'|trans }}</h1>
-        {% if local_login_enabled %}
-            <a class="button" href="{{ path('admin_users_new', {'_locale': app.request.locale}) }}">{{ 'users.new'|trans }}</a>
-        {% endif %}
+        <div class="page-header-actions">
+            {% if local_login_enabled %}
+                <a class="button" href="{{ path('admin_users_new', {'_locale': app.request.locale}) }}">{{ 'users.new'|trans }}</a>
+            {% endif %}
+            <a class="button secondary" href="{{ path('admin_index', {'_locale': app.request.locale}) }}">{{ 'actions.back'|trans }}</a>
+        </div>
     </div>
+
+    {% if not local_login_enabled %}
+        <p class="read-only-notice">{{ 'users.management_read_only_notice'|trans }}</p>
+    {% endif %}
 
     {% if users is empty %}
         <section class="empty-state">
             <h2>{{ 'users.empty_title'|trans }}</h2>
-            <p>{{ 'users.empty_text'|trans }}</p>
+            <p>{{ (local_login_enabled ? 'users.empty_text' : 'users.empty_sso_text')|trans }}</p>
         </section>
     {% else %}
         <section class="panel">
@@ -41,8 +48,8 @@
                             <td>{{ user.ssoManaged ? 'users.source_sso'|trans : 'users.source_local'|trans }}</td>
                             <td>{{ user.active ? 'users.active'|trans : 'users.inactive'|trans }}</td>
                             <td class="table-actions">
-                                <a href="{{ path('admin_users_edit', {'_locale': app.request.locale, id: user.id}) }}">{{ 'actions.edit'|trans }}</a>
-                                {% if app.user.id != user.id and not user.ssoManaged %}
+                                <a href="{{ path('admin_users_edit', {'_locale': app.request.locale, id: user.id}) }}">{{ (local_login_enabled ? 'actions.edit' : 'actions.view')|trans }}</a>
+                                {% if local_login_enabled and app.user.id != user.id and not user.ssoManaged %}
                                     <form method="post" action="{{ path('admin_users_delete', {'_locale': app.request.locale, id: user.id}) }}" onsubmit="return confirm('{{ 'users.confirm_delete'|trans({'%email%': user.email})|e('js') }}');">
                                         <input type="hidden" name="_token" value="{{ csrf_token('admin_user_delete_' ~ user.id) }}">
                                         <button type="submit" class="link-button">{{ 'actions.delete'|trans }}</button>

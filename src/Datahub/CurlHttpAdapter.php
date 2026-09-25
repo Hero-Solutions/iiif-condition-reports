@@ -44,7 +44,8 @@ final class CurlHttpAdapter implements HttpAdapterInterface
             $statusCode = (int) curl_getinfo($handle, CURLINFO_RESPONSE_CODE);
             curl_close($handle);
 
-            if ($body !== false && $statusCode >= 200 && $statusCode < 300 && trim($body) !== '') {
+            // Avoid copying a large response just to check whether it is blank.
+            if ($body !== false && $statusCode >= 200 && $statusCode < 300 && strspn($body, " \t\n\r\0\x0B") !== strlen($body)) {
                 return $body;
             }
 
