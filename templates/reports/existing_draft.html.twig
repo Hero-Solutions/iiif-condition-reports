@@ -11,7 +11,7 @@
         <div class="report-context-object">
             <strong>{{ report.objectRecord.inventoryNumber }}</strong>
             <span>{{ report.objectRecord.displayTitle(app.request.locale) }}</span>
-            <span class="muted">{{ report.title }}</span>
+            <span class="muted">{{ report|report_title }}</span>
         </div>
 
         {% if report.project %}

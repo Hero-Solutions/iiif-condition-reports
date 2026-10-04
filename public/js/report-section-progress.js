@@ -41,8 +41,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 return selected && !item.hidden && item.closest('[data-conditional-content][hidden]') === null;
             }).length;
             const presenceChoices = panel.querySelectorAll('[data-presence-choice].is-selected').length;
+            const directInputs = Array.from(panel.querySelectorAll('.compact-direct-input input'))
+                .filter((field) => field.value.trim() !== '' && field.closest('[data-conditional-content][hidden]') === null)
+                .length;
 
-            return visibleItems + presenceChoices;
+            return visibleItems + presenceChoices + directInputs;
         }
 
         let filled = 0;

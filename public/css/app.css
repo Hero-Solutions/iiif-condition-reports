@@ -978,12 +978,31 @@ li + li {
     right: 16px;
     z-index: 100;
     display: grid;
+    justify-items: end;
     gap: 8px;
-    width: min(360px, calc(100vw - 32px));
+    width: max-content;
+    max-width: min(360px, calc(100vw - 32px));
+}
+
+.flash-anchor {
+    position: relative;
+}
+
+.flash-anchor > .flash-stack {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    max-width: min(360px, 100%);
+}
+
+.flash-stack:not(:has(.flash)) {
+    display: none;
 }
 
 .flash {
     display: flex;
+    min-width: 0;
+    max-width: 100%;
     gap: 10px;
     align-items: flex-start;
     margin: 0;
@@ -994,6 +1013,7 @@ li + li {
     border-radius: var(--radius-m);
     box-shadow: var(--shadow-2);
     font-size: 14px;
+    overflow-wrap: anywhere;
     cursor: pointer;
     transition: opacity .3s ease, transform .3s ease;
 }
@@ -2202,22 +2222,26 @@ tr[data-row-href] {
 
 .report-title-header {
     display: flex;
-    flex: 1 1 auto;
+    flex: 1 1 28rem;
     gap: 14px;
-    align-items: center;
+    align-items: flex-start;
     min-width: 0;
 }
 
-.report-page-header {
+.report-page-header,
+.report-view-header {
+    flex-wrap: wrap;
     align-items: flex-start;
 }
 
-.report-title-header h1 {
-    overflow-wrap: break-word;
+.report-view-header > .report-title-copy {
+    flex-basis: 28rem;
 }
 
 .report-title-copy {
+    flex: 1 1 auto;
     min-width: 0;
+    overflow-wrap: anywhere;
 }
 
 .report-title-row {
@@ -2225,6 +2249,15 @@ tr[data-row-href] {
     flex-wrap: wrap;
     gap: 6px 12px;
     align-items: center;
+}
+
+.report-title-row h1 {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.report-title-row > .chip {
+    flex: none;
 }
 
 .report-project-context {
@@ -2305,11 +2338,20 @@ tr[data-row-href] {
 
 .report-header-actions {
     display: flex;
-    flex: 0 0 auto;
+    flex: 0 1 auto;
     flex-wrap: wrap;
     gap: 8px 12px;
     align-items: center;
     justify-content: flex-end;
+    min-width: 0;
+    max-width: 100%;
+    margin-left: auto;
+}
+
+.report-header-actions > .button,
+.report-header-actions > button,
+.report-header-actions > form {
+    flex: none;
 }
 
 .report-header-delete-button {
@@ -2318,9 +2360,10 @@ tr[data-row-href] {
 }
 
 .report-autosave-status {
+    flex: 0 0 100%;
     color: var(--text-soft);
     font-size: 13.5px;
-    white-space: nowrap;
+    text-align: right;
 }
 
 .report-autosave-status.is-dirty {
@@ -2337,6 +2380,8 @@ tr[data-row-href] {
 
 .report-form {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    min-width: 0;
     gap: 12px;
 }
 
@@ -2350,6 +2395,7 @@ tr[data-row-href] {
 .report-editor > .panel,
 .report-editor > .report-form {
     grid-column: 2;
+    min-width: 0;
 }
 
 .report-nav {
@@ -2383,6 +2429,42 @@ tr[data-row-href] {
     font-size: 14px;
     font-weight: 600;
     text-align: left;
+}
+
+.report-nav-options {
+    display: grid;
+    gap: 2px;
+}
+
+.has-choice-menu > .report-choice-toggle {
+    display: none;
+}
+
+.report-choice-current {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+}
+
+.report-choice-current > span:not(.report-nav-count) {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.report-choice-current .report-nav-count {
+    margin-left: auto;
+}
+
+.report-choice-current img {
+    flex: none;
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    border-radius: var(--radius-s);
 }
 
 .report-nav button:hover {
@@ -2420,6 +2502,8 @@ tr[data-row-href] {
 }
 
 .report-tab-panel {
+    container: report-panel / inline-size;
+    min-width: 0;
     margin-top: 0;
     border-top: 0;
     padding-top: 18px;
@@ -2834,8 +2918,19 @@ tr[data-row-href] {
 
 .compact-report-section {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    min-width: 0;
     max-width: 900px;
     margin-top: 0;
+}
+
+.compact-report-block,
+.compact-report-groups,
+.compact-field-group > *,
+.compact-report-block-heading > *,
+.compact-block-remarks > * {
+    min-width: 0;
+    overflow-wrap: anywhere;
 }
 
 .compact-report-block + .compact-report-block {
@@ -2854,7 +2949,7 @@ tr[data-row-href] {
 
 .compact-report-block-heading {
     display: grid;
-    grid-template-columns: minmax(220px, 260px) max-content;
+    grid-template-columns: minmax(220px, 260px) minmax(0, 1fr);
     gap: 8px 18px;
     align-items: center;
     justify-content: start;
@@ -2879,7 +2974,6 @@ tr[data-row-href] {
 }
 
 .compact-report-block-heading .compact-presence-options {
-    flex-wrap: nowrap;
     margin: 0;
 }
 
@@ -2905,6 +2999,7 @@ tr[data-row-href] {
 
 .compact-report-groups {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 22px;
 }
 
@@ -2917,6 +3012,7 @@ tr[data-row-href] {
 
 .compact-field-group {
     display: grid;
+    min-width: 0;
     max-width: 760px;
 }
 
@@ -3053,7 +3149,8 @@ tr[data-row-href] {
 
 .report-media-form {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr);
+    min-width: 0;
     align-items: end;
     gap: .75rem;
     padding: .9rem;
@@ -3062,47 +3159,92 @@ tr[data-row-href] {
 }
 
 .report-media-form label {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
     margin: 0;
 }
 
-.report-media-form-actions {
-    display: flex;
-    gap: .5rem;
-    align-items: center;
+.report-url-form {
+    grid-template-columns: minmax(0, 1fr) auto;
 }
 
-.report-media-preview {
-    grid-column: 1 / -1;
+.report-media-form button[type="submit"]:disabled {
+    color: var(--text-soft);
+    background: var(--n-100);
+    border-color: var(--border);
+    opacity: .55;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+
+.report-media-form input:not([type="file"]),
+.report-media-form select {
+    width: 100%;
     min-width: 0;
 }
 
-.report-media-preview-images {
+.report-file-field {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.report-file-picker {
+    position: relative;
     display: flex;
-    gap: .6rem;
-    max-width: 100%;
-    overflow-x: auto;
-    padding-top: .2rem;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    align-items: center;
+    min-width: 0;
 }
 
-.report-media-preview-images img {
-    flex: 0 0 auto;
-    width: auto;
-    max-width: 180px;
-    height: 112px;
-    object-fit: contain;
-    background: var(--surface-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-s);
+.report-file-picker input[type="file"] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    min-width: 0;
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
 }
 
-.report-media-preview p {
-    margin: .35rem 0 0;
+.report-media-form .report-file-button {
+    display: inline-flex;
+    cursor: pointer;
+}
+
+.report-file-picker input:focus-visible + .report-file-button {
+    box-shadow: var(--focus-ring);
+}
+
+.report-file-name {
+    flex: 1 1 180px;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.report-media-status {
+    grid-column: 1 / -1;
+    margin: 0;
     color: var(--text-soft);
     font-size: .85rem;
 }
 
-.report-media-preview p.error {
+.report-media-status.error {
     color: var(--red-600);
+}
+
+.report-media-retry {
+    grid-column: 1 / -1;
+    justify-self: start;
 }
 
 .report-document-list {
@@ -3125,7 +3267,9 @@ tr[data-row-href] {
 }
 
 .report-document-upload-form {
-    grid-template-columns: minmax(150px, .4fr) minmax(220px, 1fr) auto;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    margin-top: 1.25rem;
 }
 
 .project-object-context-form {
@@ -3265,6 +3409,7 @@ tr[data-row-href] {
 
 .compact-selected-list {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 10px;
     margin-top: 4px;
 }
@@ -3272,12 +3417,20 @@ tr[data-row-href] {
 .compact-quick-list {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 16px 24px;
     margin-top: 10px;
 }
 
+.compact-choice-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-width: 0;
+    max-width: 100%;
+}
+
 .compact-field-group.is-quick-select {
-    grid-template-columns: minmax(220px, 260px) max-content;
+    grid-template-columns: minmax(220px, 260px) minmax(0, 1fr);
     gap: 8px 18px;
     align-items: center;
     justify-content: start;
@@ -3316,18 +3469,17 @@ tr[data-row-href] {
 }
 
 .compact-field-group.is-quick-select .compact-quick-list {
-    flex-wrap: nowrap;
     justify-content: flex-start;
     margin-top: 0;
 }
 
 .compact-condition-rating {
-    flex-wrap: nowrap;
     margin-top: 0;
 }
 
 .compact-condition-details {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     grid-column: 2;
     gap: 8px;
 }
@@ -3347,12 +3499,12 @@ tr[data-row-href] {
 
 .compact-treatment-controls {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 8px;
     width: 100%;
 }
 
 .compact-treatment-status {
-    flex-wrap: nowrap;
     margin-top: 0;
 }
 
@@ -3364,6 +3516,8 @@ tr[data-row-href] {
 
 .compact-treatment-input {
     display: grid;
+    min-width: 0;
+    max-width: 100%;
     gap: 4px;
     color: var(--text-soft);
     font-size: 13px;
@@ -3375,6 +3529,7 @@ tr[data-row-href] {
 
 .report-form .compact-treatment-input input {
     width: 160px;
+    max-width: 100%;
     min-height: 38px;
     background: var(--surface-card);
 }
@@ -3389,16 +3544,18 @@ tr[data-row-href] {
 
 .report-form .compact-treatment-explanation input {
     width: 100%;
-    min-width: 220px;
 }
 
 .compact-quick-item {
     display: flex;
     flex-wrap: wrap;
     align-items: start;
+    min-width: 0;
+    max-width: 100%;
 }
 
 .compact-quick-choice {
+    max-width: 100%;
     min-height: 38px;
     padding: 7px 12px;
     color: var(--text);
@@ -3447,7 +3604,12 @@ tr[data-row-href] {
 }
 
 .compact-remove-item {
-    color: var(--text-soft);
+    color: var(--red-600);
+}
+
+.compact-remove-item:hover {
+    color: var(--red-800);
+    background: var(--red-100);
 }
 
 .smart-single-select {
@@ -3651,7 +3813,7 @@ tr[data-row-href] {
     background: var(--surface-sunken);
 }
 
-@media (max-width: 700px) {
+@container report-panel (max-width: 700px) {
     .compact-report-block + .compact-report-block {
         margin-top: 42px;
     }
@@ -3664,25 +3826,20 @@ tr[data-row-href] {
         padding-left: 0;
     }
 
-    .compact-quick-item {
-        max-width: 100%;
-    }
-
     .compact-field-group.is-quick-select {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
     }
 
     .compact-report-block-heading {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
     }
 
     .compact-report-block-heading .compact-presence-options {
-        flex-wrap: wrap;
         margin-top: 4px;
     }
 
     .compact-field-group:not(.is-quick-select) {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
     }
 
     .compact-field-group:not(.is-quick-select) > .compact-combobox {
@@ -3694,13 +3851,11 @@ tr[data-row-href] {
     }
 
     .compact-field-group.is-quick-select .compact-quick-list {
-        flex-wrap: wrap;
         justify-content: flex-start;
         margin-top: 4px;
     }
 
     .compact-condition-rating {
-        flex-wrap: wrap;
         margin-top: 4px;
     }
 
@@ -3709,12 +3864,11 @@ tr[data-row-href] {
     }
 
     .compact-treatment-status {
-        flex-wrap: wrap;
         margin-top: 4px;
     }
 
     .compact-block-remarks {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
     }
 
     .compact-block-remarks label {
@@ -3746,11 +3900,12 @@ tr[data-row-href] {
 .report-annotation-workbench {
     display: grid;
     gap: 10px;
+    container: annotation-workbench / inline-size;
 }
 
 .report-annotation-toolbar {
     display: grid;
-    grid-template-columns: minmax(260px, 1fr) auto auto auto;
+    grid-template-columns: minmax(0, 1fr) auto;
     gap: 12px;
     align-items: end;
     padding: 10px;
@@ -3758,10 +3913,19 @@ tr[data-row-href] {
     border-radius: var(--radius-m);
 }
 
+.report-annotation-drawing-controls {
+    display: grid;
+    grid-template-columns: minmax(150px, 1fr) max-content max-content;
+    align-items: end;
+    gap: 12px;
+    min-width: 0;
+}
+
 .report-annotation-damage-field,
 .report-annotation-colors,
 .report-annotation-widths {
     display: grid;
+    min-width: 0;
     gap: 7px;
     margin: 0;
     padding: 0;
@@ -3778,6 +3942,10 @@ tr[data-row-href] {
 
 .report-annotation-damage-field input {
     min-width: 0;
+    min-height: 38px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    font-size: .9rem;
 }
 
 .report-annotation-color-list,
@@ -3787,6 +3955,27 @@ tr[data-row-href] {
     gap: 7px;
     align-items: center;
     flex-wrap: wrap;
+}
+
+.report-annotation-drawing-actions {
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+}
+
+.report-annotation-drawing-actions button[type="button"] {
+    min-height: 38px;
+    padding: 8px 10px;
+    font-size: .9rem;
+}
+
+.report-annotation-drawing-actions button[type="button"]:disabled {
+    color: var(--text-soft);
+    background: var(--n-100);
+    border-color: var(--border);
+    opacity: .55;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
 }
 
 .report-annotation-color {
@@ -3810,8 +3999,8 @@ tr[data-row-href] {
 .report-annotation-width {
     display: grid;
     place-items: center;
-    width: 42px;
-    height: 32px;
+    width: 38px;
+    height: 36px;
     min-height: 0;
     padding: 0;
     color: var(--text);
@@ -3835,37 +4024,56 @@ tr[data-row-href] {
     border-color: var(--accent-600);
 }
 
-.report-annotation-width-lock {
-    max-width: 150px;
-    color: var(--text-soft);
-    font-size: .75rem;
-    line-height: 1.25;
+.report-annotation-controls,
+.report-annotation-mode-action {
+    display: grid;
+    min-width: 0;
 }
 
-.report-annotation-eraser-control {
-    position: relative;
+.report-annotation-controls > *,
+.report-annotation-mode-action > button,
+.report-annotation-finish > span,
+.report-annotation-undo > span {
+    /* Both modes size the same row, so changing tools never moves the image. */
+    grid-area: 1 / 1;
 }
 
 .report-annotation-eraser-widths {
-    position: absolute;
-    z-index: 12;
-    top: calc(100% + 7px);
-    left: 50%;
-    display: flex;
-    gap: 5px;
-    padding: 6px;
-    background: var(--surface-card);
-    border: 1px solid var(--border-strong);
-    border-radius: var(--radius-s);
-    box-shadow: var(--shadow-2);
-    transform: translateX(-50%);
+    justify-self: start;
+    align-self: center;
+}
+
+.report-annotation-drawing-actions .report-annotation-undo,
+.report-annotation-drawing-actions .report-annotation-finish {
+    display: grid;
+}
+
+.report-annotation-done-label,
+.report-annotation-finish.has-changes .report-annotation-cancel-label {
+    visibility: hidden;
+}
+
+.report-annotation-finish.has-changes .report-annotation-done-label {
+    visibility: inherit;
+}
+
+.report-annotation-eraser-widths,
+.report-annotation-undo-eraser-label,
+.is-erasing .report-annotation-drawing-controls,
+.is-erasing .report-annotation-undo-drawing-label {
+    visibility: hidden;
+}
+
+.is-erasing .report-annotation-eraser-widths,
+.is-erasing .report-annotation-undo-eraser-label {
+    visibility: visible;
 }
 
 .report-annotation-eraser-width {
     display: grid;
     place-items: center;
-    width: 36px;
-    height: 30px;
+    width: 38px;
+    height: 36px;
     min-height: 0;
     padding: 0;
     color: var(--text);
@@ -3875,10 +4083,10 @@ tr[data-row-href] {
 }
 
 .report-annotation-eraser-width::before {
-    width: 22px;
-    height: var(--annotation-width, 4px);
+    width: var(--annotation-eraser-size);
+    height: var(--annotation-eraser-size);
     background: currentColor;
-    border-radius: 999px;
+    border-radius: 50%;
     content: '';
 }
 
@@ -3891,12 +4099,15 @@ tr[data-row-href] {
 
 .report-annotation-status {
     margin: 0;
+    min-height: 1.5em;
+    padding: 0 2px;
     color: var(--text-soft);
     font-size: .92rem;
+    line-height: 1.5;
 }
 
 .report-annotation-status:empty {
-    display: none;
+    visibility: hidden;
 }
 
 .report-annotation-status.is-error {
@@ -3904,25 +4115,11 @@ tr[data-row-href] {
 }
 
 .report-annotation-status.is-mode {
-    padding: 8px 11px;
-    color: var(--accent-800);
-    background: var(--accent-100);
-    border: 1px solid var(--accent-200);
-    border-radius: var(--radius-s);
-    font-weight: 650;
+    color: var(--text-soft);
 }
 
 .report-annotation-status.is-eraser {
     color: var(--amber-800);
-    background: var(--amber-100);
-    border-color: var(--amber-200);
-}
-
-.report-annotation-drawing-actions [data-annotation-eraser].active {
-    color: var(--amber-800);
-    background: var(--amber-100);
-    border-color: var(--amber-600);
-    box-shadow: 0 0 0 2px var(--amber-200);
 }
 
 .report-annotation-source-bar {
@@ -4081,6 +4278,7 @@ button.report-annotation-schema-preview:hover {
 
 .report-annotation-viewer-shell {
     position: relative;
+    isolation: isolate;
 }
 
 .report-annotation-selection-delete {
@@ -4153,6 +4351,7 @@ button.report-annotation-schema-preview:hover {
     stroke: rgba(255, 255, 255, .95);
     stroke-width: 1.5px;
     vector-effect: non-scaling-stroke;
+    filter: drop-shadow(0 0 1px #000);
 }
 
 .report-annotation-legend {
@@ -4166,9 +4365,9 @@ button.report-annotation-schema-preview:hover {
 
 .report-annotation-legend-row {
     display: grid;
-    grid-template-columns: 30px 96px minmax(0, 1fr) auto;
+    grid-template-columns: 30px 110px 28px minmax(0, 1fr) auto;
     gap: 12px;
-    align-items: center;
+    align-items: start;
     padding: 9px 11px;
     background: var(--surface-sunken);
     border-radius: var(--radius-s);
@@ -4179,7 +4378,17 @@ button.report-annotation-schema-preview:hover {
     box-shadow: var(--shadow-2);
 }
 
+.report-annotation-legend-row.editing {
+    row-gap: 5px;
+    align-items: center;
+}
+
+.report-annotation-legend-row.editing .report-annotation-legend-drag {
+    grid-row: 2;
+}
+
 .report-annotation-legend-drag {
+    grid-column: 1;
     color: var(--text-soft);
     cursor: grab;
     touch-action: none;
@@ -4190,21 +4399,27 @@ button.report-annotation-schema-preview:hover {
 }
 
 .report-annotation-legend-symbol {
+    grid-column: 2;
     display: block;
-    width: 96px;
+    width: 100%;
     height: 34px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-s);
     overflow: visible;
 }
 
 .report-annotation-legend-symbol path,
-.report-annotation-legend-symbol line {
+.report-annotation-legend-symbol line,
+.report-annotation-legend-symbol polyline {
     fill: none;
     stroke: var(--annotation-color);
     stroke-linecap: round;
     stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
 }
 
 .report-annotation-legend-copy {
+    grid-column: 4;
     display: grid;
     justify-content: stretch;
     min-height: 0;
@@ -4232,6 +4447,13 @@ button.report-annotation-schema-preview:hover {
     overflow-wrap: anywhere;
 }
 
+.report-annotation-legend-copy strong,
+.report-annotation-legend-editor strong {
+    font-size: 14.5px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
 .report-annotation-legend-copy small {
     color: var(--text-soft);
 }
@@ -4244,44 +4466,90 @@ button.report-annotation-schema-preview:hover {
 }
 
 .report-annotation-legend-actions {
+    grid-column: 5;
     display: flex;
     gap: 5px;
 }
 
-.report-annotation-legend-editor {
+.report-annotation-legend-editor,
+.report-annotation-legend-sketch-editor {
+    display: contents;
+}
+
+.report-annotation-legend-sketch-frame {
+    grid-column: 2 / 4;
+    grid-row: 2;
     display: grid;
-    gap: 5px;
+    grid-template-columns: minmax(0, 1fr) 28px;
+    column-gap: 12px;
+    align-items: center;
+    background: var(--surface-card);
+    border-radius: var(--radius-s);
+    box-shadow: inset 0 0 0 1px var(--border);
+}
+
+.report-annotation-legend-editor strong {
+    grid-column: 4;
+    grid-row: 1;
     min-width: 0;
+    overflow-wrap: anywhere;
 }
 
 .report-annotation-legend-editor input {
+    grid-column: 4;
+    grid-row: 2;
     width: 100%;
+    min-width: 0;
     min-height: 36px;
     padding: 6px 9px;
 }
 
-.report-annotation-legend-editor .report-annotation-color-list {
-    gap: 6px;
+.report-annotation-legend-sketch-editor .report-annotation-legend-reset {
+    grid-column: 2;
+    grid-row: 1;
+    position: relative;
+    width: 28px;
+    min-height: 28px;
+}
+
+.report-annotation-legend-reset::before {
+    content: '';
+    position: absolute;
+    inset-block: 3px;
+    inset-inline-start: -6px;
+    border-inline-start: 1px solid var(--border);
+}
+
+.report-annotation-legend-sketch-editor .report-annotation-color-list {
+    grid-column: 2 / 4;
+    grid-row: 1;
+    display: flex;
+    justify-content: flex-start;
+    gap: 4px;
+}
+
+.report-annotation-legend-sketch-editor .report-annotation-color {
+    width: 20px;
+    height: 20px;
+}
+
+.report-annotation-legend-sketch-editor .report-annotation-legend-sketch {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+.report-annotation-legend-sketch-editor .report-annotation-legend-reset .icon {
+    width: 18px;
+    height: 18px;
 }
 
 .report-annotation-legend-sketch {
-    width: 100%;
-    height: 34px;
-    background: var(--surface-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-s);
     cursor: crosshair;
     touch-action: none;
 }
 
-.report-annotation-legend-sketch polyline {
-    fill: none;
-    stroke: var(--annotation-color);
-    stroke-linecap: round;
-    stroke-linejoin: round;
-}
-
 .report-annotation-legend-actions.editing {
+    grid-row: 2;
     display: grid;
     grid-template-columns: repeat(2, auto);
     align-items: center;
@@ -4289,10 +4557,6 @@ button.report-annotation-schema-preview:hover {
 
 .report-annotation-legend-actions.editing button {
     padding: 6px 9px;
-}
-
-.report-annotation-legend-actions.editing button:first-child {
-    grid-column: 1 / -1;
 }
 
 .report-annotation-history {
@@ -4315,14 +4579,28 @@ button.report-annotation-schema-preview:hover {
     margin: 0;
 }
 
-@media (max-width: 980px) {
+@container annotation-workbench (max-width: 840px) {
+    .report-annotation-drawing-controls {
+        grid-template-columns: minmax(0, 1fr) max-content;
+    }
+
+    .report-annotation-damage-field {
+        grid-column: 1 / -1;
+    }
+
+    .report-annotation-toolbar {
+        align-items: center;
+    }
+}
+
+@container annotation-workbench (max-width: 560px) {
     .report-annotation-toolbar {
         grid-template-columns: 1fr;
         align-items: stretch;
     }
 
-    .report-annotation-drawing-actions {
-        justify-content: flex-start;
+    .report-annotation-status {
+        min-height: 3em;
     }
 }
 
@@ -4331,17 +4609,66 @@ button.report-annotation-schema-preview:hover {
         min-height: 340px;
     }
 
-    .report-annotation-legend-row {
-        grid-template-columns: 30px 76px minmax(0, 1fr) auto;
-    }
-
-    .report-annotation-legend-symbol {
-        width: 76px;
-    }
-
     .report-annotation-schema-grid {
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
+}
+
+@container annotation-workbench (max-width: 800px) {
+    .report-annotation-legend-row.editing {
+        grid-template-columns: 30px 110px 28px minmax(0, 1fr);
+    }
+
+    .report-annotation-legend-actions.editing {
+        grid-column: 4;
+        grid-row: 3;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+}
+
+@container annotation-workbench (max-width: 520px) {
+    .report-annotation-legend-row,
+    .report-annotation-legend-row.editing {
+        grid-template-columns: 24px minmax(0, 110px) 28px minmax(0, 1fr);
+        column-gap: 8px;
+    }
+
+    .report-annotation-legend-copy {
+        grid-column: 2 / -1;
+        grid-row: 2;
+    }
+
+    .report-annotation-legend-actions {
+        grid-column: 2 / -1;
+        grid-row: 3;
+        justify-content: flex-end;
+    }
+
+    .report-annotation-legend-editor strong {
+        grid-column: 2 / -1;
+        grid-row: 3;
+    }
+
+    .report-annotation-legend-editor input {
+        grid-column: 2 / -1;
+        grid-row: 4;
+    }
+
+    .report-annotation-legend-actions.editing {
+        grid-column: 2 / -1;
+        grid-row: 5;
+    }
+
+    .report-annotation-legend-sketch-frame {
+        column-gap: 8px;
+    }
+
+    .report-annotation-legend-reset::before {
+        inset-inline-start: -4px;
+    }
+
 }
 
 .sticky-actions {
@@ -4423,16 +4750,88 @@ button.report-annotation-schema-preview:hover {
         top: 0;
         grid-column: 1;
         grid-row: auto;
-        display: flex;
-        overflow-x: auto;
+        display: block;
         margin-bottom: 14px;
         padding: 6px;
     }
 
     .report-nav button {
-        flex: none;
-        width: auto;
+        width: 100%;
         min-height: 42px;
+    }
+
+    .has-choice-menu > .report-choice-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        width: 100%;
+        min-width: 0;
+        min-height: 44px;
+        padding: 6px 10px;
+        color: var(--text);
+        background: var(--surface-card);
+        border: 1px solid var(--border);
+        text-align: left;
+    }
+
+    .has-choice-menu > .report-choice-toggle:hover,
+    .has-choice-menu > .report-choice-toggle[aria-expanded="true"] {
+        background: var(--accent-100);
+        border-color: var(--accent-600);
+    }
+
+    .report-choice-toggle > .icon {
+        flex: none;
+    }
+
+    .report-choice-toggle[aria-expanded="true"] > .icon {
+        transform: rotate(180deg);
+    }
+
+    .has-choice-menu > [data-report-choice-list] {
+        display: none;
+    }
+
+    .has-choice-menu.choice-menu-open {
+        z-index: 30;
+    }
+
+    .has-choice-menu.choice-menu-open > [data-report-choice-list] {
+        position: absolute;
+        inset: calc(100% + 6px) 0 auto;
+        z-index: 1;
+        display: grid;
+        gap: 4px;
+        max-height: var(--choice-menu-height, 60vh);
+        overflow: auto;
+        overscroll-behavior: contain;
+        padding: 6px;
+        background: var(--surface-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-s);
+        box-shadow: var(--shadow-2);
+    }
+
+    .has-choice-menu.choice-menu-above > [data-report-choice-list] {
+        top: auto;
+        bottom: calc(100% + 6px);
+    }
+
+    .report-annotation-source-list .report-annotation-source-button {
+        width: 100%;
+        max-width: none;
+        justify-content: flex-start;
+    }
+
+    .report-annotation-source-button img {
+        flex: none;
+    }
+
+    .report-annotation-source-button span {
+        white-space: normal;
+        overflow-wrap: anywhere;
+        text-align: left;
     }
 }
 
@@ -4615,17 +5014,24 @@ button.report-annotation-schema-preview:hover {
         flex-direction: column;
     }
 
+    .report-page-header,
+    .report-view-header {
+        flex-direction: row;
+    }
+
     .report-header-actions {
         justify-content: flex-start;
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .report-autosave-status {
+        text-align: left;
     }
 
     .report-title-header {
         align-items: flex-start;
         width: 100%;
-    }
-
-    .report-title-copy {
-        flex: 1 1 auto;
     }
 
     .report-document {
@@ -4835,6 +5241,18 @@ button.report-annotation-schema-preview:hover {
 }
 
 @media (max-width: 520px) {
+    .report-title-thumb {
+        flex-basis: 64px;
+        min-width: 64px;
+        max-width: 64px;
+        min-height: 52px;
+    }
+
+    .report-title-thumb img {
+        max-width: 56px;
+        max-height: 44px;
+    }
+
     .object-card-header {
         grid-template-columns: minmax(0, 1fr) auto;
     }

@@ -21,7 +21,7 @@
                 <p>{{ 'reports.one_unlinked_found'|trans }}</p>
                 <input type="hidden" name="report_ids[]" value="{{ reports[0].id }}">
                 <div class="report-link-choice is-fixed">
-                    <strong>{{ reports[0].title }}</strong>
+                    <strong>{{ reports[0]|report_title }}</strong>
                     <span class="muted">{{ reports[0].createdAt|date('Y-m-d H:i') }}</span>
                 </div>
             {% else %}
@@ -31,7 +31,7 @@
                         <label class="report-link-choice">
                             <input type="checkbox" name="report_ids[]" value="{{ unlinked_report.id }}" checked>
                             <span>
-                                <strong>{{ unlinked_report.title }}</strong>
+                                <strong>{{ unlinked_report|report_title }}</strong>
                                 <span class="muted">{{ unlinked_report.createdAt|date('Y-m-d H:i') }}</span>
                             </span>
                         </label>

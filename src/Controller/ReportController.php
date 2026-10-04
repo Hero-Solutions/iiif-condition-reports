@@ -30,6 +30,7 @@ use App\Service\ReportAuthorProvider;
 use App\Service\ReportDocumentBuilder;
 use App\Service\ReportDocumentStorage;
 use App\Service\ReportFormDefinition;
+use App\Service\ReportTitleFormatter;
 use App\Service\ReportPdfRenderer;
 use App\Service\ReportImageStorage;
 use App\Value\ActorRole;
@@ -60,6 +61,7 @@ final class ReportController extends AbstractController
         private readonly ReportImageStorage $reportImageStorage,
         private readonly ReportDocumentStorage $reportDocumentStorage,
         private readonly FrameSchemaCatalog $frameSchemaCatalog,
+        private readonly ReportTitleFormatter $reportTitles,
     ) {
     }
 
@@ -172,7 +174,7 @@ final class ReportController extends AbstractController
             'status' => $report->getStatus(),
             'type' => $report->getType(),
             'custom_type' => $report->getCustomType(),
-            'title' => $report->getTitle(),
+            'title' => $this->reportTitles->format($report),
             'description' => $report->getDescription(),
             'reason' => $report->getReason(),
             'custom_reason' => $report->getCustomReason(),
@@ -390,6 +392,9 @@ final class ReportController extends AbstractController
         $this->assertReportMediaRequest($report, $request, 'report_documents_');
         $files = $request->files->all('documents');
         $category = (string) $request->request->get('category', ReportDocument::CATEGORY_GENERAL);
+        if ($category === '__custom__') {
+            $category = (string) $request->request->get('custom_category', '');
+        }
         $sortOrder = count($this->reportDocuments($report));
         $stored = 0;
 
@@ -462,6 +467,7 @@ final class ReportController extends AbstractController
 
         return new JsonResponse([
             'saved' => true,
+            'title' => $this->reportTitles->format($report),
             'saved_at' => $report->getUpdatedAt()->format(\DateTimeInterface::ATOM),
             'version' => $report->getVersion(),
         ]);
@@ -762,18 +768,11 @@ final class ReportController extends AbstractController
     {
         $type = (string) $request->request->get('type', Report::TYPE_OTHER);
         $customType = mb_substr(trim((string) $request->request->get('custom_type', '')), 0, 100);
-        $title = trim((string) $request->request->get('title', ''));
         $data = $request->request->all('report_data');
 
         $report
             ->setType($type)
             ->setCustomType($customType);
-        $defaultTitle = $report->hasSelectedType()
-            ? ($report->getType() === Report::TYPE_OTHER
-                ? (string) $report->getCustomType()
-                : $this->translator->trans('report_type.' . $report->getType()))
-            : '';
-        $report->setTitle($title !== '' ? $title : $defaultTitle);
         $report
             ->setDescription($this->requestText($request, 'description'))
             ->setReason($this->requestText($request, 'reason'))
@@ -788,6 +787,7 @@ final class ReportController extends AbstractController
     {
         $previousReport = $this->latestReportForObject($series->getObjectRecord());
         $report = new Report($series, $previousReport?->getType() ?? Report::TYPE_OTHER);
+        $report->setStartedAt(new \DateTimeImmutable('today'));
         $projectDefaults = $series->getProject() instanceof Project
             ? $this->projectReportDefaults->for($series->getProject(), $series->getObjectRecord())
             : [];
@@ -801,20 +801,14 @@ final class ReportController extends AbstractController
             $report
                 ->setBasedOnReport($previousReport)
                 ->setCustomType($previousReport->getCustomType())
-                ->setTitle($previousReport->getTitle())
                 ->setDescription($previousReport->getDescription())
                 ->setReason($previousReport->getReason())
                 ->setCustomReason($previousReport->getCustomReason())
                 ->setReceiptAt($previousReport->getReceiptAt())
-                ->setStartedAt($previousReport->getStartedAt())
-                ->setEndedAt($previousReport->getEndedAt())
                 ->setData(array_replace($projectDefaults, $previousReport->getData()));
         } else {
             $report
-                ->setTitle($series->getTitle())
                 ->setDescription($series->getDescription())
-                ->setStartedAt($series->getStartedAt())
-                ->setEndedAt($series->getEndedAt())
                 ->setData($projectDefaults);
         }
 
@@ -1367,7 +1361,7 @@ final class ReportController extends AbstractController
             'object' => $report->getObjectRecord(),
             'report_actors' => $this->reportActors($report),
             'report_sections' => $this->documentBuilder->sections($report, $definition),
-            'reason_label' => $this->reportReasonLabel($report),
+            'reason_label' => $this->reportTitles->reason($report),
             'room_label' => $this->reportRoom($report),
             'author_name' => $this->authorProvider->nameFor($report->getCreatedById()),
             'finalizer_name' => $this->authorProvider->nameFor($report->getFinalizedById()),
@@ -1760,21 +1754,6 @@ final class ReportController extends AbstractController
         foreach ($this->reportDocuments($report) as $document) {
             $this->reportDocumentStorage->remove($document->getPath());
         }
-    }
-
-    private function reportReasonLabel(Report $report): ?string
-    {
-        if ($report->getReason() === 'other') {
-            return $report->getCustomReason();
-        }
-
-        foreach ($this->formDefinition->reasonChoices() as $label => $value) {
-            if ($value === $report->getReason()) {
-                return $this->translator->trans($label);
-            }
-        }
-
-        return null;
     }
 
     private function reportRoom(Report $report): ?string

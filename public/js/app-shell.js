@@ -84,6 +84,19 @@
         }
     });
 
+    const flashStack = document.querySelector('[data-flash-stack]');
+    const pageHeader = document.querySelector('.page > .page-header');
+    const flashAnchor = pageHeader?.querySelector('.report-header-actions') || pageHeader;
+
+    if (flashStack) {
+        if (flashAnchor) {
+            flashAnchor.classList.add('flash-anchor');
+            flashAnchor.append(flashStack);
+        }
+
+        flashStack.hidden = false;
+    }
+
     document.querySelectorAll('.flash').forEach((flash) => {
         const dismiss = () => {
             flash.classList.add('is-leaving');

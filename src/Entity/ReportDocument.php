@@ -65,6 +65,10 @@ class ReportDocument
     public function getId(): ?int { return $this->id; }
     public function getReport(): Report { return $this->report; }
     public function getCategory(): string { return $this->category; }
+    public function getCategoryTranslationKey(): ?string
+    {
+        return in_array($this->category, self::CATEGORIES, true) ? 'document_category.' . $this->category : null;
+    }
     public function getPath(): string { return $this->path; }
     public function getOriginalName(): string { return $this->originalName; }
     public function getMimeType(): string { return $this->mimeType; }
@@ -74,7 +78,8 @@ class ReportDocument
 
     public function setCategory(string $category): self
     {
-        $this->category = in_array($category, self::CATEGORIES, true) ? $category : self::CATEGORY_GENERAL;
+        $category = mb_substr(trim($category), 0, 50);
+        $this->category = $category !== '' ? $category : self::CATEGORY_GENERAL;
 
         return $this;
     }

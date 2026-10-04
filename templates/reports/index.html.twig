@@ -58,7 +58,7 @@
                                 </div>
                             </td>
                             <td>
-                                <a href="{{ path(report_route, {'_locale': app.request.locale, id: report.id}) }}"><strong>{{ report.title }}</strong></a>
+                                <a href="{{ path(report_route, {'_locale': app.request.locale, id: report.id}) }}"><strong>{{ report|report_title }}</strong></a>
                                 <br>{{ report.type == 'other' and report.customType ? report.customType : ('report_type.' ~ report.type)|trans }}
                             </td>
                             <td>
@@ -72,7 +72,7 @@
                             <td><span class="chip chip-{{ report_status_chips[report.status]|default('muted') }}">{{ ('status.' ~ report.status)|trans }}</span></td>
                             <td class="table-actions report-table-actions">
                                 {% if not is_granted('ROLE_READ_ONLY') and (report.status == constant('App\\Entity\\Report::STATUS_ACTIVE') or is_granted('ROLE_ADMIN')) %}
-                                    <form class="object-report-delete-form" method="post" action="{{ path('reports_delete', {'_locale': app.request.locale, id: report.id}) }}" onsubmit="return confirm('{{ 'reports.confirm_delete'|trans({'%title%': report.title})|e('js') }}');">
+                                    <form class="object-report-delete-form" method="post" action="{{ path('reports_delete', {'_locale': app.request.locale, id: report.id}) }}" onsubmit="return confirm('{{ 'reports.confirm_delete'|trans({'%title%': report|report_title})|e('js') }}');">
                                         <input type="hidden" name="_token" value="{{ csrf_token('report_delete_' ~ report.id) }}">
                                         <input type="hidden" name="return_to" value="reports_index">
                                         <button type="submit" class="button danger icon-button report-delete-button" aria-label="{{ 'actions.delete'|trans }}" title="{{ 'actions.delete'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg></button>

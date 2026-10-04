@@ -7,7 +7,7 @@
 /public/bundles/
 /public/uploads/
 /var/
-/vendor/
+/vendor
 ###< symfony/framework-bundle ###
 /.idea/
 /.claude/

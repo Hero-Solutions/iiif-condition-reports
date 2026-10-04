@@ -9,6 +9,7 @@ use App\Entity\ProjectObject;
 use App\Entity\Report;
 use App\Service\ObjectThumbnailProvider;
 use App\Service\ReportAuthorProvider;
+use App\Service\ReportTitleFormatter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -53,7 +54,7 @@ final class PageController extends AbstractController
     }
 
     #[Route('/{_locale<nl|en>}/reports/export/csv', name: 'reports_csv', methods: ['GET'])]
-    public function reportsCsv(Request $request, EntityManagerInterface $entityManager, ReportAuthorProvider $reportAuthorProvider): Response
+    public function reportsCsv(Request $request, EntityManagerInterface $entityManager, ReportAuthorProvider $reportAuthorProvider, ReportTitleFormatter $reportTitles): Response
     {
         $reports = $this->filteredReports($request, $entityManager, null);
         $rooms = $this->reportRooms($reports, $entityManager);
@@ -69,7 +70,7 @@ final class PageController extends AbstractController
 
         foreach ($reports as $report) {
             fputcsv($stream, [
-                $report->getTitle(),
+                $reportTitles->format($report),
                 $report->getType() === Report::TYPE_OTHER ? $report->getCustomType() : $report->getType(),
                 $report->getObjectRecord()->getInventoryNumber(),
                 $report->getObjectRecord()->getDisplayTitle($request->getLocale()),

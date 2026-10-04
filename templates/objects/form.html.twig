@@ -78,13 +78,13 @@
                             {% for object_report in reports_by_series[series.id]|default([]) %}
                                 {% set report_route = object_report.editable and not is_granted('ROLE_READ_ONLY') ? 'reports_edit' : 'reports_show' %}
                                 <li>
-                                    <a href="{{ path(report_route, {'_locale': app.request.locale, id: object_report.id}) }}">{{ object_report.title }}</a>
+                                    <a href="{{ path(report_route, {'_locale': app.request.locale, id: object_report.id}) }}">{{ object_report|report_title }}</a>
                                     <span class="object-report-date">{{ object_report.createdAt|date('Y-m-d H:i') }}</span>
                                     <span class="object-report-author">{{ report_author_names[object_report.id]|default('reports.unknown_reporter'|trans) }}</span>
                                     <span class="object-report-project {{ series.project ? '' : 'muted' }}">{{ series.project ? series.project.title : 'reports.no_project'|trans }}</span>
                                     <span class="object-report-status chip chip-{{ {'active': 'accent', 'finalized': 'success', 'archived': 'muted'}[object_report.status]|default('muted') }}">{{ ('status.' ~ object_report.status)|trans }}</span>
                                     {% if not is_granted('ROLE_READ_ONLY') and (object_report.status == constant('App\\Entity\\Report::STATUS_ACTIVE') or is_granted('ROLE_ADMIN')) %}
-                                        <form class="object-report-delete-form" method="post" action="{{ path('reports_delete', {'_locale': app.request.locale, id: object_report.id}) }}" onsubmit="return confirm('{{ 'reports.confirm_delete_any'|trans({'%title%': object_report.title})|e('js') }}');">
+                                        <form class="object-report-delete-form" method="post" action="{{ path('reports_delete', {'_locale': app.request.locale, id: object_report.id}) }}" onsubmit="return confirm('{{ 'reports.confirm_delete_any'|trans({'%title%': object_report|report_title})|e('js') }}');">
                                             <input type="hidden" name="_token" value="{{ csrf_token('report_delete_' ~ object_report.id) }}">
                                             <input type="hidden" name="return_to" value="object">
                                             <button type="submit" class="button danger icon-button report-delete-button" aria-label="{{ 'actions.delete'|trans }}" title="{{ 'actions.delete'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg></button>

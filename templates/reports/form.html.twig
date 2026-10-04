@@ -2,7 +2,7 @@
 
 {% import 'reports/report_form_renderer.html.twig' as report_form %}
 
-{% block title %}{{ report.title }} | {{ 'app.title'|trans }}{% endblock %}
+{% block title %}{{ report|report_title }} | {{ 'app.title'|trans }}{% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}
@@ -33,7 +33,7 @@
                     <a href="{{ path('objects_edit', {'_locale': app.request.locale, id: object.id}) }}">{{ object.inventoryNumber }}</a>
                 </nav>
                 <div class="report-title-row">
-                    <h1>{{ report.title }}</h1>
+                    <h1 data-report-title data-app-title="{{ 'app.title'|trans }}">{{ report|report_title }}</h1>
                     <span class="chip chip-{{ {'active': 'accent', 'finalized': 'success', 'archived': 'muted'}[report.status]|default('muted') }}">{{ ('status.' ~ report.status)|trans }}</span>
                 </div>
                 <p class="page-subtitle">{{ object.displayTitle(app.request.locale) }}</p>
@@ -51,15 +51,6 @@
             </div>
         </div>
         <div class="report-header-actions">
-            <span
-                class="report-autosave-status"
-                data-report-autosave-status
-                data-saved-label="{{ 'reports.autosave_saved_at'|trans({'%time%': '__time__'}) }}"
-                data-saving-label="{{ 'reports.autosave_saving'|trans }}"
-                data-unsaved-label="{{ 'reports.autosave_unsaved'|trans }}"
-                data-failed-label="{{ 'reports.autosave_failed'|trans }}"
-                data-conflict-label="{{ 'reports.edit_conflict'|trans }}"
-            >{{ 'reports.autosave_saved_at'|trans({'%time%': report.updatedAt|date('H:i')}) }}</span>
             <a class="button secondary" href="{{ back_url }}" data-report-back-link>{{ 'actions.back'|trans }}</a>
             <a class="button secondary" href="{{ path('reports_show', {'_locale': app.request.locale, id: report.id}) }}">{{ 'reports.preview'|trans }}</a>
             <button type="submit" class="button secondary" form="report-edit-form" data-report-save-actions>{{ 'actions.save'|trans }}</button>
@@ -72,11 +63,20 @@
                 {% if not can_finalize %}hidden{% endif %}
             >{{ 'reports.finalize'|trans }}</button>
             {% if report.status == constant('App\\Entity\\Report::STATUS_ACTIVE') %}
-                <form method="post" action="{{ path('reports_delete', {'_locale': app.request.locale, id: report.id}) }}" onsubmit="return confirm('{{ 'reports.confirm_delete'|trans({'%title%': report.title})|e('js') }}');">
+                <form method="post" action="{{ path('reports_delete', {'_locale': app.request.locale, id: report.id}) }}" onsubmit="return confirm('{{ 'reports.confirm_delete'|trans({'%title%': report|report_title})|e('js') }}');">
                     <input type="hidden" name="_token" value="{{ csrf_token('report_delete_' ~ report.id) }}">
                     <button type="submit" class="button danger icon-button report-header-delete-button" aria-label="{{ 'reports.delete_draft'|trans }}" title="{{ 'reports.delete_draft'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg></button>
                 </form>
             {% endif %}
+            <span
+                class="report-autosave-status"
+                data-report-autosave-status
+                data-saved-label="{{ 'reports.autosave_saved_at'|trans({'%time%': '__time__'}) }}"
+                data-saving-label="{{ 'reports.autosave_saving'|trans }}"
+                data-unsaved-label="{{ 'reports.autosave_unsaved'|trans }}"
+                data-failed-label="{{ 'reports.autosave_failed'|trans }}"
+                data-conflict-label="{{ 'reports.edit_conflict'|trans }}"
+            >{{ 'reports.autosave_saved_at'|trans({'%time%': report.updatedAt|date('H:i')}) }}</span>
         </div>
     </div>
 
@@ -85,16 +85,18 @@
     {% set report_photo_count = report_images|length + frame_schema_images|length + (main_photo_source ? 1 : 0) %}
 
     <section class="report-editor">
-        <nav class="report-nav" aria-label="{{ 'reports.form_fields'|trans }}">
-            <button type="button" class="active" data-report-tab="basis" aria-selected="true"><span>{{ 'reports.tab_basis'|trans }}</span><span class="report-nav-count is-empty" data-section-count hidden>0</span></button>
-            <button type="button" data-report-tab="actors" aria-selected="false"><span>{{ 'actors.title'|trans }}</span><span class="report-nav-count is-empty" data-section-count hidden>0</span></button>
-            <button type="button" data-report-tab="measurements" aria-selected="false"><span>{{ 'reports.tab_measurements'|trans }}</span><span class="report-nav-count is-empty" data-section-count hidden>0</span></button>
-            <button type="button" data-report-tab="materials" aria-selected="false"><span>{{ 'reports.section_materials'|trans }}</span><span class="report-nav-count is-empty" data-section-count hidden>0</span></button>
-            <button type="button" data-report-tab="condition" aria-selected="false"><span>{{ 'reports.section_condition'|trans }}</span><span class="report-nav-count is-empty" data-section-count hidden>0</span></button>
-            <button type="button" data-report-tab="recommendations" aria-selected="false"><span>{{ 'reports.section_recommendations'|trans }}</span><span class="report-nav-count is-empty" data-section-count hidden>0</span></button>
-            <button type="button" data-report-tab="photos" aria-selected="false"><span>{{ 'reports.photos'|trans }}</span><span class="report-nav-count{% if report_photo_count == 0 %} is-empty{% endif %}" data-section-count{% if report_photo_count == 0 %} hidden{% endif %}>{{ report_photo_count }}</span></button>
-            <button type="button" data-report-tab="documents" aria-selected="false"><span>{{ 'reports.documents'|trans }}</span><span class="report-nav-count{% if report_documents is empty %} is-empty{% endif %}" data-section-count{% if report_documents is empty %} hidden{% endif %}>{{ report_documents|length }}</span></button>
-            <button type="button" data-report-tab="damage" aria-selected="false"><span>{{ 'reports.section_damage_types'|trans }}</span><span class="report-nav-count{% if damage_case_count == 0 %} is-empty{% endif %}" data-section-count>{{ damage_case_count }}</span></button>
+        <nav class="report-nav" aria-label="{{ 'reports.form_fields'|trans }}" data-report-choice="{{ 'reports.form_fields'|trans }}">
+            <div class="report-nav-options" id="report-section-choices" data-report-choice-list>
+                <button type="button" class="active" data-report-tab="basis" aria-selected="true"><span>{{ 'reports.tab_basis'|trans }}</span><span class="report-nav-count is-empty" data-section-count hidden>0</span></button>
+                <button type="button" data-report-tab="actors" aria-selected="false"><span>{{ 'actors.title'|trans }}</span><span class="report-nav-count is-empty" data-section-count hidden>0</span></button>
+                <button type="button" data-report-tab="measurements" aria-selected="false"><span>{{ 'reports.tab_measurements'|trans }}</span><span class="report-nav-count is-empty" data-section-count hidden>0</span></button>
+                <button type="button" data-report-tab="materials" aria-selected="false"><span>{{ 'reports.section_materials'|trans }}</span><span class="report-nav-count is-empty" data-section-count hidden>0</span></button>
+                <button type="button" data-report-tab="condition" aria-selected="false"><span>{{ 'reports.section_condition'|trans }}</span><span class="report-nav-count is-empty" data-section-count hidden>0</span></button>
+                <button type="button" data-report-tab="recommendations" aria-selected="false"><span>{{ 'reports.section_recommendations'|trans }}</span><span class="report-nav-count is-empty" data-section-count hidden>0</span></button>
+                <button type="button" data-report-tab="photos" aria-selected="false"><span>{{ 'reports.photos'|trans }}</span><span class="report-nav-count{% if report_photo_count == 0 %} is-empty{% endif %}" data-section-count{% if report_photo_count == 0 %} hidden{% endif %}>{{ report_photo_count }}</span></button>
+                <button type="button" data-report-tab="documents" aria-selected="false"><span>{{ 'reports.documents'|trans }}</span><span class="report-nav-count{% if report_documents is empty %} is-empty{% endif %}" data-section-count{% if report_documents is empty %} hidden{% endif %}>{{ report_documents|length }}</span></button>
+                <button type="button" data-report-tab="damage" aria-selected="false"><span>{{ 'reports.section_damage_types'|trans }}</span><span class="report-nav-count{% if damage_case_count == 0 %} is-empty{% endif %}" data-section-count>{{ damage_case_count }}</span></button>
+            </div>
         </nav>
 
         <section class="panel report-tab-panel" data-report-tab-panel="actors" hidden>
@@ -198,67 +200,37 @@
                       enctype="multipart/form-data"
                       action="{{ path('reports_images_upload', {'_locale': app.request.locale, id: report.id}) }}"
                       class="report-media-form"
-                      data-report-photo-preview-form
-                      data-preview-kind="files"
-                      data-preview-error="{{ 'objects.image_preview_failed'|trans }}">
+                      data-report-media-form>
                     <input type="hidden" name="_token" value="{{ csrf_token('report_images_' ~ report.id) }}">
-                    <label>{{ 'reports.choose_photos'|trans }}<input type="file" name="images[]" accept="image/jpeg,image/png,image/webp" multiple required data-report-photo-file></label>
-                    <button type="submit" data-report-photo-submit disabled>{{ 'reports.add_photos'|trans }}</button>
-                    <div class="report-media-preview" data-report-photo-preview hidden>
-                        <div class="report-media-preview-images" data-report-photo-preview-images></div>
-                        <p data-report-photo-preview-status hidden></p>
-                    </div>
+                    {{ report_form.file_picker('report-photos', 'reports.choose_photos', 'images[]', 'image/jpeg,image/png,image/webp', true) }}
+                    {{ report_form.media_upload_status() }}
                 </form>
                 <form method="post"
                       enctype="multipart/form-data"
                       action="{{ path('reports_images_upload', {'_locale': app.request.locale, id: report.id}) }}"
-                      class="report-media-form compact-camera-form"
-                      data-report-photo-preview-form
-                      data-preview-kind="files"
-                      data-preview-error="{{ 'objects.image_preview_failed'|trans }}">
+                      class="report-media-form"
+                      data-report-media-form>
                     <input type="hidden" name="_token" value="{{ csrf_token('report_images_' ~ report.id) }}">
-                    <label>{{ 'reports.take_photo'|trans }}<input type="file" name="images[]" accept="image/*" capture="environment" required data-report-photo-file></label>
-                    <button type="submit" data-report-photo-submit disabled>{{ 'reports.add_photo'|trans }}</button>
-                    <div class="report-media-preview" data-report-photo-preview hidden>
-                        <div class="report-media-preview-images" data-report-photo-preview-images></div>
-                        <p data-report-photo-preview-status hidden></p>
-                    </div>
+                    {{ report_form.file_picker('report-camera', 'reports.take_photo', 'images[]', 'image/*', false, true) }}
+                    {{ report_form.media_upload_status() }}
                 </form>
                 <form method="post"
                       action="{{ path('reports_images_url', {'_locale': app.request.locale, id: report.id}) }}"
                       class="report-media-form report-url-form"
-                      data-report-photo-preview-form
-                      data-preview-kind="url"
-                      data-preview-loading="{{ 'objects.image_preview_loading'|trans }}"
-                      data-preview-error="{{ 'objects.image_preview_failed'|trans }}">
+                      data-report-media-form>
                     <input type="hidden" name="_token" value="{{ csrf_token('report_images_' ~ report.id) }}">
-                    <label>{{ 'reports.image_url'|trans }}<input type="url" name="image_url" placeholder="https://…" required data-report-photo-url></label>
-                    <div class="report-media-form-actions">
-                        <button type="button" class="secondary" data-report-photo-load>{{ 'objects.image_load'|trans }}</button>
-                        <button type="submit" data-report-photo-submit disabled>{{ 'reports.add_photo'|trans }}</button>
-                    </div>
-                    <div class="report-media-preview" data-report-photo-preview hidden>
-                        <div class="report-media-preview-images" data-report-photo-preview-images></div>
-                        <p data-report-photo-preview-status hidden></p>
-                    </div>
+                    <label>{{ 'reports.image_url'|trans }}<input type="url" name="image_url" placeholder="https://…" required></label>
+                    <button type="submit" class="secondary" disabled>{{ 'objects.image_load'|trans }}</button>
+                    {{ report_form.media_upload_status() }}
                 </form>
                 <form method="post"
                       action="{{ path('reports_images_iiif', {'_locale': app.request.locale, id: report.id}) }}"
                       class="report-media-form report-url-form"
-                      data-report-photo-preview-form
-                      data-preview-kind="iiif"
-                      data-preview-loading="{{ 'objects.image_preview_loading'|trans }}"
-                      data-preview-error="{{ 'objects.iiif_preview_failed'|trans }}">
+                      data-report-media-form>
                     <input type="hidden" name="_token" value="{{ csrf_token('report_images_' ~ report.id) }}">
-                    <label>{{ 'objects.iiif_manifest_url'|trans }}<input type="url" name="manifest_url" placeholder="https://…" required data-report-photo-url></label>
-                    <div class="report-media-form-actions">
-                        <button type="button" class="secondary" data-report-photo-load>{{ 'objects.image_load'|trans }}</button>
-                        <button type="submit" data-report-photo-submit disabled>{{ 'reports.add_photo'|trans }}</button>
-                    </div>
-                    <div class="report-media-preview" data-report-photo-preview hidden>
-                        <div class="report-media-preview-images" data-report-photo-preview-images></div>
-                        <p data-report-photo-preview-status hidden></p>
-                    </div>
+                    <label>{{ 'objects.iiif_manifest_url'|trans }}<input type="url" name="manifest_url" placeholder="https://…" required></label>
+                    <button type="submit" class="secondary" disabled>{{ 'objects.image_load'|trans }}</button>
+                    {{ report_form.media_upload_status() }}
                 </form>
                 <div class="report-frame-schema-media">
                     {% include 'reports/_frame_schema_picker.html.twig' %}
@@ -281,7 +253,7 @@
                         <div class="report-document-row" data-report-document-row>
                             <div>
                                 <a href="{{ document.path }}" target="_blank" rel="noopener">{{ document.originalName }}</a>
-                                <small>{{ ('document_category.' ~ document.category)|trans }} · {{ (document.size / 1048576)|number_format(1, ',', '.') }} MB</small>
+                                <small>{{ document.categoryTranslationKey ? document.categoryTranslationKey|trans : document.category }} · {{ (document.size / 1048576)|number_format(1, ',', '.') }} MB</small>
                             </div>
                             <form method="post" action="{{ path('reports_documents_delete', {'_locale': app.request.locale, reportId: report.id, documentId: document.id}) }}" onsubmit="return confirm('{{ 'reports.confirm_delete_document'|trans|e('js') }}');">
                                 <input type="hidden" name="_token" value="{{ csrf_token('report_document_' ~ document.id ~ '_' ~ report.id) }}">
@@ -294,15 +266,17 @@
                 <div class="empty-state compact"><p>{{ 'reports.no_documents'|trans }}</p></div>
             {% endif %}
 
-            <form method="post" enctype="multipart/form-data" action="{{ path('reports_documents_upload', {'_locale': app.request.locale, id: report.id}) }}" class="report-media-form report-document-upload-form">
+            <form method="post" enctype="multipart/form-data" action="{{ path('reports_documents_upload', {'_locale': app.request.locale, id: report.id}) }}" class="report-media-form report-document-upload-form" data-report-media-form>
                 <input type="hidden" name="_token" value="{{ csrf_token('report_documents_' ~ report.id) }}">
-                <label>{{ 'reports.document_category'|trans }}
-                    <select name="category">
+                <label><span>{{ 'reports.document_category'|trans }}</span>
+                    <select name="category" data-smart-select data-smart-select-custom-value="__custom__" data-smart-select-key="document-category" data-smart-select-maxlength="50">
                         {% for label, value in document_categories %}<option value="{{ value }}">{{ label|trans }}</option>{% endfor %}
+                        <option value="__custom__">{{ 'reports.other'|trans }}</option>
                     </select>
+                    <input type="hidden" name="custom_category" data-smart-select-custom-input="document-category">
                 </label>
-                <label>{{ 'reports.choose_documents'|trans }}<input type="file" name="documents[]" multiple required></label>
-                <button type="submit">{{ 'reports.add_documents'|trans }}</button>
+                {{ report_form.file_picker('report-documents', 'reports.choose_documents', 'documents[]', '', true) }}
+                {{ report_form.media_upload_status() }}
             </form>
         </section>
 
@@ -340,10 +314,6 @@
             <section class="panel report-tab-panel active" data-report-tab-panel="basis">
                 <h2>{{ 'reports.tab_basis'|trans }}</h2>
                 <div class="edit-form report-metadata-form report-basis-form">
-                    <label>
-                        {{ 'reports.report_title'|trans }}
-                        <input type="text" name="title" value="{{ report.title }}">
-                    </label>
                     <label>
                         {{ 'reports.type'|trans }}
                         <select name="type" data-smart-select data-smart-select-custom-value="other" data-smart-select-key="report-type" data-smart-select-placeholder="{{ 'reports.choose_type'|trans }}">
@@ -389,7 +359,7 @@
                     <h3>{{ 'reports.number_of_parts'|trans }}</h3>
                     <label class="report-field">
                         <span>{{ definition.number_of_parts|trans }}</span>
-                        <input type="number" name="report_data[number_of_parts]" value="{{ report.data.number_of_parts|default('') }}" min="0">
+                        <input {{ report_form.numeric_attributes() }} name="report_data[number_of_parts]" value="{{ report.data.number_of_parts|default('') }}">
                     </label>
                 </div>
                 {{ report_form.render_measurements(definition.measurements, report.data) }}
@@ -419,7 +389,6 @@
                          data-error-message="{{ 'reports.annotation_viewer_error'|trans }}"
                          data-save-error-message="{{ 'reports.annotation_save_error'|trans }}"
                          data-confirm-delete-case="{{ 'reports.annotation_confirm_delete_case'|trans }}"
-                         data-select-damage-message="{{ 'reports.annotation_select_damage'|trans }}"
                          data-drawing-active-message="{{ 'reports.annotation_drawing_active'|trans }}"
                          data-select-eraser-message="{{ 'reports.annotation_select_drawing_for_eraser'|trans }}"
                          data-eraser-unavailable-message="{{ 'reports.annotation_eraser_unavailable'|trans }}"
@@ -437,121 +406,129 @@
                          data-drawing-count-many-label="{{ 'reports.annotation_drawing_count_many'|trans({'%count%': '__COUNT__'}) }}"
                          data-added-by-label="{{ 'reports.annotation_added_by'|trans({'%user%': '__USER__', '%date%': '__DATE__'}) }}"
                          data-deleted-on-label="{{ 'reports.annotation_deleted_on'|trans({'%date%': '__DATE__'}) }}">
-                        <div class="report-annotation-source-bar">
-                            <div class="report-annotation-source-list" data-annotation-source-list hidden></div>
+                        <div class="report-annotation-source-bar" data-report-choice="{{ 'reports.annotation_choose_image'|trans }}">
+                            <div class="report-annotation-source-list" id="report-image-choices" data-report-choice-list data-annotation-source-list hidden></div>
                         </div>
 
                         <div class="report-annotation-toolbar">
-                            <div class="report-annotation-damage-field">
-                                <div class="smart-single-select" data-annotation-damage-combobox>
-                                    <div class="smart-single-select-control">
-                                        <svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>
-                                        <input type="text"
-                                               autocomplete="off"
-                                               role="combobox"
-                                               aria-label="{{ 'reports.annotation_damage_case'|trans }}"
-                                               aria-autocomplete="list"
-                                               aria-expanded="false"
-                                               aria-controls="report-annotation-damage-options-{{ report.id }}"
-                                               placeholder="{{ 'reports.annotation_damage_placeholder'|trans }}"
-                                               data-annotation-damage-input>
+                            <div class="report-annotation-controls">
+                                <div class="report-annotation-drawing-controls" data-annotation-drawing-controls>
+                                    <div class="report-annotation-damage-field">
+                                        <div class="smart-single-select" data-annotation-damage-combobox>
+                                            <div class="smart-single-select-control">
+                                                <svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>
+                                                <input type="text"
+                                                       autocomplete="off"
+                                                       role="combobox"
+                                                       aria-label="{{ 'reports.annotation_damage_case'|trans }}"
+                                                       aria-autocomplete="list"
+                                                       aria-expanded="false"
+                                                       aria-controls="report-annotation-damage-options-{{ report.id }}"
+                                                       placeholder="{{ 'reports.annotation_damage_placeholder'|trans }}"
+                                                       data-annotation-damage-input>
+                                            </div>
+                                            <div class="smart-single-select-options"
+                                                 id="report-annotation-damage-options-{{ report.id }}"
+                                                 role="listbox"
+                                                 data-annotation-damage-suggestions
+                                                 hidden>
+                                                {% for damage_key, damage_type in definition.damage_types %}
+                                                    <button type="button" role="option" data-annotation-damage-option data-value="{{ damage_key|trans }}">{{ damage_key|trans }}</button>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="smart-single-select-options"
-                                         id="report-annotation-damage-options-{{ report.id }}"
-                                         role="listbox"
-                                         data-annotation-damage-suggestions
-                                         hidden>
-                                        {% for damage_key, damage_type in definition.damage_types %}
-                                            <button type="button" role="option" data-annotation-damage-option data-value="{{ damage_key|trans }}">{{ damage_key|trans }}</button>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            </div>
 
-                            <fieldset class="report-annotation-colors">
-                                <legend>{{ 'reports.annotation_color'|trans }}</legend>
-                                {% set annotation_colors = {
-                                    '#d13b3b': 'reports.annotation_color_red',
-                                    '#2f8a57': 'reports.annotation_color_green',
-                                    '#3567a9': 'reports.annotation_color_blue',
-                                    '#95613b': 'reports.annotation_color_brown',
-                                    '#7650a4': 'reports.annotation_color_purple',
-                                    '#d2ad00': 'reports.annotation_color_yellow'
-                                } %}
-                                <div class="report-annotation-color-list">
-                                    {% for color, label in annotation_colors %}
-                                        <button type="button"
-                                                class="report-annotation-color{% if loop.first %} active{% endif %}"
-                                                style="--annotation-color: {{ color }}"
-                                                data-annotation-color="{{ color }}"
-                                                aria-pressed="{{ loop.first ? 'true' : 'false' }}"
-                                                aria-label="{{ label|trans }}"
-                                                title="{{ label|trans }}"></button>
-                                    {% endfor %}
-                                </div>
-                            </fieldset>
+                                    <fieldset class="report-annotation-colors">
+                                        <legend>{{ 'reports.annotation_color'|trans }}</legend>
+                                        {% set annotation_colors = {
+                                            '#d13b3b': 'reports.annotation_color_red',
+                                            '#2f8a57': 'reports.annotation_color_green',
+                                            '#3567a9': 'reports.annotation_color_blue',
+                                            '#95613b': 'reports.annotation_color_brown',
+                                            '#7650a4': 'reports.annotation_color_purple',
+                                            '#d2ad00': 'reports.annotation_color_yellow'
+                                        } %}
+                                        <div class="report-annotation-color-list">
+                                            {% for color, label in annotation_colors %}
+                                                <button type="button"
+                                                        class="report-annotation-color"
+                                                        style="--annotation-color: {{ color }}"
+                                                        data-annotation-color="{{ color }}"
+                                                        aria-pressed="false"
+                                                        aria-label="{{ label|trans }}"
+                                                        title="{{ label|trans }}"></button>
+                                            {% endfor %}
+                                        </div>
+                                    </fieldset>
 
-                            <fieldset class="report-annotation-widths">
-                                <legend>{{ 'reports.annotation_stroke_width'|trans }}</legend>
-                                <div class="report-annotation-width-list">
-                                    <button type="button"
-                                            class="report-annotation-width"
-                                            style="--annotation-width: 1px"
-                                            data-annotation-stroke-width="1.4"
-                                            aria-pressed="false"
-                                            aria-label="{{ 'reports.annotation_stroke_thin'|trans }}"
-                                            title="{{ 'reports.annotation_stroke_thin'|trans }}"></button>
-                                    <button type="button"
-                                            class="report-annotation-width active"
-                                            style="--annotation-width: 4px"
-                                            data-annotation-stroke-width="2.2"
-                                            aria-pressed="true"
-                                            aria-label="{{ 'reports.annotation_stroke_normal'|trans }}"
-                                            title="{{ 'reports.annotation_stroke_normal'|trans }}"></button>
-                                    <button type="button"
-                                            class="report-annotation-width"
-                                            style="--annotation-width: 8px"
-                                            data-annotation-stroke-width="3.4"
-                                            aria-pressed="false"
-                                            aria-label="{{ 'reports.annotation_stroke_thick'|trans }}"
-                                            title="{{ 'reports.annotation_stroke_thick'|trans }}"></button>
-                                </div>
-                                <small class="report-annotation-width-lock" data-annotation-width-lock hidden>{{ 'reports.annotation_stroke_locked'|trans }}</small>
-                            </fieldset>
+                                    <fieldset class="report-annotation-widths" data-annotation-stroke-widths>
+                                        <legend>{{ 'reports.annotation_stroke_width'|trans }}</legend>
+                                        <div class="report-annotation-width-list">
+                                            <button type="button"
+                                                    class="report-annotation-width"
+                                                    style="--annotation-width: 1px"
+                                                    data-annotation-stroke-width="1.4"
+                                                    aria-pressed="false"
+                                                    aria-label="{{ 'reports.annotation_stroke_thin'|trans }}"
+                                                    title="{{ 'reports.annotation_stroke_thin'|trans }}"></button>
+                                            <button type="button"
+                                                    class="report-annotation-width"
+                                                    style="--annotation-width: 4px"
+                                                    data-annotation-stroke-width="2.2"
+                                                    aria-pressed="false"
+                                                    aria-label="{{ 'reports.annotation_stroke_normal'|trans }}"
+                                                    title="{{ 'reports.annotation_stroke_normal'|trans }}"></button>
+                                            <button type="button"
+                                                    class="report-annotation-width"
+                                                    style="--annotation-width: 8px"
+                                                    data-annotation-stroke-width="3.4"
+                                                    aria-pressed="false"
+                                                    aria-label="{{ 'reports.annotation_stroke_thick'|trans }}"
+                                                    title="{{ 'reports.annotation_stroke_thick'|trans }}"></button>
+                                        </div>
+                                    </fieldset>
 
-                            <div class="report-annotation-drawing-actions">
-                                <button type="button" data-annotation-start>{{ 'reports.annotation_start'|trans }}</button>
-                                <button type="button" data-annotation-finish hidden>{{ 'reports.annotation_done'|trans }}</button>
-                                <button type="button" class="button secondary" data-annotation-undo hidden>{{ 'reports.annotation_undo_stroke'|trans }}</button>
-                                <div class="report-annotation-eraser-control">
-                                    <button type="button" class="button secondary" data-annotation-eraser aria-pressed="false">{{ 'reports.annotation_eraser'|trans }}</button>
-                                    <div class="report-annotation-eraser-widths"
-                                         data-annotation-eraser-widths
-                                         role="group"
-                                         aria-label="{{ 'reports.annotation_eraser_width'|trans }}"
-                                         hidden>
+                                </div>
+                                <fieldset class="report-annotation-widths report-annotation-eraser-widths" data-annotation-eraser-widths aria-hidden="true" inert>
+                                    <legend>{{ 'reports.annotation_eraser_width'|trans }}</legend>
+                                    <div class="report-annotation-width-list">
                                         <button type="button"
                                                 class="report-annotation-eraser-width"
-                                                style="--annotation-width: 2px"
+                                                style="--annotation-eraser-size: 6px"
                                                 data-annotation-eraser-width="4"
                                                 aria-pressed="false"
                                                 aria-label="{{ 'reports.annotation_eraser_thin'|trans }}"
                                                 title="{{ 'reports.annotation_eraser_thin'|trans }}"></button>
                                         <button type="button"
                                                 class="report-annotation-eraser-width active"
-                                                style="--annotation-width: 5px"
+                                                style="--annotation-eraser-size: 12px"
                                                 data-annotation-eraser-width="7"
                                                 aria-pressed="true"
                                                 aria-label="{{ 'reports.annotation_eraser_normal'|trans }}"
                                                 title="{{ 'reports.annotation_eraser_normal'|trans }}"></button>
                                         <button type="button"
                                                 class="report-annotation-eraser-width"
-                                                style="--annotation-width: 9px"
+                                                style="--annotation-eraser-size: 20px"
                                                 data-annotation-eraser-width="11"
                                                 aria-pressed="false"
                                                 aria-label="{{ 'reports.annotation_eraser_thick'|trans }}"
                                                 title="{{ 'reports.annotation_eraser_thick'|trans }}"></button>
                                     </div>
+                                </fieldset>
+                            </div>
+
+                            <div class="report-annotation-drawing-actions">
+                                <button type="button" class="button secondary report-annotation-undo" data-annotation-undo disabled>
+                                    <span class="report-annotation-undo-drawing-label">{{ 'reports.annotation_undo_stroke'|trans }}</span>
+                                    <span class="report-annotation-undo-eraser-label">{{ 'reports.annotation_undo_eraser'|trans }}</span>
+                                </button>
+                                <div class="report-annotation-mode-action">
+                                    <button type="button" class="button secondary" data-annotation-eraser aria-pressed="false" disabled>{{ 'reports.annotation_eraser'|trans }}</button>
+                                    <button type="button" class="report-annotation-finish" data-annotation-finish style="visibility: hidden" disabled>
+                                        <span class="report-annotation-done-label">{{ 'reports.annotation_done'|trans }}</span>
+                                        <span class="report-annotation-cancel-label">{{ 'actions.cancel'|trans }}</span>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -615,15 +592,17 @@
 
 {% block javascripts %}
     {{ parent() }}
+    <script src="/js/numeric-inputs.js?v=1" defer></script>
     <script src="/js/actor-role-form.js?v=10" defer></script>
-    <script src="/js/report-autosave.js?v=2" defer></script>
+    <script src="/js/report-autosave.js?v=4" defer></script>
+    <script src="/js/report-choice-menu.js?v=2" defer></script>
     <script src="/js/report-form-tabs.js?v=4" defer></script>
     <script src="/js/report-finalization.js?v=1" defer></script>
-    <script src="/js/report-section-progress.js?v=6" defer></script>
-    <script src="/js/report-compact-fields.js?v=15" defer></script>
-    <script src="/js/report-photo-preview.js?v=2" defer></script>
+    <script src="/js/report-section-progress.js?v=7" defer></script>
+    <script src="/js/report-compact-fields.js?v=17" defer></script>
+    <script src="/js/report-media-upload.js?v=3" defer></script>
     <script src="/vendor/openseadragon/openseadragon.min.js?v=6.1.0" defer></script>
     <script src="/vendor/annotorious/annotorious-openseadragon.js?v=3.8.9" defer></script>
     <script src="/vendor/annotorious-tools/annotorious-plugin-tools.js?v=1.6.0" defer></script>
-    <script src="/js/report-annotation-viewer.js?v=21" defer></script>
+    <script src="/js/report-annotation-viewer.js?v=30" defer></script>
 {% endblock %}

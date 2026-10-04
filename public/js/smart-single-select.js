@@ -37,6 +37,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         search.type = 'text';
         search.autocomplete = 'off';
+        if (select.dataset.smartSelectMaxlength) {
+            search.maxLength = Number(select.dataset.smartSelectMaxlength);
+        }
         search.required = select.required;
         search.disabled = select.disabled;
         search.placeholder = select.dataset.smartSelectPlaceholder || emptyOption?.textContent.trim() || '';

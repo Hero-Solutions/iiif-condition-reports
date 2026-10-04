@@ -67,6 +67,23 @@ final class ReportFormDefinition
         return $choices;
     }
 
+    public function reasonLabel(?string $reason): ?string
+    {
+        if ($reason === null) {
+            return null;
+        }
+
+        foreach ($this->parameter('report_reasons') as $group) {
+            $label = $group['options'][$reason] ?? null;
+
+            if (is_string($label) && $label !== '') {
+                return $label;
+            }
+        }
+
+        return null;
+    }
+
     /**
      * @param array<string, mixed> $config
      *
@@ -177,10 +194,6 @@ final class ReportFormDefinition
             $group['fields'] = [];
         } elseif ($control === 'condition') {
             $prefix = (string) ($config['prefix'] ?? '');
-            $revealIssueNames = array_map(
-                static fn (mixed $suffix): string => $prefix . (string) $suffix,
-                $config['reveal_issues_after'] ?? [],
-            );
             $ratingFields = $this->choiceFields([
                 'prefix' => $prefix,
                 'choices' => $config['rating'] ?? [],
@@ -195,14 +208,8 @@ final class ReportFormDefinition
                 $group['id'],
             );
 
-            foreach ($ratingFields as &$field) {
-                $field['reveals_issues'] = in_array($field['name'], $revealIssueNames, true);
-            }
-            unset($field);
-
             $group['condition'] = true;
             $group['rating_fields'] = $ratingFields;
-            $group['issues_conditional'] = $revealIssueNames !== [];
             $group['fields'] = $this->withCustomSlots(
                 $this->choiceFields([
                     'prefix' => $prefix,

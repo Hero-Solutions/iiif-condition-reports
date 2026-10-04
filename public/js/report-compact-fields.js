@@ -21,26 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const useCustom = group.querySelector('[data-use-custom]');
         const customQuery = group.querySelector('[data-custom-query]');
         const noOptions = group.querySelector('[data-no-options]');
-        const conditionDetails = group.querySelector('[data-condition-details]');
         const treatmentDateField = group.querySelector('[data-treatment-date-field]');
         const treatmentDate = group.querySelector('[data-treatment-date]');
-
-        const updateConditionDetails = () => {
-            if (!conditionDetails) {
-                return;
-            }
-
-            const hasRevealingRating = group.querySelector('[data-reveals-condition-details].is-selected') !== null;
-            const hasSelectedIssue = conditionDetails.querySelector('[data-compact-item]:not([hidden])') !== null;
-            conditionDetails.hidden = group.hasAttribute('data-condition-issues-conditional')
-                && !hasRevealingRating
-                && !hasSelectedIssue;
-        };
-
-        if (conditionDetails) {
-            group.addEventListener('change', updateConditionDetails);
-            updateConditionDetails();
-        }
 
         const updateTreatmentDate = () => {
             if (!treatmentDateField) {
@@ -131,11 +113,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 clearItem(item);
                 item.hidden = true;
                 notifyChange(item);
-
-                if (search) {
-                    search.focus();
-                    search.dispatchEvent(new Event('input', { bubbles: true }));
-                }
             });
         });
 

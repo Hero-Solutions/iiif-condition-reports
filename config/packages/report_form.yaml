@@ -275,7 +275,7 @@ parameters:
           - painting
           - work_on_paper
       changes:
-        note: "Changes (additions, altered piecesâ€¦)"
+        note: "Changes (additions, altered pieces…)"
         applies_to:
           - painting
           - work_on_paper
@@ -312,8 +312,8 @@ parameters:
       cracks_damage_type:
         aat: http://vocab.getty.edu/page/aat/300209168
         note:
-          - "Cracks: Fissures or systems of fissures without complete separation into pieces. Eerder voor verflaag die gebarsten is."
-          - "Splits: Splits eerder voor de drager die gebarsten is."
+          - "Cracks: Fissures or systems of fissures without complete separation into pieces."
+          - "Splits: Cracks in the support."
         applies_to:
           - painting
           - sculpture
@@ -792,7 +792,7 @@ parameters:
           - work_on_paper
       stains_spots:
         aat: http://vocab.getty.edu/page/aat/300379497
-        note: "Stains/spots: Discolorations produced by the penetration of foreign matter into a fabric, wood, or coating. This term designates material damage and is not to be confused with a substance that is used as a protective coating or colorant."
+        note: "Stains/Spots: Discolorations produced by the penetration of foreign matter into a fabric, wood, or coating. This term designates material damage and is not to be confused with a substance that is used as a protective coating or colorant."
         applies_to:
           - painting
           - work_on_paper

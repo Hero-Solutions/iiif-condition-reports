@@ -72,8 +72,9 @@ class Report
     #[ORM\Column(length: 100, nullable: true)]
     private ?string $customType = null;
 
+    // Legacy values are retained; displayed titles are derived by ReportTitleFormatter.
     #[ORM\Column(length: 255)]
-    private string $title;
+    private string $title = '';
 
     #[ORM\Column(length: 50)]
     private string $status = self::STATUS_ACTIVE;
@@ -127,7 +128,6 @@ class Report
         $this->objectRecord = $series->getObjectRecord();
         $this->project = $series->getProject();
         $this->setType($type);
-        $this->title = str_replace('_', ' ', $this->type);
     }
 
     public function getId(): ?int
@@ -244,20 +244,6 @@ class Report
             'report_type.movement' => self::TYPE_MOVEMENT,
             'report_type.other' => self::TYPE_OTHER,
         ];
-    }
-
-    public function getTitle(): string
-    {
-        return $this->title;
-    }
-
-    public function setTitle(string $title): self
-    {
-        $this->ensureEditable();
-        $this->title = trim($title);
-        $this->touch();
-
-        return $this;
     }
 
     public function getStatus(): string

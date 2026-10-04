@@ -14,7 +14,7 @@
             <strong>{{ object.inventoryNumber }}</strong>
             <span>{{ object.displayTitle(app.request.locale) }}</span>
             {% if report %}
-                <span class="muted">{{ report.title }}</span>
+                <span class="muted">{{ report|report_title }}</span>
             {% endif %}
         </div>
 

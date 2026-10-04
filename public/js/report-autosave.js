@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const intervalMs = parseInt(form.dataset.reportAutosaveInterval || '120000', 10);
     const url = form.dataset.reportAutosaveUrl;
     const version = form.querySelector('[data-report-version]');
+    const title = document.querySelector('[data-report-title]');
 
     let dirty = false;
     let saving = false;
@@ -75,13 +76,25 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const saveNow = async () => {
-        if (!dirty || manualSubmit || conflicted) {
+        if (conflicted) {
+            return false;
+        }
+
+        if (!dirty || manualSubmit) {
             return true;
         }
 
         if (saving) {
             queued = true;
-            return currentSave || false;
+
+            try {
+                await currentSave;
+            } catch (error) {
+                return false;
+            }
+
+            // A queued save may have started while this one was finishing.
+            return saveNow();
         }
 
         saving = true;
@@ -125,6 +138,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 setStatus('dirty');
             } else {
                 setStatus('saved', json.saved_at ? new Date(json.saved_at) : new Date());
+
+                if (title && typeof json.title === 'string') {
+                    title.textContent = json.title;
+                    document.title = json.title + ' | ' + title.dataset.appTitle;
+                }
             }
 
             return true;

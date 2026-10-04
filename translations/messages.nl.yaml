@@ -203,7 +203,7 @@ reports:
   saved: 'Rapport opgeslagen.'
   report: Rapport
   finalized_count: '%count% finaal'
-  report_title: Titel
+  default_title: Conditierapport
   metadata: Rapportgegevens
   form_fields: Rapportvelden
   description: Beschrijving
@@ -234,17 +234,17 @@ reports:
   annotation_stroke_thin: Dun
   annotation_stroke_normal: Normaal
   annotation_stroke_thick: Dik
-  annotation_stroke_locked: 'Lijndikte ligt vast zodra dit schadegeval tekeningen bevat.'
-  annotation_start: Tekenen
   annotation_done: Klaar
   annotation_undo_stroke: 'Laatste tekening wissen'
+  annotation_undo_eraser: 'Ongedaan maken'
   annotation_eraser: Gom
-  annotation_eraser_width: Gomdikte
-  annotation_eraser_thin: Dunne gom
-  annotation_eraser_normal: Normale gom
-  annotation_eraser_thick: Dikke gom
+  annotation_eraser_width: Gomgrootte
+  annotation_eraser_thin: Kleine gom
+  annotation_eraser_normal: Middelgrote gom
+  annotation_eraser_thick: Grote gom
   annotation_delete_drawing: 'Geselecteerde tekening volledig verwijderen'
   annotation_main_image: Hoofdafbeelding
+  annotation_choose_image: Afbeelding kiezen
   annotation_add_frame: '+ Kaderschets'
   annotation_remove_frame: 'Kaderschets verwijderen'
   annotation_frame_added: 'Reeds toegevoegd'
@@ -262,12 +262,11 @@ reports:
   annotation_legend: Legende
   annotation_empty_legend: 'De legende verschijnt zodra u een schadegeval tekent.'
   annotation_history: Geschiedenis
-  annotation_confirm_delete_case: 'Dit schadegeval en alle bijbehorende tekeningen verwijderen?'
-  annotation_select_damage: 'Vul eerst een schadegeval in.'
-  annotation_drawing_active: 'Teken op de afbeelding. Klik op Klaar wanneer u gereed bent.'
+  annotation_confirm_delete_case: 'Dit schadegeval en alle bijbehorende annotaties verwijderen?'
+  annotation_drawing_active: 'Teken op de afbeelding. Klik op Klaar om af te ronden.'
   annotation_select_drawing_for_eraser: 'Teken met de gom over een bestaande tekening.'
   annotation_eraser_unavailable: 'De gom kon niet worden geladen. Herlaad de pagina.'
-  annotation_eraser_active: 'Gom actief — teken over het gedeelte dat u wilt verwijderen.'
+  annotation_eraser_active: 'Sleep over wat u wilt verwijderen.'
   annotation_saved: Opgeslagen
   annotation_saving: Opslaan...
   annotation_legend_edit: 'Legende aanpassen'
@@ -375,6 +374,10 @@ reports:
   photos_help: 'Voeg rapportfoto’s of een kaderschets toe. Elk beeld kan bij Schadebeelden worden geannoteerd.'
   no_photos: 'Nog geen rapportfoto’s.'
   choose_photos: 'Foto’s kiezen'
+  browse_files: Bladeren
+  media_adding: 'Toevoegen…'
+  media_save_failed: 'Je wijzigingen konden niet worden opgeslagen. Probeer het opnieuw.'
+  media_retry: 'Opnieuw proberen'
   take_photo: 'Foto nemen'
   add_photo: 'Foto toevoegen'
   add_photos: 'Foto’s toevoegen'
@@ -386,8 +389,8 @@ reports:
   rotate: Draaien
   move_up: 'Naar voren'
   move_down: 'Naar achteren'
-  confirm_delete_photo: 'Deze foto en de bijbehorende tekeningen verwijderen?'
-  confirm_delete_frame_schema: 'Deze kaderschets en de bijbehorende tekeningen verwijderen?'
+  confirm_delete_photo: 'Deze foto en de bijbehorende annotaties verwijderen?'
+  confirm_delete_frame_schema: 'Deze kaderschets en de bijbehorende annotaties verwijderen?'
   documents: Documenten
   documents_help: 'Voeg bijvoorbeeld een opstellingsplan, aanbeveling of extern rapport toe.'
   no_documents: 'Nog geen documenten.'
@@ -866,6 +869,7 @@ Splits: Barsten
 Woodworm: Houtworm
 Active: Actief
 Old: Oud
+Recent: Recent
 Panel: Paneel
 'Condition panel': 'Conditie paneel'
 'Number of panels': 'Aantal planken'
@@ -876,9 +880,9 @@ Cradle: Parket
 Blocked: Geblokkeerd
 'Not blocked': 'Niet geblokkeerd'
 'Reinforcements (clamps, dovetails, etc.)': 'Verstevigingen (klampen, zwaluwstaarten, …)'
-'Joints (open, repared, strengthened, …)': 'Voegen (open, hersteld, verstevigd, …)'
+'Joints (open, repaired, strengthened, …)': 'Voegen (open, hersteld, verstevigd, …)'
 'Splits (position/length)': 'Barsten (positie/lengte)'
-'Deformations (convex, concave, wrapped, …)': 'Deformaties (convex, concaaf, scheluw, …)'
+'Deformations (convex, concave, warped, …)': 'Deformaties (convex, concaaf, scheluw, …)'
 Holes: Gaten
 'Damaged edges': 'Beschadigde randen'
 'Condition metal': 'Conditie metaal'
@@ -1022,6 +1026,7 @@ Reframing: 'Opnieuw inlijsten'
 Barriers: Afstandhouders/barrière
 Showcase: Vitrine
 'Alarm specifications': Alarmspecificaties
+Alarm: Alarm
 'Security screws': Veiligheidsschroeven
 'Mechanical protection': 'Mechanische beveiliging'
 'Safety hooks': Veiligheidshaakjes
@@ -1035,7 +1040,7 @@ Showcase: Vitrine
 'Guidelines relative humidity (RH)': 'Richtlijnen relatieve vochtigheid (RH)'
 'Guidelines brightness (Lux)': 'Richtlijnen lichtsterkte (Lux)'
 'Guidelines ultraviolet light (UV)': 'Richtlijnen ultraviolet licht (UV)'
-'How long to acclimatize before unpacking?': 'Hoelang acclimatiseren alvorens te ontpakken?'
+'How long to acclimatize before unpacking?': 'Hoe lang acclimatiseren alvorens te ontpakken?'
 '24 h': '24 uur'
 'Maximum exhibition duration': 'Maximale tentoonstellingsduur'
 Remarks: Opmerkingen
@@ -1195,6 +1200,7 @@ Signatures: Handtekeningen
 'Conservation treatment': Conservatiebehandeling
 'Degree of urgency (very urgent) 1 - 2 - 3 (not urgent)': 'Urgentiegraad (zeer urgent) 1 - 2 - 3 (weinig urgent)'
 Other: Andere
+Extra: Extra
 'Other ...': 'Andere ...'
 'Restoration treatment': Restauratiebehandeling
 'Estimated work hours': 'Schatting werkuren'
@@ -1240,6 +1246,7 @@ Storage: Stockage
 'Moving and installation equipment': 'Hulpmiddelen verplaatsing en installatie'
 'Cart with pneumatic tires': 'Kar met luchtbanden'
 'Pallet truck': Transpallet
+Trolley: Transportwagen
 Handtruck: Steekwagen
 'Transport equipment': 'Hulpmiddelen vervoer'
 'Truck with elevator': 'Vrachtwagen met lift'
@@ -1321,6 +1328,14 @@ Metal: Metaal
 Cardboard: Karton
 'Acid-free cardboard': 'Zuurvrij karton'
 Material: Materiaal
+Hardboard: Hardboard
+Marouflage: Marouflage
+Evazote: Evazote
+Plexi: Plexi
+Tempera: Tempera
+Perspex/plexi: Perspex/plexi
+Patina: Patina
+Ethafoam: Ethafoam
 'Remarks on the painting techniques': 'Specificaties bij de schildertechniek'
 'Varnish layer': Vernislaag
 Complete: 'Volledig aanwezig'
@@ -1451,7 +1466,7 @@ Taped: Getaped
 'Not taped': 'Niet getaped'
 'Climate box (incorporated in frame)': 'Klimaatbox (verwerkt in lijst)'
 'Hanging system': Ophangsysteem
-'Mirror plate': 'Mirror plate'
+'Mirror plate': Spiegelplaatje
 Steddie: Steddie
 'ICN with loose screw eye': 'ICN met schroefoog'
 'Large suspension brace': 'Grote ophangbeugel'
@@ -1856,7 +1871,8 @@ blanching_note: "Blindgeslagen: Te onderscheiden van 'waas' dat algemeen wordt g
 'Consolidated: Stabilizing degraded or weakened areas by introducing or attaching materials capable of holding them together.': 'Verstevigen: Beschadigde of verzwakte delen verduurzamen door het inbrengen of aanhechten van materialen met behulp waarvan ze bijeen gehouden kunnen worden.'
 'Corrosion: The deterioration of metal or other substances by chemical or electrochemical reaction resulting from exposure to weathering, moisture, chemicals, or other agents.': 'Corrosie: De aantasting van metaal of ander materiaal door chemische of elektrochemische reacties die het gevolg zijn van blootstelling aan verwering, vochtigheid, chemicaliën of andere agentia.'
 'Crackle: A network of fine fracture lines in a coating layer, such as a ground, paint layer, varnish, or glaze.': 'Craquelé: Een netwerk van fijne breuklijnen in een deklaag, bijvoorbeeld (grond)verf, vernis of glazuur.'
-'Cracks: Fissures or systems of fissures without complete separation into pieces. Eerder voor verflaag die gebarsten is.': 'Barsten: Scheuren of patronen van scheuren zonder dat iets volledig uit elkaar valt.'
+'Cracks: Fissures or systems of fissures without complete separation into pieces.': 'Barsten: Scheuren of patronen van scheuren zonder dat iets volledig uit elkaar valt.'
+'Splits: Cracks in the support.': 'Barsten in de drager.'
 'Cupping: Formation of a concavity or cuplike hollow in a paint layer.': 'Schotelvorming: Het ontstaan van een concave lijn of komvormige holte in een verflaag.'
 'Cutting: Making incisions with a sharp-edged instrument, thus removing material or dividing something into parts.': 'Snede, Gesneden: Ergens met een scherp instrument een snede in aanbrengen, waardoor materiaal wordt verwijderd wordt of een voorwerp in stukken wordt gedeeld.'
 'Damaged and missing corners and edges': 'Afgebroken of ontbrekende hoeken en randen'

@@ -1,17 +1,17 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ report.title }} | {{ 'app.title'|trans }}{% endblock %}
+{% block title %}{{ report|report_title }} | {{ 'app.title'|trans }}{% endblock %}
 
 {% block body %}
     <div class="page-header report-view-header">
-        <div>
+        <div class="report-title-copy">
             <nav class="breadcrumbs" aria-label="{{ 'nav.breadcrumb'|trans }}">
                 <a href="{{ back_url }}">{{ report.project ? 'nav.projects'|trans : 'nav.objects'|trans }}</a>
                 <span class="sep">/</span>
                 <span>{{ object.inventoryNumber }}</span>
             </nav>
             <div class="report-title-row">
-                <h1>{{ report.title }}</h1>
+                <h1>{{ report|report_title }}</h1>
                 <span class="chip chip-{{ {'active': 'accent', 'finalized': 'success', 'archived': 'muted'}[report.status]|default('muted') }}">{{ ('status.' ~ report.status)|trans }}</span>
             </div>
         </div>
@@ -47,7 +47,7 @@
                 </form>
             {% endif %}
             {% if not is_granted('ROLE_READ_ONLY') and (report.status == constant('App\\Entity\\Report::STATUS_ACTIVE') or is_granted('ROLE_ADMIN')) %}
-                <form method="post" action="{{ path('reports_delete', {'_locale': app.request.locale, id: report.id}) }}" onsubmit="return confirm('{{ 'reports.confirm_delete_any'|trans({'%title%': report.title})|e('js') }}');">
+                <form method="post" action="{{ path('reports_delete', {'_locale': app.request.locale, id: report.id}) }}" onsubmit="return confirm('{{ 'reports.confirm_delete_any'|trans({'%title%': report|report_title})|e('js') }}');">
                     <input type="hidden" name="_token" value="{{ csrf_token('report_delete_' ~ report.id) }}">
                     <button type="submit" class="button danger icon-button" title="{{ 'actions.delete'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg><span class="visually-hidden">{{ 'actions.delete'|trans }}</span></button>
                 </form>

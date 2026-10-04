@@ -1,3 +1,25 @@
+{% macro file_picker(id, label, name, accept = '', multiple = false, camera = false) %}
+    <div class="report-file-field">
+        <label for="{{ id }}">{{ label|trans }}</label>
+        <div class="report-file-picker">
+            <input type="file" id="{{ id }}" name="{{ name }}" required data-report-media-file
+                   aria-describedby="{{ id }}-selection"
+                   {% if accept %}accept="{{ accept }}"{% endif %}
+                   {% if multiple %}multiple{% endif %}
+                   {% if camera %}capture="environment"{% endif %}>
+            <label for="{{ id }}" class="button secondary report-file-button" aria-hidden="true">{{ 'reports.browse_files'|trans }}</label>
+            <span id="{{ id }}-selection" class="report-file-name" data-report-file-name role="status" hidden></span>
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro media_upload_status() %}
+    <p class="report-media-status" data-report-media-status role="status" hidden
+       data-uploading-label="{{ 'reports.media_adding'|trans }}"
+       data-failed-label="{{ 'reports.media_save_failed'|trans }}"></p>
+    <button type="submit" class="secondary report-media-retry" data-report-media-retry hidden>{{ 'reports.media_retry'|trans }}</button>
+{% endmacro %}
+
 {% macro render_measurements(measurements, data) %}
     <div class="report-section">
         <h3>{{ 'reports.measurements'|trans }}</h3>
@@ -99,7 +121,6 @@
         class="compact-field-group{% if group.quick_select %} is-quick-select{% endif %}{% if group.direct_input is defined %} is-direct-input{% endif %}{% if group.condition|default(false) %} is-condition-group{% endif %}{% if group.treatment is defined %} is-treatment-group{% endif %}"
         data-compact-group="{{ group.id }}"
         {% if group.condition|default(false) %}data-condition-group{% endif %}
-        {% if group.issues_conditional|default(false) %}data-condition-issues-conditional{% endif %}
         {% if group.treatment is defined %}data-treatment-group{% endif %}
     >
         <div class="compact-field-group-heading">
@@ -110,11 +131,10 @@
             {% set direct_value = attribute(data, group.direct_input.name)|default('') %}
             <div class="compact-direct-input">
                 <input
-                    type="{{ group.direct_input.type == 'number' ? 'number' : 'text' }}"
+                    {% if group.direct_input.type == 'number' %}{{ _self.numeric_attributes() }}{% else %}type="text"{% endif %}
                     name="report_data[{{ group.direct_input.name }}]"
                     value="{{ direct_value }}"
                     aria-label="{{ group.title|trans }}"
-                    {% if group.direct_input.min is defined and group.direct_input.min is not null %}min="{{ group.direct_input.min }}"{% endif %}
                 >
             </div>
         {% elseif group.treatment is defined %}
@@ -126,9 +146,7 @@
                 or treatment_date != '' %}
             <div class="compact-treatment-controls">
                 <div class="compact-quick-list compact-treatment-status">
-                    {% for field in group.treatment.status_fields %}
-                        {{ _self.render_compact_quick_item(field, data) }}
-                    {% endfor %}
+                    {{ _self.render_compact_quick_groups(group.treatment.status_fields, data) }}
                 </div>
                 <div class="compact-treatment-details">
                     <label class="compact-treatment-input" data-treatment-date-field {% if not treatment_happened %}hidden{% endif %}>
@@ -137,7 +155,7 @@
                     </label>
                     <label class="compact-treatment-input compact-treatment-hours">
                         <span>{{ 'reports.number_of_hours'|trans }}</span>
-                        <input type="number" min="0" step="any" name="report_data[{{ group.treatment.hours_name }}]" value="{{ treatment_hours }}">
+                        <input {{ _self.numeric_attributes(true) }} name="report_data[{{ group.treatment.hours_name }}]" value="{{ treatment_hours }}">
                     </label>
                     <label class="compact-treatment-input compact-treatment-explanation">
                         <span>{{ 'reports.further_explanation'|trans }}</span>
@@ -147,20 +165,14 @@
             </div>
         {% elseif group.condition|default(false) %}
             <div class="compact-quick-list compact-condition-rating">
-                {% for field in group.rating_fields %}
-                    {{ _self.render_compact_quick_item(field, data) }}
-                {% endfor %}
+                {{ _self.render_compact_quick_groups(group.rating_fields, data) }}
             </div>
-            <div class="compact-condition-details" data-condition-details {% if group.issues_conditional %}hidden{% endif %}>
+            <div class="compact-condition-details">
                 {{ _self.render_compact_picker(group, data) }}
             </div>
         {% elseif group.quick_select %}
             <div class="compact-quick-list">
-                {% for field in group.fields %}
-                    {% if not field.open_custom %}
-                        {{ _self.render_compact_quick_item(field, data) }}
-                    {% endif %}
-                {% endfor %}
+                {{ _self.render_compact_quick_groups(group.fields, data) }}
             </div>
         {% else %}
             {{ _self.render_compact_picker(group, data) }}
@@ -224,6 +236,22 @@
     </div>
 {% endmacro %}
 
+{% macro render_compact_quick_groups(fields, data) %}
+    {% set choice_groups = {} %}
+    {% for field in fields|filter(field => not field.open_custom) %}
+        {% set key = field.selection_group|default('independent') %}
+        {% set choice_groups = choice_groups|merge({(key): choice_groups[key]|default([])|merge([field])}) %}
+    {% endfor %}
+
+    {% for choices in choice_groups %}
+        <div class="compact-choice-group">
+            {% for field in choices %}
+                {{ _self.render_compact_quick_item(field, data) }}
+            {% endfor %}
+        </div>
+    {% endfor %}
+{% endmacro %}
+
 {% macro render_compact_quick_item(field, data) %}
     {% set field_value = attribute(data, field.name)|default(null) %}
     {% set enabled_name = '__enabled_' ~ field.name %}
@@ -237,7 +265,6 @@
         data-compact-item="{{ field.name }}"
         data-compact-quick-item
         {% if field.selection_group is defined %}data-selection-group="{{ field.selection_group }}"{% endif %}
-        {% if field.reveals_issues|default(false) %}data-reveals-condition-details{% endif %}
         {% if field.treatment_happened|default(false) %}data-treatment-happened{% endif %}
     >
         <input type="hidden" name="report_data[{{ enabled_name }}]" value="1" data-option-control {% if not selected %}disabled{% endif %}>
@@ -291,7 +318,7 @@
 
         <div class="compact-item-actions">
             <button type="button" class="compact-icon-button compact-remove-item" data-remove-compact-item aria-label="{{ 'actions.remove'|trans }}" title="{{ 'actions.remove'|trans }}">
-                <svg class="icon" aria-hidden="true"><use href="#i-minus"/></svg>
+                <svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg>
             </button>
         </div>
     </div>
@@ -304,9 +331,16 @@
     </label>
 {% endmacro %}
 
-{% macro number_input(name, label, data, min = null, max = null, placeholder = null) %}
+{% macro numeric_attributes(decimal = false) %}
+    type="text"
+    inputmode="{{ decimal ? 'decimal' : 'numeric' }}"
+    data-numeric-input="{{ decimal ? 'decimal' : 'integer' }}"
+    pattern="{{ decimal ? '[0-9]+([.,][0-9]*)?|[.,][0-9]+' : '[0-9]+' }}"
+{% endmacro %}
+
+{% macro number_input(name, label, data) %}
     <label class="report-field">
         {% if label %}<span>{{ label|trans }}</span>{% endif %}
-        <input type="number" name="report_data[{{ name }}]" value="{{ attribute(data, name)|default('') }}" {% if min is not null %}min="{{ min }}"{% endif %} {% if max is not null %}max="{{ max }}"{% endif %} {% if placeholder %}placeholder="{{ placeholder|trans }}"{% endif %}>
+        <input {{ _self.numeric_attributes(true) }} name="report_data[{{ name }}]" value="{{ attribute(data, name)|default('') }}">
     </label>
 {% endmacro %}

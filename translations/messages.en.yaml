@@ -203,7 +203,7 @@ reports:
   saved: 'Report saved.'
   report: Report
   finalized_count: '%count% final'
-  report_title: Title
+  default_title: 'Condition report'
   metadata: 'Report details'
   form_fields: 'Report fields'
   description: Description
@@ -234,17 +234,17 @@ reports:
   annotation_stroke_thin: Thin
   annotation_stroke_normal: Normal
   annotation_stroke_thick: Thick
-  annotation_stroke_locked: 'Line width is fixed once this damage case contains drawings.'
-  annotation_start: Draw
   annotation_done: Done
   annotation_undo_stroke: 'Remove last drawing'
+  annotation_undo_eraser: 'Undo'
   annotation_eraser: Eraser
-  annotation_eraser_width: Eraser width
-  annotation_eraser_thin: Thin eraser
-  annotation_eraser_normal: Normal eraser
-  annotation_eraser_thick: Thick eraser
+  annotation_eraser_width: Eraser size
+  annotation_eraser_thin: Small eraser
+  annotation_eraser_normal: Medium eraser
+  annotation_eraser_thick: Large eraser
   annotation_delete_drawing: 'Delete selected drawing completely'
   annotation_main_image: 'Main image'
+  annotation_choose_image: 'Choose image'
   annotation_add_frame: '+ Frame sketch'
   annotation_remove_frame: 'Remove frame sketch'
   annotation_frame_added: 'Already added'
@@ -262,12 +262,11 @@ reports:
   annotation_legend: Legend
   annotation_empty_legend: 'The legend appears as soon as you draw a damage case.'
   annotation_history: History
-  annotation_confirm_delete_case: 'Delete this damage case and all its drawings?'
-  annotation_select_damage: 'Enter a damage case first.'
+  annotation_confirm_delete_case: 'Delete this damage case and all its annotations?'
   annotation_drawing_active: 'Draw on the image. Click Done when you are finished.'
   annotation_select_drawing_for_eraser: 'Draw with the eraser over an existing drawing.'
   annotation_eraser_unavailable: 'The eraser could not be loaded. Reload the page.'
-  annotation_eraser_active: 'Eraser active — draw over the part you want to remove.'
+  annotation_eraser_active: 'Drag over what you want to erase.'
   annotation_saved: Saved
   annotation_saving: Saving...
   annotation_legend_edit: 'Edit legend'
@@ -375,6 +374,10 @@ reports:
   photos_help: 'Add report photos or a frame sketch. Every image can be annotated under Damage types.'
   no_photos: 'No report photos yet.'
   choose_photos: 'Choose photos'
+  browse_files: Browse
+  media_adding: 'Adding…'
+  media_save_failed: 'Your changes could not be saved. Please try again.'
+  media_retry: 'Try again'
   take_photo: 'Take photo'
   add_photo: 'Add photo'
   add_photos: 'Add photos'
@@ -386,8 +389,8 @@ reports:
   rotate: Rotate
   move_up: 'Move forward'
   move_down: 'Move backward'
-  confirm_delete_photo: 'Delete this photo and its drawings?'
-  confirm_delete_frame_schema: 'Delete this frame sketch and its drawings?'
+  confirm_delete_photo: 'Delete this photo and its annotations?'
+  confirm_delete_frame_schema: 'Delete this frame sketch and its annotations?'
   documents: Documents
   documents_help: 'Add a setup plan, recommendation or external report, for example.'
   no_documents: 'No documents yet.'

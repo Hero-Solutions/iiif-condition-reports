@@ -8,7 +8,7 @@
 # prefix wordt voor elke sleutel onder choices, rating en issues geplaatst.
 # Een gewone choice is `veld: Label`; `type: detail` leest ook oude _text-data
 # en `type: custom` is een vrije keuze. search kan extra vrije plaatsen krijgen.
-# condition combineert één rating met een lijst kenmerken of schades.
+# condition combineert één rating met een altijd zichtbare lijst kenmerken of schades.
 # treatment gebruikt vaste statusknoppen, een datum en het aantal uren.
 parameters:
   report_compact_sections:
@@ -37,8 +37,10 @@ parameters:
               -
                 id: materials_material_type_paint_layer_1
                 title: 'Paint layer'
-                control: search
-                custom_slots: 10
+                control: input
+                input:
+                  name: material_painting_paint_layer
+                  type: text
               -
                 id: materials_material_type_varnish_layer_2
                 title: 'Varnish layer'
@@ -313,7 +315,7 @@ parameters:
                   lined_custom: { type: custom }
                   strip_lining: Strip-lining
                   patches: Patches
-                  changes: { type: detail, label: 'Changes (additions, altered pieces, â€¦)' }
+                  changes: { type: detail, label: 'Changes (additions, altered pieces, …)' }
                   deformations: { type: detail, label: Deformations }
                   stretching_marks: 'Stretching marks'
                   dents: Dents
@@ -378,10 +380,10 @@ parameters:
                   bad: Bad
                 issues:
                   reinforcements: { type: detail, label: 'Reinforcements (clamps, dovetails, etc.)' }
-                  changes: { type: detail, label: 'Changes (additions, altered pieces, â€¦)' }
-                  joints: 'Joints (open, repared, strengthened, â€¦)'
+                  changes: { type: detail, label: 'Changes (additions, altered pieces, …)' }
+                  joints: 'Joints (open, repaired, strengthened, …)'
                   splits: 'Splits (position/length)'
-                  deformations: { type: detail, label: 'Deformations (convex, concave, wrapped, â€¦)' }
+                  deformations: { type: detail, label: 'Deformations (convex, concave, warped, …)' }
                   woodworm_active: reports.woodworm_active
                   woodworm_old: reports.woodworm_old
                   dents: Dents
@@ -398,10 +400,9 @@ parameters:
                   good: Good
                   average: Average
                   bad: Bad
-                reveal_issues_after: [average, bad]
                 issues:
                   corrosion: Corrosion
-                  deformations: { type: detail, label: 'Deformations (dents, undulations, â€¦)' }
+                  deformations: { type: detail, label: 'Deformations (dents, undulations, …)' }
                   tears: Tears
                   missing_parts: 'Missing parts'
                   weakened: Weakened
@@ -418,7 +419,6 @@ parameters:
                   good: Good
                   average: Average
                   bad: Bad
-                reveal_issues_after: [average, bad]
                 issues:
                   scratches: Scratches
                   dents: Dents
@@ -756,7 +756,6 @@ parameters:
                 input:
                   name: recommendations_painting_manipulation_transport_people
                   type: number
-                  min: 0
               -
                 id: recommendations_manipulation_transport_moving_equipment_2
                 title: 'Moving equipment'
@@ -1189,7 +1188,6 @@ parameters:
                   good: Good
                   average: Average
                   bad: Bad
-                reveal_issues_after: [average, bad]
                 issues:
                   brittle: Brittle
                   fiber_degradation: 'Fiber degradation'
@@ -1232,7 +1230,6 @@ parameters:
                   good: Good
                   average: Average
                   bad: Bad
-                reveal_issues_after: [average, bad]
                 issues:
                   dirt: 'Surface dirt/dust/stains/spots'
                   dusty: Dusty
@@ -1304,7 +1301,6 @@ parameters:
                   to_be_replaced: 'To be replaced'
                 rating_radio_groups:
                   condition: [good, average, bad]
-                reveal_issues_after: [average, bad, to_be_replaced]
                 issues:
                   other: { type: custom }
                   open_joints: 'Open joints'
@@ -1627,7 +1623,6 @@ parameters:
                 input:
                   name: recommendations_work_on_paper_manipulation_transport_people
                   type: number
-                  min: 0
               -
                 id: recommendations_manipulation_transport_moving_equipment_2
                 title: 'Moving equipment'
@@ -2290,7 +2285,6 @@ parameters:
                 input:
                   name: recommendations_sculpture_manipulation_transport_people
                   type: number
-                  min: 0
               -
                 id: recommendations_manipulation_transport_moving_and_installation_equipment_2
                 title: 'Moving and installation equipment'

@@ -6,7 +6,7 @@
     <header class="report-document-header quick-report-header">
         <div class="report-document-title">
             <p>{{ 'report_type.quick_condition_check'|trans }}</p>
-            <h1>{{ report.title }}</h1>
+            <h1>{{ report|report_title }}</h1>
         </div>
         {% if thumbnail_source %}<img class="report-document-image" src="{{ thumbnail_source }}" alt="">{% endif %}
     </header>
@@ -72,7 +72,7 @@
         <section class="report-document-section" data-print-section="documents">
             <h2>{{ 'reports.documents'|trans }}</h2>
             <ul class="report-output-document-list">
-                {% for document in report_documents %}<li>{{ document.originalName }} <span>({{ ('document_category.' ~ document.category)|trans }})</span></li>{% endfor %}
+                {% for document in report_documents %}<li>{{ document.originalName }} <span>({{ document.categoryTranslationKey ? document.categoryTranslationKey|trans : document.category }})</span></li>{% endfor %}
             </ul>
         </section>
     {% endif %}
@@ -89,7 +89,7 @@
     <header class="report-document-header">
         <div class="report-document-title">
             <p>{{ report.type == constant('App\\Entity\\Report::TYPE_OTHER') and report.customType ? report.customType : ('report_type.' ~ report.type)|trans }}</p>
-            <h1>{{ report.title }}</h1>
+            <h1>{{ report|report_title }}</h1>
         </div>
         {% if thumbnail_source %}
             <img class="report-document-image" src="{{ thumbnail_source }}" alt="">
@@ -202,7 +202,7 @@
             <h2>{{ 'reports.documents'|trans }}</h2>
             <ul class="report-output-document-list">
                 {% for document in report_documents %}
-                    <li><a href="{{ document.path }}" target="_blank" rel="noopener">{{ document.originalName }}</a> <span>({{ ('document_category.' ~ document.category)|trans }})</span></li>
+                    <li><a href="{{ document.path }}" target="_blank" rel="noopener">{{ document.originalName }}</a> <span>({{ document.categoryTranslationKey ? document.categoryTranslationKey|trans : document.category }})</span></li>
                 {% endfor %}
             </ul>
         </section>
