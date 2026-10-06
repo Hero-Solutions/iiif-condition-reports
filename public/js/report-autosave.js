@@ -7,7 +7,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const editor = form.closest('.report-editor');
     const status = document.querySelector('[data-report-autosave-status]');
-    const backLink = document.querySelector('[data-report-back-link]');
+    const navigationLinks = [
+        document.querySelector('[data-report-back-link]'),
+        document.querySelector('[data-report-preview-link]'),
+    ].filter(Boolean);
     const intervalMs = parseInt(form.dataset.reportAutosaveInterval || '120000', 10);
     const url = form.dataset.reportAutosaveUrl;
     const version = form.querySelector('[data-report-version]');
@@ -15,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let dirty = false;
     let saving = false;
-    let queued = false;
+    let navigating = false;
     let manualSubmit = false;
     let conflicted = false;
     let currentSave = null;
@@ -80,88 +83,76 @@ document.addEventListener('DOMContentLoaded', () => {
             return false;
         }
 
-        if (!dirty || manualSubmit) {
+        if (manualSubmit) {
             return true;
         }
 
         if (saving) {
-            queued = true;
-
-            try {
-                await currentSave;
-            } catch (error) {
-                return false;
-            }
-
-            // A queued save may have started while this one was finishing.
-            return saveNow();
+            const saved = await currentSave;
+            return saved ? saveNow() : false;
         }
 
+        if (!dirty) return true;
+
         saving = true;
-        queued = false;
         setStatus('saving');
 
         const savedPayload = fingerprint();
 
         currentSave = (async () => {
-            const response = await fetch(url, {
-                method: 'POST',
-                body: new FormData(form),
-                credentials: 'same-origin',
-                headers: {
-                    Accept: 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
-                },
-            });
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    body: new FormData(form),
+                    credentials: 'same-origin',
+                    headers: {
+                        Accept: 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                });
 
-            if (response.status === 409) {
-                conflicted = true;
-                setStatus('conflict');
+                if (response.status === 409) {
+                    conflicted = true;
+                    setStatus('conflict');
 
-                return false;
-            }
-
-            if (!response.ok) {
-                throw new Error('Autosave failed');
-            }
-
-            const json = await response.json();
-
-            if (version && json.version) {
-                version.value = String(json.version);
-            }
-
-            const currentPayload = fingerprint();
-            dirty = currentPayload !== savedPayload;
-
-            if (dirty) {
-                setStatus('dirty');
-            } else {
-                setStatus('saved', json.saved_at ? new Date(json.saved_at) : new Date());
-
-                if (title && typeof json.title === 'string') {
-                    title.textContent = json.title;
-                    document.title = json.title + ' | ' + title.dataset.appTitle;
+                    return false;
                 }
-            }
 
-            return true;
+                if (!response.ok) {
+                    throw new Error('Autosave failed');
+                }
+
+                const json = await response.json();
+
+                if (version && json.version) {
+                    version.value = String(json.version);
+                }
+
+                const currentPayload = fingerprint();
+                dirty = currentPayload !== savedPayload;
+
+                if (dirty) {
+                    setStatus('dirty');
+                } else {
+                    setStatus('saved', json.saved_at ? new Date(json.saved_at) : new Date());
+
+                    if (title && typeof json.title === 'string') {
+                        title.textContent = json.title;
+                        document.title = json.title + ' | ' + title.dataset.appTitle;
+                    }
+                }
+
+                return true;
+            } catch (error) {
+                setStatus('error');
+                return false;
+            } finally {
+                saving = false;
+                currentSave = null;
+            }
         })();
 
-        try {
-            return await currentSave;
-        } catch (error) {
-            setStatus('error');
-            return false;
-        } finally {
-            saving = false;
-            currentSave = null;
-
-            if (queued && dirty && !manualSubmit) {
-                queued = false;
-                await saveNow();
-            }
-        }
+        return currentSave;
     };
 
     const saveOnUnload = () => {
@@ -205,17 +196,30 @@ document.addEventListener('DOMContentLoaded', () => {
         saveNow();
     }, true);
 
-    if (backLink) {
-        backLink.addEventListener('click', async (event) => {
-            if (!dirty) {
+    navigationLinks.forEach((link) => {
+        link.addEventListener('click', async (event) => {
+            if (!dirty && !saving && !conflicted) {
                 return;
             }
 
             event.preventDefault();
-            await saveNow();
-            window.location.href = backLink.href;
+            if (navigating || manualSubmit) return;
+
+            navigating = true;
+            link.setAttribute('aria-busy', 'true');
+            try {
+                let saved;
+                do {
+                    saved = await saveNow();
+                } while (saved && dirty && !manualSubmit);
+
+                if (saved && !manualSubmit) window.location.href = link.href;
+            } finally {
+                navigating = false;
+                link.removeAttribute('aria-busy');
+            }
         });
-    }
+    });
 
     window.addEventListener('pagehide', saveOnUnload);
     document.addEventListener('visibilitychange', () => {

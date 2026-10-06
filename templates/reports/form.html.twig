@@ -52,7 +52,7 @@
         </div>
         <div class="report-header-actions">
             <a class="button secondary" href="{{ back_url }}" data-report-back-link>{{ 'actions.back'|trans }}</a>
-            <a class="button secondary" href="{{ path('reports_show', {'_locale': app.request.locale, id: report.id}) }}">{{ 'reports.preview'|trans }}</a>
+            <a class="button secondary" href="{{ path('reports_show', {'_locale': app.request.locale, id: report.id}) }}" data-report-preview-link>{{ 'reports.preview'|trans }}</a>
             <button type="submit" class="button secondary" form="report-edit-form" data-report-save-actions>{{ 'actions.save'|trans }}</button>
             <button
                 type="submit"
@@ -359,7 +359,7 @@
                     <h3>{{ 'reports.number_of_parts'|trans }}</h3>
                     <label class="report-field">
                         <span>{{ definition.number_of_parts|trans }}</span>
-                        <input {{ report_form.numeric_attributes() }} name="report_data[number_of_parts]" value="{{ report.data.number_of_parts|default('') }}">
+                        <input {{ report_form.numeric_attributes() }} name="report_data[number_of_parts]" value="{{ report.data.number_of_parts|default('') }}" data-measurement-part-count>
                     </label>
                 </div>
                 {{ report_form.render_measurements(definition.measurements, report.data) }}
@@ -592,9 +592,10 @@
 
 {% block javascripts %}
     {{ parent() }}
-    <script src="/js/numeric-inputs.js?v=1" defer></script>
+    <script src="/js/numeric-inputs.js?v=2" defer></script>
+    <script src="/js/report-measurements.js?v=1" defer></script>
     <script src="/js/actor-role-form.js?v=10" defer></script>
-    <script src="/js/report-autosave.js?v=4" defer></script>
+    <script src="/js/report-autosave.js?v=5" defer></script>
     <script src="/js/report-choice-menu.js?v=2" defer></script>
     <script src="/js/report-form-tabs.js?v=4" defer></script>
     <script src="/js/report-finalization.js?v=1" defer></script>
@@ -604,5 +605,6 @@
     <script src="/vendor/openseadragon/openseadragon.min.js?v=6.1.0" defer></script>
     <script src="/vendor/annotorious/annotorious-openseadragon.js?v=3.8.9" defer></script>
     <script src="/vendor/annotorious-tools/annotorious-plugin-tools.js?v=1.6.0" defer></script>
-    <script src="/js/report-annotation-viewer.js?v=30" defer></script>
+    <script src="/js/iiif-image-sources.js?v=1" defer></script>
+    <script src="/js/report-annotation-viewer.js?v=31" defer></script>
 {% endblock %}

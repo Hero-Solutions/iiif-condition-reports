@@ -5,7 +5,7 @@
         {% for source in damage_annotations.sources %}
             <figure class="report-damage-figure">
                 {% if damage_annotations.sources|length > 1 %}<figcaption>{{ source.label }}</figcaption>{% endif %}
-                <div class="report-damage-canvas" style="width: {{ source.widthPercent }}%;">
+                <div class="report-damage-canvas" style="width: {{ source.widthPercent }}%;" data-source-key="{{ source.key }}" data-image-label="{{ source.label }}">
                     <img src="{{ source.imageSource }}" alt="">
                     <svg viewBox="0 0 {{ source.width }} {{ source.height }}" preserveAspectRatio="none" aria-hidden="true">
                         {% for annotation in source.annotations %}

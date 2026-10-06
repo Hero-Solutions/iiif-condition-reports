@@ -1,11 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
     const forms = new Set();
+    const initialized = new WeakSet();
     const normalize = (value) => value
         .replace(',', '.')
         .replace(/\.$/, '')
         .replace(/^\./, '0.');
 
-    document.querySelectorAll('[data-numeric-input]').forEach((input) => {
+    const initializeInput = (input) => {
+        if (initialized.has(input)) return;
+        initialized.add(input);
         const allowed = input.dataset.numericInput === 'decimal' ? /^\d*(?:[.,]\d*)?$/ : /^\d*$/;
         let previousValue = input.value;
         let previousStart = 0;
@@ -51,19 +54,21 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        if (input.form) {
-            forms.add(input.form);
-        }
-    });
-
-    // Manual save and autosave both receive the same decimal notation.
-    forms.forEach((form) => {
-        form.addEventListener('formdata', (event) => {
-            form.querySelectorAll('[data-numeric-input]').forEach((input) => {
-                if (!input.disabled && event.formData.has(input.name)) {
-                    event.formData.set(input.name, normalize(input.value));
-                }
+        const form = input.form;
+        if (form && !forms.has(form)) {
+            forms.add(form);
+            // Manual save and autosave both receive the same decimal notation.
+            form.addEventListener('formdata', (event) => {
+                form.querySelectorAll('[data-numeric-input]').forEach((field) => {
+                    if (!field.disabled && event.formData.has(field.name)) {
+                        event.formData.set(field.name, normalize(field.value));
+                    }
+                });
             });
-        });
-    });
+        }
+    };
+
+    const initialize = (root) => root.querySelectorAll('[data-numeric-input]').forEach(initializeInput);
+    initialize(document);
+    document.addEventListener('report-fields-added', (event) => initialize(event.target));
 });

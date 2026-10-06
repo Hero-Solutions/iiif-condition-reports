@@ -20,6 +20,7 @@ actions:
   delete: Verwijderen
   back: Terug
   cancel: Annuleren
+  close: Sluiten
   details: Details
 forms:
   custom_option_prefix: 'Anders:'
@@ -212,6 +213,7 @@ reports:
   tab_basis: Basis
   tab_measurements: Afmetingen
   number_of_parts: 'Aantal onderdelen'
+  measurement_part: 'Onderdeel %number%'
   measurements: Afmetingen
   section: Onderdeel
   section_materials: Materialen
@@ -219,6 +221,12 @@ reports:
   section_damage_types: Schadebeelden
   section_recommendations: Aanbevelingen
   annotation_viewer_error: 'IIIF-viewer kon niet geladen worden.'
+  image_viewer_title: Afbeelding
+  image_viewer_open: 'Afbeelding vergroten'
+  image_viewer_loading: 'Afbeelding laden…'
+  image_zoom_in: Inzoomen
+  image_zoom_out: Uitzoomen
+  image_zoom_reset: 'Volledige afbeelding tonen'
   annotation_save_error: 'De tekening kon niet worden opgeslagen.'
   no_annotation_manifest: 'Geen beeld of IIIF-manifest gekoppeld aan dit object.'
   annotation_damage_case: Schadegeval
@@ -361,7 +369,6 @@ reports:
   download_pdf: 'PDF downloaden'
   inspection_period: Periode
   presence: Aanwezigheid
-  no_report_content: 'Er zijn nog geen rapportgegevens ingevuld.'
   finalized_by_on: 'Gefinaliseerd door %name% op %date%.'
   draft_preview_notice: 'Dit is een voorbeeld van een ontwerp en geen finaal rapport.'
   final_report_locked: 'Een finaal of gearchiveerd rapport kan niet meer worden gewijzigd.'

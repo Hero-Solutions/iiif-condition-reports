@@ -20,6 +20,7 @@ actions:
   delete: Delete
   back: Back
   cancel: Cancel
+  close: Close
   details: Details
 forms:
   custom_option_prefix: 'Other:'
@@ -212,6 +213,7 @@ reports:
   tab_basis: Basics
   tab_measurements: Measurements
   number_of_parts: 'Number of parts'
+  measurement_part: 'Part %number%'
   measurements: Measurements
   section: Section
   section_materials: Materials
@@ -219,6 +221,12 @@ reports:
   section_damage_types: 'Damage types'
   section_recommendations: Recommendations
   annotation_viewer_error: 'IIIF viewer could not be loaded.'
+  image_viewer_title: Image
+  image_viewer_open: 'Enlarge image'
+  image_viewer_loading: 'Loading image…'
+  image_zoom_in: 'Zoom in'
+  image_zoom_out: 'Zoom out'
+  image_zoom_reset: 'Show entire image'
   annotation_save_error: 'The drawing could not be saved.'
   no_annotation_manifest: 'No image or IIIF manifest linked to this object.'
   annotation_damage_case: 'Damage case'
@@ -361,7 +369,6 @@ reports:
   download_pdf: 'Download PDF'
   inspection_period: Period
   presence: Presence
-  no_report_content: 'No report information has been entered yet.'
   finalized_by_on: 'Finalized by %name% on %date%.'
   draft_preview_notice: 'This is a draft preview, not a final report.'
   final_report_locked: 'A finalized or archived report can no longer be changed.'

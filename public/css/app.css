@@ -2556,6 +2556,121 @@ tr[data-row-href] {
     box-shadow: var(--shadow-1);
 }
 
+@media screen {
+    html.report-image-viewer-open {
+        overflow: hidden;
+    }
+
+    .report-image-zoom-trigger {
+        cursor: zoom-in;
+    }
+
+    .report-image-zoom-trigger:hover,
+    .report-image-zoom-trigger:focus-visible {
+        outline: 2px solid var(--accent-600);
+        outline-offset: 3px;
+    }
+}
+
+.report-image-dialog {
+    width: min(1200px, calc(100vw - 32px));
+    height: min(900px, 90dvh);
+    max-width: none;
+    max-height: calc(100dvh - 32px);
+    margin: auto;
+    padding: 0;
+    overflow: hidden;
+    color: var(--text);
+    background: var(--surface-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-m);
+    box-shadow: var(--shadow-2);
+}
+
+.report-image-dialog[open] {
+    display: flex;
+    flex-direction: column;
+}
+
+.report-image-dialog::backdrop {
+    background: rgba(0, 0, 0, .65);
+}
+
+.report-image-dialog-header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    align-items: center;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+}
+
+.report-image-dialog-header h2 {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 16px;
+}
+
+.report-image-dialog-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.report-image-dialog-actions button {
+    width: 36px;
+    min-height: 36px;
+    padding: 0;
+}
+
+.report-image-dialog-actions button:disabled {
+    opacity: .45;
+    cursor: default;
+}
+
+.report-image-dialog-body {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    background: var(--surface-sunken);
+}
+
+.report-image-viewer {
+    position: absolute;
+    inset: 0;
+}
+
+.report-image-viewer-status {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    z-index: 1;
+    margin: 0;
+    padding: 8px 12px;
+    background: var(--surface-card);
+    border-radius: var(--radius-s);
+}
+
+.report-image-viewer-overlay {
+    pointer-events: none;
+}
+
+.report-image-viewer-overlay svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.report-image-viewer-overlay ellipse,
+.report-image-viewer-overlay polygon,
+.report-image-viewer-overlay path {
+    fill-opacity: .72;
+    stroke-width: 1;
+}
+
 .report-document-draft {
     position: absolute;
     top: 220px;
@@ -2682,10 +2797,6 @@ tr[data-row-href] {
     border-top: 1px solid var(--border-strong);
     color: var(--text-soft);
     font-size: 12.5px;
-}
-
-.report-document-empty {
-    color: var(--text-soft);
 }
 
 .report-output-photo-grid {
@@ -2884,6 +2995,24 @@ tr[data-row-href] {
 .report-subsection {
     display: grid;
     gap: 8px;
+}
+
+.report-measurement-part {
+    display: grid;
+    gap: 16px;
+    margin-top: 16px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-s);
+}
+
+.report-measurement-part > h4 {
+    font-size: 16px;
+}
+
+.report-measurement-part h5 {
+    margin: 0;
+    font-size: 14px;
 }
 
 .report-field-grid {
@@ -5200,7 +5329,7 @@ button.report-annotation-schema-preview:hover {
 
 @media print {
     @page {
-        margin: 15mm;
+        margin: 0;
     }
 
     body {
@@ -5218,16 +5347,22 @@ button.report-annotation-schema-preview:hover {
         display: none !important;
     }
 
+    .app-shell,
     .app-main,
     .page {
+        display: block;
         min-width: 0;
+        min-height: 0;
         margin: 0;
         padding: 0;
     }
 
     .report-document {
         max-width: none;
-        padding: 0;
+        /* Keep whitespace even when the print dialog disables page margins. */
+        padding: 18mm 16mm;
+        -webkit-box-decoration-break: clone;
+        box-decoration-break: clone;
         overflow: visible;
         border: 0;
         border-radius: 0;

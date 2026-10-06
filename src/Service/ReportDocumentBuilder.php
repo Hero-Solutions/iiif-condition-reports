@@ -71,20 +71,24 @@ final class ReportDocumentBuilder
         $measurements = $definition['measurements'] ?? [];
 
         if (is_array($measurements)) {
-            foreach ($measurements['items'] ?? [] as $name => $label) {
-                if ($this->hasValue($data[$name] ?? null)) {
-                    $rows[] = $this->row($label, [(string) $data[$name]]);
-                }
+            $measurement = $this->measurementRow($measurements, $data, 'Measurements');
+            if ($measurement !== null) {
+                $rows[] = $measurement;
             }
 
-            foreach ($measurements['repeat'] ?? [] as $group) {
-                if (!is_array($group)) {
+            $parts = is_array($data['measurement_parts'] ?? null) ? $data['measurement_parts'] : [];
+            ksort($parts, SORT_NUMERIC);
+            foreach ($parts as $number => $part) {
+                if (!is_array($part) || !ctype_digit((string) $number) || $number < 1 || $number > (int) $numberOfParts) {
                     continue;
                 }
 
-                foreach ($group['items'] ?? [] as $name => $label) {
-                    if ($this->hasValue($data[$name] ?? null)) {
-                        $rows[] = $this->row($label, [(string) $data[$name]]);
+                foreach ($measurements['repeat'] ?? [] as $group) {
+                    $measurement = $this->measurementRow($group, $part, '');
+                    if ($measurement !== null) {
+                        $partLabel = $this->translator->trans('reports.measurement_part', ['%number%' => $number]);
+                        $measurement['label'] = $partLabel . ($measurement['label'] !== '' ? ' — ' . $measurement['label'] : '');
+                        $rows[] = $measurement;
                     }
                 }
             }
@@ -101,6 +105,52 @@ final class ReportDocumentBuilder
                 'rows' => $rows,
             ]],
         ];
+    }
+
+    /**
+     * @param array<string, mixed> $group
+     * @param array<string, mixed> $data
+     * @return array{label: string, values: list<string>}|null
+     */
+    private function measurementRow(array $group, array $data, string $fallbackLabel): ?array
+    {
+        $dimensions = [];
+        $values = [];
+        $label = $this->translation(($group['header'] ?? '') ?: $fallbackLabel);
+        $hasDimension = false;
+        $specification = null;
+
+        foreach ($group['items'] ?? [] as $name => $fieldLabel) {
+            $value = $data[$name] ?? null;
+            if (preg_match('/^(height|width|depth)(?:_|$)/', $name, $matches)) {
+                $filled = $this->hasValue($value);
+                $dimensions[$matches[1]] = $filled ? (string) $value : '—';
+                $hasDimension = $hasDimension || $filled;
+            } elseif ($this->hasValue($value)) {
+                if ($name === 'type') {
+                    $label = $specification = (string) $value;
+                } else {
+                    $unit = str_starts_with($name, 'weight') ? ' kg' : '';
+                    $values[] = $this->translation($fieldLabel) . ': ' . $value . $unit;
+                }
+            }
+        }
+
+        if ($hasDimension) {
+            $ordered = [];
+            foreach (['height', 'width', 'depth'] as $axis) {
+                if (isset($dimensions[$axis])) {
+                    $ordered[] = $dimensions[$axis];
+                }
+            }
+            array_unshift($values, implode(' × ', $ordered) . ' cm');
+        }
+
+        if ($values === [] && $specification !== null) {
+            return $this->row($fallbackLabel, [$specification]);
+        }
+
+        return $values !== [] ? ['label' => $label, 'values' => $values] : null;
     }
 
     /**

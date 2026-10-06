@@ -30,30 +30,43 @@
         {% if measurements.items is defined %}
             <div class="report-field-grid">
                 {% for name, label in measurements.items %}
-                    {{ _self.number_input(name, label, data) }}
+                    {{ _self.number_input(name, label, data, name starts with 'weight' ? 'kg' : 'cm') }}
                 {% endfor %}
             </div>
         {% endif %}
 
         {% if measurements.repeat is defined %}
-            {% for group in measurements.repeat %}
-                <div class="report-subsection">
-                    {% if group.header is defined and group.header %}
-                        <h4>{{ group.header|trans }}</h4>
+            <div data-measurement-parts>
+                {% for number, part in data.measurement_parts|default([]) %}
+                    {% if number > 0 and number <= data.number_of_parts|default(0) %}
+                        {{ _self.measurement_part(measurements.repeat, number, part) }}
                     {% endif %}
-                    <div class="report-field-grid">
-                        {% for name, label in group.items|default([]) %}
-                            {% if name == 'type' %}
-                                {{ _self.text_input(name, label, data) }}
-                            {% else %}
-                                {{ _self.number_input(name, label, data) }}
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                </div>
-            {% endfor %}
+                {% endfor %}
+            </div>
+            <template data-measurement-part-template>{{ _self.measurement_part(measurements.repeat, '__part__', {}) }}</template>
         {% endif %}
     </div>
+{% endmacro %}
+
+{% macro measurement_part(groups, number, data) %}
+    <section class="report-measurement-part" data-measurement-part="{{ number }}">
+        <h4>{{ 'reports.measurement_part'|trans({'%number%': number}) }}</h4>
+        {% set prefix = 'report_data[measurement_parts][' ~ number ~ ']' %}
+        {% for group in groups %}
+            <div class="report-subsection">
+                {% if group.header|default('') %}<h5>{{ group.header|trans }}</h5>{% endif %}
+                <div class="report-field-grid">
+                    {% for name, label in group.items|default([]) %}
+                        {% if name == 'type' %}
+                            {{ _self.text_input(name, label, data, null, prefix) }}
+                        {% else %}
+                            {{ _self.number_input(name, label, data, name starts with 'weight' ? 'kg' : 'cm', prefix) }}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+    </section>
 {% endmacro %}
 
 {% macro render_compact_section(section, data) %}
@@ -324,10 +337,10 @@
     </div>
 {% endmacro %}
 
-{% macro text_input(name, label, data, placeholder = null) %}
+{% macro text_input(name, label, data, placeholder = null, prefix = 'report_data') %}
     <label class="report-field">
         {% if label %}<span>{{ label|trans }}</span>{% endif %}
-        <input type="text" name="report_data[{{ name }}]" value="{{ attribute(data, name)|default('') }}" {% if placeholder %}placeholder="{{ placeholder|trans }}"{% endif %}>
+        <input type="text" name="{{ prefix }}[{{ name }}]" value="{{ attribute(data, name)|default('') }}" {% if placeholder %}placeholder="{{ placeholder|trans }}"{% endif %}>
     </label>
 {% endmacro %}
 
@@ -338,9 +351,9 @@
     pattern="{{ decimal ? '[0-9]+([.,][0-9]*)?|[.,][0-9]+' : '[0-9]+' }}"
 {% endmacro %}
 
-{% macro number_input(name, label, data) %}
+{% macro number_input(name, label, data, unit = '', prefix = 'report_data') %}
     <label class="report-field">
-        {% if label %}<span>{{ label|trans }}</span>{% endif %}
-        <input {{ _self.numeric_attributes(true) }} name="report_data[{{ name }}]" value="{{ attribute(data, name)|default('') }}">
+        {% if label %}<span>{{ label|trans }}{% if unit %} ({{ unit }}){% endif %}</span>{% endif %}
+        <input {{ _self.numeric_attributes(true) }} name="{{ prefix }}[{{ name }}]" value="{{ attribute(data, name)|default('') }}">
     </label>
 {% endmacro %}

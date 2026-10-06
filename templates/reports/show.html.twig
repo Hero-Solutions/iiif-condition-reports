@@ -25,13 +25,13 @@
                     <div class="report-print-options-panel">
                         {% for key, label in {
                             'metadata': 'reports.metadata',
-                            'description': 'reports.description',
-                            'actors': 'actors.title',
-                            'content': 'reports.report_content',
-                            'damage': 'reports.section_damage_types',
-                            'photos': 'reports.photos',
-                            'documents': 'reports.documents'
-                        } %}
+                            'description': report.description is not empty ? 'reports.description' : null,
+                            'actors': report_actors is not empty ? 'actors.title' : null,
+                            'content': report_sections is not empty ? 'reports.report_content' : null,
+                            'damage': damage_annotations.legend is not empty ? 'reports.section_damage_types' : null,
+                            'photos': report_image_sources|filter(source => source is not empty) is not empty ? 'reports.photos' : null,
+                            'documents': report_documents is not empty ? 'reports.documents' : null
+                        }|filter(label => label is not null) %}
                             <label><input type="checkbox" value="{{ key }}" data-print-section-toggle checked> {{ label|trans }}</label>
                         {% endfor %}
                         <button type="button" data-report-print>{{ 'reports.print'|trans }}</button>
@@ -56,9 +56,37 @@
     </div>
 
     {% include 'reports/_document.html.twig' %}
+
+    <dialog class="report-image-dialog no-print" data-report-image-dialog
+            aria-labelledby="report-image-dialog-title"
+            data-open-label="{{ 'reports.image_viewer_open'|trans }}"
+            data-image-label="{{ 'reports.image_viewer_title'|trans }}"
+            data-main-label="{{ 'reports.annotation_main_image'|trans }}"
+            data-main-manifest-url="{{ image_viewer_manifest_url|default('') }}"
+            data-main-info-url="{{ image_viewer_info_url|default('') }}"
+            data-custom-main-image="{{ object.imageUrl ? '1' : '0' }}"
+            data-loading-label="{{ 'reports.image_viewer_loading'|trans }}"
+            data-error-label="{{ 'reports.annotation_viewer_error'|trans }}">
+        <div class="report-image-dialog-header">
+            <h2 id="report-image-dialog-title" data-image-viewer-title>{{ 'reports.image_viewer_title'|trans }}</h2>
+            <div class="report-image-dialog-actions">
+                <button type="button" class="secondary icon-button" data-image-zoom="in" disabled title="{{ 'reports.image_zoom_in'|trans }}" aria-label="{{ 'reports.image_zoom_in'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg></button>
+                <button type="button" class="secondary icon-button" data-image-zoom="out" disabled title="{{ 'reports.image_zoom_out'|trans }}" aria-label="{{ 'reports.image_zoom_out'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-minus"/></svg></button>
+                <button type="button" class="secondary icon-button" data-image-zoom="reset" disabled title="{{ 'reports.image_zoom_reset'|trans }}" aria-label="{{ 'reports.image_zoom_reset'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-reset"/></svg></button>
+                <button type="button" class="secondary icon-button" data-image-viewer-close autofocus title="{{ 'actions.close'|trans }}" aria-label="{{ 'actions.close'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg></button>
+            </div>
+        </div>
+        <div class="report-image-dialog-body">
+            <p class="report-image-viewer-status" data-image-viewer-status role="status" hidden></p>
+            <div class="report-image-viewer" data-image-viewer></div>
+        </div>
+    </dialog>
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
     <script src="/js/report-print-options.js?v=1" defer></script>
+    <script src="/vendor/openseadragon/openseadragon.min.js?v=6.1.0" defer></script>
+    <script src="/js/iiif-image-sources.js?v=1" defer></script>
+    <script src="/js/report-image-viewer.js?v=1" defer></script>
 {% endblock %}

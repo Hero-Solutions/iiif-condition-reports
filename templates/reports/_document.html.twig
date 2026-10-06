@@ -32,7 +32,7 @@
             </tr>
         </tbody>
     </table>
-    {% if report.description %}<section class="quick-report-note" data-print-section="description"><h2>{{ 'reports.description'|trans }}</h2><p>{{ report.description|nl2br }}</p></section>{% endif %}
+    {% if report.description is not empty %}<section class="quick-report-note" data-print-section="description"><h2>{{ 'reports.description'|trans }}</h2><p>{{ report.description|nl2br }}</p></section>{% endif %}
     {% if report_actors is not empty %}
         <section class="quick-report-note" data-print-section="actors">
             <h2>{{ 'actors.title'|trans }}</h2>
@@ -55,8 +55,6 @@
                     </div>
                 {% endfor %}
             </section>
-        {% else %}
-            <p class="report-document-empty">{{ 'reports.no_report_content'|trans }}</p>
         {% endfor %}
     </div>
     {% include 'reports/_damage_annotations.html.twig' %}
@@ -132,7 +130,7 @@
         </tbody>
     </table>
 
-    {% if report.description %}
+    {% if report.description is not empty %}
         <section class="report-document-section report-document-description" data-print-section="description">
             <h2>{{ 'reports.description'|trans }}</h2>
             <p>{{ report.description|nl2br }}</p>
@@ -183,8 +181,6 @@
                 </div>
             {% endfor %}
         </section>
-    {% else %}
-        <p class="report-document-empty">{{ 'reports.no_report_content'|trans }}</p>
     {% endfor %}
 
     {% include 'reports/_damage_annotations.html.twig' %}

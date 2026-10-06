@@ -127,7 +127,10 @@ final class ReportController extends AbstractController
             $report,
             $request,
             $this->reportMainImageSource($report, false),
-        ));
+        ) + [
+            'image_viewer_manifest_url' => $this->annotationManifestUrl($report),
+            'image_viewer_info_url' => $report->getObjectRecord()->getSourceData()['iiif_image_info_url'] ?? null,
+        ]);
     }
 
     #[Route('/{_locale<nl|en>}/reports/{id}/pdf', name: 'reports_pdf', methods: ['GET'])]
