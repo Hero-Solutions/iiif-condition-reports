@@ -1,0 +1,76 @@
+{% macro value(field, value) %}
+    {% if value is null %}
+        <span class="muted">—</span>
+    {% elseif field == 'objectType' %}
+        {{ ('object_type.' ~ value)|trans }}
+    {% elseif field == 'source' %}
+        {{ ('source.' ~ value)|trans }}
+    {% else %}
+        {{ value|nl2br }}
+    {% endif %}
+{% endmacro %}
+
+{% set field_labels = {
+    inventoryNumber: 'objects.inventory_number', title: 'objects.object_title',
+    creator: 'objects.creator', publisher: 'objects.publisher',
+    objectType: 'objects.object_type', customObjectType: 'object_log.custom_object_type',
+    currentLocation: 'objects.current_location', description: 'objects.description',
+    imageUrl: 'objects.image', thumbnailUrl: 'object_log.thumbnail',
+    externalImageUrl: 'objects.external_image_url', iiifManifestUrl: 'objects.iiif_manifest_url',
+    source: 'objects.source', externalId: 'object_log.external_id'
+} %}
+
+<section class="panel object-log" id="object-log">
+    <h2>{{ 'object_log.title'|trans }}</h2>
+    {% for entry in log_entries %}
+        <details class="object-log-entry" {{ loop.first ? 'open' : '' }}>
+            <summary>
+                <span class="object-log-summary">
+                    <time datetime="{{ entry.createdAt|date('c') }}">{{ entry.createdAt|date('d/m/Y H:i:s') }}</time>
+                    <span>{{ ('object_log.' ~ entry.type)|trans }}</span>
+                    {% if entry.userName %}<strong>{{ entry.userName }}</strong>{% endif %}
+                </span>
+            </summary>
+            {% if entry.changes is empty %}
+                <p class="muted">{{ 'object_log.no_changes'|trans }}</p>
+            {% else %}
+                <table class="object-log-changes">
+                    <thead><tr>
+                        <th scope="col">{{ 'object_log.field'|trans }}</th>
+                        <th scope="col">{{ 'object_log.old_value'|trans }}</th>
+                        <th scope="col">{{ 'object_log.new_value'|trans }}</th>
+                    </tr></thead>
+                    <tbody>
+                        {% for field, change in entry.changes %}
+                            <tr>
+                                <th scope="row">
+                                    {% if field starts with 'datahub.' %}
+                                        {% set label_key = 'object_log.' ~ field %}
+                                        {% set label = label_key|trans %}
+                                        <span class="muted">Datahub · </span>{{ label == label_key ? field|slice(8) : label }}
+                                    {% else %}
+                                        {{ field_labels[field]|default(field)|trans }}
+                                    {% endif %}
+                                </th>
+                                <td data-label="{{ 'object_log.old_value'|trans }}">{{ _self.value(field, change.old) }}</td>
+                                <td data-label="{{ 'object_log.new_value'|trans }}">{{ _self.value(field, change.new) }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </details>
+    {% else %}
+        <p class="muted">{{ 'object_log.empty'|trans }}</p>
+    {% endfor %}
+    {% if log_page > 1 or log_has_more %}
+        <nav class="object-log-pagination" aria-label="{{ 'object_log.title'|trans }}">
+            {% if log_page > 1 %}
+                <a href="{{ path('objects_edit', {_locale: app.request.locale, id: object.id, log_page: log_page - 1}) }}#object-log">{{ 'object_log.newer'|trans }}</a>
+            {% endif %}
+            {% if log_has_more %}
+                <a href="{{ path('objects_edit', {_locale: app.request.locale, id: object.id, log_page: log_page + 1}) }}#object-log">{{ 'object_log.older'|trans }}</a>
+            {% endif %}
+        </nav>
+    {% endif %}
+</section>

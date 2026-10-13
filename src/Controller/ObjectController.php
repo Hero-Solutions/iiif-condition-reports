@@ -7,11 +7,12 @@ namespace App\Controller;
 use App\Entity\Actor;
 use App\Entity\IIIFManifest;
 use App\Entity\ObjectManifest;
+use App\Entity\ObjectLogEntry;
 use App\Entity\ObjectRecord;
 use App\Entity\Report;
-use App\Entity\ReportSeries;
 use App\Form\ObjectRecordType;
 use App\Service\ObjectImageStorage;
+use App\Service\ObjectChangeLogger;
 use App\Service\ObjectThumbnailProvider;
 use App\Service\ReportAuthorProvider;
 use Doctrine\ORM\EntityManagerInterface;
@@ -33,6 +34,7 @@ final class ObjectController extends AbstractController
         private readonly ObjectImageStorage $imageStorage,
         private readonly TranslatorInterface $translator,
         private readonly ReportAuthorProvider $reportAuthorProvider,
+        private readonly ObjectChangeLogger $objectLogger,
     ) {
     }
 
@@ -71,7 +73,7 @@ final class ObjectController extends AbstractController
         $form = $this->createObjectForm($object);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid() && $this->saveObject($object, $form)) {
+        if ($form->isSubmitted() && $form->isValid() && $this->saveObject($object, $form, [])) {
             $this->addFlash('success', 'objects.saved');
 
             return $this->redirectToRoute('objects_edit', [
@@ -84,7 +86,6 @@ final class ObjectController extends AbstractController
             'form' => $form,
             'object' => $object,
             'is_new' => true,
-            'source_data' => [],
             'thumbnail_url' => null,
         ]);
     }
@@ -92,10 +93,12 @@ final class ObjectController extends AbstractController
     #[Route('/{_locale<nl|en>}/objects/{id}', name: 'objects_edit', methods: ['GET', 'POST'])]
     public function edit(ObjectRecord $object, Request $request): Response
     {
-        $form = $this->createObjectForm($object, $this->manifestUrl($object));
+        $manifestUrl = $this->manifestUrl($object);
+        $before = $this->objectLogger->snapshot($object, $manifestUrl);
+        $form = $this->createObjectForm($object, $manifestUrl);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid() && $this->saveObject($object, $form)) {
+        if ($form->isSubmitted() && $form->isValid() && $this->saveObject($object, $form, $before)) {
             $this->addFlash('success', 'objects.saved');
 
             return $this->redirectToRoute('objects_edit', [
@@ -104,18 +107,24 @@ final class ObjectController extends AbstractController
             ]);
         }
 
-        $reportSeries = $this->reportSeriesForObject($object);
-        $reportsBySeries = $this->reportsBySeriesForObject($object);
-        $reports = array_merge(...array_values($reportsBySeries));
+        $reports = $this->reportsForObject($object);
+        $logPage = max(1, $request->query->getInt('log_page', 1));
+        $logEntries = $this->entityManager->getRepository(ObjectLogEntry::class)->findBy(
+            ['objectRecord' => $object],
+            ['createdAt' => 'DESC', 'id' => 'DESC'],
+            21,
+            ($logPage - 1) * 20,
+        );
 
         return $this->render('objects/form.html.twig', [
             'form' => $form,
             'object' => $object,
             'is_new' => false,
-            'source_data' => $object->getSourceData(),
+            'log_entries' => array_slice($logEntries, 0, 20),
+            'log_page' => $logPage,
+            'log_has_more' => count($logEntries) > 20,
             'thumbnail_url' => $this->thumbnailProvider->thumbnailForObject($object),
-            'report_series' => $reportSeries,
-            'reports_by_series' => $reportsBySeries,
+            'reports' => $reports,
             'reports_count' => count($reports),
             'report_author_names' => $this->reportAuthorProvider->namesFor($reports),
         ]);
@@ -137,7 +146,7 @@ final class ObjectController extends AbstractController
         ]);
     }
 
-    private function saveObject(ObjectRecord $object, FormInterface $form): bool
+    private function saveObject(ObjectRecord $object, FormInterface $form, array $before): bool
     {
         if ($this->inventoryNumberExists($object)) {
             $this->addFlash('error', 'objects.inventory_number_exists');
@@ -145,20 +154,32 @@ final class ObjectController extends AbstractController
             return false;
         }
 
-        $manifestUrl = trim((string) $form->get('iiifManifestUrl')->getData());
-        $hasNewImage = $form->get('imageUpload')->getData() instanceof UploadedFile
-            || trim((string) $form->get('externalImageUrl')->getData()) !== '';
+        $manifestUrl = $before['iiifManifestUrl'] ?? '';
 
-        if ($hasNewImage) {
-            $manifestUrl = '';
-        }
+        if (!$object->isDatahubField('image')) {
+            $manifestUrl = trim((string) $form->get('iiifManifestUrl')->getData());
+            $hasNewImage = $form->get('imageUpload')->getData() instanceof UploadedFile
+                || trim((string) $form->get('externalImageUrl')->getData()) !== '';
 
-        if (!$this->syncObjectImage($object, $form, $manifestUrl !== '')) {
-            return false;
+            if ($hasNewImage) {
+                $manifestUrl = '';
+            }
+
+            if (!$this->syncObjectImage($object, $form, $manifestUrl !== '')) {
+                return false;
+            }
+
+            $this->syncManifestUrl($object, $manifestUrl);
         }
 
         $this->entityManager->persist($object);
-        $this->syncManifestUrl($object, $manifestUrl);
+        $this->objectLogger->record(
+            $object,
+            $before,
+            $object->getId() === null ? ObjectLogEntry::MANUAL_CREATE : ObjectLogEntry::MANUAL_UPDATE,
+            $this->getUser(),
+            $manifestUrl,
+        );
         $this->entityManager->flush();
 
         return true;
@@ -293,7 +314,7 @@ final class ObjectController extends AbstractController
 
         $manifest
             ->setManifestId($manifestUrl)
-            ->setSource($object->getSource() === ObjectRecord::SOURCE_DATAHUB ? IIIFManifest::SOURCE_DATAHUB : IIIFManifest::SOURCE_MANUAL)
+            ->setSource(IIIFManifest::SOURCE_MANUAL)
             ->setSourceUrl($manifestUrl)
             ->setTitle($object->getTitle())
             ->setData([]);
@@ -312,49 +333,21 @@ final class ObjectController extends AbstractController
     }
 
     /**
-     * @return list<ReportSeries>
+     * @return list<Report>
      */
-    private function reportSeriesForObject(ObjectRecord $object): array
+    private function reportsForObject(ObjectRecord $object): array
     {
         return $this->entityManager
-            ->getRepository(ReportSeries::class)
-            ->createQueryBuilder('series')
-            ->addSelect('project')
+            ->getRepository(Report::class)
+            ->createQueryBuilder('report')
+            ->addSelect('series', 'project')
+            ->join('report.series', 'series')
             ->leftJoin('series.project', 'project')
             ->andWhere('series.objectRecord = :object')
             ->setParameter('object', $object)
-            ->orderBy('series.updatedAt', 'DESC')
+            ->orderBy('report.createdAt', 'DESC')
+            ->addOrderBy('report.id', 'DESC')
             ->getQuery()
             ->getResult();
-    }
-
-    /**
-     * @return array<int, list<Report>>
-     */
-    private function reportsBySeriesForObject(ObjectRecord $object): array
-    {
-        $reports = $this->entityManager
-            ->getRepository(Report::class)
-            ->createQueryBuilder('report')
-            ->addSelect('series')
-            ->join('report.series', 'series')
-            ->andWhere('series.objectRecord = :object')
-            ->setParameter('object', $object)
-            ->orderBy('report.createdAt', 'ASC')
-            ->addOrderBy('report.id', 'ASC')
-            ->getQuery()
-            ->getResult();
-
-        $grouped = [];
-
-        foreach ($reports as $report) {
-            $seriesId = $report->getSeries()->getId();
-
-            if ($seriesId !== null) {
-                $grouped[$seriesId][] = $report;
-            }
-        }
-
-        return $grouped;
     }
 }

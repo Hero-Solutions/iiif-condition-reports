@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\ObjectRecord;
+use App\Entity\ObjectLogEntry;
 use App\Entity\Actor;
 use App\Entity\OrganizationContact;
 use App\Entity\Project;
@@ -15,6 +16,7 @@ use App\Entity\Report;
 use App\Entity\ReportSeries;
 use App\Form\ProjectType;
 use App\Service\ObjectThumbnailProvider;
+use App\Service\ObjectChangeLogger;
 use App\Service\ReportAuthorProvider;
 use App\Value\ActorRole;
 use Doctrine\ORM\EntityManagerInterface;
@@ -29,6 +31,7 @@ final class ProjectController extends AbstractController
         private readonly EntityManagerInterface $entityManager,
         private readonly ObjectThumbnailProvider $thumbnailProvider,
         private readonly ReportAuthorProvider $reportAuthorProvider,
+        private readonly ObjectChangeLogger $objectLogger,
     ) {
     }
 
@@ -265,9 +268,11 @@ final class ProjectController extends AbstractController
                 return $this->redirectToProject($project, $request);
             }
 
+            $before = $this->objectLogger->snapshot($object);
             $object
                 ->setObjectType($objectType)
                 ->setCustomObjectType($customObjectType);
+            $this->objectLogger->record($object, $before, ObjectLogEntry::MANUAL_UPDATE, $this->getUser());
         }
 
         $link = new ProjectObject($project, $object);
@@ -1093,8 +1098,8 @@ final class ProjectController extends AbstractController
             ->join('report.series', 'series')
             ->andWhere('series.project = :project')
             ->setParameter('project', $project)
-            ->orderBy('report.createdAt', 'ASC')
-            ->addOrderBy('report.id', 'ASC')
+            ->orderBy('report.createdAt', 'DESC')
+            ->addOrderBy('report.id', 'DESC')
             ->getQuery()
             ->getResult();
 

@@ -156,7 +156,7 @@ foreach ([Report::TYPE_QUICK_CHECK, Report::TYPE_INCOMING_CONDITION] as $documen
     $documentReport = (new Report($series, $documentType))->setReason('other')->setCustomReason('Transportcontrole')->setStartedAt(new DateTimeImmutable('2026-10-03'));
     $document = $twig->render('reports/_document.html.twig', [
         'app' => ['request' => $request], 'report' => $documentReport, 'object' => $object,
-        'reason_label' => $titles->reason($report), 'report_actors' => [], 'report_sections' => [],
+        'reason_label' => $titles->reason($report), 'report_actors' => [], 'report_context' => [], 'report_sections' => [],
         'report_images' => [], 'report_documents' => [], 'damage_annotations' => ['legend' => [], 'sources' => []],
     ]);
     check(str_contains($document, '<h1>Transportcontrole — 03/10/2026</h1>'), 'Document title is inconsistent.');

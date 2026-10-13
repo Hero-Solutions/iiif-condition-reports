@@ -146,7 +146,48 @@ projects:
   view_reports: 'View reports'
   empty_title: 'No projects yet'
   empty_text: 'Projects will be the main entry point for objects and reports.'
+object_log:
+  title: Log
+  manual_create: 'Object created'
+  manual_update: 'Manual change'
+  datahub_sync: 'Datahub sync'
+  empty: 'No changes logged yet.'
+  no_changes: 'No values changed.'
+  field: Field
+  old_value: Previous
+  new_value: New
+  newer: 'Newer events'
+  older: 'Older events'
+  custom_object_type: 'Custom object type'
+  thumbnail: Thumbnail
+  external_id: 'Datahub record ID'
+  datahub:
+    title_nl: 'Title (NL)'
+    title_en: 'Title (EN)'
+    creator_nl: 'Creator(s) (NL)'
+    creator_en: 'Creator(s) (EN)'
+    creator_role: 'Creator role'
+    publisher: 'Owner / lender'
+    object_type_nl: 'Object type (NL)'
+    object_type_en: 'Object type (EN)'
+    description_nl: 'Description (NL)'
+    description_en: 'Description (EN)'
+    current_location: 'Current location'
+    technique_nl: 'Technique (NL)'
+    technique_en: 'Technique (EN)'
+    earliest_date: 'Earliest date'
+    latest_date: 'Latest date'
+    date: Date
+    copyright: Rights
+    handling_nl: 'Handling (NL)'
+    handling_en: 'Handling (EN)'
+    iiif_manifest_url: 'IIIF manifest URL'
+    iiif_image_info_url: 'IIIF image URL'
+    thumbnail: Thumbnail
+
 objects:
+  datahub_image_readonly: 'This image comes from the Datahub and cannot be changed here.'
+  datahub_readonly_help: 'Datahub values are read-only. You can fill in missing information; once the Datahub provides it, it replaces your entries.'
   title: Objects
   new: 'New object'
   saved: 'Object saved.'
@@ -199,6 +240,7 @@ objects:
   max_100: 'Use at most 100 characters.'
   max_255: 'Use at most 255 characters.'
 reports:
+  object_notes: Notes
   title: Reports
   new: 'New report'
   saved: 'Report saved.'
@@ -367,7 +409,6 @@ reports:
   print_options: 'Print…'
   report_content: 'Report content'
   download_pdf: 'Download PDF'
-  inspection_period: Period
   presence: Presence
   finalized_by_on: 'Finalized by %name% on %date%.'
   draft_preview_notice: 'This is a draft preview, not a final report.'

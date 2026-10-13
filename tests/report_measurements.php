@@ -82,7 +82,7 @@ foreach (array_keys($measurements) as $type) {
 }
 
 $templates = [];
-foreach (['report_form_renderer', '_document', '_damage_annotations', 'pdf'] as $name) {
+foreach (['report_form_renderer', '_document', '_document_context', '_damage_annotations', 'pdf'] as $name) {
     $templates['reports/' . $name . '.html.twig'] = file_get_contents($root . '/templates/reports/' . $name . '.html.twig');
 }
 $templates['fixture'] = "{% import 'reports/report_form_renderer.html.twig' as form %}{{ form.render_measurements(measurements, data) }}";
@@ -108,7 +108,7 @@ foreach (['nl', 'en'] as $locale) {
         $documentReport = (new Report(new ReportSeries($object), $type))->setData($paintingData);
         $context = [
             'report' => $documentReport, 'object' => $object, 'app' => ['request' => ['locale' => $locale]],
-            'thumbnail_source' => null, 'room_label' => null, 'reason_label' => null, 'author_name' => 'Test', 'finalizer_name' => null,
+            'thumbnail_source' => null, 'report_context' => [], 'reason_label' => null, 'author_name' => 'Test', 'finalizer_name' => null,
             'report_actors' => [], 'report_image_sources' => [], 'report_documents' => [], 'damage_annotations' => ['legend' => [], 'sources' => []],
             'report_sections' => $builder->sections($documentReport, ['measurements' => $measurements['painting']]),
         ];

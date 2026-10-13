@@ -7,7 +7,9 @@ namespace App\Command;
 use App\Datahub\CurlHttpAdapter;
 use App\Entity\IIIFManifest;
 use App\Entity\ObjectManifest;
+use App\Entity\ObjectLogEntry;
 use App\Entity\ObjectRecord;
+use App\Service\ObjectChangeLogger;
 use Doctrine\ORM\EntityManagerInterface;
 use Phpoaipmh\Client;
 use Phpoaipmh\Endpoint;
@@ -35,6 +37,7 @@ final class HarvestDatahubObjectsCommand extends Command
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly ParameterBagInterface $parameters,
+        private readonly ObjectChangeLogger $objectLogger,
     ) {
         parent::__construct();
     }
@@ -416,13 +419,13 @@ final class HarvestDatahubObjectsCommand extends Command
     private function prepareData(SimpleXMLElement $data, string $recordIdentifier, array $config): ?array
     {
         $sourceData = $this->extractData($data, $config);
-        $inventoryNumber = $sourceData['id'] ?? $sourceData['fallback_id'] ?? null;
+        $inventoryNumber = trim($sourceData['id'] ?? '');
 
-        if ($inventoryNumber === null || trim($inventoryNumber) === '') {
+        if ($inventoryNumber === '' || mb_strlen($inventoryNumber) > 100) {
             return null;
         }
 
-        unset($sourceData['id'], $sourceData['fallback_id']);
+        unset($sourceData['id']);
 
         $this->normalizeDates($sourceData);
         $this->normalizeImageData($sourceData, $config['placeholder_images']);
@@ -451,38 +454,31 @@ final class HarvestDatahubObjectsCommand extends Command
 
         $object = $this->objectCache[$inventoryNumber] ?? null;
         $result = $object instanceof ObjectRecord ? 'updated' : 'created';
+        $before = $object instanceof ObjectRecord
+            ? $this->objectLogger->snapshot($object, ($this->objectManifestCache[$inventoryNumber] ?? null)?->getManifest()->getManifestId() ?? '')
+            : [];
 
         if (!$object instanceof ObjectRecord) {
-            $object = new ObjectRecord($inventoryNumber, $this->firstText($sourceData, ['title_nl', 'title_en'], $inventoryNumber));
+            $object = new ObjectRecord($inventoryNumber, $inventoryNumber);
             $this->objectCache[$inventoryNumber] = $object;
-        }
-
-        if ($object->getSyncStatus() === ObjectRecord::SYNC_LOCAL_CHANGES) {
-            $object->setSourceData($sourceData);
-            $this->entityManager->persist($object);
-            $this->syncObjectManifest($object, $sourceData);
-
-            return $result;
         }
 
         $object->applyDatahubSync(
             inventoryNumber: $inventoryNumber,
             externalId: $recordIdentifier !== '' ? $recordIdentifier : $inventoryNumber,
             sourceData: $sourceData,
-            title: $this->firstText($sourceData, ['title_nl', 'title_en'], $inventoryNumber),
-            creator: $this->firstText($sourceData, ['creator_nl', 'creator_en']),
-            publisher: $this->firstText($sourceData, ['publisher']),
-            objectType: ObjectRecord::guessObjectTypeFromDatahub(
-                $this->firstText($sourceData, ['object_type_nl']),
-                $this->firstText($sourceData, ['object_type_en']),
-            ),
-            description: $this->firstText($sourceData, ['description_nl', 'description_en']),
-            currentLocation: $this->firstText($sourceData, ['current_location']),
             syncedAt: $syncedAt,
         );
 
         $this->entityManager->persist($object);
         $this->syncObjectManifest($object, $sourceData);
+        $this->objectLogger->record(
+            $object,
+            $before,
+            ObjectLogEntry::DATAHUB_SYNC,
+            manifestUrl: ($this->objectManifestCache[$inventoryNumber] ?? null)?->getManifest()->getManifestId() ?? '',
+            createdAt: $syncedAt,
+        );
 
         return $result;
     }
@@ -545,7 +541,7 @@ final class HarvestDatahubObjectsCommand extends Command
         $currentLink = $this->objectManifestCache[$inventoryNumber] ?? null;
 
         if ($manifestUrl === '') {
-            if ($currentLink instanceof ObjectManifest && $currentLink->getManifest()->getSource() === IIIFManifest::SOURCE_DATAHUB) {
+            if ($currentLink instanceof ObjectManifest && $object->isDatahubField('image')) {
                 $this->entityManager->remove($currentLink);
                 unset($this->objectManifestCache[$inventoryNumber]);
             }
@@ -768,19 +764,6 @@ final class HarvestDatahubObjectsCommand extends Command
         } else {
             $skipped++;
         }
-    }
-
-    private function firstText(array $data, array $keys, ?string $fallback = null): ?string
-    {
-        foreach ($keys as $key) {
-            $value = $this->cleanValue($data[$key] ?? null);
-
-            if ($value !== null) {
-                return $value;
-            }
-        }
-
-        return $fallback;
     }
 
     private function cleanValue(mixed $value): ?string

@@ -4,7 +4,9 @@
 
 {% block javascripts %}
     {{ parent() }}
-    <script src="/js/object-image-preview.js?v=3" defer></script>
+    {% if not form.imageUpload.vars.disabled %}
+        <script src="/js/object-image-preview.js?v=4" defer></script>
+    {% endif %}
 {% endblock %}
 
 {% block body %}
@@ -55,12 +57,10 @@
 
         <section class="panel">
             {% set object_has_draft = false %}
-            {% for series in report_series %}
-                {% for object_report in reports_by_series[series.id]|default([]) %}
-                    {% if object_report.status == constant('App\\Entity\\Report::STATUS_ACTIVE') %}
-                        {% set object_has_draft = true %}
-                    {% endif %}
-                {% endfor %}
+            {% for object_report in reports %}
+                {% if object_report.status == constant('App\\Entity\\Report::STATUS_ACTIVE') %}
+                    {% set object_has_draft = true %}
+                {% endif %}
             {% endfor %}
             <div class="object-card-report-overview standalone-report-overview">
                 <div class="object-card-report-heading">
@@ -74,26 +74,25 @@
                     <div class="object-report-empty">{{ 'report_series.empty_for_object'|trans }}</div>
                 {% else %}
                     <ul class="object-report-list">
-                        {% for series in report_series %}
-                            {% for object_report in reports_by_series[series.id]|default([]) %}
-                                {% set report_route = object_report.editable and not is_granted('ROLE_READ_ONLY') ? 'reports_edit' : 'reports_show' %}
-                                <li>
-                                    <a href="{{ path(report_route, {'_locale': app.request.locale, id: object_report.id}) }}">{{ object_report|report_title }}</a>
-                                    <span class="object-report-date">{{ object_report.createdAt|date('Y-m-d H:i') }}</span>
-                                    <span class="object-report-author">{{ report_author_names[object_report.id]|default('reports.unknown_reporter'|trans) }}</span>
-                                    <span class="object-report-project {{ series.project ? '' : 'muted' }}">{{ series.project ? series.project.title : 'reports.no_project'|trans }}</span>
-                                    <span class="object-report-status chip chip-{{ {'active': 'accent', 'finalized': 'success', 'archived': 'muted'}[object_report.status]|default('muted') }}">{{ ('status.' ~ object_report.status)|trans }}</span>
-                                    {% if not is_granted('ROLE_READ_ONLY') and (object_report.status == constant('App\\Entity\\Report::STATUS_ACTIVE') or is_granted('ROLE_ADMIN')) %}
-                                        <form class="object-report-delete-form" method="post" action="{{ path('reports_delete', {'_locale': app.request.locale, id: object_report.id}) }}" onsubmit="return confirm('{{ 'reports.confirm_delete_any'|trans({'%title%': object_report|report_title})|e('js') }}');">
-                                            <input type="hidden" name="_token" value="{{ csrf_token('report_delete_' ~ object_report.id) }}">
-                                            <input type="hidden" name="return_to" value="object">
-                                            <button type="submit" class="button danger icon-button report-delete-button" aria-label="{{ 'actions.delete'|trans }}" title="{{ 'actions.delete'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg></button>
-                                        </form>
-                                    {% else %}
-                                        <span class="object-report-action-spacer"></span>
-                                    {% endif %}
-                                </li>
-                            {% endfor %}
+                        {% for object_report in reports %}
+                            {% set series = object_report.series %}
+                            {% set report_route = object_report.editable and not is_granted('ROLE_READ_ONLY') ? 'reports_edit' : 'reports_show' %}
+                            <li>
+                                <a href="{{ path(report_route, {'_locale': app.request.locale, id: object_report.id}) }}">{{ object_report|report_title }}</a>
+                                <span class="object-report-date">{{ object_report.createdAt|date('Y-m-d H:i') }}</span>
+                                <span class="object-report-author">{{ report_author_names[object_report.id]|default('reports.unknown_reporter'|trans) }}</span>
+                                <span class="object-report-project {{ series.project ? '' : 'muted' }}">{{ series.project ? series.project.title : 'reports.no_project'|trans }}</span>
+                                <span class="object-report-status chip chip-{{ {'active': 'accent', 'finalized': 'success', 'archived': 'muted'}[object_report.status]|default('muted') }}">{{ ('status.' ~ object_report.status)|trans }}</span>
+                                {% if not is_granted('ROLE_READ_ONLY') and (object_report.status == constant('App\\Entity\\Report::STATUS_ACTIVE') or is_granted('ROLE_ADMIN')) %}
+                                    <form class="object-report-delete-form" method="post" action="{{ path('reports_delete', {'_locale': app.request.locale, id: object_report.id}) }}" onsubmit="return confirm('{{ 'reports.confirm_delete_any'|trans({'%title%': object_report|report_title})|e('js') }}');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('report_delete_' ~ object_report.id) }}">
+                                        <input type="hidden" name="return_to" value="object">
+                                        <button type="submit" class="button danger icon-button report-delete-button" aria-label="{{ 'actions.delete'|trans }}" title="{{ 'actions.delete'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg></button>
+                                    </form>
+                                {% else %}
+                                    <span class="object-report-action-spacer"></span>
+                                {% endif %}
+                            </li>
                         {% endfor %}
                     </ul>
                 {% endif %}
@@ -103,6 +102,9 @@
 
     <section class="panel">
         {{ form_start(form, {'attr': {'class': 'object-edit-form'}}) }}
+            {% if object.source == constant('App\\Entity\\ObjectRecord::SOURCE_DATAHUB') %}
+                <p class="muted">{{ 'objects.datahub_readonly_help'|trans }}</p>
+            {% endif %}
             <div class="object-form-grid">
                 <div class="object-form-field">
                     {{ form_row(form.inventoryNumber) }}
@@ -132,46 +134,70 @@
             <div class="object-image-fields object-form-grid">
                 <div class="object-form-field-wide">
                     <h2>{{ 'objects.image'|trans }}</h2>
-                    <p class="muted">{{ 'objects.image_help'|trans }}</p>
+                    {% if not form.imageUpload.vars.disabled %}
+                        <p class="muted">{{ 'objects.image_help'|trans }}</p>
+                    {% endif %}
                 </div>
-                <div class="object-image-manifest-field">
-                    {{ form_label(form.iiifManifestUrl) }}
-                    <div class="object-image-url-control">
-                        {{ form_widget(form.iiifManifestUrl, {'attr': {'data-object-manifest-url': '1'}}) }}
-                        <button type="button" class="secondary" data-object-manifest-load>{{ 'objects.image_load'|trans }}</button>
+                {% if form.imageUpload.vars.disabled %}
+                    <div class="object-form-field-wide">
+                        <p class="muted">{{ 'objects.datahub_image_readonly'|trans }}</p>
                     </div>
-                    {{ form_errors(form.iiifManifestUrl) }}
-                </div>
-                <div class="object-image-url-field">
-                    {{ form_label(form.externalImageUrl) }}
-                    <div class="object-image-url-control">
-                        {{ form_widget(form.externalImageUrl, {'attr': {'data-object-image-url': '1'}}) }}
-                        <button type="button" class="secondary" data-object-image-load>{{ 'objects.image_load'|trans }}</button>
+                    {% if form.iiifManifestUrl.vars.value %}
+                        <div class="object-form-field object-form-field-wide">
+                            {{ form_row(form.iiifManifestUrl) }}
+                        </div>
+                    {% else %}
+                        {% do form.iiifManifestUrl.setRendered() %}
+                    {% endif %}
+                    {% if thumbnail_url|default('') %}
+                        <div class="object-image-preview object-form-field-wide">
+                            <div class="object-image-preview-frame">
+                                <img src="{{ thumbnail_url }}" alt="{{ 'objects.image_preview'|trans }}">
+                            </div>
+                        </div>
+                    {% endif %}
+                    {% do form.externalImageUrl.setRendered() %}
+                    {% do form.imageUpload.setRendered() %}
+                {% else %}
+                    <div class="object-image-manifest-field">
+                        {{ form_label(form.iiifManifestUrl) }}
+                        <div class="object-image-url-control">
+                            {{ form_widget(form.iiifManifestUrl, {'attr': {'data-object-manifest-url': '1'}}) }}
+                            <button type="button" class="secondary" data-object-manifest-load disabled>{{ 'objects.image_load'|trans }}</button>
+                        </div>
+                        {{ form_errors(form.iiifManifestUrl) }}
                     </div>
-                    {{ form_errors(form.externalImageUrl) }}
-                </div>
-                <div class="object-form-field object-form-field-wide">
-                    {{ form_row(form.imageUpload) }}
-                </div>
-                <div
-                    class="object-image-preview object-form-field-wide"
-                    data-object-image-preview
-                    data-initial-url="{{ thumbnail_url|default('') }}"
-                    data-loading-message="{{ 'objects.image_preview_loading'|trans }}"
-                    data-error-message="{{ 'objects.image_preview_failed'|trans }}"
-                    data-manifest-error-message="{{ 'objects.iiif_preview_failed'|trans }}"
-                    hidden
-                >
-                    <span class="object-image-preview-label">{{ 'objects.image_preview'|trans }}</span>
-                    <div class="object-image-preview-frame">
-                        <img
-                            data-object-image-preview-image
-                            alt="{{ 'objects.image_preview'|trans }}"
-                            hidden
-                        >
-                        <span data-object-image-preview-status role="status" hidden></span>
+                    <div class="object-image-url-field">
+                        {{ form_label(form.externalImageUrl) }}
+                        <div class="object-image-url-control">
+                            {{ form_widget(form.externalImageUrl, {'attr': {'data-object-image-url': '1'}}) }}
+                            <button type="button" class="secondary" data-object-image-load disabled>{{ 'objects.image_load'|trans }}</button>
+                        </div>
+                        {{ form_errors(form.externalImageUrl) }}
                     </div>
-                </div>
+                    <div class="object-form-field object-form-field-wide">
+                        {{ form_row(form.imageUpload) }}
+                    </div>
+                    <div
+                        class="object-image-preview object-form-field-wide"
+                        data-object-image-preview
+                        data-initial-url="{{ thumbnail_url|default('') }}"
+                        data-loading-message="{{ 'objects.image_preview_loading'|trans }}"
+                        data-error-message="{{ 'objects.image_preview_failed'|trans }}"
+                        data-manifest-error-message="{{ 'objects.iiif_preview_failed'|trans }}"
+                        hidden
+                    >
+                        <span class="object-image-preview-label">{{ 'objects.image_preview'|trans }}</span>
+                        <div class="object-image-preview-frame">
+                            <img
+                                data-object-image-preview-image
+                                alt="{{ 'objects.image_preview'|trans }}"
+                                hidden
+                            >
+                            <span data-object-image-preview-status role="status" hidden></span>
+                        </div>
+                    </div>
+                {% endif %}
             </div>
 
             <div class="form-actions">
@@ -181,34 +207,6 @@
     </section>
 
     {% if not is_new %}
-        <section class="panel object-meta">
-            <h2>{{ 'objects.metadata'|trans }}</h2>
-            <dl>
-                <dt>{{ 'objects.source'|trans }}</dt>
-                <dd>{{ ('source.' ~ object.source)|trans }}</dd>
-
-                <dt>{{ 'objects.sync_status'|trans }}</dt>
-                <dd>{{ ('sync_status.' ~ object.syncStatus)|trans }}</dd>
-
-                <dt>{{ 'objects.last_synced'|trans }}</dt>
-                <dd>{{ object.lastSyncedAt ? object.lastSyncedAt|date('Y-m-d H:i') : '-' }}</dd>
-            </dl>
-        </section>
-
-        {% if source_data is not empty %}
-            <section class="panel">
-                <h2>{{ 'objects.source_data'|trans }}</h2>
-                <table class="data-table">
-                    <tbody>
-                        {% for key, value in source_data %}
-                            <tr>
-                                <th>{{ key }}</th>
-                                <td>{{ value is iterable ? value|json_encode : value|nl2br }}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </section>
-        {% endif %}
+        {% include 'objects/_log.html.twig' %}
     {% endif %}
 {% endblock %}

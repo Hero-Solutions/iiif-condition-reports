@@ -335,30 +335,70 @@ class ObjectRecord
         string $inventoryNumber,
         string $externalId,
         array $sourceData,
-        ?string $title = null,
-        ?string $creator = null,
-        ?string $publisher = null,
-        ?string $objectType = null,
-        ?string $description = null,
-        ?string $currentLocation = null,
         ?\DateTimeImmutable $syncedAt = null,
     ): self {
-        $this->inventoryNumber = mb_substr(trim($inventoryNumber), 0, 100);
-        $this->title = $this->shortText($title, 255) ?? $this->inventoryNumber;
-        $this->creator = $this->nullableText($creator);
-        $this->publisher = $this->shortText($publisher, 255);
-        $this->objectType = self::normalizeObjectType($objectType);
-        $this->customObjectType = null;
-        $this->currentLocation = $this->shortText($currentLocation, 255);
-        $this->description = $this->nullableText($description);
         $this->source = self::SOURCE_DATAHUB;
         $this->externalId = $this->shortText($externalId, 255);
         $this->sourceData = $sourceData;
+        $this->inventoryNumber = trim($inventoryNumber);
+        $this->title = $this->shortText($this->datahubValue('title'), 255) ?? $this->title;
+        $this->creator = $this->datahubValue('creator') ?? $this->creator;
+        $this->publisher = $this->shortText($this->datahubValue('publisher'), 255) ?? $this->publisher;
+        $this->currentLocation = $this->shortText($this->datahubValue('currentLocation'), 255) ?? $this->currentLocation;
+        $this->description = $this->datahubValue('description') ?? $this->description;
+
+        if ($this->datahubValue('objectType') !== null) {
+            $this->objectType = self::guessObjectTypeFromDatahub(
+                $sourceData['object_type_nl'] ?? null,
+                $sourceData['object_type_en'] ?? null,
+            ) ?? self::TYPE_OTHER;
+            $this->customObjectType = $this->objectType === self::TYPE_OTHER
+                ? $this->shortText($this->datahubValue('objectType'), 100)
+                : null;
+        }
+
+        // An imported image takes precedence over a manually supplied image.
+        if ($this->isDatahubField('image')) {
+            $this->imageUrl = null;
+            $this->thumbnailUrl = null;
+            $this->externalImageUrl = null;
+        }
+
         $this->syncStatus = self::SYNC_SYNCED;
         $this->lastSyncedAt = $syncedAt ?? new \DateTimeImmutable();
         $this->touch();
 
         return $this;
+    }
+
+    public function isDatahubField(string $field): bool
+    {
+        return $this->source === self::SOURCE_DATAHUB
+            && ($field === 'inventoryNumber' || $this->datahubValue($field) !== null);
+    }
+
+    private function datahubValue(string $field): ?string
+    {
+        $keys = match ($field) {
+            'title' => ['title_nl', 'title_en'],
+            'creator' => ['creator_nl', 'creator_en'],
+            'publisher' => ['publisher'],
+            'objectType' => ['object_type_nl', 'object_type_en'],
+            'currentLocation' => ['current_location'],
+            'description' => ['description_nl', 'description_en'],
+            'image' => ['iiif_manifest_url', 'iiif_image_info_url'],
+            default => [],
+        };
+
+        foreach ($keys as $key) {
+            $value = $this->nullableText($this->sourceData[$key] ?? null);
+
+            if ($value !== null) {
+                return $value;
+            }
+        }
+
+        return null;
     }
 
     public function getSourceData(): array

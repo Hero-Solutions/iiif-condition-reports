@@ -11,8 +11,6 @@ parameters:
         data_definition:
             id:
                 xpath: 'descriptiveMetadata[@xml:lang="{language}"]/objectIdentificationWrap/repositoryWrap/repositorySet/workID[@type="object-number"]'
-            fallback_id:
-                xpath: 'administrativeMetadata[@xml:lang="{language}"]/recordWrap/recordID[@type="local"]'
             title_nl:
                 xpath: 'descriptiveMetadata[@xml:lang="{language}"]/objectIdentificationWrap/titleWrap/titleSet/appellationValue[@xml:lang="nl"]'
             title_en:

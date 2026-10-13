@@ -32,7 +32,8 @@ final class ObjectRecordType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $publisher = $options['data'] instanceof ObjectRecord ? $options['data']->getPublisher() : null;
+        $object = $options['data'] instanceof ObjectRecord ? $options['data'] : null;
+        $publisher = $object?->getPublisher();
         $publisherChoice = $publisher === null ? null : '__custom__';
 
         foreach ($options['actors'] as $actor) {
@@ -173,7 +174,21 @@ final class ObjectRecordType extends AbstractType
                 ],
             ]);
 
+        foreach ($builder->all() as $name => $field) {
+            $sourceField = match ($name) {
+                'publisherChoice' => 'publisher',
+                'customObjectType' => 'objectType',
+                'iiifManifestUrl', 'externalImageUrl', 'imageUpload' => 'image',
+                default => $name,
+            };
+            $field->setDisabled($object?->isDatahubField($sourceField) ?? false);
+        }
+
         $builder->addEventListener(FormEvents::SUBMIT, static function (FormEvent $event): void {
+            if ($event->getForm()->get('publisherChoice')->isDisabled()) {
+                return;
+            }
+
             $object = $event->getData();
             $publisherChoice = $event->getForm()->get('publisherChoice')->getData();
             $publisher = $publisherChoice instanceof Actor

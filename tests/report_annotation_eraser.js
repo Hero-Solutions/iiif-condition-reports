@@ -1,4 +1,4 @@
-// Isolated eraser regression checks. No application server, environment files or network.
+// Isolated drawing style and eraser regression checks. No server, environment files or network.
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
@@ -82,7 +82,10 @@ function setup(cases = []) {
     controller.ensureDamageCase = async function(label, color, strokeWidth) {
         this.ensureCalls.push({ label, color, strokeWidth });
         const found = this.findDamageCaseByLabel(label);
-        if (found) return found;
+        if (found) {
+            if (!this.hasDamageDrawings(found)) Object.assign(found, { color, strokeWidth });
+            return found;
+        }
         const damageCase = { id: this.damageCases.length + 1, label, color, strokeWidth };
         this.damageCases.push(damageCase);
         this.damageCasesById.set(damageCase.id, damageCase);
@@ -173,6 +176,158 @@ function fixture() {
 const points = [[30, 30], [35, 35]];
 const selector = record => JSON.stringify(record.annotation.target.selector);
 (async () => {
+    for (const order of [
+        ['damage', 'color', 'width'], ['damage', 'width', 'color'],
+        ['color', 'damage', 'width'], ['color', 'width', 'damage'],
+        ['width', 'damage', 'color'], ['width', 'color', 'damage'],
+    ]) {
+        const controller = setup();
+        const chosen = new Set();
+        assert.equal(controller.selectedStrokeWidth(), 2.2, 'The first session defaults to medium.');
+        for (const step of order) {
+            select[step](controller);
+            chosen.add(step);
+            await settle();
+            assert.equal(controller.mode, chosen.has('damage') && chosen.has('color') ? 'draw' : null);
+        }
+        assert.equal(controller.activeStrokeWidth, 3.4);
+        assert.ok(controller.colorButtons.every(button => !button.disabled), 'Color stays editable before the first line.');
+        assert.ok(controller.strokeWidthButtons.every(button => !button.disabled), 'Width stays editable before the first line.');
+        controller.finishDrawing();
+        assert.equal(controller.activeStrokeWidth, null);
+        assert.equal(controller.selectedStrokeWidth(), 3.4, 'Finishing retains the last chosen width.');
+        assert.ok(controller.colorButtons.every(button => !button.disabled));
+        assert.ok(controller.strokeWidthButtons.every(button => !button.disabled));
+    }
+
+    const styles = fixture();
+    const drawing = styles.controller;
+    const prior = styles.add('prior', 'another-image');
+    drawing.ensureDamageCase = Workbench.prototype.ensureDamageCase.bind(drawing);
+    drawing.viewer.viewport = { imageToViewerElementCoordinates: point => point };
+    drawing.selectDamageValue('Kras');
+    await settle();
+    assert.equal(drawing.mode, 'draw', 'An existing case starts with the selected default width.');
+    assert.equal(drawing.activeStrokeWidth, 2.2);
+    assert.equal(drawing.selectedColor(), '#3567a9');
+    assert.ok(drawing.colorButtons.every(button => button.disabled), 'Drawings on any image lock the shared color.');
+    assert.ok(drawing.strokeWidthButtons.every(button => !button.disabled));
+    drawing.colorButtons[0].emit('click');
+    assert.equal(drawing.selectedColor(), '#3567a9', 'A disabled color cannot change.');
+    drawing.strokeWidthButtons[0].emit('click');
+    assert.ok(drawing.strokeWidthButtons.every(button => button.disabled), 'Choices lock while drawing starts.');
+    await settle();
+    assert.equal(drawing.mode, 'draw');
+    assert.equal(drawing.activeStrokeWidth, 1.4);
+    assert.ok(Math.abs(drawing.previewScreenHalfWidth() - 1.4) < 0.001, 'Preview uses the session width.');
+
+    drawing.screenPoint = () => [20, 20];
+    drawing.imagePoint = () => [20, 20];
+    drawing.drawingLayer.setPointerCapture = () => {};
+    drawing.drawingLayer.hasPointerCapture = () => false;
+    const pointer = { pointerId: 1, pointerType: 'mouse', button: 0, preventDefault() {} };
+    drawing.onPointerDown(pointer);
+    assert.ok(drawing.strokeWidthButtons.every(button => button.disabled), 'A stroke in progress locks the width.');
+    drawing.onPointerCancel(pointer);
+    assert.ok(drawing.strokeWidthButtons.every(button => !button.disabled), 'A cancelled pointer gesture unlocks it again.');
+
+    const persistStyleDrawing = drawing.persistAnnotation;
+    let releaseDrawing;
+    drawing.persistAnnotation = (...args) => new Promise(resolve => {
+        releaseDrawing = async () => resolve(await persistStyleDrawing(...args));
+    });
+    const savingDrawing = drawing.createDrawing([[20, 20], [100, 20]]);
+    assert.ok(drawing.strokeWidthButtons.every(button => button.disabled), 'Pending lines also lock the style.');
+    drawing.strokeWidthButtons[2].emit('click');
+    drawing.colorButtons[0].emit('click');
+    assert.equal(drawing.selectedStrokeWidth(), 1.4);
+    assert.equal(drawing.selectedColor(), '#3567a9');
+    await releaseDrawing();
+    await savingDrawing;
+    drawing.persistAnnotation = persistStyleDrawing;
+    const thin = structuredClone(styles.server.get(drawing.sessionDrawingIds[0]));
+    assert.ok(Math.abs(thin.annotation.target.selector.geometry.bounds.maxY - 21.4) < 0.001);
+    drawing.finishDrawing();
+    drawing.selectDamageValue('Kras');
+    await settle();
+    assert.equal(drawing.mode, 'draw');
+    assert.equal(drawing.selectedStrokeWidth(), 1.4, 'The next session reuses the last chosen width.');
+    assert.equal(drawing.activeStrokeWidth, 1.4);
+    assert.ok(drawing.colorButtons.every(button => button.disabled));
+    drawing.strokeWidthButtons[2].emit('click');
+    await settle();
+    assert.equal(drawing.activeStrokeWidth, 3.4);
+    assert.ok(Math.abs(drawing.previewScreenHalfWidth() - 3.4) < 0.001);
+    await drawing.createDrawing([[20, 20], [100, 20]]);
+    const thick = structuredClone(styles.server.get(drawing.sessionDrawingIds[0]));
+    assert.ok(Math.abs(thick.annotation.target.selector.geometry.bounds.maxY - 23.4) < 0.001);
+    assert.equal(selector(styles.server.get(thin.clientId)), selector(thin), 'Earlier lines retain their geometry.');
+    assert.equal(selector(styles.server.get(prior.clientId)), selector(prior));
+    assert.equal(drawing.damageCases[0].strokeWidth, 2.2, 'The legend symbol width stays unchanged.');
+    assert.equal(drawing.styleForAnnotation(thin.annotation).fill, drawing.styleForAnnotation(thick.annotation).fill);
+    drawing.damageCases[0].color = '#d13b3b'; // Same shared update as saving a legend color.
+    assert.equal(drawing.styleForAnnotation(thin.annotation).fill, '#d13b3b');
+    assert.equal(drawing.styleForAnnotation(thick.annotation).fill, '#d13b3b');
+    await drawing.undoLastDrawing();
+    assert.ok(styles.server.get(thick.clientId).deleted);
+    assert.equal(selector(styles.server.get(thin.clientId)), selector(thin));
+    assert.ok(drawing.strokeWidthButtons.every(button => !button.disabled), 'Undoing every session line unlocks the width.');
+    assert.ok(drawing.colorButtons.every(button => button.disabled), 'Older case lines still lock the shared color.');
+    drawing.finishDrawing();
+    drawing.selectDamageValue('Nieuw schadegeval');
+    assert.ok(drawing.colorButtons.every(button => !button.disabled), 'A different, new case can choose its color.');
+
+    const emptyFixture = fixture();
+    const empty = emptyFixture.controller;
+    empty.ensureDamageCase = Workbench.prototype.ensureDamageCase.bind(empty);
+    empty.workbench.dataset.damageCaseUrl = '/fixture/damage-cases';
+    const requests = [];
+    context.requestJson = async (url, options) => {
+        assert.equal(url, '/fixture/damage-cases/1');
+        assert.equal(options.method, 'PATCH');
+        requests.push(options.body);
+        return { ...empty.damageCases[0], ...options.body };
+    };
+    empty.selectDamageValue('Kras');
+    await settle();
+    assert.ok(empty.colorButtons.every(button => !button.disabled), 'An empty case can still change its color.');
+    empty.colorButtons[0].emit('click');
+    await settle();
+    assert.equal(empty.activeDamageCase.color, '#d13b3b', 'Color changes after drawing mode starts but before a line.');
+    empty.strokeWidthButtons[0].emit('click');
+    await settle();
+    assert.equal(JSON.stringify(requests), JSON.stringify([
+        { color: '#d13b3b', strokeWidth: 2.2 }, { color: '#d13b3b', strokeWidth: 1.4 },
+    ]));
+    assert.equal(empty.activeDamageCase.color, '#d13b3b');
+    assert.equal(empty.activeStrokeWidth, 1.4);
+    empty.finishDrawing();
+    empty.selectDamageValue('Kras');
+    await settle();
+    context.requestJson = async () => { throw new Error('Saving failed'); };
+    empty.strokeWidthButtons[2].emit('click');
+    await settle();
+    assert.equal(empty.mode, null, 'A failed request never starts drawing.');
+    assert.ok(empty.colorButtons.every(button => !button.disabled));
+    assert.ok(empty.strokeWidthButtons.every(button => !button.disabled));
+    assert.equal(empty.damageCases[0].strokeWidth, 1.4, 'Failure preserves the saved style.');
+
+    const failedLine = fixture();
+    failedLine.controller.selectDamageValue('Kras');
+    await settle();
+    const persistLine = failedLine.controller.persistAnnotation;
+    failedLine.controller.persistAnnotation = async () => { throw new Error('Drawing failed'); };
+    await assert.rejects(failedLine.controller.createDrawing([[20, 20]]), /Drawing failed/);
+    assert.ok(failedLine.controller.colorButtons.every(button => !button.disabled));
+    assert.ok(failedLine.controller.strokeWidthButtons.every(button => !button.disabled));
+    failedLine.controller.persistAnnotation = persistLine;
+    await failedLine.controller.createDrawing([[20, 20]]);
+    assert.ok(failedLine.controller.colorButtons.every(button => button.disabled));
+    assert.ok(failedLine.controller.strokeWidthButtons.every(button => button.disabled));
+    await failedLine.controller.undoLastDrawing();
+    assert.ok(failedLine.controller.colorButtons.every(button => !button.disabled), 'An empty case can change color again after undo.');
+    assert.ok(failedLine.controller.strokeWidthButtons.every(button => !button.disabled));
+
     const hover = fixture();
     hover.add('hover');
     const c = hover.controller;
@@ -356,5 +511,5 @@ const selector = record => JSON.stringify(record.annotation.target.selector);
     assert.equal(f.controller.strokeWidths.inert, false);
     assert.equal(f.controller.eraserWidths.inert, true);
     assert.equal(f.controller.legend.inert, false);
-    console.log('PASS: hover cursor visibility, position, size and zoom; erase/undo persistence, full deletion, split fragments, lost responses, multiple targets, repeated undo, no-op strokes, retry after failure, busy guards and mode controls.');
+    console.log('PASS: per-session widths, unchanged earlier geometry, shared color locks, cancelled sessions and style save failures; hover cursor visibility, position, size and zoom; erase/undo persistence, full deletion, split fragments, lost responses, multiple targets, repeated undo, no-op strokes, retry after failure, busy guards and mode controls.');
 })().catch(error => { console.error(error); process.exitCode = 1; });

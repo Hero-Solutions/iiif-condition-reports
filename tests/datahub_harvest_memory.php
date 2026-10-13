@@ -41,6 +41,8 @@ namespace {
     use App\Entity\IIIFManifest;
     use App\Entity\ObjectManifest;
     use App\Entity\ObjectRecord;
+    use App\Entity\ObjectLogEntry;
+    use App\Service\ObjectChangeLogger;
     use Doctrine\DBAL\DriverManager;
     use Doctrine\ORM\EntityManager;
     use Doctrine\ORM\Mapping\UnderscoreNamingStrategy;
@@ -76,7 +78,7 @@ namespace {
         $manager = new EntityManager($connection, $config);
         (new SchemaTool($manager))->createSchema(array_map(
             $manager->getClassMetadata(...),
-            [ObjectRecord::class, IIIFManifest::class, ObjectManifest::class],
+            [ObjectRecord::class, IIIFManifest::class, ObjectManifest::class, ObjectLogEntry::class],
         ));
 
         return $manager;
@@ -122,7 +124,7 @@ namespace {
             'placeholder_images' => [],
             'data_definition' => ['id' => ['xpath' => 'workID'], 'title_nl' => ['xpath' => 'title']],
         ]]);
-        $command = new HarvestDatahubObjectsCommand($manager, $parameters);
+        $command = new HarvestDatahubObjectsCommand($manager, $parameters, new ObjectChangeLogger($manager));
         $input = new ArrayInput($limit === null ? [] : ['--limit' => $limit]);
         $output = new BufferedOutput();
         $status = $command->run($input, $output);
@@ -137,6 +139,7 @@ namespace {
     $log = harvest($manager, 6701);
     check(str_contains($log, 'Nieuw: 6701, bijgewerkt: 0, overgeslagen: 0.'), 'Incorrect full-harvest counts.');
     check((int) $manager->getConnection()->fetchOne('SELECT COUNT(*) FROM object_records') === 6701, 'Full harvest incomplete.');
+    check((int) $manager->getConnection()->fetchOne('SELECT COUNT(*) FROM object_log_entries') === 6701, 'Every imported object needs a sync log.');
     $object = $manager->getRepository(ObjectRecord::class)->findOneBy(['inventoryNumber' => 'INV-1']);
     $object->setTitle('Local title');
     $manager->flush();
@@ -144,7 +147,14 @@ namespace {
     $log = harvest($manager, 6701, limit: 27);
     check(str_contains($log, 'Nieuw: 0, bijgewerkt: 27, overgeslagen: 0.'), 'Incorrect rerun counts.');
     check((int) $manager->getConnection()->fetchOne('SELECT COUNT(*) FROM object_records') === 6701, 'Rerun created duplicates.');
-    check($manager->getRepository(ObjectRecord::class)->findOneBy(['inventoryNumber' => 'INV-1'])->getTitle() === 'Local title', 'Local changes overwritten.');
+    check((int) $manager->getConnection()->fetchOne('SELECT COUNT(*) FROM object_log_entries') === 6728, 'Reruns must log unchanged syncs too.');
+    check($manager->getRepository(ObjectRecord::class)->findOneBy(['inventoryNumber' => 'INV-1'])->getTitle() === 'Fixture 1', 'Datahub must overwrite local changes.');
+    $updatedObject = $manager->getRepository(ObjectRecord::class)->findOneBy(['inventoryNumber' => 'INV-1']);
+    $syncEntry = $manager->getRepository(ObjectLogEntry::class)->findOneBy(['objectRecord' => $updatedObject], ['createdAt' => 'DESC', 'id' => 'DESC']);
+    check($syncEntry->getType() === ObjectLogEntry::DATAHUB_SYNC && $syncEntry->getChanges()['title'] === ['old' => 'Local title', 'new' => 'Fixture 1'], 'The harvest must log the values it replaced.');
+    $unchangedObject = $manager->getRepository(ObjectRecord::class)->findOneBy(['inventoryNumber' => 'INV-2']);
+    $syncEntry = $manager->getRepository(ObjectLogEntry::class)->findOneBy(['objectRecord' => $unchangedObject], ['createdAt' => 'DESC', 'id' => 'DESC']);
+    check($syncEntry->getChanges() === [], 'An unchanged harvest must not fabricate field changes.');
     $manager->getConnection()->close();
     unset($manager, $object);
 

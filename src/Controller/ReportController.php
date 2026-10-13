@@ -746,6 +746,7 @@ final class ReportController extends AbstractController
             'report_types' => Report::typeChoices(),
             'report_reasons' => $this->formDefinition->reasonChoices(),
             'report_actors' => $reportActors,
+            'report_context' => $this->documentBuilder->contextDetails($report, $this->reportProjectObject($report), $reportActors),
             'can_finalize' => $report->hasSelectedType(),
             'actor_type_choices' => Actor::typeChoices(),
             'actor_role_choices' => ActorRole::choices(),
@@ -1358,14 +1359,15 @@ final class ReportController extends AbstractController
             fn (ReportImage $image): ?string => $this->reportImageDocumentSource($image, $embedImages),
             $reportPhotos,
         );
+        $reportActors = $this->reportActors($report);
 
         return [
             'report' => $report,
             'object' => $report->getObjectRecord(),
-            'report_actors' => $this->reportActors($report),
+            'report_actors' => $reportActors,
+            'report_context' => $this->documentBuilder->contextDetails($report, $this->reportProjectObject($report), $reportActors),
             'report_sections' => $this->documentBuilder->sections($report, $definition),
             'reason_label' => $this->reportTitles->reason($report),
-            'room_label' => $this->reportRoom($report),
             'author_name' => $this->authorProvider->nameFor($report->getCreatedById()),
             'finalizer_name' => $this->authorProvider->nameFor($report->getFinalizedById()),
             'thumbnail_source' => $mainImageSource,
@@ -1759,7 +1761,7 @@ final class ReportController extends AbstractController
         }
     }
 
-    private function reportRoom(Report $report): ?string
+    private function reportProjectObject(Report $report): ?ProjectObject
     {
         if (!$report->getProject() instanceof Project) {
             return null;
@@ -1768,7 +1770,7 @@ final class ReportController extends AbstractController
         return $this->entityManager->getRepository(ProjectObject::class)->findOneBy([
             'project' => $report->getProject(),
             'objectRecord' => $report->getObjectRecord(),
-        ])?->getRoom();
+        ]);
     }
 
     private function redirectToReport(Report $report, Request $request): Response

@@ -146,7 +146,48 @@ projects:
   view_reports: 'Rapporten bekijken'
   empty_title: 'Nog geen projecten'
   empty_text: 'Projecten worden de primaire ingang voor objecten en rapporten.'
+object_log:
+  title: Log
+  manual_create: 'Object aangemaakt'
+  manual_update: 'Manuele wijziging'
+  datahub_sync: 'Datahub-sync'
+  empty: 'Nog geen wijzigingen gelogd.'
+  no_changes: 'Geen waarden gewijzigd.'
+  field: Veld
+  old_value: Voorheen
+  new_value: Nieuw
+  newer: 'Nieuwere gebeurtenissen'
+  older: 'Oudere gebeurtenissen'
+  custom_object_type: 'Eigen objecttype'
+  thumbnail: Miniatuurafbeelding
+  external_id: 'Datahub-record-ID'
+  datahub:
+    title_nl: 'Titel (NL)'
+    title_en: 'Titel (EN)'
+    creator_nl: 'Vervaardiger(s) (NL)'
+    creator_en: 'Vervaardiger(s) (EN)'
+    creator_role: 'Rol vervaardiger'
+    publisher: 'Eigenaar / bruikleengever'
+    object_type_nl: 'Objecttype (NL)'
+    object_type_en: 'Objecttype (EN)'
+    description_nl: 'Beschrijving (NL)'
+    description_en: 'Beschrijving (EN)'
+    current_location: 'Huidige locatie'
+    technique_nl: 'Techniek (NL)'
+    technique_en: 'Techniek (EN)'
+    earliest_date: 'Vroegste datering'
+    latest_date: 'Laatste datering'
+    date: Datering
+    copyright: Rechten
+    handling_nl: 'Hantering (NL)'
+    handling_en: 'Hantering (EN)'
+    iiif_manifest_url: 'IIIF manifest URL'
+    iiif_image_info_url: 'IIIF afbeeldings-URL'
+    thumbnail: Miniatuurafbeelding
+
 objects:
+  datahub_image_readonly: 'Deze afbeelding komt uit de Datahub en kan hier niet worden gewijzigd.'
+  datahub_readonly_help: 'Gegevens uit de Datahub zijn alleen-lezen. Ontbrekende gegevens kun je aanvullen; zodra de Datahub ze aanlevert, vervangen ze je invoer.'
   title: Objecten
   new: 'Nieuw object'
   saved: 'Object opgeslagen.'
@@ -199,6 +240,7 @@ objects:
   max_100: 'Gebruik maximaal 100 tekens.'
   max_255: 'Gebruik maximaal 255 tekens.'
 reports:
+  object_notes: Notities
   title: Rapporten
   new: 'Nieuw rapport'
   saved: 'Rapport opgeslagen.'
@@ -367,7 +409,6 @@ reports:
   print_options: 'Afdrukken…'
   report_content: Rapportinhoud
   download_pdf: 'PDF downloaden'
-  inspection_period: Periode
   presence: Aanwezigheid
   finalized_by_on: 'Gefinaliseerd door %name% op %date%.'
   draft_preview_notice: 'Dit is een voorbeeld van een ontwerp en geen finaal rapport.'

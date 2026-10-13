@@ -147,9 +147,11 @@ class ReportAnnotationWorkbench {
         this.startingDrawing = false;
         this.drawingRequestId = 0;
         this.activeDamageCase = null;
+        this.activeStrokeWidth = null;
         this.selectedAnnotationId = null;
         this.selectedAnnotation = null;
         this.sessionDrawingIds = [];
+        this.pendingDrawings = 0;
         this.eraserUndoStack = [];
         this.eraserBusy = false;
         this.pointerState = null;
@@ -185,6 +187,7 @@ class ReportAnnotationWorkbench {
         this.legend = workbench.querySelector('[data-annotation-legend]');
         this.emptyLegend = workbench.querySelector('[data-annotation-empty-legend]');
         this.historyContainer = workbench.querySelector('[data-annotation-history]');
+        this.selectStrokeWidth(2.2);
 
         for (const damageCase of this.damageCases) {
             this.damageCasesById.set(damageCase.id, damageCase);
@@ -233,6 +236,7 @@ class ReportAnnotationWorkbench {
 
         for (const button of this.colorButtons) {
             button.addEventListener('click', () => {
+                if (button.disabled) return;
                 this.selectColor(button.dataset.annotationColor);
                 this.startDrawing();
             });
@@ -240,10 +244,9 @@ class ReportAnnotationWorkbench {
 
         for (const button of this.strokeWidthButtons) {
             button.addEventListener('click', () => {
+                if (button.disabled) return;
                 this.selectStrokeWidth(Number(button.dataset.annotationStrokeWidth));
-                this.persistSelectedStrokeWidth()
-                    .then(() => this.startDrawing())
-                    .catch((error) => this.showSaveError(error));
+                this.startDrawing();
             });
         }
 
@@ -428,7 +431,7 @@ class ReportAnnotationWorkbench {
                 this.finishDrawing(false);
             }
             this.refreshDamageMenu();
-            this.syncStrokeWidthAvailability();
+            this.syncStyleAvailability();
         });
         this.damageInput.addEventListener('change', () => this.syncDamageStyle());
         this.damageInput.addEventListener('blur', (event) => {
@@ -558,21 +561,30 @@ class ReportAnnotationWorkbench {
 
         if (damageCase) {
             this.selectColor(damageCase.color);
-            this.selectStrokeWidth(damageCase.strokeWidth || 2.2);
         }
 
-        this.syncStrokeWidthAvailability();
+        this.syncStyleAvailability();
         this.startDrawing();
     }
 
-    syncStrokeWidthAvailability() {
-        const damageCase = this.findDamageCaseByLabel(this.damageInput.value);
-        const locked = Boolean(damageCase && [...this.annotationRecords.values()].some(
+    hasDamageDrawings(damageCase) {
+        return Boolean(damageCase && [...this.annotationRecords.values()].some(
             (record) => !record.deleted && record.damageCaseId === damageCase.id,
         ));
+    }
+
+    syncStyleAvailability() {
+        const damageCase = this.findDamageCaseByLabel(this.damageInput.value);
+        const busy = this.mode === 'erase' || this.startingDrawing || this.pendingDrawings > 0
+            || (this.mode === 'draw' && (Boolean(this.pointerState) || this.sessionDrawingIds.length > 0));
+        const colorLocked = busy || this.hasDamageDrawings(damageCase);
+
+        for (const button of this.colorButtons) {
+            button.disabled = colorLocked;
+        }
 
         for (const button of this.strokeWidthButtons) {
-            button.disabled = Boolean(this.mode) || this.startingDrawing || locked;
+            button.disabled = busy;
         }
     }
 
@@ -581,15 +593,25 @@ class ReportAnnotationWorkbench {
         const color = this.selectedColor();
         const strokeWidth = this.selectedStrokeWidth();
 
-        if (this.mode || this.startingDrawing || !label || !color || !strokeWidth
+        if (this.mode === 'erase' || this.startingDrawing || this.pendingDrawings > 0 || !label || !color || !strokeWidth
             || label !== this.damageInput.value.trim()) {
             return;
         }
 
+        if (this.mode === 'draw') {
+            if (this.pointerState || this.sessionDrawingIds.length > 0
+                || (this.activeDamageCase.color === color && this.activeStrokeWidth === strokeWidth)) {
+                return;
+            }
+
+            this.finishDrawing(false);
+            this.selectedDamageLabel = label;
+            this.selectColor(color);
+        }
+
         const requestId = ++this.drawingRequestId;
         this.startingDrawing = true;
-        this.colorButtons.forEach((button) => { button.disabled = true; });
-        this.syncStrokeWidthAvailability();
+        this.syncStyleAvailability();
         this.syncDrawingActions();
 
         try {
@@ -600,9 +622,10 @@ class ReportAnnotationWorkbench {
             }
 
             this.activeDamageCase = damageCase;
+            this.activeStrokeWidth = strokeWidth;
             this.damageInput.value = this.activeDamageCase.label;
             this.selectColor(this.activeDamageCase.color);
-            this.selectStrokeWidth(this.activeDamageCase.strokeWidth || 2.2);
+            this.selectStrokeWidth(strokeWidth);
             this.sessionDrawingIds = [];
             this.setMode('draw');
         } catch (error) {
@@ -611,8 +634,7 @@ class ReportAnnotationWorkbench {
             }
         } finally {
             this.startingDrawing = false;
-            this.colorButtons.forEach((button) => { button.disabled = Boolean(this.mode); });
-            this.syncStrokeWidthAvailability();
+            this.syncStyleAvailability();
             this.syncDrawingActions();
 
             if (requestId !== this.drawingRequestId) {
@@ -625,6 +647,17 @@ class ReportAnnotationWorkbench {
         const existing = this.findDamageCaseByLabel(label);
 
         if (existing) {
+            if (!this.hasDamageDrawings(existing)
+                && (existing.color !== color || Number(existing.strokeWidth) !== strokeWidth)) {
+                const updated = await requestJson(`${this.workbench.dataset.damageCaseUrl}/${existing.id}`, {
+                    method: 'PATCH',
+                    csrfToken: this.workbench.dataset.csrfToken,
+                    body: { color, strokeWidth },
+                });
+                Object.assign(existing, updated);
+                this.renderLegend();
+            }
+
             return existing;
         }
 
@@ -664,12 +697,7 @@ class ReportAnnotationWorkbench {
         this.deleteButton.disabled = true;
         this.deleteButton.hidden = true;
         this.damageInput.disabled = mode === 'erase';
-        this.colorButtons.forEach((button) => {
-            button.disabled = true;
-        });
-        this.strokeWidthButtons.forEach((button) => {
-            button.disabled = true;
-        });
+        this.syncStyleAvailability();
         this.restoreModeStatus();
     }
 
@@ -683,6 +711,7 @@ class ReportAnnotationWorkbench {
         this.selectedDamageLabel = '';
         this.mode = null;
         this.activeDamageCase = null;
+        this.activeStrokeWidth = null;
         this.resetPointer();
         this.touchPoints.clear();
         this.touchGesture = null;
@@ -695,18 +724,11 @@ class ReportAnnotationWorkbench {
         this.deleteButton.hidden = true;
         this.damageInput.disabled = false;
         this.selectColor(null);
-        this.selectStrokeWidth(null);
         if (clearInput) {
             this.damageInput.value = '';
             this.damageInput.blur();
         }
-        this.colorButtons.forEach((button) => {
-            button.disabled = false;
-        });
-        this.strokeWidthButtons.forEach((button) => {
-            button.disabled = false;
-        });
-        this.syncStrokeWidthAvailability();
+        this.syncStyleAvailability();
         this.setStatus('');
     }
 
@@ -793,6 +815,7 @@ class ReportAnnotationWorkbench {
             screenPoints: [screenPoint],
             imagePoints: [this.imagePoint(event)],
         };
+        this.syncStyleAvailability();
         this.updatePreview();
     }
 
@@ -966,6 +989,7 @@ class ReportAnnotationWorkbench {
         this.pointerState = null;
         this.preview.setAttribute('points', '');
         this.previewDot.setAttribute('hidden', '');
+        this.syncStyleAvailability();
     }
 
     updatePreview() {
@@ -998,7 +1022,7 @@ class ReportAnnotationWorkbench {
     previewScreenHalfWidth() {
         const referenceWidth = this.mode === 'erase'
             ? this.selectedEraserWidth()
-            : (this.activeDamageCase?.strokeWidth || this.selectedStrokeWidth());
+            : (this.activeStrokeWidth || this.selectedStrokeWidth());
 
         return this.screenWidthForImageWidth(this.imageWidthForReferencePixels(referenceWidth));
     }
@@ -1059,13 +1083,13 @@ class ReportAnnotationWorkbench {
     }
 
     async createDrawing(points) {
-        if (!this.activeDamageCase || points.length === 0) {
+        if (!this.activeDamageCase || !this.activeStrokeWidth || points.length === 0) {
             return;
         }
 
         const annotation = createBrushAnnotation(
             points,
-            this.imageWidthForReferencePixels(this.activeDamageCase.strokeWidth || 2.2),
+            this.imageWidthForReferencePixels(this.activeStrokeWidth),
         );
         const contentSize = this.viewer.world.getItemAt(0)?.getContentSize();
 
@@ -1086,6 +1110,7 @@ class ReportAnnotationWorkbench {
             deleted: false,
         };
 
+        this.pendingDrawings += 1;
         this.setAnnotationRecord(record);
         this.suppressEvents = true;
         this.annotation.addAnnotation(annotation);
@@ -1111,6 +1136,9 @@ class ReportAnnotationWorkbench {
             this.syncDrawingActions();
             this.renderLegend();
             throw error;
+        } finally {
+            this.pendingDrawings -= 1;
+            this.syncStyleAvailability();
         }
     }
 
@@ -1269,7 +1297,7 @@ class ReportAnnotationWorkbench {
         this.annotationCaseIds.delete(clientId);
         this.sessionDrawingIds = this.sessionDrawingIds.filter((id) => id !== clientId);
         this.syncDrawingActions();
-        this.syncStrokeWidthAvailability();
+        this.syncStyleAvailability();
         this.renderLegend();
         this.renderHistory();
     }
@@ -1441,6 +1469,7 @@ class ReportAnnotationWorkbench {
         this.annotationRecords.set(record.clientId, record);
         this.annotationCaseIds.set(record.clientId, record.damageCaseId);
         this.syncDrawingActions();
+        this.syncStyleAvailability();
     }
 
     styleForAnnotation(annotation) {
@@ -1854,6 +1883,12 @@ class ReportAnnotationWorkbench {
                 });
                 Object.assign(damageCase, updated);
                 this.damageCasesById.set(damageCase.id, damageCase);
+                if (this.findDamageCaseByLabel(this.damageInput.value)?.id === damageCase.id) {
+                    this.selectColor(damageCase.color);
+                }
+                if (this.activeDamageCase?.id === damageCase.id) {
+                    this.drawingLayer.style.setProperty('--annotation-preview-color', damageCase.color);
+                }
                 this.annotation.setStyle((annotation) => this.styleForAnnotation(annotation));
                 this.renderSuggestions();
                 this.renderLegend();
@@ -2015,43 +2050,6 @@ class ReportAnnotationWorkbench {
             const selected = Number(button.dataset.annotationEraserWidth) === Number(eraserWidth);
             button.classList.toggle('active', selected);
             button.setAttribute('aria-pressed', selected ? 'true' : 'false');
-        }
-    }
-
-    async persistSelectedStrokeWidth() {
-        const damageCase = this.findDamageCaseByLabel(this.damageInput.value);
-        const strokeWidth = this.selectedStrokeWidth();
-
-        if (damageCase && [...this.annotationRecords.values()].some(
-            (record) => !record.deleted && record.damageCaseId === damageCase.id,
-        )) {
-            this.selectStrokeWidth(damageCase.strokeWidth || 2.2);
-            this.syncStrokeWidthAvailability();
-            return;
-        }
-
-        if (!damageCase || Number(damageCase.strokeWidth) === strokeWidth) {
-            return;
-        }
-
-        const previousStrokeWidth = damageCase.strokeWidth || 2.2;
-        damageCase.strokeWidth = strokeWidth;
-        this.renderLegend();
-
-        try {
-            const updated = await requestJson(`${this.workbench.dataset.damageCaseUrl}/${damageCase.id}`, {
-                method: 'PATCH',
-                csrfToken: this.workbench.dataset.csrfToken,
-                body: { strokeWidth },
-            });
-            Object.assign(damageCase, updated);
-            this.damageCasesById.set(damageCase.id, damageCase);
-            this.renderLegend();
-        } catch (error) {
-            damageCase.strokeWidth = previousStrokeWidth;
-            this.selectStrokeWidth(previousStrokeWidth);
-            this.renderLegend();
-            throw error;
         }
     }
 

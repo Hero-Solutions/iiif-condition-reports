@@ -1,0 +1,14 @@
+{% for pair in report_context|filter((value, label) => label != 'reports.object_notes')|batch(2) %}
+    <tr class="report-document-context">
+        {% for label, value in pair %}
+            <th>{{ label|trans }}</th>
+            <td{% if pair|length == 1 %} colspan="3"{% endif %}>{{ value|nl2br }}</td>
+        {% endfor %}
+    </tr>
+{% endfor %}
+{% if report_context['reports.object_notes'] is defined %}
+    <tr class="report-document-context report-document-context-notes">
+        <th>{{ 'reports.object_notes'|trans }}</th>
+        <td colspan="3">{{ report_context['reports.object_notes']|nl2br }}</td>
+    </tr>
+{% endif %}

@@ -21,8 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const updateLoadButtons = () => {
-        manifestLoadButton.disabled = manifestInput.value.trim() === '';
-        loadButton.disabled = urlInput.value.trim() === '';
+        manifestLoadButton.disabled = manifestInput.disabled || manifestInput.value.trim() === '';
+        loadButton.disabled = urlInput.disabled || urlInput.value.trim() === '';
     };
 
     const releaseLocalPreview = () => {

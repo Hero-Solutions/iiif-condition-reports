@@ -18,8 +18,9 @@
             </tr>
             <tr>
                 <th>{{ 'objects.creator'|trans }}</th><td>{{ object.creator ?: '—' }}</td>
-                <th>{{ 'reports.project_label'|trans }}</th><td>{{ report.project ? report.project.title : '—' }}{% if room_label %}<br><span class="report-document-detail">{{ 'projects.room'|trans }}: {{ room_label }}</span>{% endif %}</td>
+                <th>{{ 'reports.project_label'|trans }}</th><td>{{ report.project ? report.project.title : '—' }}</td>
             </tr>
+            {% include 'reports/_document_context.html.twig' %}
             {% if reason_label or report.receiptAt %}
                 <tr>
                     <th>{{ 'reports.reason'|trans }}</th><td>{{ reason_label ?: '—' }}</td>
@@ -27,8 +28,7 @@
                 </tr>
             {% endif %}
             <tr>
-                <th>{{ 'reports.date'|trans }}</th><td>{{ report.startedAt ? report.startedAt|date('d/m/Y') : report.createdAt|date('d/m/Y') }}</td>
-                <th>{{ 'reports.author'|trans }}</th><td>{{ author_name ?: 'reports.unknown_reporter'|trans }}</td>
+                <th>{{ 'reports.author'|trans }}</th><td colspan="3">{{ author_name ?: 'reports.unknown_reporter'|trans }}</td>
             </tr>
         </tbody>
     </table>
@@ -107,17 +107,13 @@
                     <th>{{ 'objects.creator'|trans }}</th>
                     <td>{{ object.creator ?: '—' }}</td>
                     <th>{{ 'reports.project_label'|trans }}</th>
-                    <td>{{ report.project ? report.project.title : '—' }}{% if room_label %}<span class="report-document-detail">{{ 'projects.room'|trans }}: {{ room_label }}</span>{% endif %}</td>
+                    <td>{{ report.project ? report.project.title : '—' }}</td>
                 </tr>
             {% endif %}
+            {% include 'reports/_document_context.html.twig' %}
             <tr>
-                <th>{{ 'reports.inspection_period'|trans }}</th>
-                <td>
-                    {% if report.startedAt %}{{ report.startedAt|date('d/m/Y') }}{% else %}—{% endif %}
-                    {% if report.endedAt and (not report.startedAt or report.endedAt != report.startedAt) %} – {{ report.endedAt|date('d/m/Y') }}{% endif %}
-                </td>
                 <th>{{ 'reports.author'|trans }}</th>
-                <td>{{ author_name ?: 'reports.unknown_reporter'|trans }}</td>
+                <td colspan="3">{{ author_name ?: 'reports.unknown_reporter'|trans }}</td>
             </tr>
             {% if reason_label or report.receiptAt %}
                 <tr>

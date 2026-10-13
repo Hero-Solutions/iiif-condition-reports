@@ -1,0 +1,10 @@
+{% if report_context is not empty %}
+    <dl class="report-context-details">
+        {% for label, value in report_context %}
+            <div{% if label == 'reports.object_notes' %} class="report-context-notes"{% endif %}>
+                <dt>{{ label|trans }}:</dt>
+                <dd>{{ value|nl2br }}</dd>
+            </div>
+        {% endfor %}
+    </dl>
+{% endif %}

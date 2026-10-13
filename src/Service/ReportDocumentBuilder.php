@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Entity\Report;
+use App\Entity\ProjectObject;
+use App\Entity\ReportActor;
+use App\Value\ActorRole;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class ReportDocumentBuilder
@@ -12,6 +15,31 @@ final class ReportDocumentBuilder
     public function __construct(
         private readonly TranslatorInterface $translator,
     ) {
+    }
+
+    /**
+     * @param list<ReportActor> $actors
+     * @return array<string, string>
+     */
+    public function contextDetails(Report $report, ?ProjectObject $projectObject, array $actors): array
+    {
+        $parties = [ActorRole::OWNER_LENDER => [], ActorRole::BORROWER => []];
+
+        foreach ($actors as $assignment) {
+            if (isset($parties[$assignment->getRole()])) {
+                $parties[$assignment->getRole()][] = $assignment->getActor()->getName();
+            }
+        }
+
+        return array_filter([
+            'projects.reference_code' => $report->getProject()?->getReferenceCode(),
+            'projects.room' => $projectObject?->getRoom(),
+            'projects.start_date' => $report->getProject()?->getStartDate()?->format('d/m/Y'),
+            'projects.end_date' => $report->getProject()?->getEndDate()?->format('d/m/Y'),
+            'actor_role.owner_lender' => implode("\n", array_unique($parties[ActorRole::OWNER_LENDER])),
+            'actor_role.borrower' => implode("\n", array_unique($parties[ActorRole::BORROWER])),
+            'reports.object_notes' => $projectObject?->getNotes(),
+        ], static fn (?string $value): bool => $value !== null && trim($value) !== '');
     }
 
     /**
