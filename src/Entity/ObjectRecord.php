@@ -10,6 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 #[ORM\Table(name: 'object_records')]
 #[ORM\UniqueConstraint(name: 'uniq_object_inventory_number', columns: ['inventory_number'])]
+#[ORM\UniqueConstraint(name: 'uniq_object_tms', columns: ['tms_id'])]
 #[ORM\Index(name: 'idx_object_title', columns: ['title'])]
 class ObjectRecord
 {
@@ -53,6 +54,16 @@ class ObjectRecord
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::INTEGER)]
     private ?int $id = null;
+
+    // Separate from DataHub's externalId/sourceData, which its harvest replaces.
+    #[ORM\Column(length: 18, nullable: true)]
+    private ?string $tmsId = null;
+
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $tmsData = null;
+
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $lastTmsSyncedAt = null;
 
     #[ORM\Column(length: 100)]
     private string $inventoryNumber;
@@ -125,6 +136,17 @@ class ObjectRecord
     public function getInventoryNumber(): string
     {
         return $this->inventoryNumber;
+    }
+
+    public function getTmsId(): ?string { return $this->tmsId; }
+    public function getTmsData(): ?array { return $this->tmsData; }
+    public function getLastTmsSyncedAt(): ?\DateTimeImmutable { return $this->lastTmsSyncedAt; }
+
+    public function applyTmsSource(string $id, array $data, \DateTimeImmutable $at): void
+    {
+        $this->tmsId = $id;
+        $this->tmsData = $data;
+        $this->lastTmsSyncedAt = $at;
     }
 
     public function setInventoryNumber(string $inventoryNumber): self

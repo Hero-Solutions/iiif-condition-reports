@@ -5,7 +5,9 @@
 {% block body %}
     <div class="page-header">
         <h1>{{ 'objects.title'|trans }}</h1>
-        <a class="button" href="{{ path('objects_new', {'_locale': app.request.locale}) }}">{{ 'objects.new'|trans }}</a>
+        {% if manual_object_creation_enabled %}
+            <a class="button" href="{{ path('objects_new', {'_locale': app.request.locale}) }}">{{ 'objects.new'|trans }}</a>
+        {% endif %}
     </div>
 
     <section class="panel">
@@ -22,7 +24,7 @@
     {% if objects is empty %}
         <section class="empty-state">
             <h2>{{ 'objects.empty_title'|trans }}</h2>
-            <p>{{ 'objects.empty_text'|trans }}</p>
+            <p>{{ (manual_object_creation_enabled ? 'objects.empty_text' : 'objects.empty_text_datahub')|trans }}</p>
         </section>
     {% else %}
         <section class="panel">

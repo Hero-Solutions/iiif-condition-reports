@@ -1,0 +1,120 @@
+{% import 'reports/report_form_renderer.html.twig' as report_form %}
+
+{% set main_photo_source = thumbnail_url ?: annotation_image_url %}
+{% set frame_schema_images = frame_schema_choices|filter(choice => choice.imageId) %}
+{% set report_photo_count = report_images|length + frame_schema_images|length + (main_photo_source ? 1 : 0) %}
+
+<dialog class="report-media-dialog" data-report-media-dialog id="report-image-manager" aria-labelledby="report-image-manager-title">
+    <header class="report-media-dialog-header">
+        <h2 id="report-image-manager-title">{{ 'reports.add_images'|trans }}</h2>
+        <button type="button" class="compact-icon-button" data-report-media-close aria-label="{{ 'actions.close'|trans }}" title="{{ 'actions.close'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg></button>
+    </header>
+    <div class="report-media-inputs">
+        <form method="post"
+              enctype="multipart/form-data"
+              action="{{ path('reports_images_upload', {'_locale': app.request.locale, id: report.id}) }}"
+              class="report-media-form"
+              data-report-media-form>
+            <input type="hidden" name="_token" value="{{ csrf_token('report_images_' ~ report.id) }}">
+            {{ report_form.file_picker('report-photos', 'reports.choose_photos', 'images[]', 'image/jpeg,image/png,image/webp', true) }}
+            {{ report_form.media_upload_status() }}
+        </form>
+        <form method="post"
+              enctype="multipart/form-data"
+              action="{{ path('reports_images_upload', {'_locale': app.request.locale, id: report.id}) }}"
+              class="report-media-form"
+              data-report-media-form>
+            <input type="hidden" name="_token" value="{{ csrf_token('report_images_' ~ report.id) }}">
+            {{ report_form.file_picker('report-camera', 'reports.take_photo', 'images[]', 'image/*', false, true) }}
+            {{ report_form.media_upload_status() }}
+        </form>
+        <form method="post"
+              action="{{ path('reports_images_url', {'_locale': app.request.locale, id: report.id}) }}"
+              class="report-media-form report-url-form"
+              data-report-media-form>
+            <input type="hidden" name="_token" value="{{ csrf_token('report_images_' ~ report.id) }}">
+            <label>{{ 'reports.image_url'|trans }}<input type="url" name="image_url" placeholder="https://…" required></label>
+            <button type="submit" class="secondary" disabled>{{ 'objects.image_load'|trans }}</button>
+            {{ report_form.media_upload_status() }}
+        </form>
+        <form method="post"
+              action="{{ path('reports_images_iiif', {'_locale': app.request.locale, id: report.id}) }}"
+              class="report-media-form report-url-form"
+              data-report-media-form>
+            <input type="hidden" name="_token" value="{{ csrf_token('report_images_' ~ report.id) }}">
+            <label>{{ 'objects.iiif_manifest_url'|trans }}<input type="url" name="manifest_url" placeholder="https://…" required></label>
+            <button type="submit" class="secondary" disabled>{{ 'objects.image_load'|trans }}</button>
+            {{ report_form.media_upload_status() }}
+        </form>
+        <div class="report-frame-schema-media">
+            {% include 'reports/_frame_schema_picker.html.twig' %}
+        </div>
+    </div>
+
+    <details class="report-image-manager-existing">
+        <summary>{{ 'reports.manage_images'|trans }} <span class="chip chip-muted">{{ report_photo_count }}</span></summary>
+        {% if report_photo_count > 0 %}
+            <div class="report-photo-grid">
+                {% if main_photo_source %}
+                    <article class="report-photo-card is-main-image" data-report-photo-card>
+                        <img src="{{ main_photo_source }}" alt="{{ 'reports.annotation_main_image'|trans }}">
+                        <div class="report-photo-card-footer">
+                            <span>{{ 'reports.annotation_main_image'|trans }}</span>
+                        </div>
+                    </article>
+                {% endif %}
+                {% for image in report_images %}
+                    <article class="report-photo-card" data-report-photo-card>
+                        <img src="{{ image.thumbnailPath ?: image.path }}" alt="{{ image.originalName ?: ('reports.photo'|trans) }}">
+                        <div class="report-photo-card-footer">
+                            <span title="{{ image.originalName }}">{{ image.originalName ?: ('reports.photo'|trans) }}</span>
+                            <div class="compact-action-row">
+                                {% if not loop.first %}
+                                    <form method="post" action="{{ path('reports_images_move', {'_locale': app.request.locale, reportId: report.id, imageId: image.id}) }}">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('report_image_' ~ image.id ~ '_' ~ report.id) }}">
+                                        <input type="hidden" name="direction" value="up">
+                                        <button type="submit" class="compact-icon-button" title="{{ 'reports.move_up'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-up"/></svg><span class="visually-hidden">{{ 'reports.move_up'|trans }}</span></button>
+                                    </form>
+                                {% endif %}
+                                {% if not loop.last %}
+                                    <form method="post" action="{{ path('reports_images_move', {'_locale': app.request.locale, reportId: report.id, imageId: image.id}) }}">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('report_image_' ~ image.id ~ '_' ~ report.id) }}">
+                                        <input type="hidden" name="direction" value="down">
+                                        <button type="submit" class="compact-icon-button" title="{{ 'reports.move_down'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-down"/></svg><span class="visually-hidden">{{ 'reports.move_down'|trans }}</span></button>
+                                    </form>
+                                {% endif %}
+                                <form method="post" action="{{ path('reports_images_rotate', {'_locale': app.request.locale, reportId: report.id, imageId: image.id}) }}">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('report_image_' ~ image.id ~ '_' ~ report.id) }}">
+                                    <button type="submit" class="compact-icon-button" title="{{ 'reports.rotate'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-rotate"/></svg><span class="visually-hidden">{{ 'reports.rotate'|trans }}</span></button>
+                                </form>
+                                <form method="post" action="{{ path('reports_images_delete', {'_locale': app.request.locale, reportId: report.id, imageId: image.id}) }}" onsubmit="return confirm('{{ 'reports.confirm_delete_photo'|trans|e('js') }}');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('report_image_' ~ image.id ~ '_' ~ report.id) }}">
+                                    <button type="submit" class="compact-icon-button danger" title="{{ 'actions.delete'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg><span class="visually-hidden">{{ 'actions.delete'|trans }}</span></button>
+                                </form>
+                            </div>
+                        </div>
+                    </article>
+                {% endfor %}
+                {% for choice in frame_schema_images %}
+                    {% set frame_schema_label = 'reports.annotation_frame_label'|trans({
+                        '%side%': ('reports.annotation_frame_' ~ choice.side)|trans,
+                        '%shape%': choice.label
+                    }) %}
+                    <article class="report-photo-card is-frame-schema" data-report-photo-card>
+                        <img src="{{ choice.path }}" alt="{{ frame_schema_label }}">
+                        <div class="report-photo-card-footer">
+                            <span title="{{ frame_schema_label }}">{{ frame_schema_label }}</span>
+                            <button type="submit"
+                                    class="compact-icon-button danger"
+                                    form="report-frame-schema-delete-{{ choice.imageId }}"
+                                    aria-label="{{ 'reports.annotation_remove_frame'|trans }}"
+                                    title="{{ 'reports.annotation_remove_frame'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg></button>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state compact"><p>{{ 'reports.no_photos'|trans }}</p></div>
+        {% endif %}
+    </details>
+</dialog>

@@ -210,7 +210,7 @@ final class AdminActorController extends AbstractController
 
         $existingActor = $this->entityManager
             ->getRepository(Actor::class)
-            ->findOneBy(['name' => $actor->getName()]);
+            ->findOneBy(['name' => $actor->getName(), 'tmsKey' => $actor->getTmsKey()]);
 
         if ($existingActor instanceof Actor && $existingActor->getId() !== $actor->getId()) {
             $this->addFlash('error', 'actors.name_exists');

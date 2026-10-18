@@ -17,6 +17,9 @@
                 <p class="page-subtitle">
                     {{ project.type == 'other' and project.customType ? project.customType : ('project_type.' ~ project.type)|trans }}
                     · {{ ('project_status.' ~ project.status)|trans }}
+                    {% if project.tmsId %}
+                        · TMS{% if not project.tmsPresent %} · {{ 'tms_sync.missing_project'|trans }}{% endif %}
+                    {% endif %}
                     {% if project.startDate or project.endDate %}
                         · {{ project.startDate ? project.startDate|date('d/m/Y') : '?' }} - {{ project.endDate ? project.endDate|date('d/m/Y') : '?' }}
                     {% endif %}
@@ -64,10 +67,12 @@
                     <input type="search" name="object_inventory_number" value="{{ object_inventory_number }}" placeholder="{{ 'objects.inventory_number'|trans }}">
                     <button type="submit">{{ 'projects.find_object'|trans }}</button>
                 </form>
-                <p class="add-object-hint">
-                    {{ 'projects.add_object_hint'|trans }}
-                    <a href="{{ path('objects_new', {'_locale': app.request.locale}) }}">{{ 'objects.new'|trans }}</a>
-                </p>
+                {% if manual_object_creation_enabled %}
+                    <p class="add-object-hint">
+                        {{ 'projects.add_object_hint'|trans }}
+                        <a href="{{ path('objects_new', {'_locale': app.request.locale}) }}">{{ 'objects.new'|trans }}</a>
+                    </p>
+                {% endif %}
 
             {% if object_inventory_number %}
                 <div class="object-results">
@@ -171,6 +176,9 @@
                                 <div class="object-card-summary">
                                     <a href="{{ path('objects_edit', {'_locale': app.request.locale, id: object.id}) }}"><strong>{{ object.inventoryNumber }}</strong></a>
                                     <span>{{ object.displayTitle(app.request.locale) }}</span>
+                                    {% if project_object.tmsPresent is same as(false) %}
+                                        <span class="muted">{{ 'tms_sync.missing_link'|trans }}</span>
+                                    {% endif %}
                                     {% if object.creator %}
                                         <span class="muted">{{ object.creator|nl2br }}</span>
                                     {% endif %}
@@ -186,6 +194,9 @@
                                         <label class="project-object-notes">{{ 'projects.object_notes'|trans }}<textarea name="notes" rows="3">{{ project_object.notes }}</textarea></label>
                                         <button type="submit" class="button secondary" disabled>{{ 'actions.save'|trans }}</button>
                                     </form>
+                                    {% if project_object.tmsData and project.tmsType == 'loans' %}
+                                        {% include 'projects/_tms_object_context.html.twig' with {source: project_object.tmsData} only %}
+                                    {% endif %}
                                 </div>
                                 <div class="object-card-actions">
                                     <a class="button secondary icon-button" href="{{ path('objects_edit', {'_locale': app.request.locale, id: object.id}) }}" aria-label="{{ 'objects.edit_object'|trans }}" title="{{ 'objects.edit_object'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-pencil"/></svg></a>
@@ -242,6 +253,9 @@
         {% endif %}
 
         <section class="panel project-details-panel" data-project-tab-panel="details">
+            {% if project.tmsId %}
+                {% include 'projects/_tms_source.html.twig' with {project: project, related_projects: tms_related_projects} %}
+            {% endif %}
             <div class="project-details-grid">
                 <section class="project-detail-section project-detail-fields">
                     <h2>{{ 'projects.project_details'|trans }}</h2>

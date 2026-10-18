@@ -100,7 +100,10 @@ foreach (['nl', 'en'] as $locale) {
                 'app' => ['request' => ['locale' => $locale]], 'report' => $document, 'object' => $object,
                 'report_context' => $details, 'report_actors' => [], 'report_sections' => [],
                 'thumbnail_source' => null, 'reason_label' => null, 'author_name' => 'Testpersoon', 'finalizer_name' => 'Testpersoon',
-                'report_image_sources' => [], 'report_documents' => [], 'damage_annotations' => ['legend' => [], 'sources' => []],
+                'report_image_sources' => [], 'report_documents' => [
+                    new App\Entity\ReportDocument($document, '/fixture-basis.pdf', 'Basis fixture.pdf', 'application/pdf'),
+                    (new App\Entity\ReportDocument($document, '/fixture-recommendations.pdf', 'Recommendations fixture.pdf', 'application/pdf'))->setSection('recommendations'),
+                ], 'damage_annotations' => ['legend' => [], 'sources' => []],
             ];
             foreach (['reports/_context_details.html.twig', 'reports/_document.html.twig', 'reports/pdf.html.twig'] as $template) {
                 $html = $twig->render($template, $context);
@@ -112,6 +115,12 @@ foreach (['nl', 'en'] as $locale) {
                 check(!str_contains($html, 'Afkorting'), 'Full party names must appear instead of aliases.');
                 check(!str_contains($html, '06/10/2026') && !str_contains($html, '07/10/2026'), 'Inspection dates must not replace the project dates.');
                 check(!str_contains($html, '>Periode<') && !str_contains($html, '>Period<'), 'Remove the ambiguous period label.');
+                if ($template !== 'reports/_context_details.html.twig') {
+                    foreach ($context['report_documents'] as $attachment) {
+                        check(str_contains($html, $attachment->getOriginalName()), 'Keep every attachment in preview/final/PDF.');
+                        check(str_contains($html, '(' . $translator->trans($attachment->getSectionTranslationKey()) . ' · '), 'Identify the section of each attachment.');
+                    }
+                }
             }
             if (in_array('--render-fixtures', $argv, true) && $locale === 'nl' && $finalized) {
                 $directory = $root . '/tmp/pdfs/report-context';

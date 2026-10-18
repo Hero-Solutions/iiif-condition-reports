@@ -135,6 +135,15 @@ const v2 = { sequences: [{ canvases: [{ images: [{ resource: {
     assert.equal(overlay.element.getAttribute('aria-hidden'), 'true');
     assert.equal(annotated.title.textContent, 'Damage image');
 
+    const historical = setup({ sourceKey: 'main:2', svg: { cloneNode: () => svgClone } });
+    historical.image.src = '/uploads/objects/old-back.jpg';
+    historical.trigger.emit('click');
+    await settle();
+    assert.equal(historical.requests.length, 0, 'A preserved image must not load the current IIIF source.');
+    assert.equal(historical.viewers[0].opened[0].url, '/uploads/objects/old-back.jpg');
+    historical.viewers[0].emit('open');
+    assert.equal(historical.viewers[0].overlays[0].element.children[0], svgClone, 'Keep the original annotation overlay.');
+
     const parser = setup({ respond: () => v2 });
     const sources = await vm.runInContext("loadTileSources('/fixtures/manifest.json')", parser.context);
     assert.equal(sources[0], '/fixtures/a/info.json');

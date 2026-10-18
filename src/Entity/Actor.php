@@ -9,21 +9,34 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'actors')]
-#[ORM\UniqueConstraint(name: 'uniq_actor_name', columns: ['name'])]
+#[ORM\UniqueConstraint(name: 'uniq_actor_name_scope', columns: ['name', 'name_scope'])]
+#[ORM\UniqueConstraint(name: 'uniq_actor_tms', columns: ['tms_key'])]
 class Actor
 {
     public const TYPE_ORGANIZATION = 'organization';
     public const TYPE_PERSON = 'person';
+    public const TYPE_UNKNOWN = 'unknown';
 
     private const TYPES = [
         self::TYPE_ORGANIZATION,
         self::TYPE_PERSON,
+        self::TYPE_UNKNOWN,
     ];
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::INTEGER)]
     private ?int $id = null;
+
+    // Keep local name uniqueness without merging distinct TMS identities/visibility variants.
+    #[ORM\Column(length: 64, options: ['default' => 'local'])]
+    private string $nameScope = 'local';
+
+    #[ORM\Column(length: 64, nullable: true)]
+    private ?string $tmsKey = null;
+
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $tmsData = null;
 
     #[ORM\Column(length: 255)]
     private string $name;
@@ -93,6 +106,16 @@ class Actor
     public function getName(): string
     {
         return $this->name;
+    }
+
+    public function getTmsKey(): ?string { return $this->tmsKey; }
+    public function getTmsData(): ?array { return $this->tmsData; }
+
+    public function applyTmsSource(string $key, array $data): self
+    {
+        $this->tmsKey = $this->nameScope = $key;
+        $this->tmsData = $data;
+        return $this;
     }
 
     public function setName(string $name): self
@@ -324,6 +347,7 @@ class Actor
         return [
             'actor_type.organization' => self::TYPE_ORGANIZATION,
             'actor_type.person' => self::TYPE_PERSON,
+            'actor_type.unknown' => self::TYPE_UNKNOWN,
         ];
     }
 }

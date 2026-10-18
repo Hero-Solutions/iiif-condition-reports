@@ -20,16 +20,12 @@ document.addEventListener('DOMContentLoaded', () => {
             return Number.isFinite(initialCount) ? initialCount : renderedCount;
         }
 
-        const mediaItems = panel.querySelectorAll('[data-report-photo-card], [data-report-document-row]');
-
-        if (mediaItems.length > 0) {
-            return mediaItems.length;
-        }
+        const documentCount = panel.querySelectorAll('[data-report-document-row]').length;
 
         const actorList = panel.querySelector('.actor-list');
 
         if (actorList) {
-            return actorList.querySelectorAll('li').length;
+            return actorList.querySelectorAll('li').length + documentCount;
         }
 
         const compactItems = Array.from(panel.querySelectorAll('[data-compact-item]'));
@@ -45,12 +41,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 .filter((field) => field.value.trim() !== '' && field.closest('[data-conditional-content][hidden]') === null)
                 .length;
 
-            return visibleItems + presenceChoices + directInputs;
+            return visibleItems + presenceChoices + directInputs + documentCount;
         }
 
         let filled = 0;
 
         panel.querySelectorAll('input, select, textarea').forEach((field) => {
+            if (field.closest('[data-report-media-fields]')) return;
             if (field.type === 'hidden' || field.disabled) {
                 return;
             }
@@ -72,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        return filled;
+        return filled + documentCount;
     };
 
     const updateCounts = () => {

@@ -63,6 +63,9 @@ function setup() {
 const settle = () => new Promise(resolve => setImmediate(resolve));
 (async () => {
     const clean = setup();
+    clean.form.listeners.input({ target: { closest: () => ({}) } });
+    assert.equal(await clean.editor.reportAutosave.saveNow(), true);
+    assert.equal(clean.requests.length, 0, 'Changing document upload fields does not dirty the report.');
     const direct = clean.click();
     await direct.done;
     assert.equal(direct.event.prevented, false, 'An unchanged report can open its saved preview directly.');

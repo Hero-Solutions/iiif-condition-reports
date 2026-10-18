@@ -11,6 +11,13 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'report_documents')]
 class ReportDocument
 {
+    public const SECTION_BASIS = 'basis';
+    public const SECTION_RECOMMENDATIONS = 'recommendations';
+    public const SECTIONS = [
+        self::SECTION_BASIS => 'reports.tab_basis',
+        self::SECTION_RECOMMENDATIONS => 'reports.section_recommendations',
+    ];
+
     public const CATEGORY_GENERAL = 'general';
     public const CATEGORY_SETUP_PLAN = 'setup_plan';
     public const CATEGORY_RECOMMENDATION = 'recommendation';
@@ -31,6 +38,9 @@ class ReportDocument
     #[ORM\ManyToOne(targetEntity: Report::class)]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private Report $report;
+
+    #[ORM\Column(length: 30, options: ['default' => self::SECTION_BASIS])]
+    private string $section = self::SECTION_BASIS;
 
     #[ORM\Column(length: 50)]
     private string $category = self::CATEGORY_GENERAL;
@@ -64,6 +74,8 @@ class ReportDocument
 
     public function getId(): ?int { return $this->id; }
     public function getReport(): Report { return $this->report; }
+    public function getSection(): string { return $this->section; }
+    public function getSectionTranslationKey(): string { return self::SECTIONS[$this->section]; }
     public function getCategory(): string { return $this->category; }
     public function getCategoryTranslationKey(): ?string
     {
@@ -80,6 +92,17 @@ class ReportDocument
     {
         $category = mb_substr(trim($category), 0, 50);
         $this->category = $category !== '' ? $category : self::CATEGORY_GENERAL;
+
+        return $this;
+    }
+
+    public function setSection(string $section): self
+    {
+        if (!isset(self::SECTIONS[$section])) {
+            throw new \InvalidArgumentException('Invalid document section.');
+        }
+
+        $this->section = $section;
 
         return $this;
     }

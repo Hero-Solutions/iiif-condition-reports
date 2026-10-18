@@ -148,10 +148,10 @@ class ReportAnnotationWorkbench {
         this.drawingRequestId = 0;
         this.activeDamageCase = null;
         this.activeStrokeWidth = null;
+        this.sessionInitialColor = null;
         this.selectedAnnotationId = null;
         this.selectedAnnotation = null;
         this.sessionDrawingIds = [];
-        this.pendingDrawings = 0;
         this.eraserUndoStack = [];
         this.eraserBusy = false;
         this.pointerState = null;
@@ -431,7 +431,6 @@ class ReportAnnotationWorkbench {
                 this.finishDrawing(false);
             }
             this.refreshDamageMenu();
-            this.syncStyleAvailability();
         });
         this.damageInput.addEventListener('change', () => this.syncDamageStyle());
         this.damageInput.addEventListener('blur', (event) => {
@@ -563,7 +562,6 @@ class ReportAnnotationWorkbench {
             this.selectColor(damageCase.color);
         }
 
-        this.syncStyleAvailability();
         this.startDrawing();
     }
 
@@ -573,71 +571,64 @@ class ReportAnnotationWorkbench {
         ));
     }
 
-    syncStyleAvailability() {
-        const damageCase = this.findDamageCaseByLabel(this.damageInput.value);
-        const busy = this.mode === 'erase' || this.startingDrawing || this.pendingDrawings > 0
-            || (this.mode === 'draw' && (Boolean(this.pointerState) || this.sessionDrawingIds.length > 0));
-        const colorLocked = busy || this.hasDamageDrawings(damageCase);
-
-        for (const button of this.colorButtons) {
-            button.disabled = colorLocked;
-        }
-
-        for (const button of this.strokeWidthButtons) {
-            button.disabled = busy;
-        }
-    }
-
     async startDrawing() {
         const label = this.selectedDamageLabel;
         const color = this.selectedColor();
         const strokeWidth = this.selectedStrokeWidth();
 
-        if (this.mode === 'erase' || this.startingDrawing || this.pendingDrawings > 0 || !label || !color || !strokeWidth
+        if (this.mode === 'erase' || !label || !color || !strokeWidth
             || label !== this.damageInput.value.trim()) {
             return;
         }
 
         if (this.mode === 'draw') {
-            if (this.pointerState || this.sessionDrawingIds.length > 0
-                || (this.activeDamageCase.color === color && this.activeStrokeWidth === strokeWidth)) {
+            // Width is local to the next stroke; changing it never ends the session.
+            this.activeStrokeWidth = strokeWidth;
+            if (this.activeDamageCase.color === color) {
                 return;
             }
+        }
 
-            this.finishDrawing(false);
-            this.selectedDamageLabel = label;
-            this.selectColor(color);
+        // Keep the controls usable while saving. The latest choice is applied below
+        // after this request finishes, so rapid color changes cannot save out of order.
+        if (this.startingDrawing) {
+            return;
         }
 
         const requestId = ++this.drawingRequestId;
+        const initialColor = this.findDamageCaseByLabel(label)?.color || color;
         this.startingDrawing = true;
-        this.syncStyleAvailability();
         this.syncDrawingActions();
 
         try {
             const damageCase = await this.ensureDamageCase(label, color, strokeWidth);
 
-            if (requestId !== this.drawingRequestId || this.mode) {
+            if (requestId !== this.drawingRequestId) {
                 return;
             }
 
             this.activeDamageCase = damageCase;
-            this.activeStrokeWidth = strokeWidth;
+            this.activeStrokeWidth = this.selectedStrokeWidth();
             this.damageInput.value = this.activeDamageCase.label;
-            this.selectColor(this.activeDamageCase.color);
-            this.selectStrokeWidth(strokeWidth);
-            this.sessionDrawingIds = [];
-            this.setMode('draw');
+            if (this.mode !== 'draw') {
+                this.sessionInitialColor = initialColor;
+                this.sessionDrawingIds = [];
+                this.setMode('draw');
+            } else {
+                this.restoreModeStatus();
+            }
         } catch (error) {
             if (requestId === this.drawingRequestId) {
+                if (this.activeDamageCase && this.selectedColor() === color) {
+                    this.selectColor(this.activeDamageCase.color);
+                }
                 this.showSaveError(error);
             }
         } finally {
             this.startingDrawing = false;
-            this.syncStyleAvailability();
             this.syncDrawingActions();
 
-            if (requestId !== this.drawingRequestId) {
+            if (requestId !== this.drawingRequestId || this.selectedColor() !== color) {
                 this.startDrawing();
             }
         }
@@ -647,14 +638,17 @@ class ReportAnnotationWorkbench {
         const existing = this.findDamageCaseByLabel(label);
 
         if (existing) {
-            if (!this.hasDamageDrawings(existing)
-                && (existing.color !== color || Number(existing.strokeWidth) !== strokeWidth)) {
+            if (existing.color !== color) {
                 const updated = await requestJson(`${this.workbench.dataset.damageCaseUrl}/${existing.id}`, {
                     method: 'PATCH',
                     csrfToken: this.workbench.dataset.csrfToken,
-                    body: { color, strokeWidth },
+                    body: { color },
                 });
-                Object.assign(existing, updated);
+                existing.color = updated.color;
+                if (this.activeDamageCase?.id === existing.id) {
+                    this.drawingLayer.style.setProperty('--annotation-preview-color', existing.color);
+                }
+                this.annotation.setStyle((annotation) => this.styleForAnnotation(annotation));
                 this.renderLegend();
             }
 
@@ -697,7 +691,6 @@ class ReportAnnotationWorkbench {
         this.deleteButton.disabled = true;
         this.deleteButton.hidden = true;
         this.damageInput.disabled = mode === 'erase';
-        this.syncStyleAvailability();
         this.restoreModeStatus();
     }
 
@@ -712,6 +705,7 @@ class ReportAnnotationWorkbench {
         this.mode = null;
         this.activeDamageCase = null;
         this.activeStrokeWidth = null;
+        this.sessionInitialColor = null;
         this.resetPointer();
         this.touchPoints.clear();
         this.touchGesture = null;
@@ -728,7 +722,6 @@ class ReportAnnotationWorkbench {
             this.damageInput.value = '';
             this.damageInput.blur();
         }
-        this.syncStyleAvailability();
         this.setStatus('');
     }
 
@@ -748,11 +741,13 @@ class ReportAnnotationWorkbench {
         this.sourceList.inert = this.eraserBusy;
         this.legend.inert = this.eraserBusy;
         this.finishButton.disabled = !this.mode || this.eraserBusy;
-        const hasChanges = erasing
+        const canUndo = erasing
             ? this.eraserUndoStack.length > 0
             : this.mode === 'draw' && this.sessionDrawingIds.length > 0;
+        const hasChanges = canUndo || (this.mode === 'draw' && this.hasDamageDrawings(this.activeDamageCase)
+            && this.activeDamageCase.color !== this.sessionInitialColor);
         this.finishButton.classList.toggle('has-changes', hasChanges);
-        this.undoButton.disabled = this.eraserBusy || !hasChanges;
+        this.undoButton.disabled = this.eraserBusy || !canUndo;
         const active = Boolean(this.mode) || this.startingDrawing;
         this.finishButton.style.visibility = active ? '' : 'hidden';
         this.eraserButton.style.visibility = active ? 'hidden' : '';
@@ -812,10 +807,10 @@ class ReportAnnotationWorkbench {
 
         this.pointerState = {
             pointerId: event.pointerId,
+            strokeWidth: this.activeStrokeWidth,
             screenPoints: [screenPoint],
             imagePoints: [this.imagePoint(event)],
         };
-        this.syncStyleAvailability();
         this.updatePreview();
     }
 
@@ -915,11 +910,12 @@ class ReportAnnotationWorkbench {
         }
 
         const points = this.pointerState.imagePoints;
+        const strokeWidth = this.pointerState.strokeWidth;
         this.resetPointer();
 
         try {
             if (this.mode === 'draw') {
-                await this.createDrawing(points);
+                await this.createDrawing(points, strokeWidth);
             } else if (this.mode === 'erase') {
                 await this.eraseDrawing(points);
             }
@@ -989,7 +985,6 @@ class ReportAnnotationWorkbench {
         this.pointerState = null;
         this.preview.setAttribute('points', '');
         this.previewDot.setAttribute('hidden', '');
-        this.syncStyleAvailability();
     }
 
     updatePreview() {
@@ -1022,7 +1017,7 @@ class ReportAnnotationWorkbench {
     previewScreenHalfWidth() {
         const referenceWidth = this.mode === 'erase'
             ? this.selectedEraserWidth()
-            : (this.activeStrokeWidth || this.selectedStrokeWidth());
+            : (this.pointerState?.strokeWidth || this.activeStrokeWidth || this.selectedStrokeWidth());
 
         return this.screenWidthForImageWidth(this.imageWidthForReferencePixels(referenceWidth));
     }
@@ -1082,14 +1077,14 @@ class ReportAnnotationWorkbench {
         return Math.max(1, Math.abs(end.x - start.x));
     }
 
-    async createDrawing(points) {
-        if (!this.activeDamageCase || !this.activeStrokeWidth || points.length === 0) {
+    async createDrawing(points, strokeWidth = this.activeStrokeWidth) {
+        if (!this.activeDamageCase || !strokeWidth || points.length === 0) {
             return;
         }
 
         const annotation = createBrushAnnotation(
             points,
-            this.imageWidthForReferencePixels(this.activeStrokeWidth),
+            this.imageWidthForReferencePixels(strokeWidth),
         );
         const contentSize = this.viewer.world.getItemAt(0)?.getContentSize();
 
@@ -1110,7 +1105,6 @@ class ReportAnnotationWorkbench {
             deleted: false,
         };
 
-        this.pendingDrawings += 1;
         this.setAnnotationRecord(record);
         this.suppressEvents = true;
         this.annotation.addAnnotation(annotation);
@@ -1136,9 +1130,6 @@ class ReportAnnotationWorkbench {
             this.syncDrawingActions();
             this.renderLegend();
             throw error;
-        } finally {
-            this.pendingDrawings -= 1;
-            this.syncStyleAvailability();
         }
     }
 
@@ -1163,6 +1154,7 @@ class ReportAnnotationWorkbench {
                 damageCaseId: record.damageCaseId,
                 sourceKey: record.sourceKey,
                 reportImageId: record.reportImageId,
+                mainImageFingerprint: this.workbench.dataset.mainImageFingerprint,
                 annotation,
             },
         });
@@ -1297,7 +1289,6 @@ class ReportAnnotationWorkbench {
         this.annotationCaseIds.delete(clientId);
         this.sessionDrawingIds = this.sessionDrawingIds.filter((id) => id !== clientId);
         this.syncDrawingActions();
-        this.syncStyleAvailability();
         this.renderLegend();
         this.renderHistory();
     }
@@ -1469,7 +1460,6 @@ class ReportAnnotationWorkbench {
         this.annotationRecords.set(record.clientId, record);
         this.annotationCaseIds.set(record.clientId, record.damageCaseId);
         this.syncDrawingActions();
-        this.syncStyleAvailability();
     }
 
     styleForAnnotation(annotation) {
@@ -2083,7 +2073,7 @@ class ReportAnnotationWorkbench {
 
     showSaveError(error) {
         console.error(error);
-        this.setStatus(this.workbench.dataset.saveErrorMessage, true);
+        this.setStatus(error.status === 409 ? this.workbench.dataset.imageChangedMessage : this.workbench.dataset.saveErrorMessage, true);
     }
 }
 
@@ -2610,7 +2600,9 @@ async function requestJson(url, options = {}) {
     const response = await fetch(url, requestOptions);
 
     if (!response.ok) {
-        throw new Error(`Request failed (${response.status}).`);
+        const error = new Error(`Request failed (${response.status}).`);
+        error.status = response.status;
+        throw error;
     }
 
     return response.json();

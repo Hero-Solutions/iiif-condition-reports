@@ -37,6 +37,7 @@ namespace App\Datahub {
 namespace {
     use App\Command\HarvestDatahubObjectsCommand;
     use App\Datahub\CurlHttpAdapter;
+    use App\Datahub\LidoMeasurements;
     use App\Datahub\HarvestHttpFixture;
     use App\Entity\IIIFManifest;
     use App\Entity\ObjectManifest;
@@ -124,7 +125,7 @@ namespace {
             'placeholder_images' => [],
             'data_definition' => ['id' => ['xpath' => 'workID'], 'title_nl' => ['xpath' => 'title']],
         ]]);
-        $command = new HarvestDatahubObjectsCommand($manager, $parameters, new ObjectChangeLogger($manager));
+        $command = new HarvestDatahubObjectsCommand($manager, $parameters, new ObjectChangeLogger($manager), new LidoMeasurements(), new \App\Service\MainImageHistory($manager, new \App\Service\ObjectImageStorage(__DIR__, dirname(__DIR__))));
         $input = new ArrayInput($limit === null ? [] : ['--limit' => $limit]);
         $output = new BufferedOutput();
         $status = $command->run($input, $output);

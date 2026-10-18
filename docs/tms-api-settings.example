@@ -1,0 +1,11 @@
+# Voeg deze instellingen zelf toe aan de .env of .env.local van de conditierapportenapp.
+# Standaard uit: de TmsApiClient verstuurt dan geen externe aanvragen.
+EXTERNAL_LOANS_ENABLED=0
+TMS_API_URL="https://datahub.example.invalid/loan_projects.php"
+TMS_API_USERNAME=""
+TMS_API_PASSWORD=""
+
+# Username en het gewone password moeten overeenkomen met de API-configuratie.
+# De API bewaart een password_hash; hierboven staat het oorspronkelijke password.
+# EXTERNAL_LOANS_ENABLED=1 schakelt app:tms:sync in; het plant geen importjob.
+# Dagelijkse cronjob en migratie: zie docs/tms-sync.md.

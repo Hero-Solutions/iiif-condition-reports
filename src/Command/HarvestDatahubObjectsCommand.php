@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace App\Command;
 
+use App\Service\MainImageHistory;
 use App\Datahub\CurlHttpAdapter;
+use App\Datahub\LidoMeasurements;
 use App\Entity\IIIFManifest;
 use App\Entity\ObjectManifest;
 use App\Entity\ObjectLogEntry;
 use App\Entity\ObjectRecord;
 use App\Service\ObjectChangeLogger;
+use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\EntityManagerInterface;
 use Phpoaipmh\Client;
 use Phpoaipmh\Endpoint;
@@ -38,6 +41,8 @@ final class HarvestDatahubObjectsCommand extends Command
         private readonly EntityManagerInterface $entityManager,
         private readonly ParameterBagInterface $parameters,
         private readonly ObjectChangeLogger $objectLogger,
+        private readonly LidoMeasurements $measurements,
+        private readonly MainImageHistory $mainImages,
     ) {
         parent::__construct();
     }
@@ -71,8 +76,10 @@ final class HarvestDatahubObjectsCommand extends Command
             if ($recordId !== null) {
                 $record = $this->recordNode($endpoint->getRecord($recordId, $config['metadata_prefix']));
                 $prepared = $record === null ? null : $this->prepareRecord($record, $config);
-                $this->preloadBatch($prepared === null ? [] : [$prepared]);
-                $result = $prepared === null ? 'skipped' : $this->syncPreparedRecord($prepared);
+                $result = $this->entityManager->wrapInTransaction(function () use ($prepared): string {
+                    $this->preloadBatch($prepared === null ? [] : [$prepared]);
+                    return $prepared === null ? 'skipped' : $this->syncPreparedRecord($prepared);
+                });
                 $this->countResult($result, $created, $updated, $skipped);
             } else {
                 $this->harvestRest(
@@ -281,14 +288,13 @@ final class HarvestDatahubObjectsCommand extends Command
         int &$updated,
         int &$skipped,
     ): void {
-        $this->preloadBatch($preparedRecords);
-
-        foreach ($preparedRecords as $prepared) {
-            $result = $this->syncPreparedRecord($prepared);
-            $this->countResult($result, $created, $updated, $skipped);
-        }
-
-        $this->entityManager->flush();
+        $this->entityManager->wrapInTransaction(function () use ($preparedRecords, &$created, &$updated, &$skipped): void {
+            $this->preloadBatch($preparedRecords);
+            foreach ($preparedRecords as $prepared) {
+                $result = $this->syncPreparedRecord($prepared);
+                $this->countResult($result, $created, $updated, $skipped);
+            }
+        });
         $this->entityManager->clear();
         $this->objectCache = [];
         $this->objectManifestCache = [];
@@ -427,6 +433,11 @@ final class HarvestDatahubObjectsCommand extends Command
 
         unset($sourceData['id']);
 
+        $measurements = $this->measurements->extract($data, $config['language']);
+        if ($measurements !== []) {
+            $sourceData['measurements'] = $measurements;
+        }
+
         $this->normalizeDates($sourceData);
         $this->normalizeImageData($sourceData, $config['placeholder_images']);
 
@@ -462,6 +473,11 @@ final class HarvestDatahubObjectsCommand extends Command
             $object = new ObjectRecord($inventoryNumber, $inventoryNumber);
             $this->objectCache[$inventoryNumber] = $object;
         }
+
+        if ($object->getId() !== null && $this->entityManager->getConnection()->isTransactionActive()) {
+            $this->entityManager->lock($object, LockMode::PESSIMISTIC_WRITE);
+        }
+        $this->mainImages->beforeSync($object, $this->objectManifestCache[$inventoryNumber] ?? null, $sourceData, $syncedAt);
 
         $object->applyDatahubSync(
             inventoryNumber: $inventoryNumber,

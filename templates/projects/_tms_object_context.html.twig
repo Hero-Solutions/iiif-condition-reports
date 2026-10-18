@@ -1,0 +1,17 @@
+<details>
+    <summary>{{ 'tms_sync.object_context'|trans }}</summary>
+    {% for record in source.records %}
+        <dl>
+            {% for field, label in {
+                'LenderObjectNumber': 'tms_sync.lender_number', 'LoanObjectStatus': 'tms_sync.source_status',
+                'Conditions': 'tms_sync.conditions', 'SpecialConditions': 'tms_sync.conditions',
+                'SpecialRequirements': 'tms_sync.requirements', 'CourierRequirements': 'tms_sync.courier',
+                'Remarks': 'tms_sync.remarks'
+            } %}
+                {% if attribute(record, field)|default('') %}
+                    <dt>{{ label|trans }}</dt><dd>{{ attribute(record, field)|nl2br }}</dd>
+                {% endif %}
+            {% endfor %}
+        </dl>
+    {% endfor %}
+</details>

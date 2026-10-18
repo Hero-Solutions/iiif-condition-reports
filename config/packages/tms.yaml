@@ -1,0 +1,7 @@
+parameters:
+    env(EXTERNAL_LOANS_ENABLED): '0'
+    env(TMS_API_URL): ''
+    env(TMS_API_USERNAME): ''
+    env(TMS_API_PASSWORD): ''
+
+    app.external_loans_enabled: '%env(bool:EXTERNAL_LOANS_ENABLED)%'

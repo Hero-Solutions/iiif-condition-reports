@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Service\MainImageHistory;
 use App\Entity\Annotation;
 use App\Entity\DamageCase;
 use App\Entity\Report;
 use App\Entity\ReportImage;
 use App\Entity\User;
 use App\Service\ReportAuthorProvider;
+use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -23,6 +25,7 @@ final class ReportAnnotationController extends AbstractController
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly ReportAuthorProvider $authorProvider,
+        private readonly MainImageHistory $mainImages,
     ) {
     }
 
@@ -160,6 +163,15 @@ final class ReportAnnotationController extends AbstractController
     public function saveAnnotation(Report $report, Request $request): JsonResponse
     {
         $this->assertWritableRequest($report, $request);
+        return $this->entityManager->wrapInTransaction(function () use ($report, $request): JsonResponse {
+            // Serialize the first drawing with a Datahub image replacement.
+            $this->entityManager->refresh($report->getObjectRecord(), LockMode::PESSIMISTIC_WRITE);
+            return $this->saveDrawing($report, $request);
+        });
+    }
+
+    private function saveDrawing(Report $report, Request $request): JsonResponse
+    {
         $payload = $this->jsonPayload($request);
         $annotationPayload = is_array($payload['annotation'] ?? null) ? $payload['annotation'] : [];
         $clientId = mb_substr(trim((string) ($annotationPayload['id'] ?? '')), 0, 255);
@@ -193,6 +205,13 @@ final class ReportAnnotationController extends AbstractController
             if (!$reportImage instanceof ReportImage) {
                 throw new BadRequestHttpException('Invalid report image.');
             }
+        }
+
+        if ($reportImage === null) {
+            if (!preg_match('/^main(?::[1-9][0-9]*)?$/', $sourceKey)) {
+                throw new BadRequestHttpException('Invalid main image source.');
+            }
+            $this->mainImages->preserveForAnnotation($report, (string) ($payload['mainImageFingerprint'] ?? ''), $sourceKey);
         }
 
         $repository = $this->entityManager->getRepository(Annotation::class);

@@ -1,0 +1,53 @@
+{% set source = project.tmsData %}
+{% set record = source.record %}
+<details class="project-detail-section">
+    <summary>{{ 'tms_sync.source_details'|trans }}</summary>
+    <p class="muted">{{ 'tms_sync.local_edits'|trans }}</p>
+    <p>{{ 'tms_sync.last_synced'|trans }}: {{ project.lastTmsSyncedAt|date('d/m/Y H:i') }}</p>
+    {% if not project.tmsPresent %}<p>{{ 'tms_sync.missing_project'|trans }}</p>{% endif %}
+    <dl>
+        {% for field, label in {
+            'ExhTitle': 'projects.project_title', 'Description': 'projects.description',
+            'LoanNumber': 'projects.reference_code', 'ProjectNumber': 'projects.reference_code',
+            'LoanStatus': 'tms_sync.source_status', 'DisplayDate': 'tms_sync.display_date',
+            'BeginISODate': 'projects.start_date', 'EndISODate': 'projects.end_date',
+            'LoanConditions': 'tms_sync.conditions', 'SpecialRequirements': 'tms_sync.requirements',
+            'Remarks': 'tms_sync.remarks', 'InsuranceRemarks': 'tms_sync.insurance_remarks'
+        } %}
+            {% if attribute(record, field)|default('') %}
+                <dt>{{ label|trans }}</dt><dd>{{ attribute(record, field)|nl2br }}</dd>
+            {% endif %}
+        {% endfor %}
+    </dl>
+    {% if record.LoanIn is defined and record.LoanIn in ['0', '1'] %}
+        <p>{{ (record.LoanIn == '1' ? 'tms_sync.incoming' : 'tms_sync.outgoing')|trans }}</p>
+    {% endif %}
+    {% if related_projects %}
+        <h3>{{ 'tms_sync.related_projects'|trans }}</h3>
+        <ul>{% for related in related_projects %}
+            <li><a href="{{ path('projects_edit', {'_locale': app.request.locale, id: related.id}) }}">{{ related.referenceCode ? related.referenceCode ~ ' — ' : '' }}{{ related.title }}</a></li>
+        {% endfor %}</ul>
+    {% endif %}
+    {% if source.parties %}
+        <h3>{{ 'tms_sync.parties'|trans }}</h3>
+        <ul>{% for party in source.parties %}
+            <li>{{ party.DisplayName|default('') }}{% if party.Role|default('') %} — {{ party.Role }}{% endif %}
+                {% for field in ['StreetLine1', 'StreetLine2', 'StreetLine3', 'ZipCode', 'City', 'Country'] %}
+                    {% if attribute(party, field)|default('') %}<br>{{ attribute(party, field) }}{% endif %}
+                {% endfor %}
+            </li>
+        {% endfor %}</ul>
+    {% endif %}
+    {% if source.documents %}
+        <h3>{{ 'tms_sync.document_metadata'|trans }}</h3>
+        <ul>{% for document in source.documents %}
+            <li>{{ document.PrimaryFileName|default(document.DisplayFileName|default(document.PublicCaption|default(''))) }}</li>
+        {% endfor %}</ul>
+    {% endif %}
+    {% if source.shipments %}
+        <h3>{{ 'tms_sync.shipments'|trans }}</h3>
+        <ul>{% for shipment in source.shipments %}
+            <li>{{ shipment.ShipmentNumber|default('') }}{% if shipment.ShipStatus|default('') %} — {{ shipment.ShipStatus }}{% endif %}</li>
+        {% endfor %}</ul>
+    {% endif %}
+</details>

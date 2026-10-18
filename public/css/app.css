@@ -1737,6 +1737,15 @@ tr[data-row-href] {
     gap: 12px;
 }
 
+.object-edit-form .form-actions button:disabled {
+    color: var(--text-soft);
+    background: var(--n-100);
+    border-color: var(--border);
+    box-shadow: none;
+    cursor: not-allowed;
+    transform: none;
+}
+
 .project-form-grid,
 .object-form-grid {
     display: grid;
@@ -3397,6 +3406,65 @@ tr[data-row-href] {
     margin-top: 1.25rem;
 }
 
+.report-media-dialog {
+    width: min(960px, calc(100% - 2rem));
+    max-height: calc(100dvh - 2rem);
+    margin: auto;
+    padding: 1.25rem;
+    overflow: auto;
+    color: var(--text);
+    background: var(--surface-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-m);
+    box-shadow: var(--shadow-2);
+}
+
+.report-media-dialog::backdrop {
+    background: rgb(0 0 0 / .45);
+}
+
+.report-media-dialog-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.report-media-dialog-header h2 {
+    margin: 0;
+}
+
+.report-media-dialog-header button {
+    flex: none;
+}
+
+.report-media-dialog .report-media-inputs {
+    margin-top: 0;
+}
+
+.report-image-manager-existing {
+    margin-top: 1.25rem;
+}
+
+.report-image-manager-existing > summary {
+    margin-bottom: 1rem;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.report-media-dialog .report-frame-schema-media {
+    display: block;
+}
+
+.report-media-dialog .report-annotation-schema-menu {
+    position: static;
+    width: 100%;
+    max-height: none;
+    margin-top: .75rem;
+    box-shadow: none;
+}
+
 .report-frame-schema-media {
     display: flex;
     align-items: center;
@@ -3514,6 +3582,29 @@ tr[data-row-href] {
     margin: 1.25rem 0;
 }
 
+.report-section-documents {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+}
+
+.report-section-documents h3 {
+    margin: 0;
+}
+
+.report-section-documents .report-document-list {
+    margin: .5rem 0 0;
+}
+
+.report-document-row > div {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.report-document-row > button {
+    flex: none;
+}
+
 .report-document-row {
     padding: .7rem 0;
     border-bottom: 1px solid var(--border);
@@ -3530,9 +3621,15 @@ tr[data-row-href] {
 }
 
 .report-document-upload-form {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    align-items: start;
-    margin-top: 1.25rem;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    margin-top: .75rem;
+    padding: 0;
+    background: transparent;
+}
+
+.report-document-upload-form .report-file-field {
+    grid-template-columns: minmax(0, 1fr);
 }
 
 .project-object-context-form {
@@ -4408,12 +4505,39 @@ tr[data-row-href] {
     color: var(--amber-800);
 }
 
+.report-annotation-source-toolbar {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+    min-width: 0;
+}
+
+.report-annotation-add-image {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 54px;
+    min-height: 54px;
+    padding: 0;
+    color: var(--accent-600);
+    background: var(--accent-100);
+    border: 1px dashed var(--accent-600);
+    border-radius: var(--radius-s);
+}
+
+.report-annotation-add-image .icon {
+    width: 28px;
+    height: 28px;
+}
+
 .report-annotation-source-bar {
     position: relative;
     display: flex;
     gap: 6px;
     align-items: stretch;
     min-width: 0;
+    flex: 0 1 auto;
 }
 
 .report-annotation-source-list {
@@ -5061,6 +5185,10 @@ button.report-annotation-schema-preview:hover {
         text-align: left;
     }
 
+    .report-annotation-source-toolbar .report-annotation-source-bar {
+        flex: 1 1 auto;
+    }
+
     .has-choice-menu > .report-choice-toggle:hover,
     .has-choice-menu > .report-choice-toggle[aria-expanded="true"] {
         background: var(--accent-100);
@@ -5563,3 +5691,14 @@ button.report-annotation-schema-preview:hover {
         display: none;
     }
 }
+
+.object-image-history,
+.object-image-history-thumbnails {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+.object-image-history { margin-top: 1rem; }
+.object-image-history figure { margin: 0; }
+.object-image-history img { width: 140px; height: 100px; object-fit: contain; }
+.object-image-history figcaption { margin-top: .5rem; color: var(--text-soft); font-size: .875rem; }

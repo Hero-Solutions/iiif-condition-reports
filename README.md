@@ -18,6 +18,59 @@ For photo and document uploads up to 50 MB, the repository contains `public/.use
 Set `IMAGE_DOWNLOAD_CA_FILE=config/cacert.pem` in `.env` to use the included Mozilla CA bundle. Leave the value empty to let PHP/cURL use its system trust store.
 `SESSION_LIFETIME` controls the session duration in seconds. Configure `MAILER_DSN`, `MAIL_FROM` and `FEEDBACK_EMAIL` to enable password-reset and feedback emails.
 
+## Manual object creation
+
+Manual object creation is enabled by default, including when the setting is absent.
+Set `MANUAL_OBJECT_CREATION_ENABLED=0` in `.env` to hide the creation links and deny
+both GET and POST requests to the creation page. Set it to `1` to enable it again.
+Editing existing objects and importing from the Datahub remain available.
+Ansible manages this flag through `condition_reports.manual_object_creation_enabled`
+(boolean, default `true`).
+
+## Datahub measurements
+
+Harvest stores LIDO measurements on the object, grouped by `extentMeasurements`.
+Structured `measurementType` / `measurementValue` / `measurementUnit` fields always
+take precedence over `displayObjectMeasurements`, including zeroes and values
+that appear incorrect. Repeated values use the first occurrence in document order.
+Corrections belong in TMS; the importer does not compare plausibility or repair data.
+Lengths are converted to cm (mm, cm, dm, m, inches and feet); weights to kg (g, kg).
+When axis labels are absent, a pair/triple uses H × W (× D). Plain display dimensions
+with an explicit unit fill missing axes only. Unknown units are not guessed.
+
+New reports start with the latest imported measurements, assuming one part.
+For paintings/paper, `Inclusief lijst` fills the framed measurements and `Volledig`
+the unframed measurements. For paintings, the framed measurement also fills the
+complete-work group. For sculptures/other objects, `Volledig` fills the complete
+work and its single part. `Dagmaat` and `Onderdeel` remain separate source groups;
+they are not substituted for complete-work measurements. Paper storage-box fields
+are not filled from frame dimensions.
+
+Current source values take precedence over copied measurements from a previous
+report; other copied fields remain intact. Existing drafts and finalized reports
+keep their stored measurements. No database migration is needed; objects receive
+measurements on their next harvest. Offline regression: `tests/datahub_measurements.php`.
+
+## Historical main images
+
+On the first main-image annotation, the application stores an independent full-resolution
+copy in `public/uploads/objects/`. Reports using that image share the copy. Canvas order,
+annotation coordinates and individual stroke widths are preserved.
+When the Datahub manifest URL or image-service URL changes, annotated reports keep their
+original image in the editor, preview, PDF, zoom viewer and report list. New reports and
+reports without active main-image annotations follow the current image. Annotations on
+extra photos or frame sketches do not pin the main image.
+Previous annotated images appear under **Vorige hoofdafbeeldingen** on the object page,
+with the date the sync detected the change. This is not a restoration date.
+Existing annotations without a copy are captured before the sync changes their source.
+If that copy fails, the sync transaction stops without replacing the annotated image.
+A stale editor page cannot save a drawing onto a different image; it asks for a reload.
+
+The operator must apply migration `Version20261014120000` before using this version.
+Keep `public/uploads/objects/` persistent and backed up together with the database.
+Offline checks: `tests/main_image_history.php`, `tests/main_image_storage.php`,
+`tests/report_image_manager.php` and `tests/report_image_viewer.js`.
+
 ## Installation
 
 1. Copy `.env.sample` to `.env` and configure the database, application URL and DataHub URL.
@@ -44,9 +97,12 @@ Configure the web server with `public/` as its document root. The application mu
 
 ## Main commands
 
+Daily TMS loan/exhibition import: see [setup, mapping and scheduling](docs/tms-sync.md).
+
 ```bash
 php bin/console app:datahub:harvest
 php bin/console app:datahub:list-object-types
+php bin/console app:tms:sync
 php bin/console app:user:create
 php bin/console app:user:password
 ```

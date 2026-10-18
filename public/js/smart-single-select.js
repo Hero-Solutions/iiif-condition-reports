@@ -11,11 +11,11 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const form = select.closest('form');
+        const form = select.form;
         const customKey = select.dataset.smartSelectKey || '';
         const customValue = select.dataset.smartSelectCustomValue || '';
         const customInput = customKey && form
-            ? Array.from(form.querySelectorAll('[data-smart-select-custom-input]'))
+            ? Array.from(form.elements)
                 .find((input) => input.dataset.smartSelectCustomInput === customKey) || null
             : null;
         const selectOptions = Array.from(select.options);
@@ -36,6 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
         menu.setAttribute('role', 'listbox');
 
         search.type = 'text';
+        if (select.hasAttribute('form')) search.setAttribute('form', select.getAttribute('form'));
         search.autocomplete = 'off';
         if (select.dataset.smartSelectMaxlength) {
             search.maxLength = Number(select.dataset.smartSelectMaxlength);

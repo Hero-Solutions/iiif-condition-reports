@@ -12,6 +12,9 @@
                         <div class="actor-list-header">
                             <div class="actor-list-main">
                                 <h3 class="actor-role">{{ role_label }}</h3>
+                                {% if assignment.tmsId is defined and assignment.tmsId %}
+                                    <span class="muted">{{ (assignment.tmsPresent ? 'tms_sync.actor_imported' : 'tms_sync.actor_inactive')|trans }}</span>
+                                {% endif %}
                                 <div class="actor-identity">
                                     <strong>{{ actor.name }}</strong>
                                     <span>{{ ('actor_type.' ~ actor.type)|trans }}</span>

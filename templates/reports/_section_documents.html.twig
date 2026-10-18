@@ -1,0 +1,18 @@
+{% set section_documents = report_documents|filter(document => document.section == document_section) %}
+<section class="report-section-documents" aria-labelledby="report-documents-title-{{ document_section }}">
+    <h3 id="report-documents-title-{{ document_section }}">{{ 'reports.documents'|trans }}</h3>
+    {% if section_documents %}
+        <div class="report-document-list">
+            {% for document in section_documents %}
+                <div class="report-document-row" data-report-document-row>
+                    <div>
+                        <a href="{{ document.path }}" target="_blank" rel="noopener">{{ document.originalName }}</a>
+                        <small>{{ document.categoryTranslationKey ? document.categoryTranslationKey|trans : document.category }} · {{ (document.size / 1048576)|number_format(1, ',', '.') }} MB</small>
+                    </div>
+                    <button type="submit" class="compact-icon-button danger" form="report-document-delete-{{ document.id }}" title="{{ 'actions.delete'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg><span class="visually-hidden">{{ 'actions.delete'|trans }}</span></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% include 'reports/_document_upload.html.twig' %}
+</section>

@@ -80,6 +80,7 @@ actor_role:
   insurer: Insurer
   other: Other
 actor_type:
+  unknown: 'Type to be confirmed'
   organization: Organization
   person: Person
 object_type:
@@ -146,11 +147,35 @@ projects:
   view_reports: 'View reports'
   empty_title: 'No projects yet'
   empty_text: 'Projects will be the main entry point for objects and reports.'
+tms_sync:
+  actor_imported: 'From TMS'
+  actor_inactive: 'No longer supplied by TMS; excluded from new reports'
+  source_details: 'Information from TMS'
+  local_edits: 'TMS data is updated during synchronization. Your own changes to project fields are preserved.'
+  last_synced: 'Last synchronized'
+  missing_project: 'No longer present in TMS; report history retained'
+  missing_link: 'This object link is no longer present in TMS'
+  source_status: 'Status in TMS'
+  display_date: 'Date description in TMS'
+  incoming: 'Incoming loan'
+  outgoing: 'Outgoing loan'
+  related_projects: 'Related loans and exhibitions'
+  parties: 'Parties listed in TMS'
+  document_metadata: 'Document references in TMS'
+  shipments: 'Shipments listed in TMS'
+  object_context: 'Object information for this loan or exhibition'
+  lender_number: 'Lender object number'
+  conditions: 'Conditions'
+  requirements: 'Special requirements'
+  courier: 'Courier requirements'
+  remarks: 'Remarks'
+  insurance_remarks: 'Insurance remarks'
 object_log:
   title: Log
   manual_create: 'Object created'
   manual_update: 'Manual change'
   datahub_sync: 'Datahub sync'
+  tms_sync: 'TMS sync'
   empty: 'No changes logged yet.'
   no_changes: 'No values changed.'
   field: Field
@@ -162,6 +187,7 @@ object_log:
   thumbnail: Thumbnail
   external_id: 'Datahub record ID'
   datahub:
+    measurements: 'Dimensions (cm) / weight (kg)'
     title_nl: 'Title (NL)'
     title_en: 'Title (EN)'
     creator_nl: 'Creator(s) (NL)'
@@ -186,6 +212,8 @@ object_log:
     thumbnail: Thumbnail
 
 objects:
+  previous_main_images: "Previous main images"
+  main_image_replaced: "Replaced via Datahub on %date%"
   datahub_image_readonly: 'This image comes from the Datahub and cannot be changed here.'
   datahub_readonly_help: 'Datahub values are read-only. You can fill in missing information; once the Datahub provides it, it replaces your entries.'
   title: Objects
@@ -231,6 +259,7 @@ objects:
   match_starts_with: 'Starts with'
   empty_title: 'No objects yet'
   empty_text: 'Objects can come from a source or be added locally.'
+  empty_text_datahub: 'Objects are added through the Datahub.'
   inventory_number_exists: 'An object with this inventory number already exists.'
   required_inventory_number: 'Inventory number is required.'
   required_title: 'Title is required.'
@@ -240,6 +269,7 @@ objects:
   max_100: 'Use at most 100 characters.'
   max_255: 'Use at most 255 characters.'
 reports:
+  annotation_image_changed: "The main image has changed. Reload the report before continuing to draw."
   object_notes: Notes
   title: Reports
   new: 'New report'
@@ -429,6 +459,8 @@ reports:
   take_photo: 'Take photo'
   add_photo: 'Add photo'
   add_photos: 'Add photos'
+  add_images: 'Add photo or frame sketch'
+  manage_images: 'Manage images'
   image_url: 'Image URL'
   images_added: 'Photos added.'
   image_url_required: 'Enter an image URL.'

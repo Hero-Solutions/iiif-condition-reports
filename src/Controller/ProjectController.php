@@ -192,6 +192,7 @@ final class ProjectController extends AbstractController
             'project' => $project,
             'form' => $form,
             'project_objects' => $projectObjects,
+            'tms_related_projects' => $this->tmsRelatedProjects($project),
             'project_actors' => $this->projectActors($project),
             'project_object_actors' => $this->projectObjectActors($project),
             'object_results' => $objectResults,
@@ -209,6 +210,16 @@ final class ProjectController extends AbstractController
             'thumbnail_urls' => $this->thumbnailProvider->thumbnailsForObjects($thumbnailObjects),
             'is_new' => false,
         ]);
+    }
+
+    /** @return list<Project> */
+    private function tmsRelatedProjects(Project $project): array
+    {
+        $isLoan = $project->getTmsType() === 'loans';
+        $ids = $project->getTmsData()[$isLoan ? 'exhibition_ids' : 'loan_ids'] ?? [];
+        return $ids === [] ? [] : $this->entityManager->getRepository(Project::class)->findBy([
+            'tmsType' => $isLoan ? 'exhibitions' : 'loans', 'tmsId' => $ids,
+        ], ['title' => 'ASC']);
     }
 
     #[Route('/{_locale<nl|en>}/projects/{id}/environmental-conditions', name: 'projects_environmental_conditions', methods: ['POST'])]
@@ -703,7 +714,7 @@ final class ProjectController extends AbstractController
             return null;
         }
 
-        if (!in_array($actorType, [Actor::TYPE_ORGANIZATION, Actor::TYPE_PERSON], true)) {
+        if (!in_array($actorType, [Actor::TYPE_ORGANIZATION, Actor::TYPE_PERSON, Actor::TYPE_UNKNOWN], true)) {
             return null;
         }
 
@@ -735,7 +746,7 @@ final class ProjectController extends AbstractController
 
         $actor = $this->entityManager
             ->getRepository(Actor::class)
-            ->findOneBy(['name' => $actorData['actor_name']]);
+            ->findOneBy(['name' => $actorData['actor_name'], 'tmsKey' => null]);
 
         if ($actor instanceof Actor) {
             return $actor;
@@ -759,7 +770,7 @@ final class ProjectController extends AbstractController
             return false;
         }
 
-        if (!in_array($actorType, [Actor::TYPE_ORGANIZATION, Actor::TYPE_PERSON], true)) {
+        if (!in_array($actorType, [Actor::TYPE_ORGANIZATION, Actor::TYPE_PERSON, Actor::TYPE_UNKNOWN], true)) {
             return false;
         }
 
@@ -769,7 +780,7 @@ final class ProjectController extends AbstractController
 
         $existingActor = $this->entityManager
             ->getRepository(Actor::class)
-            ->findOneBy(['name' => $actorName]);
+            ->findOneBy(['name' => $actorName, 'tmsKey' => $actor->getTmsKey()]);
 
         if ($existingActor instanceof Actor && $existingActor->getId() !== $actor->getId()) {
             return false;
@@ -960,7 +971,7 @@ final class ProjectController extends AbstractController
 
     private function organizationContactForName(Actor $organization, string $name): ?OrganizationContact
     {
-        $person = $this->entityManager->getRepository(Actor::class)->findOneBy(['name' => $name]);
+        $person = $this->entityManager->getRepository(Actor::class)->findOneBy(['name' => $name, 'tmsKey' => null]);
 
         if ($person instanceof Actor && $person->getType() !== Actor::TYPE_PERSON) {
             return null;

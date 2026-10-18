@@ -1,8 +1,10 @@
-{% macro file_picker(id, label, name, accept = '', multiple = false, camera = false) %}
+{% macro file_picker(id, label, name, accept = '', multiple = false, camera = false, form_id = null) %}
     <div class="report-file-field">
-        <label for="{{ id }}">{{ label|trans }}</label>
+        {% if label %}<label for="{{ id }}">{{ label|trans }}</label>{% endif %}
         <div class="report-file-picker">
             <input type="file" id="{{ id }}" name="{{ name }}" required data-report-media-file
+                   {% if form_id %}form="{{ form_id }}"{% endif %}
+                   {% if not label %}aria-label="{{ 'reports.browse_files'|trans }}"{% endif %}
                    aria-describedby="{{ id }}-selection"
                    {% if accept %}accept="{{ accept }}"{% endif %}
                    {% if multiple %}multiple{% endif %}
@@ -13,11 +15,11 @@
     </div>
 {% endmacro %}
 
-{% macro media_upload_status() %}
+{% macro media_upload_status(form_id = null) %}
     <p class="report-media-status" data-report-media-status role="status" hidden
        data-uploading-label="{{ 'reports.media_adding'|trans }}"
        data-failed-label="{{ 'reports.media_save_failed'|trans }}"></p>
-    <button type="submit" class="secondary report-media-retry" data-report-media-retry hidden>{{ 'reports.media_retry'|trans }}</button>
+    <button type="submit" {% if form_id %}form="{{ form_id }}"{% endif %} class="secondary report-media-retry" data-report-media-retry hidden>{{ 'reports.media_retry'|trans }}</button>
 {% endmacro %}
 
 {% macro render_measurements(measurements, data) %}

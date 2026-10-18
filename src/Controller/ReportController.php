@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Service\MainImageHistory;
 use App\Entity\Actor;
 use App\Entity\Annotation;
 use App\Entity\DamageCase;
 use App\Entity\OrganizationContact;
-use App\Entity\IIIFManifest;
-use App\Entity\ObjectManifest;
 use App\Entity\ObjectRecord;
 use App\Entity\Project;
 use App\Entity\ProjectActor;
@@ -19,7 +18,6 @@ use App\Entity\Report;
 use App\Entity\ReportActor;
 use App\Entity\ReportDocument;
 use App\Entity\ReportImage;
-use App\Entity\ReportManifest;
 use App\Entity\ReportSeries;
 use App\Entity\User;
 use App\Service\ObjectThumbnailProvider;
@@ -33,6 +31,7 @@ use App\Service\ReportFormDefinition;
 use App\Service\ReportTitleFormatter;
 use App\Service\ReportPdfRenderer;
 use App\Service\ReportImageStorage;
+use App\Service\ReportMeasurementDefaults;
 use App\Value\ActorRole;
 use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\EntityManagerInterface;
@@ -43,6 +42,7 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -62,6 +62,8 @@ final class ReportController extends AbstractController
         private readonly ReportDocumentStorage $reportDocumentStorage,
         private readonly FrameSchemaCatalog $frameSchemaCatalog,
         private readonly ReportTitleFormatter $reportTitles,
+        private readonly ReportMeasurementDefaults $measurementDefaults,
+        private readonly MainImageHistory $mainImages,
     ) {
     }
 
@@ -129,7 +131,7 @@ final class ReportController extends AbstractController
             $this->reportMainImageSource($report, false),
         ) + [
             'image_viewer_manifest_url' => $this->annotationManifestUrl($report),
-            'image_viewer_info_url' => $report->getObjectRecord()->getSourceData()['iiif_image_info_url'] ?? null,
+            'image_viewer_info_url' => $this->mainImages->forReport($report)['infoUrl'],
         ]);
     }
 
@@ -165,6 +167,7 @@ final class ReportController extends AbstractController
             'name' => $this->reportImageLabel($image),
         ], $this->reportImages($report));
         $documents = array_map(static fn (ReportDocument $document): array => [
+            'section' => $document->getSection(),
             'category' => $document->getCategory(),
             'path' => $document->getPath(),
             'name' => $document->getOriginalName(),
@@ -196,6 +199,7 @@ final class ReportController extends AbstractController
             ] : null,
             'data' => $report->getData(),
             'images' => $images,
+            'main_image' => $this->mainImages->forReport($report),
             'documents' => $documents,
             'created_at' => $report->getCreatedAt()->format(\DateTimeInterface::ATOM),
             'updated_at' => $report->getUpdatedAt()->format(\DateTimeInterface::ATOM),
@@ -237,7 +241,7 @@ final class ReportController extends AbstractController
             $this->addFlash('success', 'reports.images_added');
         }
 
-        return $this->redirectToReportTab($report, $request, 'photos');
+        return $this->redirectToReportTab($report, $request, 'damage');
     }
 
     #[Route('/{_locale<nl|en>}/reports/{id}/images/url', name: 'reports_images_url', methods: ['POST'])]
@@ -249,7 +253,7 @@ final class ReportController extends AbstractController
         if ($url === '') {
             $this->addFlash('error', 'reports.image_url_required');
 
-            return $this->redirectToReportTab($report, $request, 'photos');
+            return $this->redirectToReportTab($report, $request, 'damage');
         }
 
         try {
@@ -266,7 +270,7 @@ final class ReportController extends AbstractController
             $this->addFlash('error', $exception->getMessage());
         }
 
-        return $this->redirectToReportTab($report, $request, 'photos');
+        return $this->redirectToReportTab($report, $request, 'damage');
     }
 
     #[Route('/{_locale<nl|en>}/reports/{id}/images/iiif', name: 'reports_images_iiif', methods: ['POST'])]
@@ -278,7 +282,7 @@ final class ReportController extends AbstractController
         if ($manifestUrl === '') {
             $this->addFlash('error', 'reports.iiif_url_required');
 
-            return $this->redirectToReportTab($report, $request, 'photos');
+            return $this->redirectToReportTab($report, $request, 'damage');
         }
 
         try {
@@ -295,7 +299,7 @@ final class ReportController extends AbstractController
             $this->addFlash('error', $exception->getMessage());
         }
 
-        return $this->redirectToReportTab($report, $request, 'photos');
+        return $this->redirectToReportTab($report, $request, 'damage');
     }
 
     #[Route('/{_locale<nl|en>}/reports/{id}/images/frame-schema', name: 'reports_images_frame_schema', methods: ['POST'])]
@@ -308,7 +312,7 @@ final class ReportController extends AbstractController
         if ($schema === null) {
             $this->addFlash('error', 'reports.annotation_frame_invalid');
 
-            return $this->redirectToReportTab($report, $request, 'photos');
+            return $this->redirectToReportTab($report, $request, 'damage');
         }
 
         $existing = $this->entityManager->getRepository(ReportImage::class)->findOneBy([
@@ -329,7 +333,7 @@ final class ReportController extends AbstractController
             $existing = $image;
         }
 
-        return $this->redirectToReportTab($report, $request, 'photos');
+        return $this->redirectToReportTab($report, $request, 'damage');
     }
 
     #[Route('/{_locale<nl|en>}/reports/{reportId}/images/{imageId}/rotate', name: 'reports_images_rotate', methods: ['POST'])]
@@ -345,7 +349,7 @@ final class ReportController extends AbstractController
             $this->addFlash('error', $exception->getMessage());
         }
 
-        return $this->redirectToReportTab($report, $request, 'photos');
+        return $this->redirectToReportTab($report, $request, 'damage');
     }
 
     #[Route('/{_locale<nl|en>}/reports/{reportId}/images/{imageId}/move', name: 'reports_images_move', methods: ['POST'])]
@@ -365,7 +369,7 @@ final class ReportController extends AbstractController
             $this->entityManager->flush();
         }
 
-        return $this->redirectToReportTab($report, $request, 'photos');
+        return $this->redirectToReportTab($report, $request, 'damage');
     }
 
     #[Route('/{_locale<nl|en>}/reports/{reportId}/images/{imageId}/delete', name: 'reports_images_delete', methods: ['POST'])]
@@ -386,13 +390,18 @@ final class ReportController extends AbstractController
         $this->entityManager->remove($image);
         $this->entityManager->flush();
 
-        return $this->redirectToReportTab($report, $request, 'photos');
+        return $this->redirectToReportTab($report, $request, 'damage');
     }
 
     #[Route('/{_locale<nl|en>}/reports/{id}/documents', name: 'reports_documents_upload', methods: ['POST'])]
     public function uploadDocuments(Report $report, Request $request): Response
     {
         $this->assertReportMediaRequest($report, $request, 'report_documents_');
+        $section = (string) $request->request->get('section', '');
+        if (!isset(ReportDocument::SECTIONS[$section])) {
+            throw new BadRequestHttpException('Invalid document section.');
+        }
+
         $files = $request->files->all('documents');
         $category = (string) $request->request->get('category', ReportDocument::CATEGORY_GENERAL);
         if ($category === '__custom__') {
@@ -414,6 +423,7 @@ final class ReportController extends AbstractController
                     $file->getClientOriginalName(),
                     $result['mime_type'],
                 ))
+                    ->setSection($section)
                     ->setCategory($category)
                     ->setSize($result['size'])
                     ->setSortOrder($sortOrder++);
@@ -430,7 +440,7 @@ final class ReportController extends AbstractController
             $this->addFlash('success', 'reports.documents_added');
         }
 
-        return $this->redirectToReportTab($report, $request, 'documents');
+        return $this->redirectToReportTab($report, $request, $section);
     }
 
     #[Route('/{_locale<nl|en>}/reports/{reportId}/documents/{documentId}/delete', name: 'reports_documents_delete', methods: ['POST'])]
@@ -442,7 +452,7 @@ final class ReportController extends AbstractController
         $this->entityManager->remove($document);
         $this->entityManager->flush();
 
-        return $this->redirectToReportTab($report, $request, 'documents');
+        return $this->redirectToReportTab($report, $request, $document->getSection());
     }
 
     #[Route('/{_locale<nl|en>}/reports/{id}/autosave', name: 'reports_autosave', methods: ['POST'])]
@@ -738,6 +748,7 @@ final class ReportController extends AbstractController
         $reportImages = $this->reportImages($report);
         $reportPhotos = $this->reportPhotosFrom($reportImages);
 
+        $mainImage = $this->mainImages->forReport($report);
         return $this->render('reports/form.html.twig', [
             'report' => $report,
             'series' => $report->getSeries(),
@@ -755,9 +766,11 @@ final class ReportController extends AbstractController
             'is_new' => false,
             'csrf_token_id' => 'report_edit_' . $report->getId(),
             'back_url' => $this->backUrl($report, $request),
-            'thumbnail_url' => $this->thumbnailProvider->thumbnailForObject($report->getObjectRecord()),
+            'thumbnail_url' => $mainImage['thumbnailUrl'] ?: $this->thumbnailProvider->thumbnailForObject($report->getObjectRecord()),
             'annotation_manifest_url' => $this->annotationManifestUrl($report),
-            'annotation_image_url' => $report->getObjectRecord()->getImageUrl(),
+            'annotation_image_url' => $mainImage['imageUrl'],
+            'main_image_fingerprint' => $mainImage['fingerprint'],
+            'archived_main_images' => $mainImage['images'],
             'report_images' => $reportPhotos,
             'annotation_images' => $this->annotationImageViews($reportImages),
             'damage_case_count' => $this->activeDamageCaseCount($report),
@@ -816,6 +829,12 @@ final class ReportController extends AbstractController
                 ->setData($projectDefaults);
         }
 
+        // New reports use the latest source measurements; existing reports keep their snapshot.
+        $report->setData(array_replace_recursive(
+            $report->getData(),
+            $this->measurementDefaults->for($series->getObjectRecord()),
+        ));
+
         $this->entityManager->persist($report);
         $copiedActorKeys = [];
 
@@ -849,6 +868,10 @@ final class ReportController extends AbstractController
     private function copyReportActors(Report $sourceReport, Report $targetReport, array &$copiedActorKeys): void
     {
         foreach ($this->reportActors($sourceReport) as $sourceActor) {
+            // For TMS projects, use today's project/object assignments, not a previous loan's parties.
+            if ($targetReport->getProject()?->getTmsId() !== null && $sourceActor->getActor()->getTmsKey() !== null) {
+                continue;
+            }
             $this->copyActorToReport(
                 $targetReport,
                 $sourceActor->getActor(),
@@ -876,6 +899,7 @@ final class ReportController extends AbstractController
             ->findBy(['project' => $project], ['createdAt' => 'ASC', 'id' => 'ASC']);
 
         foreach ($actors as $sourceActor) {
+            if ($sourceActor->isTmsPresent() === false) continue;
             $this->copyActorToReport(
                 $report,
                 $sourceActor->getActor(),
@@ -914,6 +938,7 @@ final class ReportController extends AbstractController
             ->findBy(['projectObject' => $projectObject], ['createdAt' => 'ASC', 'id' => 'ASC']);
 
         foreach ($actors as $sourceActor) {
+            if ($sourceActor->isTmsPresent() === false) continue;
             $this->copyActorToReport(
                 $report,
                 $sourceActor->getActor(),
@@ -1012,7 +1037,7 @@ final class ReportController extends AbstractController
             return null;
         }
 
-        if (!in_array($actorType, [Actor::TYPE_ORGANIZATION, Actor::TYPE_PERSON], true)) {
+        if (!in_array($actorType, [Actor::TYPE_ORGANIZATION, Actor::TYPE_PERSON, Actor::TYPE_UNKNOWN], true)) {
             return null;
         }
 
@@ -1044,7 +1069,7 @@ final class ReportController extends AbstractController
 
         $actor = $this->entityManager
             ->getRepository(Actor::class)
-            ->findOneBy(['name' => $actorData['actor_name']]);
+            ->findOneBy(['name' => $actorData['actor_name'], 'tmsKey' => null]);
 
         if ($actor instanceof Actor) {
             return $actor;
@@ -1068,7 +1093,7 @@ final class ReportController extends AbstractController
             return false;
         }
 
-        if (!in_array($actorType, [Actor::TYPE_ORGANIZATION, Actor::TYPE_PERSON], true)) {
+        if (!in_array($actorType, [Actor::TYPE_ORGANIZATION, Actor::TYPE_PERSON, Actor::TYPE_UNKNOWN], true)) {
             return false;
         }
 
@@ -1078,7 +1103,7 @@ final class ReportController extends AbstractController
 
         $existingActor = $this->entityManager
             ->getRepository(Actor::class)
-            ->findOneBy(['name' => $actorName]);
+            ->findOneBy(['name' => $actorName, 'tmsKey' => $actor->getTmsKey()]);
 
         if ($existingActor instanceof Actor && $existingActor->getId() !== $actor->getId()) {
             return false;
@@ -1262,7 +1287,7 @@ final class ReportController extends AbstractController
 
     private function organizationContactForName(Actor $organization, string $name): ?OrganizationContact
     {
-        $person = $this->entityManager->getRepository(Actor::class)->findOneBy(['name' => $name]);
+        $person = $this->entityManager->getRepository(Actor::class)->findOneBy(['name' => $name, 'tmsKey' => null]);
 
         if ($person instanceof Actor && $person->getType() !== Actor::TYPE_PERSON) {
             return null;
@@ -1380,6 +1405,7 @@ final class ReportController extends AbstractController
                 $mainImageSource,
                 $reportImages,
                 $annotationImageSources,
+                $embedImages,
             ),
         ];
     }
@@ -1395,6 +1421,7 @@ final class ReportController extends AbstractController
         ?string $mainImageSource,
         array $reportImages,
         array $reportImageSources,
+        bool $embedImages = false,
     ): array {
         $damageCases = $this->entityManager->getRepository(DamageCase::class)->findBy(
             ['report' => $report, 'deleted' => false],
@@ -1414,6 +1441,10 @@ final class ReportController extends AbstractController
 
         $counts = [];
         $sources = [];
+        $mainImages = [];
+        foreach ($this->mainImages->forReport($report)['images'] as $image) {
+            $mainImages[$image['key']] = $this->outputImageSource($image['image_url'], $embedImages);
+        }
 
         foreach ($annotations as $annotation) {
             $damageCase = $annotation->getDamageCase();
@@ -1435,7 +1466,7 @@ final class ReportController extends AbstractController
             $reportImage = $annotation->getReportImage();
             $imageSource = $reportImage instanceof ReportImage
                 ? ($imageSources[$reportImage->getId()] ?? null)
-                : (str_starts_with($sourceKey, 'main') ? $mainImageSource : null);
+                : ($mainImages[$sourceKey] ?? (str_starts_with($sourceKey, 'main') && $mainImages === [] ? $mainImageSource : null));
 
             if (!is_string($imageSource) || $imageSource === '') {
                 continue;
@@ -1628,7 +1659,12 @@ final class ReportController extends AbstractController
     private function reportMainImageSource(Report $report, bool $embed): ?string
     {
         $object = $report->getObjectRecord();
-        $imageUrl = $object->getImageUrl();
+        $mainImage = $this->mainImages->forReport($report);
+        if ($mainImage['images'] !== []) {
+            // An unavailable historical copy must never be replaced by the current photograph.
+            return $this->outputImageSource($mainImage['imageUrl'], $embed);
+        }
+        $imageUrl = $mainImage['imageUrl'];
 
         if (is_string($imageUrl) && $imageUrl !== '') {
             $source = $this->outputImageSource($imageUrl, $embed);
@@ -1638,7 +1674,7 @@ final class ReportController extends AbstractController
             }
         }
 
-        $iiifInfoUrl = $object->getSourceData()['iiif_image_info_url'] ?? null;
+        $iiifInfoUrl = $mainImage['infoUrl'];
 
         if (is_string($iiifInfoUrl) && trim($iiifInfoUrl) !== '') {
             $iiifImageUrl = rtrim((string) preg_replace('~/info\.json$~i', '', trim($iiifInfoUrl)), '/')
@@ -1807,39 +1843,7 @@ final class ReportController extends AbstractController
 
     private function annotationManifestUrl(Report $report): ?string
     {
-        if ($report->getId() !== null) {
-            $reportLink = $this->entityManager
-                ->getRepository(ReportManifest::class)
-                ->findOneBy([
-                    'report' => $report,
-                    'role' => ReportManifest::ROLE_REFERENCE,
-                ]);
-
-            if ($reportLink instanceof ReportManifest) {
-                return $this->manifestUrl($reportLink->getManifest());
-            }
-        }
-
-        $objectLink = $this->entityManager
-            ->getRepository(ObjectManifest::class)
-            ->findOneBy([
-                'objectRecord' => $report->getObjectRecord(),
-                'role' => ObjectManifest::ROLE_SOURCE,
-            ]);
-
-        return $objectLink instanceof ObjectManifest ? $this->manifestUrl($objectLink->getManifest()) : null;
-    }
-
-    private function manifestUrl(IIIFManifest $manifest): ?string
-    {
-        $sourceUrl = $manifest->getSourceUrl();
-
-        if ($sourceUrl !== null && trim($sourceUrl) !== '') {
-            return $sourceUrl;
-        }
-
-        $manifestId = $manifest->getManifestId();
-
-        return trim($manifestId) !== '' ? $manifestId : null;
+        $source = $this->mainImages->forReport($report);
+        return $source['manifestUrl'] ?: ($source['infoUrl'] ?: null);
     }
 }

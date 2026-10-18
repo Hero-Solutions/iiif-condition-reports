@@ -15,6 +15,7 @@ class ObjectLogEntry
     public const MANUAL_CREATE = 'manual_create';
     public const MANUAL_UPDATE = 'manual_update';
     public const DATAHUB_SYNC = 'datahub_sync';
+    public const TMS_SYNC = 'tms_sync';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -44,7 +45,7 @@ class ObjectLogEntry
     /** @param array<string, array{old: ?string, new: ?string}> $changes */
     public function __construct(ObjectRecord $object, string $type, array $changes, ?User $user = null, ?\DateTimeImmutable $createdAt = null)
     {
-        if ($type !== self::DATAHUB_SYNC && $user === null) {
+        if (!in_array($type, [self::DATAHUB_SYNC, self::TMS_SYNC], true) && $user === null) {
             throw new \InvalidArgumentException('A manual object change requires a user.');
         }
 

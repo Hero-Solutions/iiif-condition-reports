@@ -1,5 +1,7 @@
 twig:
     file_name_pattern: '*.twig'
+    globals:
+        manual_object_creation_enabled: '%app.manual_object_creation_enabled%'
 
 when@test:
     twig:

@@ -11,6 +11,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'projects')]
+#[ORM\UniqueConstraint(name: 'uniq_project_tms', columns: ['tms_type', 'tms_id'])]
 class Project
 {
     public const TYPE_LOAN = 'loan';
@@ -63,6 +64,21 @@ class Project
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::INTEGER)]
     private ?int $id = null;
+
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $tmsType = null;
+
+    #[ORM\Column(length: 18, nullable: true)]
+    private ?string $tmsId = null;
+
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $tmsData = null;
+
+    #[ORM\Column(options: ['default' => true])]
+    private bool $tmsPresent = true;
+
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $lastTmsSyncedAt = null;
 
     #[ORM\Column(length: 255)]
     private string $title;
@@ -126,6 +142,21 @@ class Project
     public function getTitle(): string
     {
         return $this->title;
+    }
+
+    public function getTmsType(): ?string { return $this->tmsType; }
+    public function getTmsId(): ?string { return $this->tmsId; }
+    public function getTmsData(): ?array { return $this->tmsData; }
+    public function isTmsPresent(): bool { return $this->tmsPresent; }
+    public function getLastTmsSyncedAt(): ?\DateTimeImmutable { return $this->lastTmsSyncedAt; }
+
+    public function applyTmsSource(string $type, string $id, array $data, \DateTimeImmutable $at): void
+    {
+        $this->tmsType = $type;
+        $this->tmsId = $id;
+        $this->tmsData = $data;
+        $this->tmsPresent = true;
+        $this->lastTmsSyncedAt = $at;
     }
 
     public function setTitle(string $title): self

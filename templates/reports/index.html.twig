@@ -45,7 +45,7 @@
                 <tbody>
                     {% for report in reports %}
                         {% set object = report.objectRecord %}
-                        {% set thumbnail_url = thumbnail_urls[object.id]|default(null) %}
+                        {% set thumbnail_url = thumbnail_urls[report.id]|default(null) %}
                         {% set report_route = report.editable and not is_granted('ROLE_READ_ONLY') ? 'reports_edit' : 'reports_show' %}
                         <tr data-row-href="{{ path(report_route, {'_locale': app.request.locale, id: report.id}) }}">
                             <td>

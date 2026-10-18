@@ -7,6 +7,7 @@
     {% if not form.imageUpload.vars.disabled %}
         <script src="/js/object-image-preview.js?v=4" defer></script>
     {% endif %}
+    <script src="/js/object-form.js?v=1" defer></script>
 {% endblock %}
 
 {% block body %}
@@ -101,7 +102,11 @@
     {% endif %}
 
     <section class="panel">
-        {{ form_start(form, {'attr': {'class': 'object-edit-form'}}) }}
+        {{ form_start(form, {'attr': {
+            'class': 'object-edit-form',
+            'data-new-object': is_new ? '1' : '0',
+            'data-unsaved': form.vars.submitted ? '1' : '0'
+        }}) }}
             {% if object.source == constant('App\\Entity\\ObjectRecord::SOURCE_DATAHUB') %}
                 <p class="muted">{{ 'objects.datahub_readonly_help'|trans }}</p>
             {% endif %}
@@ -201,12 +206,33 @@
             </div>
 
             <div class="form-actions">
-                <button type="submit">{{ 'actions.save'|trans }}</button>
+                <button type="submit" disabled>{{ 'actions.save'|trans }}</button>
             </div>
         {{ form_end(form) }}
     </section>
 
     {% if not is_new %}
+        {% if previous_main_images|default([]) is not empty %}
+            <section class="panel">
+                <details>
+                    <summary>{{ 'objects.previous_main_images'|trans }} ({{ previous_main_images|length }})</summary>
+                    <div class="object-image-history">
+                        {% for version in previous_main_images %}
+                            <figure>
+                                <div class="object-image-history-thumbnails">
+                                    {% for image in version.images %}
+                                        <a href="{{ image.image_url }}" target="_blank" rel="noopener" title="{{ 'objects.image_preview'|trans }}">
+                                            <img src="{{ image.thumbnail_url }}" alt="{{ 'objects.image_preview'|trans }}" loading="lazy">
+                                        </a>
+                                    {% endfor %}
+                                </div>
+                                <figcaption>{{ 'objects.main_image_replaced'|trans({'%date%': version.replacedAt|date('d/m/Y H:i')}) }}</figcaption>
+                            </figure>
+                        {% endfor %}
+                    </div>
+                </details>
+            </section>
+        {% endif %}
         {% include 'objects/_log.html.twig' %}
     {% endif %}
 {% endblock %}

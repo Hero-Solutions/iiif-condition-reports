@@ -27,6 +27,13 @@ class ProjectObject
     #[ORM\Column(type: Types::INTEGER)]
     private ?int $id = null;
 
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $tmsData = null;
+
+    // NULL means a purely local link. A missing source link is retained for report history.
+    #[ORM\Column(nullable: true)]
+    private ?bool $tmsPresent = null;
+
     #[ORM\ManyToOne(targetEntity: Project::class)]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private Project $project;
@@ -70,6 +77,15 @@ class ProjectObject
     public function getProject(): Project
     {
         return $this->project;
+    }
+
+    public function getTmsData(): ?array { return $this->tmsData; }
+    public function isTmsPresent(): ?bool { return $this->tmsPresent; }
+
+    public function applyTmsSource(array $data): void
+    {
+        $this->tmsData = $data;
+        $this->tmsPresent = true;
     }
 
     public function getObjectRecord(): ObjectRecord

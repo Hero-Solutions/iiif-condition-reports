@@ -118,6 +118,14 @@ for (const [key, label] of [['basis', 'Basis'], ['damage', 'Schadebeelden']]) {
     const panel = new Element('section'); panel.dataset.reportTabPanel = key; editor.append(panel);
 }
 const images = choice('Afbeelding kiezen', 'images');
+const addImage = new Element('button'); addImage.dataset.reportMediaOpen = 'report-image-manager';
+editor.append(addImage);
+const imageManager = new Element('dialog');
+imageManager.id = 'report-image-manager'; imageManager.dataset.reportMediaDialog = '';
+imageManager.showModal = () => { imageManager.open = true; };
+imageManager.close = () => { imageManager.open = false; };
+const closeImageManager = new Element('button'); closeImageManager.dataset.reportMediaClose = '';
+imageManager.append(closeImageManager); editor.append(imageManager);
 const context = vm.createContext({
     document, window, MutationObserver, queueMicrotask, URLSearchParams, CSS: { escape: value => value },
     fetch() { throw new Error('Network forbidden'); },
@@ -125,6 +133,7 @@ const context = vm.createContext({
 const load = name => vm.runInContext(fs.readFileSync(path.join(__dirname, '../public/js', name), 'utf8'), context);
 load('report-choice-menu.js');
 load('report-form-tabs.js');
+load('report-media-upload.js');
 document.emit('DOMContentLoaded');
 flush();
 const toggle = tabs.root.querySelector('.report-choice-toggle');
@@ -141,6 +150,10 @@ assert.equal(toggle.getAttribute('aria-expanded'), 'false');
 assert.equal(toggle.querySelector('.report-choice-current').textContent, 'Schadebeelden2', 'URL tab is reflected in the compact choice.');
 assert.equal(editor.querySelectorAll('[data-report-tab]').length, 2, 'Selected summary does not duplicate actionable tabs.');
 assert.equal(images.root.querySelector('.report-choice-toggle').hidden, true, 'Wait for asynchronously loaded images.');
+addImage.emit('click');
+assert.equal(imageManager.open, true, 'The add button works before any image sources exist.');
+closeImageManager.emit('click');
+assert.equal(imageManager.open, false);
 toggle.emit('click');
 assert.equal(toggle.getAttribute('aria-expanded'), 'true');
 assert.equal(document.activeElement, tabs.list.children[1]);
@@ -199,6 +212,11 @@ assert.equal(imageToggle.getAttribute('aria-expanded'), 'false', 'Close even aft
 assert.equal(document.activeElement, imageToggle);
 assert.equal(imageToggle.querySelector('img').src, 'fixture-detail.png');
 assert.equal(imageToggle.querySelector('.report-choice-current').textContent, 'Detail.png');
+addImage.emit('click');
+assert.equal(imageManager.open, true, 'The add button survives rebuilding the source list.');
+assert.equal(controller.currentSource.key, 'photo', 'Adding images does not select another source.');
+assert.equal(images.list.querySelectorAll('button').length, 2, 'The add action is not an image choice.');
+closeImageManager.emit('click');
 imageToggle.getBoundingClientRect = () => ({ top: 700, bottom: 744 });
 imageToggle.emit('click');
 assert.ok(images.root.classList.contains('choice-menu-above'), 'Open upwards near the viewport bottom.');

@@ -46,6 +46,9 @@
                                 {% if project.referenceCode %}
                                     <span class="table-sub">{{ project.referenceCode }}</span>
                                 {% endif %}
+                                {% if project.tmsId %}
+                                    <span class="table-sub">TMS{% if not project.tmsPresent %} · {{ 'tms_sync.missing_project'|trans }}{% endif %}</span>
+                                {% endif %}
                             </td>
                             <td>{{ project.type == 'other' and project.customType ? project.customType : ('project_type.' ~ project.type)|trans }}</td>
                             <td><span class="chip chip-{{ project_status_chips[project.status]|default('muted') }}">{{ ('project_status.' ~ project.status)|trans }}</span></td>

@@ -73,7 +73,8 @@ document.addEventListener('DOMContentLoaded', () => {
         status.textContent = label.replace('__time__', timeLabel(savedAt || new Date()));
     };
 
-    const markDirty = () => {
+    const markDirty = (event) => {
+        if (event?.target.closest('[data-report-media-fields]')) return;
         dirty = true;
         setStatus('dirty');
     };

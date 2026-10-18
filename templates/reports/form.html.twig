@@ -11,6 +11,7 @@
 {% endblock %}
 
 {% block body %}
+    {% set document_sections = constant('App\\Entity\\ReportDocument::SECTIONS') %}
     <div class="page-header report-page-header">
         <div class="report-title-header">
             <div class="object-thumb report-title-thumb">
@@ -81,10 +82,6 @@
         </div>
     </div>
 
-    {% set main_photo_source = thumbnail_url ?: annotation_image_url %}
-    {% set frame_schema_images = frame_schema_choices|filter(choice => choice.imageId) %}
-    {% set report_photo_count = report_images|length + frame_schema_images|length + (main_photo_source ? 1 : 0) %}
-
     <section class="report-editor">
         <nav class="report-nav" aria-label="{{ 'reports.form_fields'|trans }}" data-report-choice="{{ 'reports.form_fields'|trans }}">
             <div class="report-nav-options" id="report-section-choices" data-report-choice-list>
@@ -94,8 +91,6 @@
                 <button type="button" data-report-tab="materials" aria-selected="false"><span>{{ 'reports.section_materials'|trans }}</span><span class="report-nav-count is-empty" data-section-count hidden>0</span></button>
                 <button type="button" data-report-tab="condition" aria-selected="false"><span>{{ 'reports.section_condition'|trans }}</span><span class="report-nav-count is-empty" data-section-count hidden>0</span></button>
                 <button type="button" data-report-tab="recommendations" aria-selected="false"><span>{{ 'reports.section_recommendations'|trans }}</span><span class="report-nav-count is-empty" data-section-count hidden>0</span></button>
-                <button type="button" data-report-tab="photos" aria-selected="false"><span>{{ 'reports.photos'|trans }}</span><span class="report-nav-count{% if report_photo_count == 0 %} is-empty{% endif %}" data-section-count{% if report_photo_count == 0 %} hidden{% endif %}>{{ report_photo_count }}</span></button>
-                <button type="button" data-report-tab="documents" aria-selected="false"><span>{{ 'reports.documents'|trans }}</span><span class="report-nav-count{% if report_documents is empty %} is-empty{% endif %}" data-section-count{% if report_documents is empty %} hidden{% endif %}>{{ report_documents|length }}</span></button>
                 <button type="button" data-report-tab="damage" aria-selected="false"><span>{{ 'reports.section_damage_types'|trans }}</span><span class="report-nav-count{% if damage_case_count == 0 %} is-empty{% endif %}" data-section-count>{{ damage_case_count }}</span></button>
             </div>
         </nav>
@@ -123,163 +118,24 @@
             } %}
         </section>
 
-        <section class="panel report-tab-panel" data-report-tab-panel="photos" hidden>
-            <div class="report-media-heading">
-                <div>
-                    <h2>{{ 'reports.photos'|trans }}</h2>
-                    <p>{{ 'reports.photos_help'|trans }}</p>
-                </div>
-                <span class="chip chip-muted">{{ report_photo_count }}</span>
-            </div>
+        {% include 'reports/_image_manager.html.twig' %}
 
-            {% if report_photo_count > 0 %}
-                <div class="report-photo-grid">
-                    {% if main_photo_source %}
-                        <article class="report-photo-card is-main-image" data-report-photo-card>
-                            <img src="{{ main_photo_source }}" alt="{{ 'reports.annotation_main_image'|trans }}">
-                            <div class="report-photo-card-footer">
-                                <span>{{ 'reports.annotation_main_image'|trans }}</span>
-                            </div>
-                        </article>
-                    {% endif %}
-                    {% for image in report_images %}
-                        <article class="report-photo-card" data-report-photo-card>
-                            <img src="{{ image.thumbnailPath ?: image.path }}" alt="{{ image.originalName ?: ('reports.photo'|trans) }}">
-                            <div class="report-photo-card-footer">
-                                <span title="{{ image.originalName }}">{{ image.originalName ?: ('reports.photo'|trans) }}</span>
-                                <div class="compact-action-row">
-                                    {% if not loop.first %}
-                                        <form method="post" action="{{ path('reports_images_move', {'_locale': app.request.locale, reportId: report.id, imageId: image.id}) }}">
-                                            <input type="hidden" name="_token" value="{{ csrf_token('report_image_' ~ image.id ~ '_' ~ report.id) }}">
-                                            <input type="hidden" name="direction" value="up">
-                                            <button type="submit" class="compact-icon-button" title="{{ 'reports.move_up'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-up"/></svg><span class="visually-hidden">{{ 'reports.move_up'|trans }}</span></button>
-                                        </form>
-                                    {% endif %}
-                                    {% if not loop.last %}
-                                        <form method="post" action="{{ path('reports_images_move', {'_locale': app.request.locale, reportId: report.id, imageId: image.id}) }}">
-                                            <input type="hidden" name="_token" value="{{ csrf_token('report_image_' ~ image.id ~ '_' ~ report.id) }}">
-                                            <input type="hidden" name="direction" value="down">
-                                            <button type="submit" class="compact-icon-button" title="{{ 'reports.move_down'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-down"/></svg><span class="visually-hidden">{{ 'reports.move_down'|trans }}</span></button>
-                                        </form>
-                                    {% endif %}
-                                    <form method="post" action="{{ path('reports_images_rotate', {'_locale': app.request.locale, reportId: report.id, imageId: image.id}) }}">
-                                        <input type="hidden" name="_token" value="{{ csrf_token('report_image_' ~ image.id ~ '_' ~ report.id) }}">
-                                        <button type="submit" class="compact-icon-button" title="{{ 'reports.rotate'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-rotate"/></svg><span class="visually-hidden">{{ 'reports.rotate'|trans }}</span></button>
-                                    </form>
-                                    <form method="post" action="{{ path('reports_images_delete', {'_locale': app.request.locale, reportId: report.id, imageId: image.id}) }}" onsubmit="return confirm('{{ 'reports.confirm_delete_photo'|trans|e('js') }}');">
-                                        <input type="hidden" name="_token" value="{{ csrf_token('report_image_' ~ image.id ~ '_' ~ report.id) }}">
-                                        <button type="submit" class="compact-icon-button danger" title="{{ 'actions.delete'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg><span class="visually-hidden">{{ 'actions.delete'|trans }}</span></button>
-                                    </form>
-                                </div>
-                            </div>
-                        </article>
-                    {% endfor %}
-                    {% for choice in frame_schema_images %}
-                        {% set frame_schema_label = 'reports.annotation_frame_label'|trans({
-                            '%side%': ('reports.annotation_frame_' ~ choice.side)|trans,
-                            '%shape%': choice.label
-                        }) %}
-                        <article class="report-photo-card is-frame-schema" data-report-photo-card>
-                            <img src="{{ choice.path }}" alt="{{ frame_schema_label }}">
-                            <div class="report-photo-card-footer">
-                                <span title="{{ frame_schema_label }}">{{ frame_schema_label }}</span>
-                                <button type="submit"
-                                        class="compact-icon-button danger"
-                                        form="report-frame-schema-delete-{{ choice.imageId }}"
-                                        aria-label="{{ 'reports.annotation_remove_frame'|trans }}"
-                                        title="{{ 'reports.annotation_remove_frame'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg></button>
-                            </div>
-                        </article>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <div class="empty-state compact"><p>{{ 'reports.no_photos'|trans }}</p></div>
-            {% endif %}
-
-            <div class="report-media-inputs">
-                <form method="post"
-                      enctype="multipart/form-data"
-                      action="{{ path('reports_images_upload', {'_locale': app.request.locale, id: report.id}) }}"
-                      class="report-media-form"
-                      data-report-media-form>
-                    <input type="hidden" name="_token" value="{{ csrf_token('report_images_' ~ report.id) }}">
-                    {{ report_form.file_picker('report-photos', 'reports.choose_photos', 'images[]', 'image/jpeg,image/png,image/webp', true) }}
-                    {{ report_form.media_upload_status() }}
-                </form>
-                <form method="post"
-                      enctype="multipart/form-data"
-                      action="{{ path('reports_images_upload', {'_locale': app.request.locale, id: report.id}) }}"
-                      class="report-media-form"
-                      data-report-media-form>
-                    <input type="hidden" name="_token" value="{{ csrf_token('report_images_' ~ report.id) }}">
-                    {{ report_form.file_picker('report-camera', 'reports.take_photo', 'images[]', 'image/*', false, true) }}
-                    {{ report_form.media_upload_status() }}
-                </form>
-                <form method="post"
-                      action="{{ path('reports_images_url', {'_locale': app.request.locale, id: report.id}) }}"
-                      class="report-media-form report-url-form"
-                      data-report-media-form>
-                    <input type="hidden" name="_token" value="{{ csrf_token('report_images_' ~ report.id) }}">
-                    <label>{{ 'reports.image_url'|trans }}<input type="url" name="image_url" placeholder="https://…" required></label>
-                    <button type="submit" class="secondary" disabled>{{ 'objects.image_load'|trans }}</button>
-                    {{ report_form.media_upload_status() }}
-                </form>
-                <form method="post"
-                      action="{{ path('reports_images_iiif', {'_locale': app.request.locale, id: report.id}) }}"
-                      class="report-media-form report-url-form"
-                      data-report-media-form>
-                    <input type="hidden" name="_token" value="{{ csrf_token('report_images_' ~ report.id) }}">
-                    <label>{{ 'objects.iiif_manifest_url'|trans }}<input type="url" name="manifest_url" placeholder="https://…" required></label>
-                    <button type="submit" class="secondary" disabled>{{ 'objects.image_load'|trans }}</button>
-                    {{ report_form.media_upload_status() }}
-                </form>
-                <div class="report-frame-schema-media">
-                    {% include 'reports/_frame_schema_picker.html.twig' %}
-                </div>
-            </div>
-        </section>
-
-        <section class="panel report-tab-panel" data-report-tab-panel="documents" hidden>
-            <div class="report-media-heading">
-                <div>
-                    <h2>{{ 'reports.documents'|trans }}</h2>
-                    <p>{{ 'reports.documents_help'|trans }}</p>
-                </div>
-                <span class="chip chip-muted">{{ report_documents|length }}</span>
-            </div>
-
-            {% if report_documents %}
-                <div class="report-document-list">
-                    {% for document in report_documents %}
-                        <div class="report-document-row" data-report-document-row>
-                            <div>
-                                <a href="{{ document.path }}" target="_blank" rel="noopener">{{ document.originalName }}</a>
-                                <small>{{ document.categoryTranslationKey ? document.categoryTranslationKey|trans : document.category }} · {{ (document.size / 1048576)|number_format(1, ',', '.') }} MB</small>
-                            </div>
-                            <form method="post" action="{{ path('reports_documents_delete', {'_locale': app.request.locale, reportId: report.id, documentId: document.id}) }}" onsubmit="return confirm('{{ 'reports.confirm_delete_document'|trans|e('js') }}');">
-                                <input type="hidden" name="_token" value="{{ csrf_token('report_document_' ~ document.id ~ '_' ~ report.id) }}">
-                                <button type="submit" class="compact-icon-button danger" title="{{ 'actions.delete'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg><span class="visually-hidden">{{ 'actions.delete'|trans }}</span></button>
-                            </form>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <div class="empty-state compact"><p>{{ 'reports.no_documents'|trans }}</p></div>
-            {% endif %}
-
-            <form method="post" enctype="multipart/form-data" action="{{ path('reports_documents_upload', {'_locale': app.request.locale, id: report.id}) }}" class="report-media-form report-document-upload-form" data-report-media-form>
+        {% for document_section in document_sections|keys %}
+            <form id="report-document-upload-{{ document_section }}" method="post" enctype="multipart/form-data"
+                  action="{{ path('reports_documents_upload', {'_locale': app.request.locale, id: report.id}) }}"
+                  data-report-media-form hidden>
                 <input type="hidden" name="_token" value="{{ csrf_token('report_documents_' ~ report.id) }}">
-                <label><span>{{ 'reports.document_category'|trans }}</span>
-                    <select name="category" data-smart-select data-smart-select-custom-value="__custom__" data-smart-select-key="document-category" data-smart-select-maxlength="50">
-                        {% for label, value in document_categories %}<option value="{{ value }}">{{ label|trans }}</option>{% endfor %}
-                        <option value="__custom__">{{ 'reports.other'|trans }}</option>
-                    </select>
-                    <input type="hidden" name="custom_category" data-smart-select-custom-input="document-category">
-                </label>
-                {{ report_form.file_picker('report-documents', 'reports.choose_documents', 'documents[]', '', true) }}
-                {{ report_form.media_upload_status() }}
+                <input type="hidden" name="section" value="{{ document_section }}">
             </form>
-        </section>
+        {% endfor %}
+        {% for document in report_documents %}
+            <form id="report-document-delete-{{ document.id }}" method="post"
+                  action="{{ path('reports_documents_delete', {'_locale': app.request.locale, reportId: report.id, documentId: document.id}) }}"
+                  data-report-document-delete
+                  onsubmit="return confirm('{{ 'reports.confirm_delete_document'|trans|e('js') }}');" hidden>
+                <input type="hidden" name="_token" value="{{ csrf_token('report_document_' ~ document.id ~ '_' ~ report.id) }}">
+            </form>
+        {% endfor %}
 
         {% for choice in frame_schema_choices %}
             {% if choice.imageId %}
@@ -353,6 +209,7 @@
                         <textarea name="description">{{ report.description }}</textarea>
                     </label>
                 </div>
+                {% include 'reports/_section_documents.html.twig' with {document_section: 'basis'} %}
             </section>
 
             <section class="panel report-tab-panel" data-report-tab-panel="measurements" hidden>
@@ -376,6 +233,7 @@
 
             <section class="panel report-tab-panel" data-report-tab-panel="recommendations" hidden>
                 {{ report_form.render_compact_section(definition.sections.recommendations, report.data) }}
+                {% include 'reports/_section_documents.html.twig' with {document_section: 'recommendations'} %}
             </section>
 
             <section class="panel report-tab-panel" data-report-tab-panel="damage" hidden>
@@ -385,10 +243,12 @@
                          data-state-url="{{ path('report_annotations_state', {'_locale': app.request.locale, id: report.id}) }}"
                          data-damage-case-url="{{ path('report_damage_cases_create', {'_locale': app.request.locale, id: report.id}) }}"
                          data-annotation-url="{{ path('report_annotations_save', {'_locale': app.request.locale, id: report.id}) }}"
+                         data-main-image-fingerprint="{{ main_image_fingerprint|default('') }}"
                          data-initial-source="{{ app.request.query.get('annotation_source') }}"
                          data-csrf-token="{{ csrf_token(csrf_token_id) }}"
                          data-error-message="{{ 'reports.annotation_viewer_error'|trans }}"
                          data-save-error-message="{{ 'reports.annotation_save_error'|trans }}"
+                         data-image-changed-message="{{ 'reports.annotation_image_changed'|trans }}"
                          data-confirm-delete-case="{{ 'reports.annotation_confirm_delete_case'|trans }}"
                          data-drawing-active-message="{{ 'reports.annotation_drawing_active'|trans }}"
                          data-select-eraser-message="{{ 'reports.annotation_select_drawing_for_eraser'|trans }}"
@@ -407,8 +267,11 @@
                          data-drawing-count-many-label="{{ 'reports.annotation_drawing_count_many'|trans({'%count%': '__COUNT__'}) }}"
                          data-added-by-label="{{ 'reports.annotation_added_by'|trans({'%user%': '__USER__', '%date%': '__DATE__'}) }}"
                          data-deleted-on-label="{{ 'reports.annotation_deleted_on'|trans({'%date%': '__DATE__'}) }}">
-                        <div class="report-annotation-source-bar" data-report-choice="{{ 'reports.annotation_choose_image'|trans }}">
-                            <div class="report-annotation-source-list" id="report-image-choices" data-report-choice-list data-annotation-source-list hidden></div>
+                        <div class="report-annotation-source-toolbar">
+                            <div class="report-annotation-source-bar" data-report-choice="{{ 'reports.annotation_choose_image'|trans }}">
+                                <div class="report-annotation-source-list" id="report-image-choices" data-report-choice-list data-annotation-source-list hidden></div>
+                            </div>
+                            <button type="button" class="report-annotation-add-image" data-report-media-open="report-image-manager" aria-haspopup="dialog" aria-controls="report-image-manager" aria-label="{{ 'reports.add_images'|trans }}" title="{{ 'reports.add_images'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg></button>
                         </div>
 
                         <div class="report-annotation-toolbar">
@@ -537,12 +400,22 @@
                         <p class="report-annotation-status" data-annotation-status aria-live="polite"></p>
 
                         <div class="report-annotation-source-data" hidden>
+                            {% if archived_main_images|default([]) is not empty %}
+                                {% for image in archived_main_images %}
+                                    <span data-annotation-source
+                                          data-source-key="{{ image.key }}"
+                                          data-source-label="{{ 'reports.annotation_main_image'|trans }}{{ archived_main_images|length > 1 ? ' ' ~ loop.index : '' }}"
+                                          data-image-url="{{ image.image_url }}"
+                                          data-thumbnail-url="{{ image.thumbnail_url }}"></span>
+                                {% endfor %}
+                            {% else %}
                             <span data-annotation-source
                                   data-source-key="main"
                                   data-source-label="{{ 'reports.annotation_main_image'|trans }}"
                                   data-manifest-url="{{ annotation_manifest_url|default('') }}"
                                   data-image-url="{{ annotation_image_url|default('') }}"
                                   data-thumbnail-url="{{ thumbnail_url|default('') }}"></span>
+                            {% endif %}
                             {% for image in annotation_images %}
                                 <span data-annotation-source
                                       data-source-key="report-image-{{ image.id }}"
@@ -581,6 +454,7 @@
                         </details>
                     </div>
                 {% else %}
+                    <button type="button" class="report-annotation-add-image" data-report-media-open="report-image-manager" aria-haspopup="dialog" aria-controls="report-image-manager" aria-label="{{ 'reports.add_images'|trans }}" title="{{ 'reports.add_images'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg></button>
                     <div class="empty-state compact">
                         <p>{{ 'reports.no_annotation_manifest'|trans }}</p>
                     </div>
@@ -596,16 +470,16 @@
     <script src="/js/numeric-inputs.js?v=2" defer></script>
     <script src="/js/report-measurements.js?v=1" defer></script>
     <script src="/js/actor-role-form.js?v=10" defer></script>
-    <script src="/js/report-autosave.js?v=5" defer></script>
+    <script src="/js/report-autosave.js?v=6" defer></script>
     <script src="/js/report-choice-menu.js?v=2" defer></script>
-    <script src="/js/report-form-tabs.js?v=4" defer></script>
+    <script src="/js/report-form-tabs.js?v=6" defer></script>
     <script src="/js/report-finalization.js?v=1" defer></script>
-    <script src="/js/report-section-progress.js?v=7" defer></script>
+    <script src="/js/report-section-progress.js?v=9" defer></script>
     <script src="/js/report-compact-fields.js?v=17" defer></script>
-    <script src="/js/report-media-upload.js?v=3" defer></script>
+    <script src="/js/report-media-upload.js?v=6" defer></script>
     <script src="/vendor/openseadragon/openseadragon.min.js?v=6.1.0" defer></script>
     <script src="/vendor/annotorious/annotorious-openseadragon.js?v=3.8.9" defer></script>
     <script src="/vendor/annotorious-tools/annotorious-plugin-tools.js?v=1.6.0" defer></script>
     <script src="/js/iiif-image-sources.js?v=1" defer></script>
-    <script src="/js/report-annotation-viewer.js?v=33" defer></script>
+    <script src="/js/report-annotation-viewer.js?v=35" defer></script>
 {% endblock %}

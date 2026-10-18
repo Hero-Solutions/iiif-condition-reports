@@ -1,12 +1,36 @@
 document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('[data-report-media-dialog]').forEach((dialog) => {
+        document.querySelectorAll(`[data-report-media-open="${dialog.id}"]`).forEach((button) => {
+            button.addEventListener('click', () => dialog.showModal());
+        });
+        dialog.querySelector('[data-report-media-close]').addEventListener('click', () => dialog.close());
+    });
+
+    document.querySelectorAll('[data-report-document-delete]').forEach((form) => {
+        let submitting = false;
+        form.addEventListener('submit', async (event) => {
+            if (event.defaultPrevented) return;
+            event.preventDefault();
+            if (submitting) return;
+            submitting = true;
+            try {
+                const saved = await form.closest('.report-editor')?.reportAutosave?.saveNow();
+                if (saved !== false) form.submit();
+            } finally {
+                submitting = false;
+            }
+        });
+    });
+
     document.querySelectorAll('[data-report-media-form]').forEach((form) => {
         const editor = form.closest('.report-editor');
-        const fileInput = form.querySelector('[data-report-media-file]');
-        const urlInput = form.querySelector('input[type="url"]');
-        const fileName = form.querySelector('[data-report-file-name]');
-        const status = form.querySelector('[data-report-media-status]');
-        const retry = form.querySelector('[data-report-media-retry]');
-        const buttons = form.querySelectorAll('button[type="submit"]');
+        const fields = form.id ? document.querySelector(`[data-report-media-fields="${form.id}"]`) || form : form;
+        const fileInput = fields.querySelector('[data-report-media-file]');
+        const urlInput = fields.querySelector('input[type="url"]');
+        const fileName = fields.querySelector('[data-report-file-name]');
+        const status = fields.querySelector('[data-report-media-status]');
+        const retry = fields.querySelector('[data-report-media-retry]');
+        const buttons = fields.querySelectorAll('button[type="submit"]');
         let submitting = false;
 
         const updateSubmitButtons = () => {

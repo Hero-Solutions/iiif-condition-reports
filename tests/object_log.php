@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 // SQLite in memory, fake users and fake image storage. No application bootstrap or network.
 use App\Controller\ObjectController;
-use App\Entity\{IIIFManifest, ObjectLogEntry, ObjectManifest, ObjectRecord, User};
+use App\Entity\{Actor, IIIFManifest, ObjectLogEntry, ObjectManifest, ObjectRecord, User};
 use App\Form\ObjectRecordType;
 use App\Service\{ObjectChangeLogger, ObjectImageStorage, ObjectThumbnailProvider, ReportAuthorProvider};
 use Doctrine\DBAL\DriverManager;
@@ -14,9 +14,11 @@ use Doctrine\ORM\Tools\SchemaTool;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
+use Symfony\Component\Form\Extension\HttpFoundation\HttpFoundationExtension;
 use Symfony\Component\Form\Forms;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Translation\{Translator, Loader\ArrayLoader};
@@ -44,12 +46,12 @@ $config = ORMSetup::createAttributeMetadataConfiguration([$root . '/src/Entity']
 $config->setNamingStrategy(new UnderscoreNamingStrategy(CASE_LOWER));
 $config->setAutoGenerateProxyClasses(Doctrine\ORM\Proxy\ProxyFactory::AUTOGENERATE_EVAL);
 $manager = new EntityManager(DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true]), $config);
-(new SchemaTool($manager))->createSchema(array_map($manager->getClassMetadata(...), [ObjectRecord::class, ObjectLogEntry::class, ObjectManifest::class, IIIFManifest::class, User::class]));
+(new SchemaTool($manager))->createSchema(array_map($manager->getClassMetadata(...), [Actor::class, ObjectRecord::class, ObjectLogEntry::class, ObjectManifest::class, IIIFManifest::class, User::class]));
 $logger = new ObjectChangeLogger($manager);
 $translator = new Translator('nl');
 $translator->addLoader('array', new ArrayLoader());
 foreach (['nl', 'en'] as $locale) $translator->addResource('array', Yaml::parse(file_get_contents($root . '/translations/messages.' . $locale . '.yaml')), $locale);
-$forms = Forms::createFormFactoryBuilder()->addType(new ObjectRecordType($translator))->addExtension(new ValidatorExtension(Validation::createValidator()))->getFormFactory();
+$forms = Forms::createFormFactoryBuilder()->addType(new ObjectRecordType($translator))->addExtension(new HttpFoundationExtension())->addExtension(new ValidatorExtension(Validation::createValidator()))->getFormFactory();
 $storage = new class extends ObjectImageStorage {
     public bool $fail = false;
     public function __construct() {}
@@ -63,7 +65,16 @@ $storage = new class extends ObjectImageStorage {
         return ['image_url' => '/uploads/fixture.jpg', 'thumbnail_url' => '/uploads/thumb.jpg'];
     }
 };
-$controller = new ObjectController($manager, new ObjectThumbnailProvider($manager), $storage, $translator, new ReportAuthorProvider($manager), $logger);
+$controller = new ObjectController($manager, new ObjectThumbnailProvider($manager), $storage, $translator, new ReportAuthorProvider($manager), $logger, true, new \App\Service\MainImageHistory($manager, new \App\Service\ObjectImageStorage(__DIR__, dirname(__DIR__))));
+$disabledController = new ObjectController($manager, new ObjectThumbnailProvider($manager), $storage, $translator, new ReportAuthorProvider($manager), $logger, false, new \App\Service\MainImageHistory($manager, new \App\Service\ObjectImageStorage(__DIR__, dirname(__DIR__))));
+foreach (['GET', 'POST'] as $method) {
+    try {
+        $disabledController->new(Request::create('/nl/objects/new', $method));
+        throw new RuntimeException('Disabled manual creation must reject ' . $method . '.');
+    } catch (Symfony\Component\Security\Core\Exception\AccessDeniedException) {
+        check($manager->getRepository(ObjectRecord::class)->count([]) === 0, 'Denied requests must not create objects.');
+    }
+}
 $user = (new User())->setEmail('fixture@example.invalid')->setFullName('Fixture editor');
 $manager->persist($user);
 $manager->flush();
@@ -136,6 +147,7 @@ check($created->getChanges()['title']['new'] === 'Original', 'Later edits must n
 $twig = new Twig\Environment(new Twig\Loader\ArrayLoader([
     'base.html.twig' => '{% block body %}{% endblock %}',
     'objects/form.html.twig' => file_get_contents($root . '/templates/objects/form.html.twig'),
+    'objects/index.html.twig' => file_get_contents($root . '/templates/objects/index.html.twig'),
     'objects/_log.html.twig' => file_get_contents($root . '/templates/objects/_log.html.twig'),
     'form_div_layout.html.twig' => file_get_contents($root . '/vendor/symfony/twig-bridge/Resources/views/Form/form_div_layout.html.twig'),
 ]), ['strict_variables' => true]);
@@ -148,6 +160,7 @@ $twig->addFunction(new Twig\TwigFunction('path', static fn () => '/fixture'));
 $twig->addFunction(new Twig\TwigFunction('is_granted', static fn () => false));
 $twig->addFunction(new Twig\TwigFunction('csrf_token', static fn () => 'fixture'));
 $twig->addFilter(new Twig\TwigFilter('report_title', static fn () => 'Fixture report'));
+$twig->addGlobal('app', ['request' => ['locale' => 'nl']]);
 foreach (['nl', 'en'] as $locale) {
     $translator->setLocale($locale);
     $html = $twig->render('objects/_log.html.twig', [
@@ -170,6 +183,19 @@ foreach (['nl', 'en'] as $locale) {
     check(!str_contains($html, 'class="object-meta"') && !str_contains($html, '<h2>' . $translator->trans('objects.source_data') . '</h2>'), 'Replace the old metadata/source sections.');
 }
 
+// The feature flag hides creation links and blocks the route, without changing object editing.
+$container->set('form.factory', $forms);
+$container->set('twig', $twig);
+check($controller->new(Request::create('/nl/objects/new'))->getStatusCode() === 200, 'Enabled manual creation must still render its form.');
+foreach ([true, false] as $enabled) {
+    $html = $twig->render('objects/index.html.twig', [
+        'manual_object_creation_enabled' => $enabled, 'objects' => [], 'thumbnail_urls' => [],
+        'inventory_number' => '', 'match' => 'exact',
+    ]);
+    check(str_contains($html, $translator->trans('objects.new')) === $enabled, 'Creation link must follow the setting.');
+    check(str_contains($html, $translator->trans($enabled ? 'objects.empty_text' : 'objects.empty_text_datahub')), 'Empty-list help must match the setting.');
+}
+
 // Log and object changes must commit or roll back together.
 $connection = $manager->getConnection();
 $count = (int) $connection->fetchOne('SELECT COUNT(*) FROM object_log_entries');
@@ -183,4 +209,4 @@ try {
     check((int) $connection->fetchOne('SELECT COUNT(*) FROM object_log_entries') === $count, 'Failed database writes must not leave audit entries.');
 }
 
-echo "PASS: manual creation/changes, actor history, clears/images, no-op and failed saves, Datahub values, escaping, pagination links and transaction rollback.\n";
+echo "PASS: creation flag (GET/POST and links), manual changes, actor history, clears/images, no-op and failed saves, Datahub values, escaping, pagination and rollback.\n";

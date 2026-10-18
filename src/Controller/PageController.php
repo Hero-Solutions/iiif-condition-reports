@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Service\MainImageHistory;
 use App\Entity\Project;
 use App\Entity\ProjectObject;
 use App\Entity\Report;
@@ -27,7 +28,7 @@ final class PageController extends AbstractController
     }
 
     #[Route('/{_locale<nl|en>}/reports', name: 'reports_index')]
-    public function reports(Request $request, EntityManagerInterface $entityManager, ObjectThumbnailProvider $thumbnailProvider, ReportAuthorProvider $reportAuthorProvider): Response
+    public function reports(Request $request, EntityManagerInterface $entityManager, ObjectThumbnailProvider $thumbnailProvider, ReportAuthorProvider $reportAuthorProvider, MainImageHistory $mainImages): Response
     {
         $projectId = filter_var($request->query->get('project'), FILTER_VALIDATE_INT);
         $selectedProject = null;
@@ -48,7 +49,7 @@ final class PageController extends AbstractController
             'q' => trim((string) $request->query->get('q', '')),
             'selected_project' => $selectedProject,
             'report_rooms' => $this->reportRooms($reports, $entityManager),
-            'thumbnail_urls' => $thumbnailProvider->thumbnailsForObjects($objects),
+            'thumbnail_urls' => $mainImages->thumbnailsForReports($reports, $thumbnailProvider->thumbnailsForObjects($objects)),
             'report_author_names' => $reportAuthorProvider->namesFor($reports),
         ]);
     }

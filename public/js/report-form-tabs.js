@@ -18,7 +18,7 @@ const activateReportTab = (editor, target) => {
     });
 
     editor.querySelectorAll('[data-report-save-actions]').forEach((actions) => {
-        actions.hidden = ['actors', 'photos', 'documents', 'damage'].includes(target);
+        actions.hidden = ['actors', 'damage'].includes(target);
     });
 };
 

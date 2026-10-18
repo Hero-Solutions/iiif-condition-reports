@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Service\MainImageHistory;
 use App\Entity\Actor;
 use App\Entity\IIIFManifest;
 use App\Entity\ObjectManifest;
@@ -16,6 +17,7 @@ use App\Service\ObjectChangeLogger;
 use App\Service\ObjectThumbnailProvider;
 use App\Service\ReportAuthorProvider;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -35,6 +37,8 @@ final class ObjectController extends AbstractController
         private readonly TranslatorInterface $translator,
         private readonly ReportAuthorProvider $reportAuthorProvider,
         private readonly ObjectChangeLogger $objectLogger,
+        #[Autowire('%app.manual_object_creation_enabled%')] private readonly bool $manualObjectCreationEnabled,
+        private readonly MainImageHistory $mainImages,
     ) {
     }
 
@@ -69,6 +73,10 @@ final class ObjectController extends AbstractController
     #[Route('/{_locale<nl|en>}/objects/new', name: 'objects_new', methods: ['GET', 'POST'])]
     public function new(Request $request): Response
     {
+        if (!$this->manualObjectCreationEnabled) {
+            throw $this->createAccessDeniedException();
+        }
+
         $object = new ObjectRecord();
         $form = $this->createObjectForm($object);
         $form->handleRequest($request);
@@ -123,6 +131,7 @@ final class ObjectController extends AbstractController
             'log_entries' => array_slice($logEntries, 0, 20),
             'log_page' => $logPage,
             'log_has_more' => count($logEntries) > 20,
+            'previous_main_images' => $this->mainImages->previousImages($object),
             'thumbnail_url' => $this->thumbnailProvider->thumbnailForObject($object),
             'reports' => $reports,
             'reports_count' => count($reports),

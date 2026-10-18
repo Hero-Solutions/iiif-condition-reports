@@ -12,12 +12,22 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'project_object_actors')]
 #[ORM\Index(name: 'idx_project_object_actor_project_object', columns: ['project_object_id'])]
 #[ORM\Index(name: 'idx_project_object_actor_actor', columns: ['actor_id'])]
+#[ORM\UniqueConstraint(name: 'uniq_project_object_actor_tms', columns: ['project_object_id', 'tms_id'])]
 class ProjectObjectActor
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::INTEGER)]
     private ?int $id = null;
+
+    #[ORM\Column(length: 18, nullable: true)]
+    private ?string $tmsId = null;
+
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $tmsData = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $tmsPresent = null;
 
     #[ORM\ManyToOne(targetEntity: ProjectObject::class)]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
@@ -65,6 +75,22 @@ class ProjectObjectActor
     public function getActor(): Actor
     {
         return $this->actor;
+    }
+
+    public function getTmsId(): ?string { return $this->tmsId; }
+    public function getTmsData(): ?array { return $this->tmsData; }
+    public function isTmsPresent(): ?bool { return $this->tmsPresent; }
+
+    public function applyTmsSource(string $id, Actor $actor, array $data): self
+    {
+        if ($this->actor !== $actor) {
+            $this->actor = $actor;
+            $this->contactPerson = null;
+        }
+        $this->tmsId = $id;
+        $this->tmsData = $data;
+        $this->tmsPresent = true;
+        return $this;
     }
 
     public function getContactPerson(): ?OrganizationContact

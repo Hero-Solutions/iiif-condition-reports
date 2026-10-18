@@ -1,0 +1,13 @@
+{% import 'reports/report_form_renderer.html.twig' as report_form %}
+{% set upload_form_id = 'report-document-upload-' ~ document_section %}
+<div class="report-media-form report-document-upload-form" data-report-media-fields="{{ upload_form_id }}">
+    <label><span>{{ 'reports.document_category'|trans }}</span>
+        <select name="category" form="{{ upload_form_id }}" data-smart-select data-smart-select-custom-value="__custom__" data-smart-select-key="document-category-{{ document_section }}" data-smart-select-maxlength="50">
+            {% for label, value in document_categories %}<option value="{{ value }}">{{ label|trans }}</option>{% endfor %}
+            <option value="__custom__">{{ 'reports.other'|trans }}</option>
+        </select>
+        <input type="hidden" name="custom_category" form="{{ upload_form_id }}" data-smart-select-custom-input="document-category-{{ document_section }}">
+    </label>
+    {{ report_form.file_picker('report-documents-' ~ document_section, '', 'documents[]', '', true, false, upload_form_id) }}
+    {{ report_form.media_upload_status(upload_form_id) }}
+</div>
