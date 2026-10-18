@@ -24,7 +24,8 @@ final class TmsProjectSync
     ) {
     }
 
-    public function synchronize(): array
+    /** @param null|callable(string): void $trace */
+    public function synchronize(?callable $trace = null): array
     {
         if (!$this->client->isEnabled()) {
             return ['status' => 'disabled'];
@@ -41,7 +42,9 @@ final class TmsProjectSync
             if (!flock($lock, LOCK_EX | LOCK_NB)) {
                 return ['status' => 'locked'];
             }
-            $manifest = $this->download($files);
+            if ($trace !== null) $trace('Importslot verkregen; API-download starten.');
+            $manifest = $this->download($files, $trace);
+            if ($trace !== null) $trace('Alle API-pagina\'s gecontroleerd; databasetransactie starten.');
             // No project/object mutations (or database connection) before download completion.
             return $this->entityManager->wrapInTransaction(function () use ($files, $manifest): array {
                 return $this->apply($files, $manifest);
@@ -57,9 +60,9 @@ final class TmsProjectSync
     }
 
     /** @param array<string, resource> $files */
-    private function download(array &$files): array
+    private function download(array &$files, ?callable $trace): array
     {
-        $manifest = $this->client->getManifest();
+        $manifest = $this->client->getManifest($trace);
         if (($manifest['scope'] ?? null) !== ['exhibition_ids' => null]) {
             throw new UnexpectedValueException('Deze import verwacht alle bruiklenen en tentoonstellingen; de API-scope is beperkt of ontbreekt.');
         }
@@ -69,6 +72,7 @@ final class TmsProjectSync
                 throw new UnexpectedValueException('Een vereiste API-dataset ontbreekt of is uitgeschakeld: ' . $dataset);
             }
             if (!$enabled) {
+                if ($trace !== null) $trace('Dataset uitgeschakeld: ' . $dataset);
                 continue;
             }
             $path = $this->workDirectory . '/download-' . bin2hex(random_bytes(12));
@@ -79,7 +83,7 @@ final class TmsProjectSync
             $files[$dataset] = $file;
             $offset = 0;
             do {
-                $page = $this->client->getPage($dataset, $offset);
+                $page = $this->client->getPage($dataset, $offset, 500, $trace);
                 if (($page['scope'] ?? null) !== $manifest['scope']) {
                     throw new UnexpectedValueException('De API-scope is tijdens het ophalen gewijzigd.');
                 }
@@ -114,7 +118,8 @@ final class TmsProjectSync
                 $offset = $page['next_offset'];
             } while ($offset !== null);
         }
-        $end = $this->client->getManifest();
+        if ($trace !== null) $trace('Download voltooid; API-manifest opnieuw controleren.');
+        $end = $this->client->getManifest($trace);
         if ($end['datasets'] !== $manifest['datasets']
             || ($end['scope'] ?? null) !== $manifest['scope']) {
             throw new UnexpectedValueException('De API-configuratie is tijdens het ophalen gewijzigd. Probeer opnieuw.');

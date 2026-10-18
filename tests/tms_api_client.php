@@ -98,4 +98,29 @@ if (!function_exists('curl_init')) {
     rejects(static fn() => $make(['transport' => null])->getManifest(), 'PHP cURL extension');
 }
 
+// Verbose output shows useful API errors without authentication values or unbounded bodies.
+$messages = [];
+$trace = static function (string $message) use (&$messages): void { $messages[] = $message; };
+$verbosePassword = 'FAKE/päss "quoted"';
+$verboseClient = $make(['password' => $verbosePassword]);
+$response = ['status' => 500, 'body' => json_encode(['error' => ['code' => 'export_failed', 'stage' => 'execute',
+    'message' => 'Example database error', 'echoed_user' => 'test-client', 'echoed_password' => $verbosePassword,
+    'echoed_auth' => base64_encode('test-client:' . $verbosePassword), 'echoed_url' => rawurlencode($verbosePassword)]])];
+rejects(static fn() => $verboseClient->getPage('objects', 500, 500, $trace), 'HTTP 500');
+$text = implode("\n", $messages);
+check(str_contains($text, 'dataset=objects&offset=500&limit=500') && str_contains($text, 'HTTP 500'), 'Verbose request/status missing.');
+check(str_contains($text, 'Example database error') && str_contains($text, 'execute'), 'Verbose API response was hidden.');
+foreach (['test-client', 'FAKE', base64_encode('test-client:' . $verbosePassword), rawurlencode($verbosePassword)] as $secret) {
+    check(!str_contains($text, $secret), 'Verbose output exposed authentication details.');
+}
+$messages = [];
+$response['body'] = str_repeat('x', 2040) . $verbosePassword . str_repeat('x', 10000) . 'NOT_IN_PREVIEW';
+rejects(static fn() => $verboseClient->getManifest($trace), 'HTTP 500');
+$preview = $messages[2];
+check(str_contains($preview, '[afgekapt]') && strlen($preview) < 2200, 'Response preview was not bounded.');
+check(!str_contains($preview, 'FAKE') && !str_contains($preview, 'NOT_IN_PREVIEW'), 'Preview leaked a truncated credential or the response tail.');
+$messages = [];
+rejects(static fn() => $disabled->getManifest($trace), 'disabled');
+check($messages === [], 'Disabled client emitted a request trace.');
+
 echo "OK: {$checks} checks; fake HTTP transport only, no environment or network.\n";

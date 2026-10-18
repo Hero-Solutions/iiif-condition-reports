@@ -14,6 +14,7 @@ use Doctrine\ORM\Mapping\UnderscoreNamingStrategy;
 use Doctrine\ORM\Tools\SchemaTool;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Console\Output\OutputInterface;
 
 $root = dirname(__DIR__);
 require $root . '/vendor/composer/ClassLoader.php';
@@ -251,6 +252,23 @@ try {
         check(glob($directory . '/download-*') === [], 'Temporary download leaked after failure.');
         $badEm->close();
     }
+
+    // Only explicit verbosity prints response previews; it must preserve the same rollback behavior.
+    $verboseEm = manager();
+    $verbose = state();
+    $verbose['fail_dataset'] = 'objects';
+    $verboseCommand = new CommandTester(new SyncTmsProjectsCommand(syncer($verboseEm, $verbose, $directory)));
+    check($verboseCommand->execute([], ['verbosity' => OutputInterface::VERBOSITY_VERBOSE]) === 1, 'Verbose API failure must fail the command.');
+    $display = $verboseCommand->getDisplay();
+    check(str_contains($display, 'GET https://fixtures.invalid/loan_projects.php?dataset=objects&offset=0&limit=500')
+        && str_contains($display, 'Respons: HTTP 503') && str_contains($display, 'Responsbody'), 'Command did not forward verbose request/response diagnostics.');
+    check(str_contains($display, 'SECRET_DO_NOT_PRINT'), 'Explicit verbose output must include the fake response body.');
+    check(!str_contains($display, 'FAKE-password'), 'Command exposed the Basic password.');
+    check($verboseEm->getRepository(Project::class)->count([]) === 0, 'Verbose failure stored a partial import.');
+    $verbose['fail_dataset'] = '';
+    check($verboseCommand->execute([], ['verbosity' => OutputInterface::VERBOSITY_VERBOSE]) === 0, 'Verbose successful import failed.');
+    check(str_contains($verboseCommand->getDisplay(), 'databasetransactie starten'), 'Missing transition from API download to database import.');
+    $verboseEm->close();
 
     // Real pagination: the final page is needed; failure on that page cannot publish the first 500 rows.
     $paged = state();

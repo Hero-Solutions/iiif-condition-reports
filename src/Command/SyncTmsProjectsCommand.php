@@ -21,10 +21,13 @@ final class SyncTmsProjectsCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $trace = $output->isVerbose() ? static function (string $message) use ($output): void {
+            $output->writeln('[' . date('H:i:s') . '] ' . OutputFormatter::escape($message));
+        } : null;
         try {
-            $result = $this->sync->synchronize();
+            $result = $this->sync->synchronize($trace);
         } catch (\Throwable $error) {
-            // No SQL, source rows, response bodies, DSNs or credentials in cron output.
+            // Default cron output stays compact; response previews require explicit verbosity.
             $reason = $error instanceof TmsApiException || $error instanceof \UnexpectedValueException ? $error->getMessage()
                 : (is_int($error->getCode()) && $error->getCode() >= 400 && $error->getCode() <= 599 ? 'API HTTP ' . $error->getCode()
                     : 'Controleer API-configuratie, bereikbaarheid en de database-migratie (' . get_debug_type($error) . ').');

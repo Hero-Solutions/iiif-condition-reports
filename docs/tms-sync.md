@@ -19,7 +19,11 @@ Alle onderstaande serverhandelingen zijn **uitsluitend voor de beheerder om zelf
 
 Controleer de tellingen en de geïmporteerde projecten. Onvolledige datasets, ontbrekende relatie-ID's, dubbele bron-ID's en conflicterende inventarisnummers laten de volledige import mislukken. Het commando geeft exitcode 1; een geslaagde import of een bewust overgeslagen run geeft 0. Een uitgeschakelde import doet geen API-aanvragen en verandert geen gegevens.
 
-Bij API-fouten toont het commando de concrete gecontroleerde foutmelding, met `manifest` of de dataset en offset. Verbindingsfouten bevatten de cURL-code en de vaste beschrijving; HTTP-fouten bevatten de statuscode. Dit werkt zonder `-vvv`. Wachtwoorden, ruwe HTTP-antwoorden en SQL worden niet weergegeven. Overige onverwachte fouten behouden de algemene melding; de foutklasse alleen bewijst geen databaseprobleem.
+Bij API-fouten toont het commando de concrete gecontroleerde foutmelding, met `manifest` of de dataset en offset. Verbindingsfouten bevatten de cURL-code en de vaste beschrijving; HTTP-fouten bevatten de statuscode. Dit werkt zonder `-vvv`. Standaard worden wachtwoorden, HTTP-antwoorden en SQL niet weergegeven. Overige onverwachte fouten behouden de algemene melding; de foutklasse alleen bewijst geen databaseprobleem.
+
+Voor diagnose kan de beheerder zelf `php bin/console app:tms:sync --env=prod --no-debug --no-interaction -v` uitvoeren. Vóór elke aanvraag verschijnt de volledige URL met dataset, offset en limiet. Daarna volgen HTTP-status, tijdsduur, ontvangen bytes en een responsfragment van maximaal 2048 bytes na afscherming. De native client toont ook het bereikte IP, content-type en cumulatieve DNS-, TCP-, TLS- en eerste-bytetijden sinds het begin van de aanvraag (nul betekent dat er geen tijd voor die stap is gemeten). Een time-out toont de reeds ontvangen body, of expliciet dat er geen status/body ontvangen is. Het commando meldt ook wanneer het opslaan in de appdatabase begint. `-vv` en `-vvv` tonen dezelfde begrensde diagnostiek.
+
+Verbose responsfragmenten kunnen object- en actorgegevens of foutdetails van de API bevatten; deel alleen de relevante, geschoonde uitvoer. De bekende Basic-gebruikersnaam, het wachtwoord en hun gebruikelijke JSON/URL/Base64-vormen worden afgeschermd. Authorization-headers en ruwe cURL-debuglogs worden niet afgedrukt. Zonder `-v` blijven response bodies verborgen. Dit blijft een echte import en is geen dry-run.
 
 ## Dagelijks plannen
 
