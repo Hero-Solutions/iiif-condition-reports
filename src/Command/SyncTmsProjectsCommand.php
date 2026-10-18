@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Command;
 
+use App\Exception\TmsApiException;
 use App\Service\TmsProjectSync;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -24,7 +25,7 @@ final class SyncTmsProjectsCommand extends Command
             $result = $this->sync->synchronize();
         } catch (\Throwable $error) {
             // No SQL, source rows, response bodies, DSNs or credentials in cron output.
-            $reason = $error instanceof \UnexpectedValueException ? $error->getMessage()
+            $reason = $error instanceof TmsApiException || $error instanceof \UnexpectedValueException ? $error->getMessage()
                 : (is_int($error->getCode()) && $error->getCode() >= 400 && $error->getCode() <= 599 ? 'API HTTP ' . $error->getCode()
                     : 'Controleer API-configuratie, bereikbaarheid en de database-migratie (' . get_debug_type($error) . ').');
             $output->writeln('<error>TMS-import mislukt. Geen gedeeltelijke import opgeslagen. ' . OutputFormatter::escape($reason) . '</error>');

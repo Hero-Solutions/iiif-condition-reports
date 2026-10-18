@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 // Offline only. No kernel, .env, Composer bootstrap or native HTTP transport.
+require dirname(__DIR__) . '/src/Exception/TmsApiException.php';
 require dirname(__DIR__) . '/src/Service/TmsApiClient.php';
 
 use App\Service\TmsApiClient;
@@ -78,15 +79,23 @@ check(count($requests) === $before, 'Rejected request reached transport.');
 foreach ([301, 302, 401, 409, 500, 503] as $status) {
     $response = ['status' => $status, 'body' => 'SECRET_DO_NOT_INCLUDE'];
     rejects(static fn() => $client->getManifest(), "HTTP {$status}");
+    rejects(static fn() => $client->getManifest(), 'manifest');
+    rejects(static fn() => $client->getPage('loans', 500), 'dataset loans, offset 500');
 }
 $response = ['status' => 200, 'body' => '{broken'];
 rejects(static fn() => $client->getManifest(), 'invalid JSON');
+rejects(static fn() => $client->getPage('loans', 500), 'dataset loans, offset 500');
 $response['body'] = json_encode(array_replace($manifest, ['schema_version' => 999]));
 rejects(static fn() => $client->getManifest(), 'unsupported');
 foreach ([['dataset' => 'objects'],
     ['offset' => 1], ['count' => 99], ['next_offset' => 0], ['data' => [['LoanID' => '1']]]] as $change) {
     $response['body'] = json_encode(array_replace($page, $change), JSON_THROW_ON_ERROR);
     rejects(static fn() => $client->getPage('loans', 0, 2), 'inconsistent');
+    rejects(static fn() => $client->getPage('loans', 0, 2), 'dataset loans, offset 0');
+}
+
+if (!function_exists('curl_init')) {
+    rejects(static fn() => $make(['transport' => null])->getManifest(), 'PHP cURL extension');
 }
 
 echo "OK: {$checks} checks; fake HTTP transport only, no environment or network.\n";

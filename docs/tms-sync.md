@@ -19,6 +19,8 @@ Alle onderstaande serverhandelingen zijn **uitsluitend voor de beheerder om zelf
 
 Controleer de tellingen en de geïmporteerde projecten. Onvolledige datasets, ontbrekende relatie-ID's, dubbele bron-ID's en conflicterende inventarisnummers laten de volledige import mislukken. Het commando geeft exitcode 1; een geslaagde import of een bewust overgeslagen run geeft 0. Een uitgeschakelde import doet geen API-aanvragen en verandert geen gegevens.
 
+Bij API-fouten toont het commando de concrete gecontroleerde foutmelding, met `manifest` of de dataset en offset. Verbindingsfouten bevatten de cURL-code en de vaste beschrijving; HTTP-fouten bevatten de statuscode. Dit werkt zonder `-vvv`. Wachtwoorden, ruwe HTTP-antwoorden en SQL worden niet weergegeven. Overige onverwachte fouten behouden de algemene melding; de foutklasse alleen bewijst geen databaseprobleem.
+
 ## Dagelijks plannen
 
 Voorbeeld voor de **crontab van de applicatiegebruiker**, door de beheerder aan te passen en zelf toe te voegen:
@@ -66,6 +68,7 @@ Geïsoleerde controles vanuit de workspace, zonder appbootstrap of netwerk:
 ```powershell
 php -n -d 'extension_dir=C:/Program Files/PHP/ext' -d extension=pdo_sqlite -d extension=mbstring iiif-condition-reports/tests/tms_project_sync.php
 php -n iiif-condition-reports/tests/tms_api_client.php
+php -n -d 'extension_dir=C:/Program Files/PHP/ext' -d extension=curl iiif-condition-reports/tests/tms_api_client_curl.php
 php -n -d 'extension_dir=C:/Program Files/PHP/ext' -d extension=mbstring iiif-condition-reports/tests/tms_source_view.php
 php -n -d 'extension_dir=C:/Program Files/PHP/ext' -d extension=pdo_sqlite -d extension=mbstring tms-api/tests/import-integration.php
 ```

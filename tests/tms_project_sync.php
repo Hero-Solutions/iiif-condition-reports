@@ -72,6 +72,8 @@ function syncer(EntityManager $em, array &$state, string $directory, bool $enabl
 {
     $transport = static function (string $url, array $headers) use (&$state): array {
         ++$state['calls'];
+        if ($state['invalid_json'] ?? false) return ['status' => 200, 'body' => 'SECRET_DO_NOT_PRINT'];
+        if ($state['internal_failure'] ?? false) throw new RuntimeException('SECRET_DO_NOT_PRINT');
         parse_str((string) parse_url($url, PHP_URL_QUERY), $query);
         $manifest = ['schema_version' => 2,
             'scope' => ['exhibition_ids' => $state['scope'] ?? null],
@@ -214,7 +216,7 @@ try {
     fclose($held);
 
     // HTTP failure, manifest configuration change, limited scope and malformed data never leave partial changes.
-    foreach (['failure', 'changed', 'scope', 'orphan', 'duplicate', 'collision', 'bad_limit', 'missing_column', 'missing_dataset'] as $scenario) {
+    foreach (['failure', 'invalid_json', 'internal_failure', 'changed', 'scope', 'orphan', 'duplicate', 'collision', 'bad_limit', 'missing_column', 'missing_dataset'] as $scenario) {
         $badEm = manager();
         $old = new Project('Previously imported', Project::TYPE_LOAN);
         $old->applyTmsSource('loans', '99', ['record' => [], 'mapped' => []], new DateTimeImmutable('2020-01-01'));
@@ -229,6 +231,8 @@ try {
         $beforeObjects = $badEm->getConnection()->fetchAllAssociative('SELECT * FROM object_records');
         $bad = state();
         if ($scenario === 'failure') $bad['fail_dataset'] = 'documents';
+        if ($scenario === 'invalid_json') $bad['invalid_json'] = true;
+        if ($scenario === 'internal_failure') $bad['internal_failure'] = true;
         if ($scenario === 'changed') $bad['change_at_end'] = true;
         if ($scenario === 'scope') $bad['scope'] = ['10'];
         if ($scenario === 'orphan') $bad['data']['loan_objects'][0]['ObjectID'] = '999';
@@ -238,6 +242,8 @@ try {
         if ($scenario === 'missing_dataset') unset($bad['data']['exhibitions']);
         $test = new CommandTester(new SyncTmsProjectsCommand(syncer($badEm, $bad, $directory)));
         check($test->execute([]) === 1, 'Invalid import was accepted: ' . $scenario);
+        if ($scenario === 'failure') check(str_contains($test->getDisplay(), 'HTTP 503 (dataset documents, offset 0)'), 'HTTP diagnostic lost request context.');
+        if ($scenario === 'invalid_json') check(str_contains($test->getDisplay(), 'invalid JSON (manifest)'), 'API diagnostic was hidden by the command.');
         check(!str_contains($test->getDisplay(), 'SECRET_DO_NOT_PRINT') && !str_contains($test->getDisplay(), 'FAKE-password'), 'Failure output leaked raw data.');
         check($badEm->getConnection()->fetchAllAssociative('SELECT * FROM projects') === $beforeProjects, 'Failure changed projects: ' . $scenario);
         check($badEm->getConnection()->fetchAllAssociative('SELECT * FROM object_records') === $beforeObjects, 'Failure changed objects: ' . $scenario);
@@ -260,6 +266,7 @@ try {
     $paged['data']['exhibitions'][0]['ExhTitle'] = 'Must not publish';
     $pagedCommand = new CommandTester(new SyncTmsProjectsCommand($pagedSync));
     check($pagedCommand->execute([]) === 1, 'Failure on page 2 must fail the command.');
+    check(str_contains($pagedCommand->getDisplay(), 'dataset exhibitions, offset 500'), 'Failure did not identify page 2.');
     check($pagedEm->getConnection()->fetchOne("SELECT title FROM projects WHERE tms_type = 'exhibitions' AND tms_id = '1'") === 'Fixture 1', 'Page 1 escaped before page 2 succeeded.');
     check(glob($directory . '/download-*') === [], 'Temporary download files remain.');
     // Actors are usable assignments, not just JSON metadata. Keep identities and visibility variants apart.
