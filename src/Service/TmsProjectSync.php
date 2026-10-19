@@ -125,6 +125,7 @@ final class TmsProjectSync
                     // Check identities on arrival, before requesting further pages or opening a transaction.
                     try {
                         foreach (self::SOURCE_IDS[$dataset] as $key) $this->id($row, $key);
+                        if ($dataset === 'parties') TmsActorSync::sourceIdentity($row);
                     } catch (UnexpectedValueException $error) {
                         throw new UnexpectedValueException($error->getMessage() . sprintf(
                             ' (dataset %s, pagina-offset %d, rij %d, rij-offset %d).',

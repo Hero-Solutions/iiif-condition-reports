@@ -449,6 +449,75 @@ try {
     check($actorEm->getConnection()->fetchAllAssociative('SELECT * FROM actors') === $actorRows
         && $actorEm->getConnection()->fetchAllAssociative('SELECT * FROM project_actors') === $assignmentRows, 'Failure during actor import did not roll back actors and assignment presence.');
 
+    // Legacy AddressID -1 is preserved without borrowing or merging another address variant.
+    $addressEm = manager();
+    $addresses = state();
+    $noAddress = array_fill_keys(['AddressActive', 'StreetLine1', 'StreetLine2', 'StreetLine3', 'ZipCode', 'City', 'State', 'Country'], null);
+    $addresses['data']['parties'] = [
+        party($noAddress + ['AddressID' => '-1']),
+        party($noAddress + ['ConXrefDetailID' => '602', 'TableID' => '108', 'ID' => '101', 'AddressID' => '-1']),
+        party($noAddress + ['ConXrefDetailID' => '603', 'AddressID' => '0']),
+        party($noAddress + ['ConXrefDetailID' => '604', 'AddressID' => null]),
+        party($noAddress + ['ConXrefDetailID' => '605', 'AddressID' => '']),
+        party(['ConXrefDetailID' => '606']),
+    ];
+    $addressSync = syncer($addressEm, $addresses, $directory);
+    check($addressSync->synchronize()['actors_created'] === 3, 'Address -1, absent address and positive address must remain separate variants.');
+    $negative = $addressEm->getRepository(ProjectActor::class)->findOneBy(['tmsId' => '601']);
+    $negativeActor = $negative->getActor();
+    $negativeActorId = $negativeActor->getId();
+    check($negativeActor->getAddress() === null && $negativeActor->getPostal() === null && $negativeActor->getCity() === null,
+        'AddressID -1 must not invent an address or fall back to another relation.');
+    check($negativeActor->getTmsData()['record']['AddressID'] === '-1'
+        && $negative->getTmsData()['record']['AddressID'] === '-1', 'Original AddressID -1 was not preserved.');
+    $negativeObject = $addressEm->getRepository(ProjectObjectActor::class)->findOneBy(['tmsId' => '602']);
+    check($negativeObject->getActor()->getId() === $negativeActorId, 'Same legacy address variant should be shared by project and object actors.');
+    $absentActor = $addressEm->getRepository(ProjectActor::class)->findOneBy(['tmsId' => '603'])->getActor();
+    foreach (['604', '605'] as $detail) {
+        check($addressEm->getRepository(ProjectActor::class)->findOneBy(['tmsId' => $detail])->getActor()->getId() === $absentActor->getId(),
+            'Existing null/empty/zero address identity behavior changed.');
+    }
+    $positiveActor = $addressEm->getRepository(ProjectActor::class)->findOneBy(['tmsId' => '606'])->getActor();
+    check($positiveActor->getAddress() === 'Teststraat 1' && $positiveActor->getId() !== $negativeActorId, 'Legacy address variant overwrote a positive address.');
+    $negativeActor->setCity('Local correction');
+    $addressEm->flush();
+    check($addressSync->synchronize()['actors_created'] === 0 && $addressEm->getRepository(Actor::class)->count([]) === 3,
+        'Repeated imports duplicated actors with AddressID -1.');
+    check($addressEm->find(Actor::class, $negativeActorId)->getCity() === 'Local correction', 'Repeated import lost a local correction on the legacy address variant.');
+    $addressEm->close();
+
+    // Actor-only fields must be checked before downloading more parties/documents or opening a transaction.
+    foreach ([
+        ['AddressID', '-2', 'waarde -2'],
+        ['AddressID', "-1\n", 'verwacht 1 tot 18 cijfers'],
+        ['AddressID', 'SECRET_DO_NOT_PRINT', 'verwacht 1 tot 18 cijfers'],
+        ['AddressID', '1234567890123456789', 'verwacht 1 tot 18 cijfers'],
+        ['ConstituentID', '-1', 'waarde -1'],
+        ['NameID', '-1', 'waarde -1'],
+        ['NameID', null, 'waarde is null'],
+        ['UnMasked', '2', 'Ongeldige zichtbaarheid'],
+    ] as [$field, $value, $reason]) {
+        $badEm = manager();
+        $bad = state();
+        $bad['data']['parties'] = [];
+        for ($i = 0; $i < 502; ++$i) $bad['data']['parties'][] = party(['ConXrefDetailID' => (string) (601 + $i)]);
+        $bad['data']['parties'][1][$field] = $value;
+        $test = new CommandTester(new SyncTmsProjectsCommand(syncer($badEm, $bad, $directory)));
+        check($test->execute([]) === 1, 'Invalid actor field was accepted: ' . $field);
+        $display = $test->getDisplay();
+        check(str_contains($display, $reason) && str_contains($display, 'actorrelatie 602')
+            && str_contains($display, 'dataset parties, pagina-offset 0, rij 2, rij-offset 1'), 'Actor diagnostic lacks reason, relation or page/row.');
+        if ($field !== 'UnMasked') check(str_contains($display, 'TMS-actor-ID: ' . $field), 'Actor diagnostic lost the invalid column name.');
+        check(!str_contains($display, 'SECRET_DO_NOT_PRINT') && !str_contains($display, 'Fictional lender'), 'Actor ID diagnostic leaked source text.');
+        check(!in_array(['parties', 500], $bad['requests'], true) && !in_array(['documents', 0], $bad['requests'], true)
+            && $bad['manifests'] === 1, 'Downloaded more data after detecting an invalid actor identity.');
+        check($badEm->isOpen() && !$badEm->getConnection()->isTransactionActive(), 'Actor ID failure occurred after starting the transaction.');
+        check($badEm->getRepository(Actor::class)->count([]) === 0 && $badEm->getRepository(Project::class)->count([]) === 0,
+            'Invalid actor identity left a partial import.');
+        check(glob($directory . '/download-*') === [], 'Actor ID failure leaked temporary files.');
+        $badEm->close();
+    }
+
     echo "OK: {$checks} checks; isolated SQLite and fake API only.\n";
 } finally {
     // This directory was uniquely created by this test; remove only its known temporary files.

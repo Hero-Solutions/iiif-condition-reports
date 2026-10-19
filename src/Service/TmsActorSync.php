@@ -29,13 +29,9 @@ final class TmsActorSync
             foreach ($parents as $parent => $offsets) {
                 foreach ($offsets as $offset) {
                     $row = $readParty($offset);
-                    if (!self::visible($row) || trim($row['DisplayName'] ?? '') === '') continue;
+                    $identity = self::sourceIdentity($row);
+                    if ($identity === null) continue;
                     $detail = self::sourceId($row, 'ConXrefDetailID');
-                    $identity = [self::sourceId($row, 'ConstituentID'), self::sourceId($row, 'NameID'),
-                        empty($row['AddressID']) ? '0' : self::sourceId($row, 'AddressID'), $row['UnMasked'] ?? null];
-                    if (!in_array($identity[3], ['0', '1'], true)) {
-                        throw new UnexpectedValueException('Ongeldige zichtbaarheid voor TMS-actorrelatie ' . $detail);
-                    }
                     $key = hash('sha256', json_encode($identity, JSON_THROW_ON_ERROR));
                     $values = self::actorValues($row);
                     $valueHash = hash('sha256', json_encode($values, JSON_THROW_ON_ERROR), true);
@@ -137,6 +133,18 @@ final class TmsActorSync
         return ($row['Active'] ?? null) !== '0' && ($row['Displayed'] ?? null) !== '0';
     }
 
+    /** Shared by page validation and import. Invisible or unnamed relations do not create actors. */
+    public static function sourceIdentity(array $row): ?array
+    {
+        if (!self::visible($row) || trim($row['DisplayName'] ?? '') === '') return null;
+        $identity = [self::sourceId($row, 'ConstituentID'), self::sourceId($row, 'NameID'),
+            empty($row['AddressID']) ? '0' : self::sourceId($row, 'AddressID'), $row['UnMasked'] ?? null];
+        if (!in_array($identity[3], ['0', '1'], true)) {
+            throw new UnexpectedValueException('Ongeldige zichtbaarheid voor TMS-actorrelatie ' . self::sourceId($row, 'ConXrefDetailID'));
+        }
+        return $identity;
+    }
+
     public static function creators(array $rows): ?string
     {
         $names = [];
@@ -152,9 +160,22 @@ final class TmsActorSync
 
     private static function sourceId(array $row, string $field): string
     {
-        $id = $row[$field] ?? '';
+        $id = $row[$field] ?? null;
+        // The supplied legacy mirror uses AddressID -1. Keep this variant distinct from 0 and actual address IDs.
+        if ($field === 'AddressID' && $id === '-1') return '-1';
         if (!is_string($id) || !preg_match('/^[0-9]{1,18}$/D', $id) || trim($id, '0') === '') {
-            throw new UnexpectedValueException('Ontbrekende of ongeldige TMS-actor-ID: ' . $field);
+            $reason = match (true) {
+                !array_key_exists($field, $row) => 'kolom ontbreekt',
+                $id === null => 'waarde is null',
+                !is_string($id) => 'waarde is geen tekst',
+                $id === '' => 'waarde is leeg',
+                (bool) preg_match('/^-?[0-9]{1,18}$/D', $id) => 'waarde ' . $id . '; een positief ID is vereist',
+                default => 'verwacht 1 tot 18 cijfers zonder spaties of andere tekens',
+            };
+            // Only print a bounded numeric relation ID, never arbitrary source text or actor/address fields.
+            $detail = $row['ConXrefDetailID'] ?? null;
+            $context = is_string($detail) && preg_match('/^[0-9]{1,18}$/D', $detail) ? '; actorrelatie ' . $detail : '';
+            throw new UnexpectedValueException('Ontbrekende of ongeldige TMS-actor-ID: ' . $field . '; ' . $reason . $context);
         }
         return ltrim($id, '0');
     }
