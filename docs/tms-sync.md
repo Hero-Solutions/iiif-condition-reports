@@ -19,6 +19,8 @@ Alle onderstaande serverhandelingen zijn **uitsluitend voor de beheerder om zelf
 
 Controleer de tellingen en de geïmporteerde projecten. Onvolledige datasets, ontbrekende relatie-ID's, dubbele bron-ID's en conflicterende inventarisnummers laten de volledige import mislukken. Het commando geeft exitcode 1; een geslaagde import of een bewust overgeslagen run geeft 0. Een uitgeschakelde import doet geen API-aanvragen en verandert geen gegevens.
 
+Sinds 2026-10-19 vult dezelfde import ook bestaande conceptrapporten van aanwezige TMS-projecten aan. De uitvoer vermeldt `Conceptrapporten aangevuld/opgeschoond`. Na uitrol van `TmsReportSync`, de gewijzigde controllers/importservice en `config/services.yaml` kan de beheerder hetzelfde importcommando uitvoeren. Deze wijziging vereist geen migratie of API-aanpassing.
+
 `ObjTitles.TitleID=0` en `MediaXrefs.MediaXrefID=0` komen voor in de aangeleverde oude TMS-mirror en worden als titel-ID en document-ID geaccepteerd. De titel en documentmetadata blijven behouden, inclusief het oorspronkelijke ID. Ontbrekende, lege en ongeldige ID's en dubbele ID's blijven fouten; voor de overige object-, project- en relatie-ID's blijft een positief ID vereist.
 
 De ID's waarmee de projectimport rijen groepeert en koppelt, worden al bij ontvangst van elke API-pagina gecontroleerd. Een fout meldt de kolom, de reden (bijvoorbeeld null, leeg of nul), dataset, pagina-offset en rijpositie. Er worden daarna geen volgende pagina's meer opgehaald en de databasetransactie is nog niet gestart. De rijpositie binnen de pagina begint bij 1; de absolute rij-offset begint bij 0. Willekeurige ongeldige tekstwaarden worden niet in de foutmelding afgedrukt. Dubbele ID's, ontbrekende ouders en actorconflicten worden tijdens het koppelen gecontroleerd.
@@ -65,7 +67,15 @@ Actoren worden gekoppeld op TMS-identiteit, nooit uitsluitend op naam. De combin
 
 `RoleTypeID=17/18` wordt respectievelijk eigenaar/bruikleengever en bruikleennemer, overeenkomstig de aangeleverde KMSKA-exports. Daarnaast worden herkenbare Nederlandse/Engelse rollabels vertaald. Andere rollen worden **Andere**, met de oorspronkelijke roltekst. `SystemFlag` heeft hier nog geen bewezen mapping naar persoon/organisatie: nieuwe TMS-actoren krijgen **Type nog te bepalen**, dat je zelf kunt aanpassen. Het script levert geen bewezen contactpersoonrelaties, e-mail of telefoon; die worden niet verzonnen of uit vrije tekst afgeleid.
 
-Nieuwe rapporten krijgen de actuele project- en objectactoren. Bij een TMS-project worden TMS-actoren uit het vorige rapport niet blind overgenomen; de huidige koppelingen bepalen de selectie. Bestaande rapportkoppelingen en lokale rapportdata worden niet herschreven. Actornaam en adres zijn, net als bij handmatige actoren, gedeelde actorvelden: een wijziging daarvan kan wel zichtbaar worden in bestaande weergaven die naar dezelfde actor verwijzen. Een handmatig verwijderde TMS-projectobject- of actorkoppeling wordt bij de volgende import opnieuw aangemaakt als die nog in TMS staat.
+Nieuwe TMS-rapporten krijgen de actuele project- en objectactoren, beperkt tot **Eigenaar/bruikleengever**, **Bruikleennemer**, **Koerier** en **Verzekeraar**. Dezelfde selectie geldt voor de TMS-koppelingen in het projectscherm. De volledige brongegevens en actorrecords blijven beschikbaar; vervaardigers blijven het vervaardigersveld voeden. Handmatig toegevoegde actoren met andere rollen worden niet verwijderd. Bij een TMS-project worden TMS-actoren uit het vorige rapport niet blind overgenomen; de huidige koppelingen bepalen de selectie.
+
+Dubbele geïmporteerde rapportkoppelingen met dezelfde TMS-constituent, zichtbaarheid, naam, adres/contactgegevens, rol en contactpersoon worden één koppeling. Gelijke namen van verschillende constituents, afwijkende adressen en gemaskeerde naamvarianten blijven afzonderlijk. In bestaande concepten worden overbodige TMS-rollen en duplicaten verwijderd en ontbrekende relevante TMS-koppelingen toegevoegd. Deze rapportaanvulling wijzigt geen definitieve of gearchiveerde rapporten of hun actorkoppelingen.
+
+Voor KMSKA staat de eigen instelling in `config/services.yaml` bij `TmsReportSync`: constituent `8369` en de volledige museumnaam. Bij `LoanIn=1` wordt KMSKA in het rapport bruikleennemer; bij `LoanIn=0` bruikleengever. Een bestaande TMS-actor van KMSKA in het rapport wordt hergebruikt. Als die ontbreekt, wordt één herbruikbare instellingsactor zonder verzonnen adres/contactgegevens aangemaakt, met een eigen sleutel die geen TMS-relatie-ID nabootst. Een onbekende bruikleenrichting krijgt geen automatische instellingsrol.
+
+Nieuwe rapporten bij een TMS-bruikleen krijgen de projectstart- en einddatum in hun bestaande start-/einddatumvelden. Bij bestaande concepten worden alleen lege datums gevuld. De ontvangstdatum wordt niet afgeleid. De beschrijving combineert de projectbeschrijving, de TMS-bruikleenopmerkingen, de lokale objectnotities binnen dat project en de beschrijving/opmerkingen uit de bruikleen-objectkoppelingen. Identieke alinea's worden maar eenmaal opgenomen. Bij bestaande concepten wordt alleen een lege beschrijving ingevuld; eigen tekst blijft behouden. Bij een nieuw rapport voor een ander TMS-project wordt geen beschrijving uit het vorige project overgenomen.
+
+Actornaam en adres zijn, net als bij handmatige actoren, gedeelde actorvelden: een wijziging daarvan kan zichtbaar worden in bestaande weergaven die naar dezelfde actor verwijzen. Een handmatig verwijderde TMS-projectobject- of actorkoppeling wordt bij de volgende import opnieuw aangemaakt als die nog in TMS staat.
 
 ## Consistentie en controle
 
@@ -79,6 +89,7 @@ Geïsoleerde controles vanuit de workspace, zonder appbootstrap of netwerk:
 
 ```powershell
 php -n -d 'extension_dir=C:/Program Files/PHP/ext' -d extension=pdo_sqlite -d extension=mbstring iiif-condition-reports/tests/tms_project_sync.php
+php -n -d 'extension_dir=C:/Program Files/PHP/ext' -d extension=pdo_sqlite -d extension=mbstring iiif-condition-reports/tests/tms_report_sync.php
 php -n iiif-condition-reports/tests/tms_api_client.php
 php -n -d 'extension_dir=C:/Program Files/PHP/ext' -d extension=curl iiif-condition-reports/tests/tms_api_client_curl.php
 php -n -d 'extension_dir=C:/Program Files/PHP/ext' -d extension=mbstring iiif-condition-reports/tests/tms_source_view.php

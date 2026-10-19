@@ -7,7 +7,7 @@ use App\Command\SyncTmsProjectsCommand;
 use App\Entity\{Actor, ProjectActor, ProjectObjectActor, ReportActor, ObjectLogEntry, ObjectRecord, Project, ProjectObject, Report, ReportSeries};
 use App\Controller\ReportController;
 use App\Value\ActorRole;
-use App\Service\{ObjectChangeLogger, TmsApiClient, TmsProjectSync, TmsActorSync};
+use App\Service\{ObjectChangeLogger, TmsApiClient, TmsProjectSync, TmsActorSync, TmsReportSync};
 use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\{EntityManager, ORMSetup};
 use Doctrine\ORM\Mapping\UnderscoreNamingStrategy;
@@ -108,7 +108,8 @@ function syncer(EntityManager $em, array &$state, string $directory, bool $enabl
         return ['status' => 200, 'body' => json_encode($response, JSON_THROW_ON_ERROR)];
     };
     $client = new TmsApiClient($enabled, 'https://fixtures.invalid/loan_projects.php', 'test', 'FAKE-password', $transport);
-    return new TmsProjectSync($client, $em, new ObjectChangeLogger($em), $directory, new TmsActorSync($em));
+    return new TmsProjectSync($client, $em, new ObjectChangeLogger($em), $directory, new TmsActorSync($em),
+        new TmsReportSync($em, '8369', 'Koninklijk Museum voor Schone Kunsten Antwerpen'));
 }
 
 function party(array $changes = []): array
@@ -416,6 +417,9 @@ try {
     }
     $actorEm->flush();
     check($actorEm->getRepository(ReportActor::class)->count(['report' => $report]) === 6, 'New reports must inherit current project and object actors.');
+    // Finalized history keeps its old assignments; draft cleanup is tested separately.
+    $report->finalize(null);
+    $actorEm->flush();
     $oldReportId = $report->getId();
     $actors['disabled'] = ['parties'];
     $actorSync->synchronize();

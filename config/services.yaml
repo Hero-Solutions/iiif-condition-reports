@@ -56,5 +56,10 @@ services:
         arguments:
             $workDirectory: '%kernel.project_dir%/var/tms-sync'
 
+    App\Service\TmsReportSync:
+        arguments:
+            $institutionConstituentId: '8369'
+            $institutionName: 'Koninklijk Museum voor Schone Kunsten Antwerpen'
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

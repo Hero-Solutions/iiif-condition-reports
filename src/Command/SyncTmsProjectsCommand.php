@@ -47,6 +47,7 @@ final class SyncTmsProjectsCommand extends Command
         }
         $output->writeln(sprintf('Actoren: %d (%d nieuw). Actorkoppelingen: %d.',
             $result['actors'], $result['actors_created'], $result['actor_links']));
+        $output->writeln(sprintf('Conceptrapporten aangevuld/opgeschoond: %d.', $result['drafts_updated']));
         if (in_array('parties', $result['optional_disabled'], true)) {
             $output->writeln('Actoren niet opgehaald: de API meldt parties als uitgeschakeld. Werk loan_projects.php bij. Eerdere TMS-actorkoppelingen zijn niet actief voor nieuwe rapporten.');
         }

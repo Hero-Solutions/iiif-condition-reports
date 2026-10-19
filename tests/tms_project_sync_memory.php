@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 // Synthetic API pages and a disposable workspace SQLite file. No kernel, .env or network.
 use App\Entity\{ObjectRecord, Project};
-use App\Service\{ObjectChangeLogger, TmsActorSync, TmsApiClient, TmsProjectSync};
+use App\Service\{ObjectChangeLogger, TmsActorSync, TmsApiClient, TmsProjectSync, TmsReportSync};
 use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\{EntityManager, ORMSetup};
 use Doctrine\ORM\Mapping\UnderscoreNamingStrategy;
@@ -79,7 +79,8 @@ try {
     $em = new EntityManager(DriverManager::getConnection(['driver' => 'pdo_sqlite', 'path' => $directory . '/fixture.sqlite']), $orm);
     (new SchemaTool($em))->createSchema($em->getMetadataFactory()->getAllMetadata());
     $client = new TmsApiClient(true, 'https://fixtures.invalid/loan_projects.php', 'fixture', 'FAKE-password', $transport);
-    $sync = new TmsProjectSync($client, $em, new ObjectChangeLogger($em), $directory, new TmsActorSync($em));
+    $sync = new TmsProjectSync($client, $em, new ObjectChangeLogger($em), $directory, new TmsActorSync($em),
+        new TmsReportSync($em, '8369', 'Koninklijk Museum voor Schone Kunsten Antwerpen'));
     $start = microtime(true);
     $result = $sync->synchronize();
     check($result['objects'] === 1000 && $result['projects'] === 30 && $result['links'] === 2000, 'Incomplete large import.');

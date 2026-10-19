@@ -18,6 +18,7 @@ use App\Form\ProjectType;
 use App\Service\ObjectThumbnailProvider;
 use App\Service\ObjectChangeLogger;
 use App\Service\ReportAuthorProvider;
+use App\Service\TmsReportSync;
 use App\Value\ActorRole;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -193,8 +194,8 @@ final class ProjectController extends AbstractController
             'form' => $form,
             'project_objects' => $projectObjects,
             'tms_related_projects' => $this->tmsRelatedProjects($project),
-            'project_actors' => $this->projectActors($project),
-            'project_object_actors' => $this->projectObjectActors($project),
+            'project_actors' => TmsReportSync::projectAssignments($this->projectActors($project)),
+            'project_object_actors' => array_map(TmsReportSync::projectAssignments(...), $this->projectObjectActors($project)),
             'object_results' => $objectResults,
             'report_series_by_object' => $this->reportSeriesByObject($project),
             'reports_by_series' => $reportsBySeries,

@@ -33,6 +33,7 @@ final class TmsProjectSync
         private readonly ObjectChangeLogger $objectLogger,
         private readonly string $workDirectory,
         private readonly TmsActorSync $actorSync,
+        private readonly TmsReportSync $reportSync,
     ) {
     }
 
@@ -365,6 +366,7 @@ final class TmsProjectSync
         unset($groups, $byObject, $objects);
         $result += $this->actorSync->synchronize($parties, $projects, $importId,
             fn(int $offset): array => $this->rowAt($files, 'parties', $offset));
+        $result['drafts_updated'] = $this->reportSync->synchronizeDrafts();
         $result['projects_missing'] = (int) $this->entityManager->createQuery('SELECT COUNT(p.id) FROM App\\Entity\\Project p WHERE p.tmsId IS NOT NULL AND p.tmsPresent = false')->getSingleScalarResult();
         $result['links_missing'] = (int) $this->entityManager->createQuery('SELECT COUNT(po.id) FROM App\\Entity\\ProjectObject po WHERE po.tmsPresent = false')->getSingleScalarResult();
         return $result;

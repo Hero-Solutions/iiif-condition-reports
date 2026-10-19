@@ -32,6 +32,7 @@ use App\Service\ReportTitleFormatter;
 use App\Service\ReportPdfRenderer;
 use App\Service\ReportImageStorage;
 use App\Service\ReportMeasurementDefaults;
+use App\Service\TmsReportSync;
 use App\Value\ActorRole;
 use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\EntityManagerInterface;
@@ -64,6 +65,7 @@ final class ReportController extends AbstractController
         private readonly ReportTitleFormatter $reportTitles,
         private readonly ReportMeasurementDefaults $measurementDefaults,
         private readonly MainImageHistory $mainImages,
+        private readonly TmsReportSync $tmsReportSync,
     ) {
     }
 
@@ -818,7 +820,8 @@ final class ReportController extends AbstractController
             $report
                 ->setBasedOnReport($previousReport)
                 ->setCustomType($previousReport->getCustomType())
-                ->setDescription($previousReport->getDescription())
+                ->setDescription($series->getProject()?->getTmsId() !== null && $previousReport->getProject() !== $series->getProject()
+                    ? null : $previousReport->getDescription())
                 ->setReason($previousReport->getReason())
                 ->setCustomReason($previousReport->getCustomReason())
                 ->setReceiptAt($previousReport->getReceiptAt())
@@ -844,6 +847,12 @@ final class ReportController extends AbstractController
 
         $this->copyProjectActors($report, $copiedActorKeys);
         $this->copyProjectObjectActors($report, $copiedActorKeys);
+
+        if ($series->getProject()?->getTmsId() !== null) {
+            // Make the copied assignments available for deduplication within the draft transaction.
+            $this->entityManager->flush();
+            $this->tmsReportSync->apply($report, true);
+        }
 
         return $report;
     }
