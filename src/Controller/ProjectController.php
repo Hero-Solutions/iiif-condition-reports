@@ -20,6 +20,7 @@ use App\Service\ObjectChangeLogger;
 use App\Service\ReportAuthorProvider;
 use App\Service\TmsReportSync;
 use App\Value\ActorRole;
+use App\Value\Pagination;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -44,7 +45,7 @@ final class ProjectController extends AbstractController
             ->getRepository(Project::class)
             ->createQueryBuilder('project')
             ->orderBy('project.updatedAt', 'DESC')
-            ->setMaxResults(100);
+            ->addOrderBy('project.id', 'DESC');
 
         if ($q !== '') {
             $queryBuilder
@@ -52,11 +53,16 @@ final class ProjectController extends AbstractController
                 ->setParameter('q', '%' . $q . '%');
         }
 
-        $projects = $queryBuilder->getQuery()->getResult();
+        $total = (int) (clone $queryBuilder)->select('COUNT(project.id)')->resetDQLPart('orderBy')
+            ->getQuery()->getSingleScalarResult();
+        $pagination = new Pagination($total, $request->query->getInt('page', 1));
+        $projects = $queryBuilder->setFirstResult($pagination->offset)->setMaxResults(Pagination::PER_PAGE)
+            ->getQuery()->getResult();
 
         return $this->render('projects/index.html.twig', [
             'projects' => $projects,
             'q' => $q,
+            'pagination' => $pagination,
             'object_counts' => $this->projectObjectCounts($projects),
             'report_counts' => $this->projectReportCounts($projects),
         ]);

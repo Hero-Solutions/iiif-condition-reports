@@ -405,6 +405,7 @@
                                     <span data-annotation-source
                                           data-source-key="{{ image.key }}"
                                           data-source-label="{{ 'reports.annotation_main_image'|trans }}{{ archived_main_images|length > 1 ? ' ' ~ loop.index : '' }}"
+                                          data-manifest-url="{{ image.info_url|default('') }}"
                                           data-image-url="{{ image.image_url }}"
                                           data-thumbnail-url="{{ image.thumbnail_url }}"></span>
                                 {% endfor %}
@@ -481,5 +482,5 @@
     <script src="/vendor/annotorious/annotorious-openseadragon.js?v=3.8.9" defer></script>
     <script src="/vendor/annotorious-tools/annotorious-plugin-tools.js?v=1.6.0" defer></script>
     <script src="/js/iiif-image-sources.js?v=1" defer></script>
-    <script src="/js/report-annotation-viewer.js?v=35" defer></script>
+    <script src="/js/report-annotation-viewer.js?v=36" defer></script>
 {% endblock %}

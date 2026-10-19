@@ -60,7 +60,7 @@ function prepare(HarvestDatahubObjectsCommand $command, array $fields, string $r
 
 function sync(EntityManager $manager, array $fields, string $recordId = 'record-1'): ObjectRecord
 {
-    $command = new HarvestDatahubObjectsCommand($manager, new ParameterBag(), new ObjectChangeLogger($manager), new LidoMeasurements(), new \App\Service\MainImageHistory($manager, new \App\Service\ObjectImageStorage(__DIR__, dirname(__DIR__))));
+    $command = new HarvestDatahubObjectsCommand($manager, new ParameterBag(), new ObjectChangeLogger($manager), new LidoMeasurements(), new \App\Service\MainImageHistory($manager));
     $prepared = prepare($command, $fields, $recordId);
     check($prepared !== null, 'Fixture must have an inventory number.');
     callPrivate($command, 'preloadBatch', [$prepared]);
@@ -152,7 +152,7 @@ $storage = new class extends ObjectImageStorage {
     public function isStoredImage(?string $url): bool { throw new RuntimeException('Unexpected file access.'); }
 };
 $logger = new ObjectChangeLogger($manager);
-$controller = new ObjectController($manager, new ObjectThumbnailProvider($manager), $storage, $translator, new ReportAuthorProvider($manager), $logger, true, new \App\Service\MainImageHistory($manager, new \App\Service\ObjectImageStorage(__DIR__, dirname(__DIR__))));
+$controller = new ObjectController($manager, new ObjectThumbnailProvider($manager), $storage, $translator, new ReportAuthorProvider($manager), $logger, true, new \App\Service\MainImageHistory($manager));
 $tokenStorage = new Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage();
 $tokenStorage->setToken(new Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken((new User())->setFullName('Fixture user'), 'test', ['ROLE_USER']));
 $container = new Symfony\Component\DependencyInjection\Container();
@@ -184,7 +184,7 @@ check(!$imageObject->isDatahubField('image') && $manager->contains($manualLink),
 sync($manager, ['id' => 'IMAGE', 'iiif_image_url' => 'https://images.invalid/public@fixture']);
 check($imageObject->isDatahubField('image') && !$manager->contains($manualLink), 'A Datahub image without manifest must replace a manual manifest.');
 
-$command = new HarvestDatahubObjectsCommand($manager, new ParameterBag(), $logger, new LidoMeasurements(), new \App\Service\MainImageHistory($manager, new \App\Service\ObjectImageStorage(__DIR__, dirname(__DIR__))));
+$command = new HarvestDatahubObjectsCommand($manager, new ParameterBag(), $logger, new LidoMeasurements(), new \App\Service\MainImageHistory($manager));
 check(prepare($command, ['fallback_id' => 'LOCAL-ID', 'title_nl' => 'No inventory number'], '0001') === null, 'Neither local ID nor record ID is an inventory number.');
 check(prepare($command, ['id' => ' '], '0001') === null, 'Skip empty inventory numbers.');
 check(prepare($command, ['id' => str_repeat('A', 101)], 'record') === null, 'Do not truncate inventory numbers and create false matches.');

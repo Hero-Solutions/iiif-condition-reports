@@ -22,6 +22,14 @@ actions:
   cancel: Cancel
   close: Close
   details: Details
+pagination:
+  label: Pagination
+  summary: '%first%–%last% of %total%'
+  previous: Previous
+  next: Next
+  clear_filter: 'Clear filter'
+  no_results: 'No results'
+  try_other_filter: 'Change the search term or clear the filter.'
 forms:
   custom_option_prefix: 'Other:'
 filters:
@@ -509,6 +517,8 @@ actors:
   title: Actors
   text: 'Manage the organizations and people involved in this project or in specific objects.'
   admin_title: 'Actors / organizations'
+  search_name: 'Filter by name or alias'
+  filter_error: 'Filtering failed. Try again using Search.'
   grouped_variants_hint: 'TMS name and address variants are grouped under the same actor. Expand an entry to view and edit its variants.'
   variants_count: '%count% variants'
   new: 'New actor'

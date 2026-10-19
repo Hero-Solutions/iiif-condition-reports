@@ -1,0 +1,30 @@
+<nav class="pagination" aria-label="{{ 'pagination.label'|trans }}">
+    <p class="muted" role="status">{{ 'pagination.summary'|trans({'%first%': pagination.first, '%last%': pagination.last, '%total%': pagination.total}) }}</p>
+    {% if pagination.pages > 1 %}
+        {% set first_page = max(1, pagination.page - 2) %}
+        {% set last_page = min(pagination.pages, pagination.page + 2) %}
+        <div class="pagination-links">
+            {% if pagination.page > 1 %}
+                <a class="button secondary" rel="prev" href="{{ path(pagination_route, pagination_params|merge({page: pagination.page - 1})) }}">{{ 'pagination.previous'|trans }}</a>
+            {% endif %}
+            {% if first_page > 1 %}
+                <a class="button secondary" href="{{ path(pagination_route, pagination_params|merge({page: 1})) }}">1</a>
+                {% if first_page > 2 %}<span aria-hidden="true">…</span>{% endif %}
+            {% endif %}
+            {% for page_number in first_page..last_page %}
+                {% if page_number == pagination.page %}
+                    <span class="button" aria-current="page">{{ page_number }}</span>
+                {% else %}
+                    <a class="button secondary" href="{{ path(pagination_route, pagination_params|merge({page: page_number})) }}">{{ page_number }}</a>
+                {% endif %}
+            {% endfor %}
+            {% if last_page < pagination.pages %}
+                {% if last_page < pagination.pages - 1 %}<span aria-hidden="true">…</span>{% endif %}
+                <a class="button secondary" href="{{ path(pagination_route, pagination_params|merge({page: pagination.pages})) }}">{{ pagination.pages }}</a>
+            {% endif %}
+            {% if pagination.page < pagination.pages %}
+                <a class="button secondary" rel="next" href="{{ path(pagination_route, pagination_params|merge({page: pagination.page + 1})) }}">{{ 'pagination.next'|trans }}</a>
+            {% endif %}
+        </div>
+    {% endif %}
+</nav>

@@ -15,7 +15,6 @@ use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -228,8 +227,10 @@ final class ReportAnnotationController extends AbstractController
             if (!preg_match('/^main(?::[1-9][0-9]*)?$/', $sourceKey)) {
                 throw new BadRequestHttpException('Invalid main image source.');
             }
-            $stage = 'preserve_main_image';
-            $this->mainImages->preserveForAnnotation($report, (string) ($payload['mainImageFingerprint'] ?? ''), $sourceKey);
+            $stage = 'save_main_image_urls';
+            $references = $payload['mainImageSources'] ?? [];
+            if (!is_array($references)) throw new BadRequestHttpException('Invalid main image references.');
+            $this->mainImages->preserveForAnnotation($report, (string) ($payload['mainImageFingerprint'] ?? ''), $sourceKey, $references);
         }
 
         $stage = 'save_annotation';
@@ -275,12 +276,6 @@ final class ReportAnnotationController extends AbstractController
 
         if ($exception instanceof DriverException) {
             $diagnostics['sqlState'] = $exception->getSQLState();
-        }
-        if ($exception instanceof FileException && $exception->getCode() > 0 && function_exists('curl_strerror')) {
-            $diagnostics['downloadError'] = curl_strerror($exception->getCode());
-        }
-        if ($exception instanceof FileException && preg_match('/^The external image returned HTTP status ([1-5][0-9]{2})\.$/D', $exception->getMessage(), $match)) {
-            $diagnostics['downloadHttpStatus'] = (int) $match[1];
         }
 
         return new JsonResponse([

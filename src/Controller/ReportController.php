@@ -134,6 +134,7 @@ final class ReportController extends AbstractController
         ) + [
             'image_viewer_manifest_url' => $this->annotationManifestUrl($report),
             'image_viewer_info_url' => $this->mainImages->forReport($report)['infoUrl'],
+            'image_viewer_sources' => $this->mainImages->forReport($report)['images'],
         ]);
     }
 
@@ -1670,7 +1671,7 @@ final class ReportController extends AbstractController
         $object = $report->getObjectRecord();
         $mainImage = $this->mainImages->forReport($report);
         if ($mainImage['images'] !== []) {
-            // An unavailable historical copy must never be replaced by the current photograph.
+            // An unavailable historical URL must never be replaced by the current photograph.
             return $this->outputImageSource($mainImage['imageUrl'], $embed);
         }
         $imageUrl = $mainImage['imageUrl'];

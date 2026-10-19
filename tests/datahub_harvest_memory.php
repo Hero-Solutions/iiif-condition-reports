@@ -125,7 +125,7 @@ namespace {
             'placeholder_images' => [],
             'data_definition' => ['id' => ['xpath' => 'workID'], 'title_nl' => ['xpath' => 'title']],
         ]]);
-        $command = new HarvestDatahubObjectsCommand($manager, $parameters, new ObjectChangeLogger($manager), new LidoMeasurements(), new \App\Service\MainImageHistory($manager, new \App\Service\ObjectImageStorage(__DIR__, dirname(__DIR__))));
+        $command = new HarvestDatahubObjectsCommand($manager, $parameters, new ObjectChangeLogger($manager), new LidoMeasurements(), new \App\Service\MainImageHistory($manager));
         $input = new ArrayInput($limit === null ? [] : ['--limit' => $limit]);
         $output = new BufferedOutput();
         $status = $command->run($input, $output);

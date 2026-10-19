@@ -65,8 +65,8 @@ $storage = new class extends ObjectImageStorage {
         return ['image_url' => '/uploads/fixture.jpg', 'thumbnail_url' => '/uploads/thumb.jpg'];
     }
 };
-$controller = new ObjectController($manager, new ObjectThumbnailProvider($manager), $storage, $translator, new ReportAuthorProvider($manager), $logger, true, new \App\Service\MainImageHistory($manager, new \App\Service\ObjectImageStorage(__DIR__, dirname(__DIR__))));
-$disabledController = new ObjectController($manager, new ObjectThumbnailProvider($manager), $storage, $translator, new ReportAuthorProvider($manager), $logger, false, new \App\Service\MainImageHistory($manager, new \App\Service\ObjectImageStorage(__DIR__, dirname(__DIR__))));
+$controller = new ObjectController($manager, new ObjectThumbnailProvider($manager), $storage, $translator, new ReportAuthorProvider($manager), $logger, true, new \App\Service\MainImageHistory($manager));
+$disabledController = new ObjectController($manager, new ObjectThumbnailProvider($manager), $storage, $translator, new ReportAuthorProvider($manager), $logger, false, new \App\Service\MainImageHistory($manager));
 foreach (['GET', 'POST'] as $method) {
     try {
         $disabledController->new(Request::create('/nl/objects/new', $method));

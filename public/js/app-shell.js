@@ -107,16 +107,6 @@
         window.setTimeout(dismiss, 5000);
     });
 
-    document.querySelectorAll('textarea[data-auto-grow]').forEach((textarea) => {
-        const resize = () => {
-            textarea.style.height = 'auto';
-            textarea.style.height = `${textarea.scrollHeight}px`;
-        };
-
-        textarea.addEventListener('input', resize);
-        resize();
-    });
-
     if (document.body.hasAttribute('data-read-only')) {
         document.querySelectorAll('form').forEach((form) => {
             if ((form.getAttribute('method') || 'get').toLowerCase() !== 'post') {

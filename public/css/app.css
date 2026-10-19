@@ -1134,6 +1134,32 @@ tr[data-row-href] {
     font-size: 12.5px;
 }
 
+.pagination,
+.pagination-links {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.pagination {
+    justify-content: space-between;
+    padding: 12px 0;
+}
+
+.pagination p {
+    margin: 0;
+}
+
+.pagination-links .button {
+    min-width: 38px;
+    padding: 7px 10px;
+}
+
+.pagination-links [aria-current="page"] {
+    cursor: default;
+}
+
 .actor-variants > summary {
     cursor: pointer;
     padding: 4px 0;

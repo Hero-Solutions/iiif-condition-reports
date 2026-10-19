@@ -7,13 +7,13 @@ namespace App\Service;
 use App\Entity\{Annotation, ObjectImageVersion, ObjectManifest, ObjectRecord, Report, ReportMainImage};
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\DBAL\LockMode;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 final class MainImageHistory
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
-        private readonly ObjectImageStorage $storage,
     ) {
     }
 
@@ -43,13 +43,16 @@ final class MainImageHistory
         $link = $this->linkFor($report);
         if ($link !== null) {
             $version = $link->getImageVersion();
-            return [
-                'manifestUrl' => '', 'infoUrl' => '',
-                'imageUrl' => $version->getImages()[0]['image_url'],
-                'thumbnailUrl' => $version->getImages()[0]['thumbnail_url'],
-                'fingerprint' => $version->getFingerprint(),
-                'images' => $version->getImages(),
-            ];
+            $source = $version->getSource();
+            $images = $version->getImages();
+            if ($images !== []) {
+                $source = [
+                    'manifestUrl' => '', 'infoUrl' => $images[0]['info_url'] ?? '',
+                    'imageUrl' => $images[0]['image_url'],
+                    'thumbnailUrl' => $images[0]['thumbnail_url'],
+                ];
+            }
+            return $source + ['fingerprint' => $version->getFingerprint(), 'images' => $images];
         }
 
         $source = $this->currentSource($report->getObjectRecord());
@@ -67,13 +70,15 @@ final class MainImageHistory
             ->addSelect('version')->innerJoin('link.imageVersion', 'version')
             ->where('link.report IN (:reports)')->setParameter('reports', $reports)->getQuery()->getResult();
         foreach ($links as $link) {
-            $thumbnails[$link->getReport()->getId()] = $link->getImageVersion()->getImages()[0]['thumbnail_url'];
+            $version = $link->getImageVersion();
+            $thumbnails[$link->getReport()->getId()] = $version->getImages()[0]['thumbnail_url']
+                ?? ($version->getSource()['thumbnailUrl'] ?: null);
         }
         return $thumbnails;
     }
 
     /** Called before saving a main-image annotation. Never accept a drawing from a stale page. */
-    public function preserveForAnnotation(Report $report, string $fingerprint, string $sourceKey): void
+    public function preserveForAnnotation(Report $report, string $fingerprint, string $sourceKey, array $references = []): void
     {
         $source = $this->forReport($report);
         if (!hash_equals($source['fingerprint'], $fingerprint)) {
@@ -81,8 +86,10 @@ final class MainImageHistory
         }
 
         $link = $this->linkFor($report);
-        $version = $link?->getImageVersion() ?? $this->versionFor($report->getObjectRecord(), $source);
-        if (!in_array($sourceKey, array_column($version->getImages(), 'key'), true)) {
+        $images = $this->referenceImages($references);
+        $version = $link?->getImageVersion() ?? $this->versionFor($report->getObjectRecord(), $source, $images);
+        if ($version->getImages() === [] && $images !== []) $version->setImages($images);
+        if ($version->getImages() !== [] && !in_array($sourceKey, array_column($version->getImages(), 'key'), true)) {
             throw new ConflictHttpException('The IIIF image list has changed. Reload the report before drawing.');
         }
         if ($link === null) $this->entityManager->persist(new ReportMainImage($report, $version));
@@ -157,17 +164,53 @@ final class MainImageHistory
         return $query->getOneOrNullResult();
     }
 
-    private function versionFor(ObjectRecord $object, array $source): ObjectImageVersion
+    private function versionFor(ObjectRecord $object, array $source, array $images = []): ObjectImageVersion
     {
+        $source = array_intersect_key($source, array_flip(['manifestUrl', 'infoUrl', 'imageUrl', 'thumbnailUrl']));
         $fingerprint = $this->fingerprint($source);
         $version = $this->entityManager->getRepository(ObjectImageVersion::class)->findOneBy([
             'objectRecord' => $object, 'fingerprint' => $fingerprint, 'replacedAt' => null,
         ]);
         if ($version === null) {
-            $images = $this->storage->archiveMainImages($source);
+            // Store references only. Saving a drawing or syncing an object must
+            // never fetch IIIF metadata, download pixels or write image files.
             $version = new ObjectImageVersion($object, $fingerprint, $source, $images);
             $this->entityManager->persist($version);
         }
         return $version;
+    }
+
+    /** @param list<array{key: string, url: string}> $references */
+    private function referenceImages(array $references): array
+    {
+        if (count($references) > 256) throw new BadRequestHttpException('Too many main image references.');
+        $images = [];
+        foreach ($references as $reference) {
+            $key = is_array($reference) ? ($reference['key'] ?? null) : null;
+            $url = is_array($reference) ? ($reference['url'] ?? null) : null;
+            if (!is_string($key) || !preg_match('/^main(?::[1-9][0-9]*)?$/D', $key)
+                || isset($images[$key]) || !is_string($url) || strlen($url) > 8192) {
+                throw new BadRequestHttpException('Invalid main image reference.');
+            }
+            $parts = parse_url($url);
+            $remote = filter_var($url, FILTER_VALIDATE_URL) && is_array($parts) && in_array(strtolower($parts['scheme'] ?? ''), ['http', 'https'], true)
+                && !empty($parts['host']) && !isset($parts['user']) && !isset($parts['pass']) && !isset($parts['fragment']);
+            $upload = preg_match('~^/uploads/objects/[a-zA-Z0-9_-]+\.(?:jpg|jpeg|png|webp)$~D', $url);
+            if (!$remote && !$upload) throw new BadRequestHttpException('Invalid main image URL.');
+
+            $info = $remote && str_ends_with($parts['path'] ?? '', '/info.json');
+            $imageUrl = $url;
+            $thumbnailUrl = $url;
+            if ($info) {
+                [$base] = explode('?', $url, 2);
+                $base = substr($base, 0, -strlen('/info.json'));
+                $query = isset($parts['query']) ? '?' . $parts['query'] : '';
+                $imageUrl = $base . '/full/2000,/0/default.jpg' . $query;
+                $thumbnailUrl = $base . '/full/!480,480/0/default.jpg' . $query;
+            }
+            $images[$key] = ['key' => $key, 'info_url' => $info ? $url : '',
+                'image_url' => $imageUrl, 'thumbnail_url' => $thumbnailUrl];
+        }
+        return array_values($images);
     }
 }

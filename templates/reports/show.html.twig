@@ -64,6 +64,7 @@
             data-main-label="{{ 'reports.annotation_main_image'|trans }}"
             data-main-manifest-url="{{ image_viewer_manifest_url|default('') }}"
             data-main-info-url="{{ image_viewer_info_url|default('') }}"
+            data-main-image-sources="{{ image_viewer_sources|default([])|json_encode|e('html_attr') }}"
             data-custom-main-image="{{ object.imageUrl ? '1' : '0' }}"
             data-loading-label="{{ 'reports.image_viewer_loading'|trans }}"
             data-error-label="{{ 'reports.annotation_viewer_error'|trans }}">
@@ -88,5 +89,5 @@
     <script src="/js/report-print-options.js?v=1" defer></script>
     <script src="/vendor/openseadragon/openseadragon.min.js?v=6.1.0" defer></script>
     <script src="/js/iiif-image-sources.js?v=1" defer></script>
-    <script src="/js/report-image-viewer.js?v=1" defer></script>
+    <script src="/js/report-image-viewer.js?v=2" defer></script>
 {% endblock %}

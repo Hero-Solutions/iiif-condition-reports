@@ -1155,6 +1155,11 @@ class ReportAnnotationWorkbench {
                 sourceKey: record.sourceKey,
                 reportImageId: record.reportImageId,
                 mainImageFingerprint: this.workbench.dataset.mainImageFingerprint,
+                mainImageSources: this.sources.filter((source) => /^main(?::[1-9][0-9]*)?$/.test(source.key))
+                    .map((source) => ({
+                        key: source.key,
+                        url: typeof source.tileSource === 'string' ? source.tileSource : source.tileSource.url,
+                    })),
                 annotation,
             },
         });

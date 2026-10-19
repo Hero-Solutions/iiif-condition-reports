@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}{{ 'app.title'|trans }}{% endblock %}</title>
     <script>try{if(localStorage.getItem('crSidebar')==='collapsed'){document.documentElement.classList.add('sidebar-collapsed')}}catch(e){}</script>
-    <link rel="stylesheet" href="/css/app.css?v=158">
+    <link rel="stylesheet" href="/css/app.css?v=159">
     <script src="/js/smart-single-select.js?v=9" defer></script>
+    <script src="/js/textarea-autogrow.js?v=1" defer></script>
     {% block stylesheets %}{% endblock %}
     {% block javascripts %}{% endblock %}
 </head>
@@ -127,6 +128,6 @@
 
     <div class="sidebar-overlay" data-sidebar-overlay hidden></div>
 
-    <script src="/js/app-shell.js?v=6" defer></script>
+    <script src="/js/app-shell.js?v=7" defer></script>
 </body>
 </html>

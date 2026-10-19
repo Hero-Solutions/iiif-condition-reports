@@ -147,7 +147,10 @@ try {
     $datahub = $em->find(ObjectRecord::class, $datahubId);
     check($loan !== null && $exhibition !== null && $loan->getId() !== $exhibition->getId(), 'Loan and exhibition ID spaces must remain separate.');
     check($loan->getStartDate()?->format('Y-m-d') === '2027-01-05' && $loan->getEndDate()?->format('Y-m-d') === '2027-02-06', 'Full ISO dates were not imported.');
-    check($loan->getStatus() === Project::STATUS_ACTIVE && $loan->getTmsData()['record']['LoanStatus'] === 'Closed', 'Do not guess workflow status from source labels.');
+    $today = new DateTimeImmutable('today', new DateTimeZone('Europe/Brussels'));
+    $expectedStatus = $today->format('Y-m-d') < '2027-01-05' ? Project::STATUS_PLANNED
+        : ($today->format('Y-m-d') > '2027-02-06' ? Project::STATUS_COMPLETED : Project::STATUS_ACTIVE);
+    check($loan->getStatus() === $expectedStatus && $loan->getTmsData()['record']['LoanStatus'] === 'Closed', 'Derive project status from dates, not from source status labels.');
     check($exhibition->getStartDate() === null && $exhibition->getTmsData()['record']['DisplayDate'] === 'voorjaar 2027', 'Do not parse a display date into an invented day.');
     check($exhibition->getTmsData()['loan_ids'] === ['10'] && $loan->getTmsData()['exhibition_ids'] === ['10'], 'Preserve exhibition/loan links.');
     check($loan->getTmsData()['parties'][0]['DisplayName'] === 'Fictional lender' && count($loan->getTmsData()['documents']) === 1 && count($loan->getTmsData()['shipments']) === 1, 'Related source metadata was lost.');
@@ -564,6 +567,8 @@ try {
         if ($i === 1) [$start, $end] = ['2000-04-20', '2000-06-26'];
         check($exhibition->getStartDate()?->format('Y-m-d') === $start
             && $exhibition->getEndDate()?->format('Y-m-d') === $end, 'Incorrect exhibition range or overwritten local dates: fixture ' . $i);
+        check($exhibition->getStatus() === ($end !== null ? Project::STATUS_COMPLETED : Project::STATUS_ACTIVE),
+            'A valid historical exhibition period must complete the project; vague dates must not.');
         check($exhibition->getTmsData()['record']['DisplayDate'] === $display, 'Original display date was changed.');
     }
     $exhibition = $dateEm->getRepository(Project::class)->findOneBy(['tmsType' => 'exhibitions', 'tmsId' => '10']);
@@ -577,6 +582,88 @@ try {
             && $exhibition->getEndDate()?->format('Y-m-d') === '2000-06-26', 'Refresh an unchanged imported date while preserving a local date.');
     }
     $dateEm->close();
+
+    // Daily project status follows calendar dates, preserves overrides and never finalizes reports.
+    $statusEm = manager();
+    $statusState = state();
+    $day = static fn (string $offset): string => $today->modify($offset)->format('Y-m-d');
+    $statusCases = [
+        [$day('-2 days'), $day('-1 day'), Project::STATUS_ACTIVE, Project::STATUS_COMPLETED],
+        [$day('+1 day'), $day('+2 days'), Project::STATUS_ACTIVE, Project::STATUS_PLANNED],
+        [$day('-1 day'), $day('today'), Project::STATUS_PLANNED, Project::STATUS_ACTIVE],
+        [$day('today'), $day('+1 day'), Project::STATUS_PLANNED, Project::STATUS_ACTIVE],
+        [null, $day('-1 day'), Project::STATUS_ACTIVE, Project::STATUS_COMPLETED],
+        [$day('+1 day'), null, Project::STATUS_ACTIVE, Project::STATUS_PLANNED],
+        [null, null, Project::STATUS_PLANNED, Project::STATUS_PLANNED],
+        [$day('+1 day'), $day('-1 day'), Project::STATUS_ACTIVE, Project::STATUS_ACTIVE],
+        [$day('+1 day'), $day('+2 days'), Project::STATUS_COMPLETED, Project::STATUS_COMPLETED],
+        [$day('-2 days'), $day('-1 day'), Project::STATUS_CANCELLED, Project::STATUS_CANCELLED],
+    ];
+    foreach ($statusCases as $i => [$start, $end, $beforeStatus, $afterStatus]) {
+        $id = (string) (200 + $i);
+        $statusState['data']['loans'][] = ['LoanID' => $id, 'LoanNumber' => 'STATUS-' . $id, 'LoanIn' => '1',
+            'Description' => 'Status fixture ' . $id, 'BeginISODate' => $start, 'EndISODate' => $end, 'LoanStatus' => 'Open'];
+        $legacy = (new Project('Legacy status fixture', Project::TYPE_LOAN))->setStatus($beforeStatus);
+        $legacy->applyTmsSource('loans', $id, ['record' => [], 'mapped' => []], $today);
+        $statusEm->persist($legacy);
+    }
+    $localDates = (new Project('Locally corrected dates', Project::TYPE_LOAN))
+        ->setStartDate($today->modify('+1 day'))->setEndDate($today->modify('+2 days'));
+    $localDates->applyTmsSource('loans', '210', ['record' => [],
+        'mapped' => ['startDate' => $day('-2 days'), 'endDate' => $day('-1 day')]], $today);
+    $statusState['data']['loans'][] = ['LoanID' => '210', 'LoanNumber' => 'STATUS-210', 'LoanIn' => '1',
+        'Description' => 'Local dates', 'BeginISODate' => $day('-2 days'), 'EndISODate' => $day('-1 day'), 'LoanStatus' => 'Closed'];
+    $statusEm->persist($localDates);
+    $localProject = (new Project('Local project outside the import'))->setEndDate($today->modify('-1 day'));
+    $statusEm->persist($localProject);
+    $statusEm->flush();
+    $localProjectId = $localProject->getId();
+    $statusSync = syncer($statusEm, $statusState, $directory);
+    $statusSync->synchronize();
+    foreach ($statusCases as $i => [$start, $end, $beforeStatus, $afterStatus]) {
+        $project = $statusEm->getRepository(Project::class)->findOneBy(['tmsType' => 'loans', 'tmsId' => (string) (200 + $i)]);
+        check($project->getStatus() === $afterStatus, 'Incorrect date-derived status for legacy project ' . (200 + $i));
+    }
+    check($statusEm->getRepository(Project::class)->findOneBy(['tmsType' => 'loans', 'tmsId' => '210'])->getStatus() === Project::STATUS_PLANNED,
+        'Derive status from preserved local project dates, not superseded raw source dates.');
+    check($statusEm->find(Project::class, $localProjectId)->getStatus() === Project::STATUS_ACTIVE, 'Do not change unrelated local projects.');
+
+    $project = $statusEm->getRepository(Project::class)->findOneBy(['tmsType' => 'loans', 'tmsId' => '201']);
+    $object = $statusEm->getRepository(ObjectRecord::class)->findOneBy(['tmsId' => '101']);
+    $projectLink = new ProjectObject($project, $object);
+    $series = new ReportSeries($object, 'Lifecycle fixture', $project);
+    $draft = new Report($series);
+    $final = new Report($series);
+    $final->finalize(1);
+    foreach ([$projectLink, $series, $draft, $final] as $entity) $statusEm->persist($entity);
+    $statusEm->flush();
+    $projectId = $project->getId(); $draftId = $draft->getId(); $finalId = $final->getId(); $projectLinkId = $projectLink->getId();
+    $linkStatus = $projectLink->getStatus();
+    foreach ([
+        [$day('-1 day'), $day('+1 day'), Project::STATUS_ACTIVE],
+        [$day('-2 days'), $day('-1 day'), Project::STATUS_COMPLETED],
+        [$day('+1 day'), $day('+2 days'), Project::STATUS_PLANNED],
+    ] as [$start, $end, $expected]) {
+        // Loan 201 is at index 2, following the original fixture loan and loan 200.
+        $statusState['data']['loans'][2]['BeginISODate'] = $start;
+        $statusState['data']['loans'][2]['EndISODate'] = $end;
+        $statusSync->synchronize();
+        check($statusEm->find(Project::class, $projectId)->getStatus() === $expected, 'Automatically managed statuses must follow changes in the project period.');
+        check($statusEm->find(Report::class, $draftId)->getStatus() === Report::STATUS_ACTIVE
+            && $statusEm->find(Report::class, $finalId)->getStatus() === Report::STATUS_FINALIZED, 'A project status change must not finalize or reopen reports.');
+        check($statusEm->find(ProjectObject::class, $projectLinkId)->getStatus() === $linkStatus, 'Do not change project-object workflow status.');
+    }
+    $statusEm->find(Project::class, $projectId)->setStatus(Project::STATUS_CANCELLED);
+    $statusEm->flush();
+    $statusState['data']['loans'][2]['BeginISODate'] = $day('-2 days');
+    $statusState['data']['loans'][2]['EndISODate'] = $day('-1 day');
+    $statusSync->synchronize();
+    check($statusEm->find(Project::class, $projectId)->getStatus() === Project::STATUS_CANCELLED, 'Never overwrite a manual cancellation.');
+    $statusEm->find(Project::class, $projectId)->setStatus(Project::STATUS_ACTIVE);
+    $statusEm->flush();
+    $statusSync->synchronize();
+    check($statusEm->find(Project::class, $projectId)->getStatus() === Project::STATUS_ACTIVE, 'Preserve a manual status that differs from the previous automatic status.');
+    $statusEm->close();
 
     echo "OK: {$checks} checks; isolated SQLite and fake API only.\n";
 } finally {

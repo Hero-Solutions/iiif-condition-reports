@@ -108,7 +108,7 @@ $manager = new EntityManager(DriverManager::getConnection(['driver' => 'pdo_sqli
     ObjectRecord::class, ObjectLogEntry::class, ObjectManifest::class, IIIFManifest::class,
     Project::class, ProjectObject::class, ReportSeries::class, Report::class, ReportActor::class, Actor::class, OrganizationContact::class,
 ]));
-$harvest = new HarvestDatahubObjectsCommand($manager, new ParameterBag(), new ObjectChangeLogger($manager), $parser, new \App\Service\MainImageHistory($manager, new \App\Service\ObjectImageStorage(__DIR__, dirname(__DIR__))));
+$harvest = new HarvestDatahubObjectsCommand($manager, new ParameterBag(), new ObjectChangeLogger($manager), $parser, new \App\Service\MainImageHistory($manager));
 $fixture->registerXPathNamespace('lido', 'http://www.lido-schema.org');
 $prepared = (new ReflectionMethod($harvest, 'prepareData'))->invoke($harvest, $fixture, 'fixture', [
     'namespace' => 'lido', 'language' => 'nl', 'data_definition' => ['id' => ['xpath' => 'workID']], 'placeholder_images' => [],

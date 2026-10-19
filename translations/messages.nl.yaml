@@ -22,6 +22,14 @@ actions:
   cancel: Annuleren
   close: Sluiten
   details: Details
+pagination:
+  label: Paginering
+  summary: '%first%–%last% van %total%'
+  previous: Vorige
+  next: Volgende
+  clear_filter: 'Filter wissen'
+  no_results: 'Geen resultaten'
+  try_other_filter: 'Pas de zoekterm aan of wis het filter.'
 forms:
   custom_option_prefix: 'Anders:'
 filters:
@@ -509,6 +517,8 @@ actors:
   title: Actoren
   text: 'Beheer hier de organisaties en personen die bij dit project of bij specifieke objecten horen.'
   admin_title: 'Actoren / organisaties'
+  search_name: 'Filter op naam of alias'
+  filter_error: 'Filteren is niet gelukt. Probeer opnieuw met Zoeken.'
   grouped_variants_hint: 'Naam- en adresvarianten uit TMS staan onder dezelfde actor. Klap een vermelding open om de varianten te bekijken en te bewerken.'
   variants_count: '%count% varianten'
   new: 'Nieuwe actor'

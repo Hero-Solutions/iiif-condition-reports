@@ -2,6 +2,10 @@
 
 {% block title %}{{ 'actors.admin_title'|trans }} | {{ 'app.title'|trans }}{% endblock %}
 
+{% block javascripts %}
+    <script src="/js/list-filter.js?v=1" defer></script>
+{% endblock %}
+
 {% block body %}
     <div class="page-header">
         <h1>{{ 'actors.admin_title'|trans }}</h1>
@@ -11,13 +15,24 @@
         </div>
     </div>
 
+    <section class="panel">
+        <form class="filters" method="get" action="{{ path('admin_actors_index', {'_locale': app.request.locale}) }}" data-list-filter>
+            <input type="search" name="q" value="{{ q }}" placeholder="{{ 'actors.search_name'|trans }}" aria-label="{{ 'actors.search_name'|trans }}" autocomplete="off">
+            <button type="submit">{{ 'actions.search'|trans }}</button>
+            <a class="button secondary" href="{{ path('admin_actors_index', {'_locale': app.request.locale}) }}">{{ 'pagination.clear_filter'|trans }}</a>
+        </form>
+        <p class="muted" role="alert" data-list-filter-error hidden>{{ 'actors.filter_error'|trans }}</p>
+    </section>
+
+    <div data-list-results>
     {% if actor_groups is empty %}
         <section class="empty-state">
-            <h2>{{ 'actors.empty_admin_title'|trans }}</h2>
-            <p>{{ 'actors.empty_admin_text'|trans }}</p>
+            <h2>{{ (q != '' ? 'pagination.no_results' : 'actors.empty_admin_title')|trans }}</h2>
+            <p>{{ (q != '' ? 'pagination.try_other_filter' : 'actors.empty_admin_text')|trans }}</p>
         </section>
     {% else %}
         <section class="panel admin-panel">
+            {% include 'shared/_pagination.html.twig' with {pagination_route: 'admin_actors_index', pagination_params: {'_locale': app.request.locale, q: q}} %}
             <p class="muted">{{ 'actors.grouped_variants_hint'|trans }}</p>
             <div class="table-scroll">
             <table class="data-table compact-table">
@@ -71,6 +86,10 @@
                 </tbody>
             </table>
             </div>
+            {% if pagination.pages > 1 %}
+                {% include 'shared/_pagination.html.twig' with {pagination_route: 'admin_actors_index', pagination_params: {'_locale': app.request.locale, q: q}} %}
+            {% endif %}
         </section>
     {% endif %}
+    </div>
 {% endblock %}

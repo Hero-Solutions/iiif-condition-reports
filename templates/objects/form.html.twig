@@ -224,6 +224,8 @@
                                         <a href="{{ image.image_url }}" target="_blank" rel="noopener" title="{{ 'objects.image_preview'|trans }}">
                                             <img src="{{ image.thumbnail_url }}" alt="{{ 'objects.image_preview'|trans }}" loading="lazy">
                                         </a>
+                                    {% else %}
+                                        <a href="{{ version.source.manifestUrl ?: (version.source.infoUrl ?: version.source.imageUrl) }}" target="_blank" rel="noopener">IIIF</a>
                                     {% endfor %}
                                 </div>
                                 <figcaption>{{ 'objects.main_image_replaced'|trans({'%date%': version.replacedAt|date('d/m/Y H:i')}) }}</figcaption>

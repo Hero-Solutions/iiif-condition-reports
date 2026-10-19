@@ -190,6 +190,7 @@ final class TmsProjectSync
     private function apply(array $files, array $manifest): array
     {
         $at = new \DateTimeImmutable();
+        $today = $at->setTimezone(new \DateTimeZone('Europe/Brussels'))->format('Y-m-d');
         $importId = bin2hex(random_bytes(16)); // Local trace ID, not a source snapshot guarantee.
         $result = ['status' => 'completed', 'import_id' => $importId,
             'objects' => 0, 'objects_created' => 0, 'projects' => 0, 'projects_created' => 0, 'links' => 0,
@@ -314,7 +315,18 @@ final class TmsProjectSync
                     'type' => $isLoan ? Project::TYPE_LOAN : Project::TYPE_EXHIBITION,
                     'referenceCode' => $reference, 'description' => $isLoan ? $this->text($row, 'Description') : null,
                     'startDate' => $startDate, 'endDate' => $endDate];
-                $this->mergeFields($project, $values, $project->getTmsData()['mapped'] ?? null);
+                $previous = $project->getTmsData()['mapped'] ?? null;
+                $this->mergeFields($project, $values, $previous);
+                // Use the effective project dates, including any preserved local corrections.
+                $status = $this->projectStatus($project, $today);
+                $previousStatus = $previous['status'] ?? null;
+                $currentStatus = $project->getStatus();
+                $automaticStatus = $previousStatus !== null ? $currentStatus === $previousStatus
+                    : in_array($currentStatus, [Project::STATUS_ACTIVE, Project::STATUS_PLANNED], true);
+                if ($status !== null && $automaticStatus && $currentStatus !== Project::STATUS_CANCELLED && $currentStatus !== $status) {
+                    $project->setStatus($status);
+                }
+                $values['status'] = $status ?? $previousStatus;
                 $project->applyTmsSource($dataset, $id, ['record' => $row, 'mapped' => $values,
                     'loan_ids' => $isLoan ? [] : array_values(array_unique(array_map(fn(array $link): string => $this->id($link, 'LoanID'), $this->readRows($files, 'exhibition_loans', $exhibitionLoans[$id] ?? [])))),
                     'exhibition_ids' => $isLoan ? array_values(array_unique($loanExhibitions[$id] ?? [])) : [],
@@ -451,6 +463,19 @@ final class TmsProjectSync
         $start = $this->date($parts, 'start');
         $end = $this->date($parts, 'end');
         return $start !== null && $end !== null && $start <= $end ? [$start, $end] : [null, null];
+    }
+
+    private function projectStatus(Project $project, string $today): ?string
+    {
+        $start = $project->getStartDate()?->format('Y-m-d');
+        $end = $project->getEndDate()?->format('Y-m-d');
+        if ($start !== null && $end !== null && $start > $end) return null;
+        return match (true) {
+            $end !== null && $end < $today => Project::STATUS_COMPLETED,
+            $start !== null && $start > $today => Project::STATUS_PLANNED,
+            $start !== null || $end !== null => Project::STATUS_ACTIVE,
+            default => null,
+        };
     }
 
     /** Update fields only while they still equal the previous imported value. */

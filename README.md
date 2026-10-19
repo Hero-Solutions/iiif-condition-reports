@@ -53,30 +53,35 @@ measurements on their next harvest. Offline regression: `tests/datahub_measureme
 
 ## Historical main images
 
-On the first main-image annotation, the application stores an independent full-resolution
-copy in `public/uploads/objects/`. Reports using that image share the copy. Canvas order,
-annotation coordinates and individual stroke widths are preserved.
+On the first main-image annotation, the application stores only the original IIIF URLs
+in the database. The browser supplies the already resolved per-canvas image-service
+URLs. Neither saving annotations nor preserving history during a Datahub sync downloads
+metadata or image bytes, or creates image files. Canvas order, annotation coordinates
+and individual stroke widths are preserved.
 When the Datahub manifest URL or image-service URL changes, annotated reports keep their
-original image in the editor, preview, PDF, zoom viewer and report list. New reports and
+original URLs in the editor, preview, PDF, zoom viewer and report list. New reports and
 reports without active main-image annotations follow the current image. Annotations on
 extra photos or frame sketches do not pin the main image.
 Previous annotated images appear under **Vorige hoofdafbeeldingen** on the object page,
 with the date the sync detected the change. This is not a restoration date.
-Existing annotations without a copy are captured before the sync changes their source.
-If that copy fails, the sync transaction stops without replacing the annotated image.
+Existing annotations without URL history retain their previous source URLs before sync
+changes the source. The remote IIIF service remains responsible for the image bytes;
+replacing pixels at the same URL is not detectable from URL history.
 A stale editor page cannot save a drawing onto a different image; it asks for a reload.
 
-The operator must apply migration `Version20261014120000` before using this version.
-Keep `public/uploads/objects/` persistent and backed up together with the database.
-Offline checks: `tests/main_image_history.php`, `tests/main_image_storage.php`,
-`tests/report_image_manager.php` and `tests/report_image_viewer.js`.
+This uses the existing tables from migration `Version20261014120000`; the switch to
+URLs requires no new migration. Existing local-file references remain readable; no
+stored files are deleted automatically. PDF generation can temporarily fetch a bounded
+IIIF preview for embedding, independently of annotation saving.
+The operator deploys the changed PHP, JavaScript and Twig files together, refreshes
+the Symfony cache and reloads the browser. The viewer asset versions have been bumped.
+Offline checks: `tests/main_image_history.php`, `tests/datahub_object_sync.php`,
+`tests/report_annotation_eraser.js` and `tests/report_image_viewer.js`.
 
 For an annotation POST that returns HTTP 500, inspect **Network > Response** in the
-browser after the operator deploys the updated `ReportAnnotationController.php` and
-`ObjectImageStorage.php` and refreshes the application cache. Errors caught during
+browser. Errors caught during
 saving return `annotation_save_failed` with the failed stage, exception type, code,
-filename and line. Database errors also include `sqlState`; download errors include
-the cURL description or remote HTTP status when available. Exception messages, SQL,
+filename and line. Database errors also include `sqlState`. Exception messages, SQL,
 URLs and trace arguments are excluded. Validation and stale-image responses keep
 their existing status. Failures before the controller and fatal process termination
 are outside this handler. No production action is performed by the diagnostic tests.

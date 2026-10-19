@@ -1,12 +1,11 @@
 <?php
-
 declare(strict_types=1);
 
-// Isolated SQLite and fake IIIF responses only. No kernel, environment files or HTTP.
+// SQLite and URL strings only. No application bootstrap, environment files or HTTP.
 use App\Command\HarvestDatahubObjectsCommand;
 use App\Controller\{ReportAnnotationController, ReportController};
 use App\Datahub\LidoMeasurements;
-use App\Entity\{Annotation, DamageCase, IIIFManifest, ObjectImageVersion, ObjectManifest, ObjectRecord, Report, ReportImage, ReportMainImage, ReportSeries};
+use App\Entity\{Annotation, DamageCase, IIIFManifest, ObjectImageVersion, ObjectManifest, ObjectRecord, Report, ReportMainImage, ReportSeries};
 use App\Service\{MainImageHistory, ObjectChangeLogger, ObjectImageStorage, ReportAuthorProvider};
 use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\{EntityManager, ORMSetup};
@@ -15,12 +14,10 @@ use Doctrine\ORM\Tools\SchemaTool;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\DependencyInjection\{Container, ParameterBag\ParameterBag};
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\File\Exception\FileException;
-use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Csrf\{CsrfToken, CsrfTokenManagerInterface};
 use Symfony\Component\Translation\Translator;
 
@@ -40,64 +37,20 @@ function invoke(object $object, string $method, mixed ...$args): mixed
     return (new ReflectionMethod($object, $method))->invoke($object, ...$args);
 }
 
-final class ImageFixtures extends ObjectImageStorage
+// Rendering a PDF may embed a bounded preview; saving/history have no storage dependency.
+final class PreviewFixtures extends ObjectImageStorage
 {
-    public array $documents = [];
-    public array $copies = [];
-    public bool $fail = false;
-    public ?Throwable $failure = null;
-    public function readIiifJson(string $url): array
+    public function dataUri(?string $url): ?string { return null; }
+    public function externalDataUri(string $url): string
     {
-        return $this->documents[$url] ?? throw new RuntimeException('Unexpected fixture URL: ' . $url);
+        check(str_starts_with($url, 'https://images.invalid/') && str_contains($url, '/full/2000,/'), 'PDF uses a bounded IIIF preview.');
+        return 'data:image/jpeg;base64,' . base64_encode($url);
     }
-    public function storeArchiveImage(string $url, string $thumbnailUrl): array
-    {
-        if ($this->failure !== null) throw $this->failure;
-        if ($this->fail) throw new RuntimeException('Fixture download failure.');
-        check(str_starts_with($url, 'https://images.invalid/'), 'Only fixture images may be copied.');
-        $this->copies[] = [$url, $thumbnailUrl];
-        return ['image_url' => '/uploads/objects/archive-' . count($this->copies) . '.jpg', 'thumbnail_url' => '/uploads/objects/thumb-' . count($this->copies) . '.jpg'];
-    }
-    public function dataUri(?string $url): ?string { return 'data:image/jpeg;base64,' . base64_encode((string) $url); }
-    public function externalDataUri(string $url): string { throw new RuntimeException('Historical output must not contact an external source.'); }
 }
 
 $config = ORMSetup::createAttributeMetadataConfiguration([$root . '/src/Entity'], true, __DIR__, new ArrayAdapter());
 $config->setNamingStrategy(new UnderscoreNamingStrategy(CASE_LOWER));
 $config->setAutoGenerateProxyClasses(Doctrine\ORM\Proxy\ProxyFactory::AUTOGENERATE_EVAL);
-$manager = new EntityManager(DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true]), $config);
-(new SchemaTool($manager))->createSchema($manager->getMetadataFactory()->getAllMetadata());
-$storage = new ImageFixtures(__DIR__, $root);
-$storage->documents = [
-    'https://images.invalid/a/manifest' => ['sequences' => [['canvases' => [
-        ['images' => [['resource' => ['service' => ['@id' => 'https://images.invalid/a/front']]]]],
-        ['images' => [['resource' => ['service' => ['@id' => 'https://images.invalid/a/back']]]]],
-    ]]]],
-    'https://images.invalid/a/front/info.json' => ['@context' => 'http://iiif.io/api/image/2/context.json'],
-    'https://images.invalid/a/back/info.json' => ['type' => 'ImageService3'],
-    'https://images.invalid/b/info.json' => ['type' => 'ImageService3'],
-];
-$history = new MainImageHistory($manager, $storage);
-$object = (new ObjectRecord('IMAGE-TEST', 'Fixture'))->applyDatahubSync('IMAGE-TEST', 'fixture', [
-    'iiif_manifest_url' => 'https://images.invalid/a/manifest',
-    'iiif_image_info_url' => 'https://images.invalid/a/front/info.json',
-]);
-$manifest = (new IIIFManifest())->setManifestId('https://images.invalid/a/manifest')->setSourceUrl('https://images.invalid/a/manifest');
-$sourceLink = new ObjectManifest($object, $manifest, ObjectManifest::ROLE_SOURCE);
-$series = new ReportSeries($object);
-$first = new Report($series);
-$existing = new Report($series);
-$empty = new Report($series);
-$extraOnly = new Report($series);
-$undone = new Report($series);
-foreach ([$object, $manifest, $sourceLink, $series, $first, $existing, $empty, $extraOnly, $undone] as $entity) $manager->persist($entity);
-$manager->flush();
-$originalFingerprint = $history->forReport($first)['fingerprint'];
-check($storage->copies === [], 'Viewing an image without annotations must not create a backup.');
-
-$case = new DamageCase($first, 'fixture-case', 'Fixture damage', '#ff0000');
-$manager->persist($case);
-$manager->flush();
 $container = new Container();
 $container->set('security.authorization_checker', new class implements AuthorizationCheckerInterface {
     public function isGranted(mixed $attribute, mixed $subject = null): bool { return false; }
@@ -109,133 +62,37 @@ $container->set('security.csrf.token_manager', new class implements CsrfTokenMan
     public function removeToken(string $id): ?string { return null; }
     public function isTokenValid(CsrfToken $token): bool { return $token->getValue() === 'fixture'; }
 });
-$controller = new ReportAnnotationController($manager, new ReportAuthorProvider($manager), $history);
-$controller->setContainer($container);
-$target = ['selector' => ['type' => 'SvgSelector', 'value' => '<svg><path d="M1 1L20 20"/></svg>'], 'sourceDimensions' => ['width' => 1000, 'height' => 800]];
-$request = Request::create('/fixture', 'POST', server: ['HTTP_X_CSRF_TOKEN' => 'fixture'], content: json_encode([
-    'damageCaseId' => $case->getId(), 'sourceKey' => 'main:2', 'mainImageFingerprint' => $originalFingerprint,
-    'annotation' => ['id' => 'line-1', 'target' => $target, 'bodies' => []],
-]));
-$response = $controller->saveAnnotation($first, $request);
-check($response->getStatusCode() === 201 && count($storage->copies) === 2, 'First drawing stores every original canvas once.');
-check($storage->copies[0][0] === 'https://images.invalid/a/front/full/full/0/default.jpg', 'IIIF 2 archives full resolution.');
-check($storage->copies[1][0] === 'https://images.invalid/a/back/full/max/0/default.jpg', 'IIIF 3 archives full resolution.');
-$version = $manager->getRepository(ReportMainImage::class)->findOneBy(['report' => $first])->getImageVersion();
-$savedTarget = $manager->getRepository(Annotation::class)->findOneBy(['report' => $first])->getTarget();
-$first->finalize(1);
 
-// Already-existing annotations are captured before sync replaces their source; extra photos do not count.
-foreach ([$existing, $extraOnly, $undone] as $report) {
-    $damage = new DamageCase($report, 'case-' . $report->getId(), 'Damage', '#ff0000');
-    $annotation = (new Annotation($report, $damage, 'main:1', 'line-' . $report->getId()))->setTarget($target);
-    if ($report === $extraOnly) {
-        $image = new ReportImage($report, '/fixture-photo.jpg', ReportImage::SOURCE_UPLOAD);
-        $manager->persist($image);
-        $annotation->setReportImage($image)->setSourceKey('report-image-1');
-    }
-    if ($report === $undone) {
-        $history->preserveForAnnotation($report, $originalFingerprint, 'main:1');
-        $annotation->delete();
-    }
-    $manager->persist($damage);
-    $manager->persist($annotation);
-}
-$manager->flush();
-check(count($storage->copies) === 2, 'Reports using the same image share the stored files.');
-
-function syncImage(EntityManager $manager, MainImageHistory $history, array $source, string $date): void
+function fixture(): array
 {
-    $command = new HarvestDatahubObjectsCommand($manager, new ParameterBag(), new ObjectChangeLogger($manager), new LidoMeasurements(), $history);
-    $prepared = ['inventory_number' => 'IMAGE-TEST', 'record_identifier' => 'fixture', 'source_data' => $source, 'synced_at' => new DateTimeImmutable($date)];
-    $manager->wrapInTransaction(function () use ($command, $prepared): void {
-        invoke($command, 'preloadBatch', [$prepared]);
-        invoke($command, 'syncPreparedRecord', $prepared);
-    });
-}
-
-syncImage($manager, $history, ['iiif_manifest_url' => 'https://images.invalid/b/manifest', 'iiif_image_info_url' => 'https://images.invalid/b/info.json'], '2026-10-14 12:00');
-check(count($storage->copies) === 2, 'A changed URL reuses the stored copy, without re-downloading the old source.');
-check($history->forReport($first)['images'] === $version->getImages(), 'Final report keeps its original image.');
-check($history->forReport($existing)['images'] === $version->getImages(), 'Existing draft annotations keep their original image too.');
-foreach ([$empty, $extraOnly, $undone] as $report) {
-    check($history->forReport($report)['manifestUrl'] === 'https://images.invalid/b/manifest', 'Unannotated/undone/extra-photo-only reports follow the current image.');
-}
-check($manager->getRepository(Annotation::class)->findOneBy(['report' => $first])->getTarget() === $savedTarget, 'Sync must not transform annotation geometry.');
-check($first->getStatus() === Report::STATUS_FINALIZED, 'Sync must not change report status.');
-$thumbs = $history->thumbnailsForReports([$first, $empty], [$object->getId() => '/current.jpg']);
-check($thumbs[$first->getId()] === $version->getImages()[0]['thumbnail_url'] && $thumbs[$empty->getId()] === '/current.jpg', 'Report list thumbnails also respect image versions.');
-check(count($history->previousImages($object)) === 1 && $version->getReplacedAt()->format('H:i') === '12:00', 'Object history shows one version with its sync discovery date.');
-
-syncImage($manager, $history, ['iiif_manifest_url' => 'https://images.invalid/b/manifest', 'iiif_image_info_url' => 'https://images.invalid/b/info.json'], '2026-10-15');
-syncImage($manager, $history, ['iiif_manifest_url' => 'https://images.invalid/c/manifest', 'iiif_image_info_url' => 'https://images.invalid/c/info.json'], '2026-10-16');
-check(count($storage->copies) === 2 && count($history->previousImages($object)) === 1, 'Identical syncs and unannotated intermediate images do not create history.');
-check($version->getReplacedAt()->format('Y-m-d') === '2026-10-14', 'Do not overwrite the original replacement date.');
-$newReport = (new Report($series))->setBasedOnReport($first);
-check($history->forReport($newReport)['manifestUrl'] === 'https://images.invalid/c/manifest', 'A new report based on an old report starts with the current image.');
-
-// Editor source identities, header/preview/PDF and per-canvas annotation backgrounds.
-$reflection = new ReflectionClass(ReportController::class);
-$reportController = $reflection->newInstanceWithoutConstructor();
-foreach (['entityManager' => $manager, 'mainImages' => $history, 'imageStorage' => $storage, 'translator' => new Translator('nl')] as $name => $value) {
-    $reflection->getProperty($name)->setValue($reportController, $value);
-}
-check(invoke($reportController, 'annotationManifestUrl', $first) === null, 'Historical zoom must never fetch the live manifest.');
-check(invoke($reportController, 'reportMainImageSource', $first, false) === $version->getImages()[0]['image_url'], 'Report header uses the original photo.');
-check(str_starts_with(invoke($reportController, 'reportMainImageSource', $first, true), 'data:'), 'PDF embeds the local historical photo.');
-$damageOutput = invoke($reportController, 'damageAnnotationContext', $first, 'wrong-current-image.jpg', [], [], false);
-check($damageOutput['sources'][0]['imageSource'] === $version->getImages()[1]['image_url'], 'The second canvas retains its own background, not the first or current photo.');
-check($damageOutput['sources'][0]['width'] === 1000.0, 'Original annotation coordinates remain unchanged.');
-
-try {
-    $history->preserveForAnnotation($empty, $originalFingerprint, 'main:1');
-    throw new RuntimeException('Stale page was accepted.');
-} catch (ConflictHttpException) {}
-
-// Info URL changes also count, even when the manifest URL stays unchanged.
-$storage->documents['https://images.invalid/c/manifest'] = ['items' => [['items' => [['items' => [['body' => [
-    'type' => 'Image', 'service' => [['id' => 'https://images.invalid/b', 'type' => 'ImageService3']],
-]]]]]]]];
-$history->preserveForAnnotation($empty, $history->forReport($empty)['fingerprint'], 'main');
-$damage = new DamageCase($empty, 'new-case', 'Damage', '#0000ff');
-$annotation = (new Annotation($empty, $damage, 'main', 'new-line'))->setTarget($target);
-$manager->persist($damage);
-$manager->persist($annotation);
-$manager->flush();
-syncImage($manager, $history, ['iiif_manifest_url' => 'https://images.invalid/c/manifest', 'iiif_image_info_url' => 'https://images.invalid/d/info.json'], '2026-10-17');
-check(count($history->previousImages($object)) === 2, 'Changed IIIF image service with unchanged manifest is archived.');
-
-// If an old annotated image cannot be copied, the whole sync transaction leaves source and annotations intact.
-$unprotected = new Report($series);
-$damage = new DamageCase($unprotected, 'unprotected', 'Damage', '#000000');
-$annotation = (new Annotation($unprotected, $damage, 'main', 'unprotected-line'))->setTarget($target);
-foreach ([$unprotected, $damage, $annotation] as $entity) $manager->persist($entity);
-$manager->flush();
-$storage->fail = true;
-try {
-    syncImage($manager, $history, ['iiif_manifest_url' => 'https://images.invalid/e/manifest'], '2026-10-18');
-    throw new LogicException('Failed image preservation must stop replacement.');
-} catch (RuntimeException $exception) {
-    check(str_contains($exception->getMessage(), 'Fixture download failure'), 'Expected the controlled archive failure.');
-}
-$source = json_decode($manager->getConnection()->fetchOne('SELECT source_data FROM object_records WHERE id = ?', [$object->getId()]), true);
-check($source['iiif_image_info_url'] === 'https://images.invalid/d/info.json', 'Failed sync keeps the previous source data in the database.');
-// Exercise the actual POST handler with a polygon and isolated failures, including rollback.
-foreach (['success', 'download', 'download_http', 'database', 'csrf', 'payload', 'conflict'] as $scenario) {
+    global $config, $container;
     $manager = new EntityManager(DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true]), $config);
     (new SchemaTool($manager))->createSchema($manager->getMetadataFactory()->getAllMetadata());
-    $storage = new ImageFixtures(__DIR__, $root);
-    $history = new MainImageHistory($manager, $storage);
-    $object = (new ObjectRecord('ERROR-TEST', 'Fixture'))->setImageUrl('https://images.invalid/original.jpg');
+    $object = (new ObjectRecord('IMAGE-TEST', 'Fixture'))->applyDatahubSync('IMAGE-TEST', 'fixture', [
+        'iiif_manifest_url' => 'https://images.invalid/a/manifest',
+        'iiif_image_info_url' => 'https://images.invalid/a/front/info.json',
+    ]);
+    $manifest = (new IIIFManifest())->setManifestId('https://images.invalid/a/manifest')->setSourceUrl('https://images.invalid/a/manifest');
+    $link = new ObjectManifest($object, $manifest, ObjectManifest::ROLE_SOURCE);
     $series = new ReportSeries($object);
     $report = new Report($series);
     $damage = new DamageCase($report, 'fixture-case', 'Fixture damage', '#ff0000');
-    foreach ([$object, $series, $report, $damage] as $entity) $manager->persist($entity);
+    foreach ([$object, $manifest, $link, $series, $report, $damage] as $entity) $manager->persist($entity);
     $manager->flush();
+    $history = new MainImageHistory($manager);
     $controller = new ReportAnnotationController($manager, new ReportAuthorProvider($manager), $history);
     $controller->setContainer($container);
-    $payload = [
-        'damageCaseId' => $damage->getId(), 'sourceKey' => 'main', 'reportImageId' => null,
+    return [$manager, $history, $controller, $report, $damage];
+}
+function payload(MainImageHistory $history, Report $report, DamageCase $damage): array
+{
+    return [
+        'damageCaseId' => $damage->getId(), 'sourceKey' => 'main:2', 'reportImageId' => null,
         'mainImageFingerprint' => $history->forReport($report)['fingerprint'],
+        'mainImageSources' => [
+            ['key' => 'main:1', 'url' => 'https://images.invalid/a/front/info.json'],
+            ['key' => 'main:2', 'url' => 'https://images.invalid/a/back/info.json'],
+        ],
         'annotation' => ['id' => 'fixture-polygon', 'bodies' => [], 'target' => [
             'annotation' => 'fixture-polygon',
             'selector' => ['type' => 'POLYGON', 'geometry' => [
@@ -245,47 +102,104 @@ foreach (['success', 'download', 'download_http', 'database', 'csrf', 'payload',
             'sourceDimensions' => ['width' => 6979, 'height' => 4949],
         ]],
     ];
-    if ($scenario === 'download') $storage->failure = new FileException('Fixture private URL https://images.invalid/?token=fixture-secret', 60);
-    if ($scenario === 'download_http') $storage->failure = new FileException('The external image returned HTTP status 503.');
-    if ($scenario === 'database') $manager->getConnection()->executeStatement('DROP TABLE annotations');
-    if ($scenario === 'payload') unset($payload['annotation']['target']['selector']);
-    if ($scenario === 'conflict') $payload['mainImageFingerprint'] = 'stale-fixture';
-    $request = Request::create('/fixture', 'POST', server: ['HTTP_X_CSRF_TOKEN' => $scenario === 'csrf' ? 'invalid' : 'fixture'], content: json_encode($payload));
-
-    try {
-        $response = $controller->saveAnnotation($report, $request);
-        check(!in_array($scenario, ['csrf', 'payload', 'conflict'], true), 'Expected an unchanged HTTP exception.');
-    } catch (AccessDeniedException) {
-        check($scenario === 'csrf', 'Invalid CSRF tokens remain denied before storage.');
-        continue;
-    } catch (HttpExceptionInterface $exception) {
-        check($exception->getStatusCode() === ['payload' => 400, 'conflict' => 409][$scenario], 'Keep the original HTTP error status.');
-        continue;
-    }
-
-    $result = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
-    if ($scenario === 'success') {
-        check($response->getStatusCode() === 201, 'A main-image polygon is accepted.');
-        check($result['annotation']['target'] === $payload['annotation']['target'], 'Polygon coordinates and dimensions remain unchanged.');
-        continue;
-    }
-    check($response->getStatusCode() === 500 && $result['error'] === 'annotation_save_failed', 'Storage errors return structured JSON with HTTP 500.');
-    check($response->headers->hasCacheControlDirective('no-store'), 'Failure diagnostics must not be cached.');
-    check(!str_contains($response->getContent(), 'fixture-secret') && !str_contains($response->getContent(), 'https:') && !str_contains($response->getContent(), 'SELECT'), 'Do not expose URLs, exception messages or SQL.');
-    $details = $result['diagnostics'];
-    check(!str_contains($details['file'], '/') && !str_contains($details['file'], '\\') && $details['line'] > 0, 'Return only the filename and line.');
-    check($details['stage'] === ($scenario === 'database' ? 'save_annotation' : 'preserve_main_image'), 'Identify the failing operation.');
-    if ($scenario === 'download') {
-        check($details['exception'] === 'FileException' && $details['code'] === 60, 'Preserve the download error code.');
-        if (function_exists('curl_strerror')) check($details['downloadError'] === curl_strerror(60), 'Only expose the fixed cURL description.');
-    }
-    if ($scenario === 'download_http') check($details['downloadHttpStatus'] === 503, 'Expose the remote HTTP status without its body or URL.');
-    if ($scenario === 'database') check($details['sqlState'] === 'HY000', 'Expose the database SQLSTATE without its query.');
-    check(!$manager->getConnection()->isTransactionActive(), 'Failed saves roll back the transaction.');
-    foreach (['report_main_images', 'object_image_versions'] as $table) {
-        check((int) $manager->getConnection()->fetchOne('SELECT COUNT(*) FROM ' . $table) === 0, 'Failed saves must not persist image-version rows.');
-    }
-    if ($scenario !== 'database') check((int) $manager->getConnection()->fetchOne('SELECT COUNT(*) FROM annotations') === 0, 'Failed downloads must not persist annotations.');
+}
+function request(array $payload, string $csrf = 'fixture'): Request
+{
+    return Request::create('/fixture', 'POST', server: ['HTTP_X_CSRF_TOKEN' => $csrf], content: json_encode($payload));
 }
 
-echo "PASS: first-drawing archive, shared files, v2/v3 and multi-canvas sources, sync/unchanged/empty/undone reports, stale page rejection, preview/PDF/zoom, polygon POST, sanitized error diagnostics, HTTP statuses and transactional failure.\n";
+[$manager, $history, $controller, $report, $damage] = fixture();
+$payload = payload($history, $report, $damage);
+$response = $controller->saveAnnotation($report, request($payload));
+check($response->getStatusCode() === 201, 'A polygon saves with URL references only.');
+check(json_decode($response->getContent(), true)['annotation']['target'] === $payload['annotation']['target'], 'Keep geometry and original dimensions.');
+$version = $manager->getRepository(ReportMainImage::class)->findOneBy(['report' => $report])->getImageVersion();
+check(array_column($version->getImages(), 'info_url') === array_column($payload['mainImageSources'], 'url'), 'Store exact per-canvas IIIF URLs.');
+check($version->getSource()['manifestUrl'] === 'https://images.invalid/a/manifest', 'Keep the original manifest URL in the database.');
+check($controller->saveAnnotation($report, request($payload))->getStatusCode() === 200, 'Repeated saves update the existing annotation.');
+check($manager->getRepository(ObjectImageVersion::class)->count([]) === 1, 'Repeated saves reuse URL history.');
+
+$empty = new Report($report->getSeries());
+$older = new Report($report->getSeries());
+$undone = new Report($report->getSeries());
+foreach ([$empty, $older, $undone] as $entity) $manager->persist($entity);
+foreach ([$older, $undone] as $other) {
+    $case = new DamageCase($other, 'case-' . spl_object_id($other), 'Damage', '#000000');
+    $line = (new Annotation($other, $case, 'main:2', 'old-line'))->setTarget($payload['annotation']['target']);
+    if ($other === $undone) $line->delete();
+    $manager->persist($case);
+    $manager->persist($line);
+}
+$manager->flush();
+$history->preserveForAnnotation($undone, $payload['mainImageFingerprint'], 'main:2', $payload['mainImageSources']);
+$manager->flush();
+$report->finalize(1);
+
+// The real harvest update path must preserve URLs without downloading old images.
+$command = new HarvestDatahubObjectsCommand($manager, new ParameterBag(), new ObjectChangeLogger($manager), new LidoMeasurements(), $history);
+$prepared = ['inventory_number' => 'IMAGE-TEST', 'record_identifier' => 'fixture', 'source_data' => [
+    'iiif_manifest_url' => 'https://images.invalid/b/manifest',
+    'iiif_image_info_url' => 'https://images.invalid/b/info.json',
+], 'synced_at' => new DateTimeImmutable('2026-10-19 12:00')];
+$manager->wrapInTransaction(function () use ($command, $prepared): void {
+    invoke($command, 'preloadBatch', [$prepared]);
+    invoke($command, 'syncPreparedRecord', $prepared);
+});
+check($history->forReport($report)['images'] === $version->getImages(), 'Final reports retain their old IIIF URLs.');
+check($history->forReport($older)['images'] === $version->getImages(), 'Existing drawings share the original URL history.');
+check($history->forReport($empty)['manifestUrl'] === 'https://images.invalid/b/manifest', 'An empty report follows the current source.');
+check($history->forReport($undone)['manifestUrl'] === 'https://images.invalid/b/manifest', 'Deleted drawings do not pin old URLs.');
+check(count($history->previousImages($report->getObjectRecord())) === 1, 'History records the changed source once.');
+$thumbs = $history->thumbnailsForReports([$report, $empty], [$report->getObjectRecord()->getId() => '/current.jpg']);
+check($thumbs[$report->getId()] === $version->getImages()[0]['thumbnail_url'], 'Report lists use the old thumbnail URL.');
+
+$reflection = new ReflectionClass(ReportController::class);
+$output = $reflection->newInstanceWithoutConstructor();
+foreach (['entityManager' => $manager, 'mainImages' => $history, 'imageStorage' => new PreviewFixtures(__DIR__, $root), 'translator' => new Translator('nl')] as $name => $value) {
+    $reflection->getProperty($name)->setValue($output, $value);
+}
+check(invoke($output, 'annotationManifestUrl', $report) === 'https://images.invalid/a/front/info.json', 'The viewer uses the saved IIIF service.');
+check(invoke($output, 'reportMainImageSource', $report, false) === $version->getImages()[0]['image_url'], 'The header uses a preview URL.');
+check(str_starts_with(invoke($output, 'reportMainImageSource', $report, true), 'data:'), 'PDF rendering can embed a bounded preview.');
+$context = invoke($output, 'damageAnnotationContext', $report, 'wrong-current-image.jpg', [], [], false);
+check($context['sources'][0]['imageSource'] === $version->getImages()[1]['image_url'], 'The second canvas keeps its own image URL.');
+check($context['sources'][0]['width'] === 6979.0, 'Preview retains the original coordinate dimensions.');
+
+foreach (['old_browser', 'database', 'csrf', 'payload', 'conflict', 'data_uri', 'wrong_canvas'] as $scenario) {
+    [$manager, $history, $controller, $report, $damage] = fixture();
+    $payload = payload($history, $report, $damage);
+    if ($scenario === 'old_browser') unset($payload['mainImageSources']);
+    if ($scenario === 'database') $manager->getConnection()->executeStatement('DROP TABLE annotations');
+    if ($scenario === 'payload') unset($payload['annotation']['target']['selector']);
+    if ($scenario === 'conflict') $payload['mainImageFingerprint'] = 'stale';
+    if ($scenario === 'data_uri') $payload['mainImageSources'][0]['url'] = 'data:image/png;base64,not-an-image-url';
+    if ($scenario === 'wrong_canvas') $payload['sourceKey'] = 'main:3';
+    try {
+        $response = $controller->saveAnnotation($report, request($payload, $scenario === 'csrf' ? 'invalid' : 'fixture'));
+        check(in_array($scenario, ['old_browser', 'database'], true), 'Expected the request to be rejected.');
+    } catch (AccessDeniedException) {
+        check($scenario === 'csrf', 'CSRF remains enforced.');
+        continue;
+    } catch (HttpExceptionInterface $exception) {
+        check($exception->getStatusCode() === ['payload' => 400, 'conflict' => 409, 'data_uri' => 400, 'wrong_canvas' => 409][$scenario], 'Keep validation and conflict statuses.');
+        continue;
+    }
+    if ($scenario === 'old_browser') {
+        check($response->getStatusCode() === 201, 'Existing browser sessions can save without a new field.');
+        check($history->forReport($report)['manifestUrl'] === 'https://images.invalid/a/manifest', 'Old clients still pin the manifest URL.');
+        $payload['mainImageSources'] = payload($history, $report, $damage)['mainImageSources'];
+        check($controller->saveAnnotation($report, request($payload))->getStatusCode() === 200, 'A newer client can add missing per-canvas URLs.');
+        check(count($history->forReport($report)['images']) === 2, 'Per-canvas URLs enrich a source-only snapshot.');
+        continue;
+    }
+    $result = json_decode($response->getContent(), true);
+    check($response->getStatusCode() === 500 && $result['error'] === 'annotation_save_failed', 'Database errors retain safe diagnostics.');
+    check($result['diagnostics']['stage'] === 'save_annotation' && $result['diagnostics']['sqlState'] === 'HY000', 'Identify the failing database operation.');
+    check(!str_contains($response->getContent(), 'SELECT') && !str_contains($response->getContent(), 'https:'), 'No query or URL in error diagnostics.');
+    check(!$manager->getConnection()->isTransactionActive(), 'Failed saves roll back.');
+    foreach (['report_main_images', 'object_image_versions'] as $table) {
+        check((int) $manager->getConnection()->fetchOne('SELECT COUNT(*) FROM ' . $table) === 0, 'Failed saves leave no URL history rows.');
+    }
+}
+echo "PASS: URL-only annotation/history/sync, multi-canvas references, previews, old clients, validation, database diagnostics and rollback.\n";
+

@@ -26,6 +26,14 @@ document.addEventListener('DOMContentLoaded', () => {
             manifestUrl = dialog.dataset.mainInfoUrl || dialog.dataset.mainManifestUrl;
         }
 
+        const savedSources = JSON.parse(dialog.dataset.mainImageSources || '[]');
+        const savedSource = annotatedMain ? savedSources.find((source) => source.key === sourceKey)
+            : (main ? savedSources[0] : null);
+        if (savedSource) {
+            tileSource = savedSource.info_url || { type: 'image', url: savedSource.image_url };
+            manifestUrl = '';
+        }
+
         opener = trigger;
         title.textContent = trigger.dataset.imageLabel || (main ? dialog.dataset.mainLabel : dialog.dataset.imageLabel);
         status.textContent = dialog.dataset.loadingLabel;

@@ -47,6 +47,7 @@ class ObjectImageVersion
     public function getFingerprint(): string { return $this->fingerprint; }
     public function getSource(): array { return $this->source; }
     public function getImages(): array { return $this->images; }
+    public function setImages(array $images): void { $this->images = $images; }
     public function getCreatedAt(): \DateTimeImmutable { return $this->createdAt; }
     public function getReplacedAt(): ?\DateTimeImmutable { return $this->replacedAt; }
 

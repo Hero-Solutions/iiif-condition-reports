@@ -23,10 +23,14 @@ final class AdminActorController extends AbstractController
     }
 
     #[Route('/{_locale<nl|en>}/admin/actors', name: 'admin_actors_index', methods: ['GET'])]
-    public function index(ActorDirectory $directory): Response
+    public function index(Request $request, ActorDirectory $directory): Response
     {
+        $q = trim((string) $request->query->get('q', ''));
+        $result = $directory->page($q, $request->query->getInt('page', 1));
         return $this->render('admin/actors/index.html.twig', [
-            'actor_groups' => $directory->groups(),
+            'actor_groups' => $result['groups'],
+            'pagination' => $result['pagination'],
+            'q' => $q,
         ]);
     }
 
