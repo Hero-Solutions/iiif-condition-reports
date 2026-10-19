@@ -139,7 +139,7 @@ final class TmsReportSync
         $identity = ['local', $actor->getId()];
         if ($actor->getTmsKey() !== null) {
             $record = $actor->getTmsData()['record'] ?? [];
-            $identity = ['tms', ltrim((string) ($record['ConstituentID'] ?? ''), '0') ?: $actor->getTmsKey(), $record['UnMasked'] ?? null];
+            $identity = ['tms', ltrim((string) ($record['ConstituentID'] ?? ''), '0') ?: $actor->getTmsKey()];
             foreach (['Name', 'Alias', 'Type', 'Address', 'Postal', 'City', 'StateProvince', 'Country', 'Email', 'Phone', 'Mobile', 'Website'] as $field) {
                 $identity[] = trim((string) $actor->{'get' . $field}());
             }

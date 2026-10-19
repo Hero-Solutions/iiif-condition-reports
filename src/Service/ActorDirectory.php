@@ -60,6 +60,8 @@ final class ActorDirectory
             $groups[$key]['actor'] ??= $actor;
             $groups[$key]['variants'][] = $actor;
         }
-        return ['groups' => array_values($groups), 'pagination' => $pagination];
+        // An administrator may have deleted a group between the identity and display queries.
+        return ['groups' => array_values(array_filter($groups, static fn (array $group): bool => $group['actor'] !== null)),
+            'pagination' => $pagination];
     }
 }

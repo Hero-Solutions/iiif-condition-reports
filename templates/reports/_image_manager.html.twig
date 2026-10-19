@@ -87,7 +87,7 @@
                                     <input type="hidden" name="_token" value="{{ csrf_token('report_image_' ~ image.id ~ '_' ~ report.id) }}">
                                     <button type="submit" class="compact-icon-button" title="{{ 'reports.rotate'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-rotate"/></svg><span class="visually-hidden">{{ 'reports.rotate'|trans }}</span></button>
                                 </form>
-                                <form method="post" action="{{ path('reports_images_delete', {'_locale': app.request.locale, reportId: report.id, imageId: image.id}) }}" onsubmit="return confirm('{{ 'reports.confirm_delete_photo'|trans|e('js') }}');">
+                                <form id="report-image-delete-{{ image.id }}" data-report-image-delete method="post" action="{{ path('reports_images_delete', {'_locale': app.request.locale, reportId: report.id, imageId: image.id}) }}" onsubmit="return confirm('{{ 'reports.confirm_delete_photo'|trans|e('js') }}');">
                                     <input type="hidden" name="_token" value="{{ csrf_token('report_image_' ~ image.id ~ '_' ~ report.id) }}">
                                     <button type="submit" class="compact-icon-button danger" title="{{ 'actions.delete'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg><span class="visually-hidden">{{ 'actions.delete'|trans }}</span></button>
                                 </form>
@@ -106,7 +106,7 @@
                             <span title="{{ frame_schema_label }}">{{ frame_schema_label }}</span>
                             <button type="submit"
                                     class="compact-icon-button danger"
-                                    form="report-frame-schema-delete-{{ choice.imageId }}"
+                                    form="report-image-delete-{{ choice.imageId }}"
                                     aria-label="{{ 'reports.annotation_remove_frame'|trans }}"
                                     title="{{ 'reports.annotation_remove_frame'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg></button>
                         </div>

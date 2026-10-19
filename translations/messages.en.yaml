@@ -478,6 +478,7 @@ reports:
   move_up: 'Move forward'
   move_down: 'Move backward'
   confirm_delete_photo: 'Delete this photo and its annotations?'
+  delete_image: 'Delete image'
   confirm_delete_frame_schema: 'Delete this frame sketch and its annotations?'
   documents: Documents
   documents_help: 'Add a setup plan, recommendation or external report, for example.'

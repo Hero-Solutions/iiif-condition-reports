@@ -24,6 +24,7 @@ foreach (require $root . '/vendor/composer/autoload_psr4.php' as $prefix => $pat
     $loader->addPsr4($prefix, $paths);
 }
 $loader->register();
+require $root . '/tools/reconcile-tms-actors.php';
 
 $checks = 0;
 function check(bool $ok, string $message): void
@@ -357,7 +358,7 @@ try {
     check(str_contains($pagedCommand->getDisplay(), 'ExhibitionID; waarde is 0')
         && str_contains($pagedCommand->getDisplay(), 'dataset exhibitions, pagina-offset 500, rij 1, rij-offset 500'), 'ID diagnostic did not identify page 2.');
     check($pagedEm->getConnection()->fetchOne("SELECT title FROM projects WHERE tms_type = 'exhibitions' AND tms_id = '1'") === 'Fixture 1', 'Invalid ID on page 2 changed previously imported data.');
-    // Actors are usable assignments, not just JSON metadata. Keep identities and visibility variants apart.
+    // Actors are usable assignments, not just JSON metadata. Keep distinct name/address identities apart.
     $actorEm = manager();
     $localActor = new Actor('Fictional lender');
     $actorEm->persist($localActor);
@@ -492,6 +493,94 @@ try {
         'Repeated imports duplicated actors with AddressID -1.');
     check($addressEm->find(Actor::class, $negativeActorId)->getCity() === 'Local correction', 'Repeated import lost a local correction on the legacy address variant.');
     $addressEm->close();
+
+    // Migrate the old 0/1 identities once, then exercise the actual importer with both relations.
+    $cleanupEm = manager();
+    $cleanup = state();
+    $cleanup['data']['parties'] = [];
+    $cleanupSync = syncer($cleanupEm, $cleanup, $directory);
+    $cleanupSync->synchronize();
+    $cleanupLoan = $cleanupEm->getRepository(Project::class)->findOneBy(['tmsType' => 'loans', 'tmsId' => '10']);
+    $cleanupLink = $cleanupEm->getRepository(ProjectObject::class)->findOneBy(['project' => $cleanupLoan]);
+    $cleanupSeries = new ReportSeries($cleanupLink->getObjectRecord(), '', $cleanupLoan);
+    $cleanupReport = (new Report($cleanupSeries))->finalize(null);
+    $cleanupEm->persist($cleanupSeries); $cleanupEm->persist($cleanupReport);
+    $mapped = ['name' => 'Fictional lender', 'address' => 'Teststraat 1', 'postal' => '0001',
+        'city' => 'Teststad', 'stateProvince' => null, 'country' => 'Testland'];
+    $oldActors = [];
+    foreach (['0', '1'] as $mask) {
+        $row = party(['UnMasked' => $mask, 'ConXrefDetailID' => $mask === '0' ? '601' : '602']);
+        $oldActor = new Actor('', Actor::TYPE_UNKNOWN);
+        foreach ($mapped as $field => $value) $oldActor->{'set' . ucfirst($field)}($value);
+        $oldActor->applyTmsSource(hash('sha256', json_encode(['801', '901', '1001', $mask])), ['record' => $row, 'mapped' => $mapped]);
+        $cleanupEm->persist($oldActor);
+        $pa = (new ProjectActor($cleanupLoan, $oldActor))->setRole(ActorRole::OWNER_LENDER);
+        $pa->applyTmsSource($row['ConXrefDetailID'], $oldActor, ['record' => $row]);
+        $poa = (new ProjectObjectActor($cleanupLink, $oldActor))->setRole(ActorRole::OWNER_LENDER);
+        $poa->applyTmsSource($row['ConXrefDetailID'], $oldActor, ['record' => $row]);
+        foreach ([$pa, $poa, new ReportActor($cleanupReport, $oldActor)] as $entity) $cleanupEm->persist($entity);
+        $oldActors[$mask] = $oldActor;
+        $cleanup['data']['parties'][] = $row;
+    }
+    $local = new Actor('Fictional lender');
+    $cleanupEm->persist($local); $cleanupEm->flush();
+    $dropId = $oldActors['0']->getId(); $keepId = $oldActors['1']->getId();
+    $cleanupEm->clear();
+    $pdo = $cleanupEm->getConnection()->getNativeConnection();
+    $pdo->exec('PRAGMA foreign_keys = ON');
+    $snapshot = static function () use ($pdo): array {
+        $data = [];
+        foreach (['actors', 'project_actors', 'project_object_actors', 'report_actors', 'reports'] as $table) {
+            $data[$table] = $pdo->query("SELECT * FROM $table ORDER BY id")->fetchAll(PDO::FETCH_ASSOC);
+        }
+        return $data;
+    };
+    $before = $snapshot();
+    $plan = reconcileTmsActors($pdo, false);
+    check($plan['merges'] === [$dropId => $keepId] && $snapshot() === $before, 'Preview must retain UnMasked=1 and change nothing.');
+    check($plan['links'] === ['project_actors' => 1, 'project_object_actors' => 1, 'report_actors' => 1], 'Cleanup preview lost reference counts.');
+    $pdo->exec("UPDATE actors SET email = 'local@example.invalid' WHERE id = $dropId");
+    $conflict = $snapshot();
+    try { reconcileTmsActors($pdo, true); check(false, 'Different local actor fields must abort cleanup.'); }
+    catch (RuntimeException $error) { check(str_contains($error->getMessage(), 'email') && $snapshot() === $conflict, 'Conflicting data was silently merged.'); }
+    $pdo->exec("UPDATE actors SET email = NULL WHERE id = $dropId");
+    $pdo->exec("INSERT INTO organization_contacts (organization_id, person_id, created_at, updated_at) VALUES ($keepId, {$local->getId()}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+    try { reconcileTmsActors($pdo, true); check(false, 'Contact relationships must require manual review.'); }
+    catch (RuntimeException $error) { check(str_contains($error->getMessage(), 'contactpersoonrelaties') && $snapshot() === $before, 'Contact conflict caused partial changes.'); }
+    $pdo->exec('DELETE FROM organization_contacts');
+    $pdo->exec("CREATE TRIGGER reject_actor_delete BEFORE DELETE ON actors BEGIN SELECT RAISE(ABORT, 'fixture failure'); END");
+    try { reconcileTmsActors($pdo, true); check(false, 'Simulated delete failure must roll back link updates.'); }
+    catch (PDOException $error) { check($snapshot() === $before && !$pdo->inTransaction(), 'Cleanup failed to roll back all writes.'); }
+    $pdo->exec('DROP TRIGGER reject_actor_delete');
+    reconcileTmsActors($pdo, true);
+    $after = $snapshot();
+    check(count($after['actors']) === 2 && $after['reports'] === $before['reports'], 'Cleanup removed a local actor or changed a report.');
+    foreach (['project_actors', 'project_object_actors', 'report_actors'] as $table) {
+        $expected = $before[$table];
+        foreach ($expected as &$row) $row['actor_id'] = $keepId;
+        unset($row);
+        check($after[$table] === $expected, 'Cleanup changed/deleted assignment details: ' . $table);
+    }
+    $repeatPlan = reconcileTmsActors($pdo, true);
+    check($repeatPlan['merges'] === [] && $repeatPlan['rekeys'] === [], 'Cleanup is not repeatable.');
+    check($cleanupSync->synchronize()['actors_created'] === 0, 'Import recreated a deleted visibility variant.');
+    $cleanup['data']['parties'] = array_reverse($cleanup['data']['parties']);
+    check($cleanupSync->synchronize()['actors_created'] === 0, 'Visibility dedup depends on source order.');
+    $cleanupAssignments = $cleanupEm->getRepository(ProjectActor::class)->findBy(['project' => $cleanupLoan->getId()]);
+    check(count(TmsReportSync::projectAssignments($cleanupAssignments)) === 1, 'Project still displays a duplicate after cleanup/import.');
+    $seenMasks = [];
+    foreach ($cleanupAssignments as $a) {
+        check($a->getActor()->getId() === $keepId, 'Existing relation did not retain the canonical actor.');
+        $seenMasks[] = $a->getTmsData()['record']['UnMasked'];
+    }
+    sort($seenMasks);
+    check($seenMasks === ['0', '1'], 'Original relation visibility metadata was lost.');
+    $cleanup['data']['parties'][0]['StreetLine1'] = 'Conflicting source address';
+    $beforeConflict = $snapshot();
+    $conflictingCommand = new CommandTester(new SyncTmsProjectsCommand($cleanupSync));
+    check($conflictingCommand->execute([]) === 1 && $snapshot() === $beforeConflict,
+        'Same identity with different source fields must fail atomically, not expose another variant.');
+    $cleanupEm->close();
 
     // Actor-only fields must be checked before downloading more parties/documents or opening a transaction.
     foreach ([

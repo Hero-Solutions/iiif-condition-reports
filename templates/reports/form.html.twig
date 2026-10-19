@@ -139,7 +139,8 @@
 
         {% for choice in frame_schema_choices %}
             {% if choice.imageId %}
-                <form id="report-frame-schema-delete-{{ choice.imageId }}"
+                <form id="report-image-delete-{{ choice.imageId }}"
+                      data-report-image-delete
                       method="post"
                       action="{{ path('reports_images_delete', {'_locale': app.request.locale, reportId: report.id, imageId: choice.imageId}) }}"
                       onsubmit="return confirm('{{ 'reports.confirm_delete_frame_schema'|trans|e('js') }}');"
@@ -272,6 +273,7 @@
                                 <div class="report-annotation-source-list" id="report-image-choices" data-report-choice-list data-annotation-source-list hidden></div>
                             </div>
                             <button type="button" class="report-annotation-add-image" data-report-media-open="report-image-manager" aria-haspopup="dialog" aria-controls="report-image-manager" aria-label="{{ 'reports.add_images'|trans }}" title="{{ 'reports.add_images'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg></button>
+                            <button type="submit" form="" class="compact-icon-button danger" data-annotation-delete-image hidden disabled aria-label="{{ 'reports.delete_image'|trans }}" title="{{ 'reports.delete_image'|trans }}"><svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg></button>
                         </div>
 
                         <div class="report-annotation-toolbar">
@@ -477,10 +479,10 @@
     <script src="/js/report-finalization.js?v=1" defer></script>
     <script src="/js/report-section-progress.js?v=9" defer></script>
     <script src="/js/report-compact-fields.js?v=17" defer></script>
-    <script src="/js/report-media-upload.js?v=6" defer></script>
+    <script src="/js/report-media-upload.js?v=7" defer></script>
     <script src="/vendor/openseadragon/openseadragon.min.js?v=6.1.0" defer></script>
     <script src="/vendor/annotorious/annotorious-openseadragon.js?v=3.8.9" defer></script>
     <script src="/vendor/annotorious-tools/annotorious-plugin-tools.js?v=1.6.0" defer></script>
     <script src="/js/iiif-image-sources.js?v=1" defer></script>
-    <script src="/js/report-annotation-viewer.js?v=36" defer></script>
+    <script src="/js/report-annotation-viewer.js?v=37" defer></script>
 {% endblock %}

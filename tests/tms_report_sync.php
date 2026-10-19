@@ -43,7 +43,7 @@ $roles = [ActorRole::OWNER_LENDER, ActorRole::OWNER_LENDER, ActorRole::OWNER_LEN
 foreach ($roles as $i => $role) {
     $actor = (new Actor($i < 4 ? 'Fictional museum' : 'Fictional actor ' . $i, Actor::TYPE_UNKNOWN))->setAddress($i === 3 ? 'Different address' : 'Fixture address');
     $actor->applyTmsSource(hash('sha256', 'fixture:' . $i), ['record' => [
-        'ConstituentID' => $i < 4 && $i !== 2 ? '11' : (string) (20 + $i), 'NameID' => (string) (100 + $i), 'UnMasked' => '1',
+        'ConstituentID' => $i < 4 && $i !== 2 ? '11' : (string) (20 + $i), 'NameID' => (string) (100 + $i), 'UnMasked' => $i === 1 ? '0' : '1',
     ]]);
     $actors[] = $actor;
     $assignment = (new ProjectActor($project, $actor))->setRole($role)->setCustomRole($role === ActorRole::OTHER ? ($i === 4 ? 'schilder' : 'voormalig eigenaar') : null);

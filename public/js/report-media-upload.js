@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
         dialog.querySelector('[data-report-media-close]').addEventListener('click', () => dialog.close());
     });
 
-    document.querySelectorAll('[data-report-document-delete]').forEach((form) => {
+    document.querySelectorAll('[data-report-document-delete], [data-report-image-delete]').forEach((form) => {
         let submitting = false;
         form.addEventListener('submit', async (event) => {
             if (event.defaultPrevented) return;

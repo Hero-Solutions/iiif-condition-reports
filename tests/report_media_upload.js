@@ -70,7 +70,7 @@ function uploadForm(kind, saveNow) {
         querySelectorAll(selector) {
             if (selector === '[data-report-media-dialog]') return dialogs.map(item => item.dialog);
             if (selector === '[data-report-media-form]') return [file.form, url.form];
-            if (selector === '[data-report-document-delete]') return [deletion.form];
+            if (selector === '[data-report-document-delete], [data-report-image-delete]') return [deletion.form];
             return dialogs.filter(item => selector === `[data-report-media-open="${item.dialog.id}"]`).map(item => item.open);
         },
         addEventListener: (_, callback) => callback(),

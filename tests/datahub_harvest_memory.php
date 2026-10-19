@@ -148,14 +148,13 @@ namespace {
     $log = harvest($manager, 6701, limit: 27);
     check(str_contains($log, 'Nieuw: 0, bijgewerkt: 27, overgeslagen: 0.'), 'Incorrect rerun counts.');
     check((int) $manager->getConnection()->fetchOne('SELECT COUNT(*) FROM object_records') === 6701, 'Rerun created duplicates.');
-    check((int) $manager->getConnection()->fetchOne('SELECT COUNT(*) FROM object_log_entries') === 6728, 'Reruns must log unchanged syncs too.');
+    check((int) $manager->getConnection()->fetchOne('SELECT COUNT(*) FROM object_log_entries') === 6702, 'Reruns must only log actual changes.');
     check($manager->getRepository(ObjectRecord::class)->findOneBy(['inventoryNumber' => 'INV-1'])->getTitle() === 'Fixture 1', 'Datahub must overwrite local changes.');
     $updatedObject = $manager->getRepository(ObjectRecord::class)->findOneBy(['inventoryNumber' => 'INV-1']);
     $syncEntry = $manager->getRepository(ObjectLogEntry::class)->findOneBy(['objectRecord' => $updatedObject], ['createdAt' => 'DESC', 'id' => 'DESC']);
     check($syncEntry->getType() === ObjectLogEntry::DATAHUB_SYNC && $syncEntry->getChanges()['title'] === ['old' => 'Local title', 'new' => 'Fixture 1'], 'The harvest must log the values it replaced.');
     $unchangedObject = $manager->getRepository(ObjectRecord::class)->findOneBy(['inventoryNumber' => 'INV-2']);
-    $syncEntry = $manager->getRepository(ObjectLogEntry::class)->findOneBy(['objectRecord' => $unchangedObject], ['createdAt' => 'DESC', 'id' => 'DESC']);
-    check($syncEntry->getChanges() === [], 'An unchanged harvest must not fabricate field changes.');
+    check($manager->getRepository(ObjectLogEntry::class)->count(['objectRecord' => $unchangedObject]) === 1, 'An unchanged harvest must keep only the original import log.');
     $manager->getConnection()->close();
     unset($manager, $object);
 

@@ -478,6 +478,7 @@ reports:
   move_up: 'Naar voren'
   move_down: 'Naar achteren'
   confirm_delete_photo: 'Deze foto en de bijbehorende annotaties verwijderen?'
+  delete_image: 'Afbeelding verwijderen'
   confirm_delete_frame_schema: 'Deze kaderschets en de bijbehorende annotaties verwijderen?'
   documents: Documenten
   documents_help: 'Voeg bijvoorbeeld een opstellingsplan, aanbeveling of extern rapport toe.'

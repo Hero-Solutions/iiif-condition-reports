@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 // SQLite in memory, fake users and fake image storage. No application bootstrap or network.
 use App\Controller\ObjectController;
-use App\Entity\{Actor, IIIFManifest, ObjectLogEntry, ObjectManifest, ObjectRecord, User};
+use App\Entity\{Actor, IIIFManifest, ObjectImageVersion, ObjectLogEntry, ObjectManifest, ObjectRecord, Project, Report, ReportMainImage, ReportSeries, User};
 use App\Form\ObjectRecordType;
 use App\Service\{ObjectChangeLogger, ObjectImageStorage, ObjectThumbnailProvider, ReportAuthorProvider};
 use Doctrine\DBAL\DriverManager;
@@ -46,7 +46,7 @@ $config = ORMSetup::createAttributeMetadataConfiguration([$root . '/src/Entity']
 $config->setNamingStrategy(new UnderscoreNamingStrategy(CASE_LOWER));
 $config->setAutoGenerateProxyClasses(Doctrine\ORM\Proxy\ProxyFactory::AUTOGENERATE_EVAL);
 $manager = new EntityManager(DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true]), $config);
-(new SchemaTool($manager))->createSchema(array_map($manager->getClassMetadata(...), [Actor::class, ObjectRecord::class, ObjectLogEntry::class, ObjectManifest::class, IIIFManifest::class, User::class]));
+(new SchemaTool($manager))->createSchema(array_map($manager->getClassMetadata(...), [Actor::class, ObjectRecord::class, ObjectLogEntry::class, ObjectManifest::class, IIIFManifest::class, User::class, Project::class, ReportSeries::class, Report::class, ObjectImageVersion::class, ReportMainImage::class]));
 $logger = new ObjectChangeLogger($manager);
 $translator = new Translator('nl');
 $translator->addLoader('array', new ArrayLoader());
@@ -133,8 +133,8 @@ $before = $logger->snapshot($object, '');
 $object->setSourceData($object->getSourceData() + ['_run' => 'second']);
 $logger->record($object, $before, ObjectLogEntry::DATAHUB_SYNC, manifestUrl: '');
 $manager->flush();
-$unchanged = $repository->findOneBy(['objectRecord' => $object], ['id' => 'DESC']);
-check($unchanged->getChanges() === [], 'Still record an unchanged sync, without fabricated differences.');
+check($repository->count(['objectRecord' => $object]) === 3, 'An unchanged Datahub sync must not create a log entry.');
+check($repository->findOneBy(['objectRecord' => $object], ['id' => 'DESC']) === $sync, 'Keep the last actual change as the latest log entry.');
 
 $user->setFullName('Renamed editor');
 $manager->flush();
@@ -164,11 +164,11 @@ $twig->addGlobal('app', ['request' => ['locale' => 'nl']]);
 foreach (['nl', 'en'] as $locale) {
     $translator->setLocale($locale);
     $html = $twig->render('objects/_log.html.twig', [
-        'log_entries' => [$unchanged, $sync, $updated, $created], 'log_page' => 2, 'log_has_more' => true,
+        'log_entries' => [$sync, $updated, $created], 'log_page' => 2, 'log_has_more' => true,
         'object' => $object, 'app' => ['request' => ['locale' => $locale]],
     ]);
     check(str_contains($html, '<h2>Log</h2>'), 'Use the requested heading.');
-    check(str_contains($html, $translator->trans('object_log.no_changes')), 'Explain unchanged syncs.');
+    check(!str_contains($html, $translator->trans('object_log.no_changes')), 'Do not show unchanged syncs.');
     check(!str_contains($html, '<script>unsafe</script>') && str_contains($html, '&lt;script&gt;unsafe&lt;/script&gt;'), 'Escape log values.');
     check(str_contains($html, $translator->trans('object_log.older')) && str_contains($html, $translator->trans('object_log.newer')), 'Keep older log entries accessible.');
 
@@ -176,7 +176,7 @@ foreach (['nl', 'en'] as $locale) {
         'form' => $forms->create(ObjectRecordType::class, $object)->createView(),
         'object' => $object, 'is_new' => false, 'thumbnail_url' => null,
         'reports' => [], 'reports_count' => 0, 'report_author_names' => [],
-        'log_entries' => [$unchanged, $sync, $updated, $created], 'log_page' => 1, 'log_has_more' => false,
+        'log_entries' => [$sync, $updated, $created], 'log_page' => 1, 'log_has_more' => false,
         'app' => ['request' => ['locale' => $locale]],
     ]);
     check(str_contains($html, 'id="object-log"'), 'Render the log in the actual object form.');
@@ -195,6 +195,37 @@ foreach ([true, false] as $enabled) {
     check(str_contains($html, $translator->trans('objects.new')) === $enabled, 'Creation link must follow the setting.');
     check(str_contains($html, $translator->trans($enabled ? 'objects.empty_text' : 'objects.empty_text_datahub')), 'Empty-list help must match the setting.');
 }
+
+// Historical no-op syncs must not fill pages or hide older changes in the actual controller.
+$pagedObject = new ObjectRecord('LOG-PAGES', 'Pagination fixture');
+$emptyObject = new ObjectRecord('LOG-EMPTY', 'Only unchanged syncs');
+$manager->persist($pagedObject);
+$manager->persist($emptyObject);
+for ($i = 1; $i <= 21; ++$i) {
+    $manager->persist(new ObjectLogEntry(
+        $pagedObject, $i === 21 ? ObjectLogEntry::TMS_SYNC : ObjectLogEntry::DATAHUB_SYNC,
+        ['title' => ['old' => 'Before', 'new' => sprintf('Sync change %02d', $i)]],
+        createdAt: new DateTimeImmutable('2030-01-01'),
+    ));
+}
+foreach ([$pagedObject, $emptyObject] as $fixtureObject) {
+    for ($i = 0; $i < 40; ++$i) {
+        $manager->persist(new ObjectLogEntry($fixtureObject, ObjectLogEntry::DATAHUB_SYNC, [], createdAt: new DateTimeImmutable('2031-01-01')));
+    }
+}
+$manager->flush();
+$html = $controller->edit($pagedObject, Request::create('/nl/objects/' . $pagedObject->getId()))->getContent();
+check(substr_count($html, 'class="object-log-entry"') === 20, 'The first page must contain twenty actual changes despite forty newer no-op syncs.');
+check(str_contains($html, 'Sync change 21') && str_contains($html, 'Sync change 02') && !str_contains($html, 'Sync change 01'), 'Keep newest-first ordering, including TMS changes.');
+check(str_contains($html, $translator->trans('object_log.older')), 'Offer the next page when actual changes remain.');
+check(!str_contains($html, $translator->trans('object_log.no_changes')), 'Historical no-op syncs must disappear from the object page.');
+$html = $controller->edit($pagedObject, Request::create('/nl/objects/' . $pagedObject->getId(), parameters: ['log_page' => 2]))->getContent();
+check(substr_count($html, 'class="object-log-entry"') === 1 && str_contains($html, 'Sync change 01'), 'The second page must contain the remaining change without skips or duplicates.');
+check(!str_contains($html, $translator->trans('object_log.older')) && str_contains($html, $translator->trans('object_log.newer')), 'Stop pagination after the last actual change.');
+$html = $controller->edit($emptyObject, Request::create('/nl/objects/' . $emptyObject->getId()))->getContent();
+check(str_contains($html, $translator->trans('object_log.empty')) && !str_contains($html, 'class="object-log-entry"'), 'An object with only no-op syncs has an empty log, without entries from other objects.');
+check(!str_contains($html, 'class="object-log-pagination"'), 'Do not offer empty pages for hidden syncs.');
+check($repository->count(['objectRecord' => $pagedObject]) === 61 && $repository->count(['objectRecord' => $emptyObject]) === 40, 'Hide historical records without deleting them.');
 
 // Log and object changes must commit or roll back together.
 $connection = $manager->getConnection();

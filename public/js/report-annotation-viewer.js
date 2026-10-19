@@ -178,6 +178,7 @@ class ReportAnnotationWorkbench {
         this.undoButton = workbench.querySelector('[data-annotation-undo]');
         this.eraserButton = workbench.querySelector('[data-annotation-eraser]');
         this.deleteButton = workbench.querySelector('[data-annotation-delete]');
+        this.deleteImageButton = workbench.querySelector('[data-annotation-delete-image]');
         this.status = workbench.querySelector('[data-annotation-status]');
         this.sourceList = workbench.querySelector('[data-annotation-source-list]');
         this.drawingLayer = workbench.querySelector('[data-annotation-drawing-layer]');
@@ -739,6 +740,13 @@ class ReportAnnotationWorkbench {
         this.eraserWidths.inert = !erasing || this.eraserBusy;
         this.eraserWidths.setAttribute('aria-hidden', erasing ? 'false' : 'true');
         this.sourceList.inert = this.eraserBusy;
+        // Only additional report images have a delete form. Main IIIF canvases never do.
+        const imageId = this.currentSource.reportImageId;
+        const deleteForm = Number.isSafeInteger(imageId) && imageId > 0 && !this.currentSource.key.startsWith('main')
+            ? document.getElementById(`report-image-delete-${imageId}`) : null;
+        this.deleteImageButton.hidden = !deleteForm;
+        this.deleteImageButton.disabled = !deleteForm || this.eraserBusy || Boolean(this.mode) || this.startingDrawing;
+        this.deleteImageButton.setAttribute('form', deleteForm?.id || '');
         this.legend.inert = this.eraserBusy;
         this.finishButton.disabled = !this.mode || this.eraserBusy;
         const canUndo = erasing

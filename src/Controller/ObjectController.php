@@ -117,12 +117,20 @@ final class ObjectController extends AbstractController
 
         $reports = $this->reportsForObject($object);
         $logPage = max(1, $request->query->getInt('log_page', 1));
-        $logEntries = $this->entityManager->getRepository(ObjectLogEntry::class)->findBy(
-            ['objectRecord' => $object],
-            ['createdAt' => 'DESC', 'id' => 'DESC'],
-            21,
-            ($logPage - 1) * 20,
-        );
+        $logEntries = $this->entityManager->getRepository(ObjectLogEntry::class)
+            ->createQueryBuilder('entry')
+            ->where('entry.objectRecord = :object')
+            // Hide historical no-op syncs before pagination, without deleting audit records.
+            ->andWhere('entry.type <> :syncType OR entry.changes <> :emptyChanges')
+            ->setParameter('object', $object)
+            ->setParameter('syncType', ObjectLogEntry::DATAHUB_SYNC)
+            ->setParameter('emptyChanges', '[]')
+            ->orderBy('entry.createdAt', 'DESC')
+            ->addOrderBy('entry.id', 'DESC')
+            ->setMaxResults(21)
+            ->setFirstResult(($logPage - 1) * 20)
+            ->getQuery()
+            ->getResult();
 
         return $this->render('objects/form.html.twig', [
             'form' => $form,

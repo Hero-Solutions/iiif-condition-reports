@@ -69,7 +69,7 @@ final class ObjectChangeLogger
             }
         }
 
-        if ($changes === [] && $type !== ObjectLogEntry::DATAHUB_SYNC) {
+        if ($changes === []) {
             return;
         }
 

@@ -138,10 +138,11 @@ final class TmsActorSync
     {
         if (!self::visible($row) || trim($row['DisplayName'] ?? '') === '') return null;
         $identity = [self::sourceId($row, 'ConstituentID'), self::sourceId($row, 'NameID'),
-            empty($row['AddressID']) ? '0' : self::sourceId($row, 'AddressID'), $row['UnMasked'] ?? null];
-        if (!in_array($identity[3], ['0', '1'], true)) {
+            empty($row['AddressID']) ? '0' : self::sourceId($row, 'AddressID')];
+        if (!in_array($row['UnMasked'] ?? null, ['0', '1'], true)) {
             throw new UnexpectedValueException('Ongeldige zichtbaarheid voor TMS-actorrelatie ' . self::sourceId($row, 'ConXrefDetailID'));
         }
+        // UnMasked belongs to the relation; the exact supplied name/address IDs identify the actor.
         return $identity;
     }
 

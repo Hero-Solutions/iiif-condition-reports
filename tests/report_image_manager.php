@@ -72,7 +72,7 @@ foreach (['nl', 'en'] as $locale) {
             $fixture['main_image_fingerprint'] = 'fixture-old-image';
             $fixture['archived_main_images'] = [
                 ['key' => 'main:1', 'image_url' => '/old-front.jpg', 'thumbnail_url' => '/old-front-thumb.jpg'],
-                ['key' => 'main:2', 'image_url' => '/old-back.jpg', 'thumbnail_url' => '/old-back-thumb.jpg'],
+                ['key' => 'main:2', 'info_url' => 'https://images.invalid/old-back/info.json', 'image_url' => '/old-back.jpg', 'thumbnail_url' => '/old-back-thumb.jpg'],
             ];
             foreach (['basis', 'recommendations'] as $index => $section) {
                 $fixture['report_documents'][] = [
@@ -108,6 +108,7 @@ foreach (['nl', 'en'] as $locale) {
         if ($hasImages) {
             check($count('//*[@data-main-image-fingerprint="fixture-old-image"]') === 1, 'Submit the identity of the image shown in the editor.');
             check($count('//*[@data-annotation-source and @data-source-key="main:2" and @data-image-url="/old-back.jpg"]') === 1, 'Archived canvases keep their original keys and files.');
+            check($count('//*[@data-annotation-source and @data-source-key="main:2" and @data-manifest-url="https://images.invalid/old-back/info.json"]') === 1, 'The editor reopens the exact saved IIIF service URL.');
             check($count('//*[@data-annotation-source and @data-source-key="main"]') === 0, 'Do not mix the current source into an archived report.');
             foreach (['rotate', 'move', 'delete'] as $action) {
                 check($count('//dialog//form[starts-with(@action, "/reports_images_' . $action . '")]') > 0, 'Retain image ' . $action . '.');

@@ -53,7 +53,7 @@
                         {% else %}
                             <tr>
                                 <td colspan="6">
-                                    <details class="actor-variants">
+                                    <details class="actor-variants"{% if q != '' %} open{% endif %}>
                                         <summary>
                                             <strong>{{ group.actor.displayName }}</strong>
                                             <span class="muted">{{ 'actors.variants_count'|trans({'%count%': group.variants|length}) }}</span>

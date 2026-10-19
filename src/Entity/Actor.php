@@ -28,7 +28,7 @@ class Actor
     #[ORM\Column(type: Types::INTEGER)]
     private ?int $id = null;
 
-    // Keep local name uniqueness without merging distinct TMS identities/visibility variants.
+    // Keep local name uniqueness without merging distinct TMS name/address identities.
     #[ORM\Column(length: 64, options: ['default' => 'local'])]
     private string $nameScope = 'local';
 
