@@ -1122,10 +1122,29 @@ tr[data-row-href] {
     font-variant-numeric: tabular-nums;
 }
 
+.data-table .project-reference {
+    width: 1%;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
 .table-sub {
     display: block;
     color: var(--text-faint);
     font-size: 12.5px;
+}
+
+.actor-variants > summary {
+    cursor: pointer;
+    padding: 4px 0;
+}
+
+.actor-variants > summary span {
+    margin-left: 12px;
+}
+
+.actor-variants[open] > summary {
+    margin-bottom: 8px;
 }
 
 .object-cell {

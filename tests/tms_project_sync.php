@@ -522,6 +522,62 @@ try {
         $badEm->close();
     }
 
+    // Exhibition display dates: backfill old imports without guessing dates or replacing local edits.
+    $dateEm = manager();
+    $dateState = state();
+    $dateState['data']['exhibitions'] = [];
+    $dateCases = [
+        ['2000-04-21 - 2000-06-25', '2000-04-21', '2000-06-25'],
+        ['2000-04-21 – 2000-06-25', '2000-04-21', '2000-06-25'],
+        ['2000-04-21—2000-06-25', '2000-04-21', '2000-06-25'],
+        [' 2000-04-21-2000-06-25 ', '2000-04-21', '2000-06-25'],
+        ['2000-02-29 - 2000-02-29', '2000-02-29', '2000-02-29'],
+        ['voorjaar 2000', null, null],
+        ['2000-04 - 2000-06', null, null],
+        ['ca. 2000-04-21 - 2000-06-25', null, null],
+        ['2001-02-29 - 2001-06-25', null, null],
+        ['2000-04-21 - 2000-06-31', null, null],
+        ['2000-06-25 - 2000-04-21', null, null],
+        ['2000-04-21', null, null],
+        ['2000-04-21 -', null, null],
+        ['21/04/2000 - 25/06/2000', null, null],
+        [null, null, null],
+    ];
+    foreach ($dateCases as $i => [$display, $start, $end]) {
+        $dateState['data']['exhibitions'][] = ['ExhibitionID' => (string) (10 + $i),
+            'ProjectNumber' => null, 'ExhTitle' => 'Date fixture ' . $i, 'DisplayDate' => $display];
+    }
+    foreach (['10', '11'] as $id) {
+        $legacy = new Project('Previously imported exhibition', Project::TYPE_EXHIBITION);
+        $legacy->applyTmsSource('exhibitions', $id, ['record' => $dateState['data']['exhibitions'][(int) $id - 10],
+            'mapped' => ['startDate' => null, 'endDate' => null]], new DateTimeImmutable('2026-01-01'));
+        if ($id === '11') $legacy->setStartDate(new DateTimeImmutable('2000-04-20'))->setEndDate(new DateTimeImmutable('2000-06-26'));
+        $dateEm->persist($legacy);
+    }
+    $dateEm->flush();
+    $dateSync = syncer($dateEm, $dateState, $directory);
+    $dateSync->synchronize();
+    foreach ($dateCases as $i => [$display, $start, $end]) {
+        $exhibition = $dateEm->getRepository(Project::class)->findOneBy(['tmsType' => 'exhibitions', 'tmsId' => (string) (10 + $i)]);
+        check($exhibition->getTmsData()['mapped']['startDate'] === $start
+            && $exhibition->getTmsData()['mapped']['endDate'] === $end, 'Store the parsed source dates independently of local edits.');
+        if ($i === 1) [$start, $end] = ['2000-04-20', '2000-06-26'];
+        check($exhibition->getStartDate()?->format('Y-m-d') === $start
+            && $exhibition->getEndDate()?->format('Y-m-d') === $end, 'Incorrect exhibition range or overwritten local dates: fixture ' . $i);
+        check($exhibition->getTmsData()['record']['DisplayDate'] === $display, 'Original display date was changed.');
+    }
+    $exhibition = $dateEm->getRepository(Project::class)->findOneBy(['tmsType' => 'exhibitions', 'tmsId' => '10']);
+    $exhibition->setStartDate(new DateTimeImmutable('2000-04-19'));
+    $dateEm->flush();
+    $dateState['data']['exhibitions'][0]['DisplayDate'] = '2000-04-22 - 2000-06-26';
+    for ($repeat = 0; $repeat < 2; ++$repeat) {
+        check($dateSync->synchronize()['projects_created'] === 0, 'Date backfill must not create duplicate projects.');
+        $exhibition = $dateEm->getRepository(Project::class)->findOneBy(['tmsType' => 'exhibitions', 'tmsId' => '10']);
+        check($exhibition->getStartDate()?->format('Y-m-d') === '2000-04-19'
+            && $exhibition->getEndDate()?->format('Y-m-d') === '2000-06-26', 'Refresh an unchanged imported date while preserving a local date.');
+    }
+    $dateEm->close();
+
     echo "OK: {$checks} checks; isolated SQLite and fake API only.\n";
 } finally {
     // This directory was uniquely created by this test; remove only its known temporary files.

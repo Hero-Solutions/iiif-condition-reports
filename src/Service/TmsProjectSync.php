@@ -307,11 +307,13 @@ final class TmsProjectSync
                 }
                 $title = $this->text($row, $isLoan ? 'Description' : 'ExhTitle')
                     ?? $reference ?? ($isLoan ? 'Bruikleen ' : 'Tentoonstelling ') . $id;
+                [$startDate, $endDate] = $isLoan
+                    ? [$this->date($row, 'BeginISODate'), $this->date($row, 'EndISODate')]
+                    : $this->dateRange($row, 'DisplayDate');
                 $values = ['title' => mb_substr($title, 0, 255),
                     'type' => $isLoan ? Project::TYPE_LOAN : Project::TYPE_EXHIBITION,
                     'referenceCode' => $reference, 'description' => $isLoan ? $this->text($row, 'Description') : null,
-                    'startDate' => $isLoan ? $this->date($row, 'BeginISODate') : null,
-                    'endDate' => $isLoan ? $this->date($row, 'EndISODate') : null];
+                    'startDate' => $startDate, 'endDate' => $endDate];
                 $this->mergeFields($project, $values, $project->getTmsData()['mapped'] ?? null);
                 $project->applyTmsSource($dataset, $id, ['record' => $row, 'mapped' => $values,
                     'loan_ids' => $isLoan ? [] : array_values(array_unique(array_map(fn(array $link): string => $this->id($link, 'LoanID'), $this->readRows($files, 'exhibition_loans', $exhibitionLoans[$id] ?? [])))),
@@ -437,6 +439,18 @@ final class TmsProjectSync
             return null;
         }
         return $parts[1] . '-' . $parts[2] . '-' . $parts[3];
+    }
+
+    /** Only accept a complete, unambiguous ISO date range; keep other display text as metadata. */
+    private function dateRange(array $row, string $key): array
+    {
+        $value = $this->text($row, $key);
+        if ($value === null || !preg_match('/^(?<start>\d{4}-\d{2}-\d{2})\s*[-–—]\s*(?<end>\d{4}-\d{2}-\d{2})$/uD', $value, $parts)) {
+            return [null, null];
+        }
+        $start = $this->date($parts, 'start');
+        $end = $this->date($parts, 'end');
+        return $start !== null && $end !== null && $start <= $end ? [$start, $end] : [null, null];
     }
 
     /** Update fields only while they still equal the previous imported value. */

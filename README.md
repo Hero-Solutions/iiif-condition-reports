@@ -71,6 +71,16 @@ Keep `public/uploads/objects/` persistent and backed up together with the databa
 Offline checks: `tests/main_image_history.php`, `tests/main_image_storage.php`,
 `tests/report_image_manager.php` and `tests/report_image_viewer.js`.
 
+For an annotation POST that returns HTTP 500, inspect **Network > Response** in the
+browser after the operator deploys the updated `ReportAnnotationController.php` and
+`ObjectImageStorage.php` and refreshes the application cache. Errors caught during
+saving return `annotation_save_failed` with the failed stage, exception type, code,
+filename and line. Database errors also include `sqlState`; download errors include
+the cURL description or remote HTTP status when available. Exception messages, SQL,
+URLs and trace arguments are excluded. Validation and stale-image responses keep
+their existing status. Failures before the controller and fatal process termination
+are outside this handler. No production action is performed by the diagnostic tests.
+
 ## Installation
 
 1. Copy `.env.sample` to `.env` and configure the database, application URL and DataHub URL.

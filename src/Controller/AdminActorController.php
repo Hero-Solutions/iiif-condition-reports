@@ -8,6 +8,7 @@ use App\Entity\Actor;
 use App\Entity\OrganizationContact;
 use App\Form\ActorType;
 use App\Form\OrganizationContactType;
+use App\Service\ActorDirectory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,18 +23,10 @@ final class AdminActorController extends AbstractController
     }
 
     #[Route('/{_locale<nl|en>}/admin/actors', name: 'admin_actors_index', methods: ['GET'])]
-    public function index(): Response
+    public function index(ActorDirectory $directory): Response
     {
-        $actors = $this->entityManager
-            ->getRepository(Actor::class)
-            ->createQueryBuilder('actor')
-            ->orderBy('actor.alias', 'ASC')
-            ->addOrderBy('actor.name', 'ASC')
-            ->getQuery()
-            ->getResult();
-
         return $this->render('admin/actors/index.html.twig', [
-            'actors' => $actors,
+            'actor_groups' => $directory->groups(),
         ]);
     }
 

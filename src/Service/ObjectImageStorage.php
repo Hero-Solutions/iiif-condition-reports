@@ -563,6 +563,7 @@ class ObjectImageStorage
 
             $success = curl_exec($curl);
             $statusCode = (int) curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
+            $errorCode = curl_errno($curl);
             $error = curl_error($curl);
             curl_close($curl);
             fclose($stream);
@@ -572,7 +573,7 @@ class ObjectImageStorage
             }
 
             if ($success === false) {
-                throw new FileException('The external image could not be downloaded: ' . $error);
+                throw new FileException('The external image could not be downloaded: ' . $error, $errorCode);
             }
 
             if ($statusCode >= 300 && $statusCode < 400 && isset($headers['location'])) {

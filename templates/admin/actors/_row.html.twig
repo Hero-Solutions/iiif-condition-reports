@@ -1,0 +1,23 @@
+<tr>
+    <td>
+        <strong>{{ actor.displayName }}</strong>
+        {% if actor.alias and actor.alias != actor.name %}<span class="table-sub">{{ actor.name }}</span>{% endif %}
+        <span class="table-sub">#{{ actor.id }}{% if actor.constituentId %} · TMS #{{ actor.constituentId }}{% endif %}</span>
+    </td>
+    <td>{{ ('actor_type.' ~ actor.type)|trans }}</td>
+    <td>
+        {% if actor.address %}{{ actor.address|nl2br }}<br>{% endif %}
+        {{ actor.postal }} {{ actor.city }}
+        {% if actor.stateProvince %}<span class="table-sub">{{ actor.stateProvince }}</span>{% endif %}
+        {% if actor.country %}<span class="table-sub">{{ actor.country }}</span>{% endif %}
+    </td>
+    <td>{{ actor.email }}</td>
+    <td>{{ actor.phone }}</td>
+    <td class="table-actions">
+        <a href="{{ path('admin_actors_edit', {'_locale': app.request.locale, id: actor.id}) }}">{{ 'actions.edit'|trans }}</a>
+        <form method="post" action="{{ path('admin_actors_delete', {'_locale': app.request.locale, id: actor.id}) }}" onsubmit="return confirm('{{ 'actors.confirm_delete'|trans({'%name%': actor.displayName})|e('js') }}');">
+            <input type="hidden" name="_token" value="{{ csrf_token('admin_actor_delete_' ~ actor.id) }}">
+            <button type="submit" class="link-button">{{ 'actions.delete'|trans }}</button>
+        </form>
+    </td>
+</tr>

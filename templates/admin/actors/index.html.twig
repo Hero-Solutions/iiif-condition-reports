@@ -11,43 +11,66 @@
         </div>
     </div>
 
-    {% if actors is empty %}
+    {% if actor_groups is empty %}
         <section class="empty-state">
             <h2>{{ 'actors.empty_admin_title'|trans }}</h2>
             <p>{{ 'actors.empty_admin_text'|trans }}</p>
         </section>
     {% else %}
         <section class="panel admin-panel">
+            <p class="muted">{{ 'actors.grouped_variants_hint'|trans }}</p>
+            <div class="table-scroll">
             <table class="data-table compact-table">
                 <thead>
                     <tr>
-                        <th>{{ 'actors.alias'|trans }}</th>
                         <th>{{ 'actors.name'|trans }}</th>
                         <th>{{ 'actors.type'|trans }}</th>
+                        <th>{{ 'actors.address'|trans }}</th>
                         <th>{{ 'actors.email'|trans }}</th>
                         <th>{{ 'actors.phone'|trans }}</th>
                         <th></th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for actor in actors %}
-                        <tr>
-                            <td>{{ actor.alias ?: actor.name }}</td>
-                            <td>{{ actor.name }}</td>
-                            <td>{{ ('actor_type.' ~ actor.type)|trans }}</td>
-                            <td>{{ actor.email }}</td>
-                            <td>{{ actor.phone }}</td>
-                            <td class="table-actions">
-                                <a href="{{ path('admin_actors_edit', {'_locale': app.request.locale, id: actor.id}) }}">{{ 'actions.edit'|trans }}</a>
-                                <form method="post" action="{{ path('admin_actors_delete', {'_locale': app.request.locale, id: actor.id}) }}" onsubmit="return confirm('{{ 'actors.confirm_delete'|trans({'%name%': actor.displayName})|e('js') }}');">
-                                    <input type="hidden" name="_token" value="{{ csrf_token('admin_actor_delete_' ~ actor.id) }}">
-                                    <button type="submit" class="link-button">{{ 'actions.delete'|trans }}</button>
-                                </form>
-                            </td>
-                        </tr>
+                    {% for group in actor_groups %}
+                        {% if group.variants|length == 1 %}
+                            {% include 'admin/actors/_row.html.twig' with {actor: group.actor} %}
+                        {% else %}
+                            <tr>
+                                <td colspan="6">
+                                    <details class="actor-variants">
+                                        <summary>
+                                            <strong>{{ group.actor.displayName }}</strong>
+                                            <span class="muted">{{ 'actors.variants_count'|trans({'%count%': group.variants|length}) }}</span>
+                                            <span class="muted">TMS #{{ group.actor.constituentId }}</span>
+                                        </summary>
+                                        <div class="table-scroll">
+                                            <table class="data-table compact-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>{{ 'actors.name'|trans }}</th>
+                                                        <th>{{ 'actors.type'|trans }}</th>
+                                                        <th>{{ 'actors.address'|trans }}</th>
+                                                        <th>{{ 'actors.email'|trans }}</th>
+                                                        <th>{{ 'actors.phone'|trans }}</th>
+                                                        <th></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for actor in group.variants %}
+                                                        {% include 'admin/actors/_row.html.twig' %}
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </details>
+                                </td>
+                            </tr>
+                        {% endif %}
                     {% endfor %}
                 </tbody>
             </table>
+            </div>
         </section>
     {% endif %}
 {% endblock %}

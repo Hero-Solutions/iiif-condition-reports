@@ -509,6 +509,8 @@ actors:
   title: Actoren
   text: 'Beheer hier de organisaties en personen die bij dit project of bij specifieke objecten horen.'
   admin_title: 'Actoren / organisaties'
+  grouped_variants_hint: 'Naam- en adresvarianten uit TMS staan onder dezelfde actor. Klap een vermelding open om de varianten te bekijken en te bewerken.'
+  variants_count: '%count% varianten'
   new: 'Nieuwe actor'
   edit: 'Actor bewerken'
   saved: 'Actor opgeslagen.'

@@ -509,6 +509,8 @@ actors:
   title: Actors
   text: 'Manage the organizations and people involved in this project or in specific objects.'
   admin_title: 'Actors / organizations'
+  grouped_variants_hint: 'TMS name and address variants are grouped under the same actor. Expand an entry to view and edit its variants.'
+  variants_count: '%count% variants'
   new: 'New actor'
   edit: 'Edit actor'
   saved: 'Actor saved.'

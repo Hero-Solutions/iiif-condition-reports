@@ -15,8 +15,11 @@ use Doctrine\ORM\Tools\SchemaTool;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\DependencyInjection\{Container, ParameterBag\ParameterBag};
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
 use Symfony\Component\Security\Csrf\{CsrfToken, CsrfTokenManagerInterface};
 use Symfony\Component\Translation\Translator;
@@ -42,12 +45,14 @@ final class ImageFixtures extends ObjectImageStorage
     public array $documents = [];
     public array $copies = [];
     public bool $fail = false;
+    public ?Throwable $failure = null;
     public function readIiifJson(string $url): array
     {
         return $this->documents[$url] ?? throw new RuntimeException('Unexpected fixture URL: ' . $url);
     }
     public function storeArchiveImage(string $url, string $thumbnailUrl): array
     {
+        if ($this->failure !== null) throw $this->failure;
         if ($this->fail) throw new RuntimeException('Fixture download failure.');
         check(str_starts_with($url, 'https://images.invalid/'), 'Only fixture images may be copied.');
         $this->copies[] = [$url, $thumbnailUrl];
@@ -214,4 +219,73 @@ try {
 }
 $source = json_decode($manager->getConnection()->fetchOne('SELECT source_data FROM object_records WHERE id = ?', [$object->getId()]), true);
 check($source['iiif_image_info_url'] === 'https://images.invalid/d/info.json', 'Failed sync keeps the previous source data in the database.');
-echo "PASS: first-drawing archive, shared files, v2/v3 and multi-canvas sources, sync/unchanged/empty/undone reports, stale page rejection, preview/PDF/zoom, geometry and transactional failure.\n";
+// Exercise the actual POST handler with a polygon and isolated failures, including rollback.
+foreach (['success', 'download', 'download_http', 'database', 'csrf', 'payload', 'conflict'] as $scenario) {
+    $manager = new EntityManager(DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true]), $config);
+    (new SchemaTool($manager))->createSchema($manager->getMetadataFactory()->getAllMetadata());
+    $storage = new ImageFixtures(__DIR__, $root);
+    $history = new MainImageHistory($manager, $storage);
+    $object = (new ObjectRecord('ERROR-TEST', 'Fixture'))->setImageUrl('https://images.invalid/original.jpg');
+    $series = new ReportSeries($object);
+    $report = new Report($series);
+    $damage = new DamageCase($report, 'fixture-case', 'Fixture damage', '#ff0000');
+    foreach ([$object, $series, $report, $damage] as $entity) $manager->persist($entity);
+    $manager->flush();
+    $controller = new ReportAnnotationController($manager, new ReportAuthorProvider($manager), $history);
+    $controller->setContainer($container);
+    $payload = [
+        'damageCaseId' => $damage->getId(), 'sourceKey' => 'main', 'reportImageId' => null,
+        'mainImageFingerprint' => $history->forReport($report)['fingerprint'],
+        'annotation' => ['id' => 'fixture-polygon', 'bodies' => [], 'target' => [
+            'annotation' => 'fixture-polygon',
+            'selector' => ['type' => 'POLYGON', 'geometry' => [
+                'points' => [[10.5, 20.5], [30.5, 20.5], [30.5, 40.5], [10.5, 20.5]],
+                'bounds' => ['minX' => 10.5, 'minY' => 20.5, 'maxX' => 30.5, 'maxY' => 40.5],
+            ]],
+            'sourceDimensions' => ['width' => 6979, 'height' => 4949],
+        ]],
+    ];
+    if ($scenario === 'download') $storage->failure = new FileException('Fixture private URL https://images.invalid/?token=fixture-secret', 60);
+    if ($scenario === 'download_http') $storage->failure = new FileException('The external image returned HTTP status 503.');
+    if ($scenario === 'database') $manager->getConnection()->executeStatement('DROP TABLE annotations');
+    if ($scenario === 'payload') unset($payload['annotation']['target']['selector']);
+    if ($scenario === 'conflict') $payload['mainImageFingerprint'] = 'stale-fixture';
+    $request = Request::create('/fixture', 'POST', server: ['HTTP_X_CSRF_TOKEN' => $scenario === 'csrf' ? 'invalid' : 'fixture'], content: json_encode($payload));
+
+    try {
+        $response = $controller->saveAnnotation($report, $request);
+        check(!in_array($scenario, ['csrf', 'payload', 'conflict'], true), 'Expected an unchanged HTTP exception.');
+    } catch (AccessDeniedException) {
+        check($scenario === 'csrf', 'Invalid CSRF tokens remain denied before storage.');
+        continue;
+    } catch (HttpExceptionInterface $exception) {
+        check($exception->getStatusCode() === ['payload' => 400, 'conflict' => 409][$scenario], 'Keep the original HTTP error status.');
+        continue;
+    }
+
+    $result = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+    if ($scenario === 'success') {
+        check($response->getStatusCode() === 201, 'A main-image polygon is accepted.');
+        check($result['annotation']['target'] === $payload['annotation']['target'], 'Polygon coordinates and dimensions remain unchanged.');
+        continue;
+    }
+    check($response->getStatusCode() === 500 && $result['error'] === 'annotation_save_failed', 'Storage errors return structured JSON with HTTP 500.');
+    check($response->headers->hasCacheControlDirective('no-store'), 'Failure diagnostics must not be cached.');
+    check(!str_contains($response->getContent(), 'fixture-secret') && !str_contains($response->getContent(), 'https:') && !str_contains($response->getContent(), 'SELECT'), 'Do not expose URLs, exception messages or SQL.');
+    $details = $result['diagnostics'];
+    check(!str_contains($details['file'], '/') && !str_contains($details['file'], '\\') && $details['line'] > 0, 'Return only the filename and line.');
+    check($details['stage'] === ($scenario === 'database' ? 'save_annotation' : 'preserve_main_image'), 'Identify the failing operation.');
+    if ($scenario === 'download') {
+        check($details['exception'] === 'FileException' && $details['code'] === 60, 'Preserve the download error code.');
+        if (function_exists('curl_strerror')) check($details['downloadError'] === curl_strerror(60), 'Only expose the fixed cURL description.');
+    }
+    if ($scenario === 'download_http') check($details['downloadHttpStatus'] === 503, 'Expose the remote HTTP status without its body or URL.');
+    if ($scenario === 'database') check($details['sqlState'] === 'HY000', 'Expose the database SQLSTATE without its query.');
+    check(!$manager->getConnection()->isTransactionActive(), 'Failed saves roll back the transaction.');
+    foreach (['report_main_images', 'object_image_versions'] as $table) {
+        check((int) $manager->getConnection()->fetchOne('SELECT COUNT(*) FROM ' . $table) === 0, 'Failed saves must not persist image-version rows.');
+    }
+    if ($scenario !== 'database') check((int) $manager->getConnection()->fetchOne('SELECT COUNT(*) FROM annotations') === 0, 'Failed downloads must not persist annotations.');
+}
+
+echo "PASS: first-drawing archive, shared files, v2/v3 and multi-canvas sources, sync/unchanged/empty/undone reports, stale page rejection, preview/PDF/zoom, polygon POST, sanitized error diagnostics, HTTP statuses and transactional failure.\n";

@@ -11,13 +11,16 @@ use App\Entity\Report;
 use App\Entity\ReportImage;
 use App\Entity\User;
 use App\Service\ReportAuthorProvider;
+use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
 final class ReportAnnotationController extends AbstractController
@@ -163,15 +166,29 @@ final class ReportAnnotationController extends AbstractController
     public function saveAnnotation(Report $report, Request $request): JsonResponse
     {
         $this->assertWritableRequest($report, $request);
-        return $this->entityManager->wrapInTransaction(function () use ($report, $request): JsonResponse {
-            // Serialize the first drawing with a Datahub image replacement.
-            $this->entityManager->refresh($report->getObjectRecord(), LockMode::PESSIMISTIC_WRITE);
-            return $this->saveDrawing($report, $request);
-        });
+        $stage = 'start_transaction';
+
+        try {
+            return $this->entityManager->wrapInTransaction(function () use ($report, $request, &$stage): JsonResponse {
+                // Serialize the first drawing with a Datahub image replacement.
+                $stage = 'lock_object';
+                $this->entityManager->refresh($report->getObjectRecord(), LockMode::PESSIMISTIC_WRITE);
+                $response = $this->saveDrawing($report, $request, $stage);
+                $stage = 'commit_transaction';
+
+                return $response;
+            });
+        } catch (HttpExceptionInterface $exception) {
+            // Keep validation, permissions and stale-image conflicts unchanged.
+            throw $exception;
+        } catch (\Throwable $exception) {
+            return $this->annotationSaveFailure($exception, $stage);
+        }
     }
 
-    private function saveDrawing(Report $report, Request $request): JsonResponse
+    private function saveDrawing(Report $report, Request $request, string &$stage): JsonResponse
     {
+        $stage = 'validate_annotation';
         $payload = $this->jsonPayload($request);
         $annotationPayload = is_array($payload['annotation'] ?? null) ? $payload['annotation'] : [];
         $clientId = mb_substr(trim((string) ($annotationPayload['id'] ?? '')), 0, 255);
@@ -211,9 +228,11 @@ final class ReportAnnotationController extends AbstractController
             if (!preg_match('/^main(?::[1-9][0-9]*)?$/', $sourceKey)) {
                 throw new BadRequestHttpException('Invalid main image source.');
             }
+            $stage = 'preserve_main_image';
             $this->mainImages->preserveForAnnotation($report, (string) ($payload['mainImageFingerprint'] ?? ''), $sourceKey);
         }
 
+        $stage = 'save_annotation';
         $repository = $this->entityManager->getRepository(Annotation::class);
         $annotation = $repository->findOneBy(['report' => $report, 'clientId' => $clientId]);
         $created = false;
@@ -238,7 +257,36 @@ final class ReportAnnotationController extends AbstractController
 
         $this->entityManager->flush();
 
+        $stage = 'prepare_response';
         return $this->json($this->annotationData($annotation), $created ? Response::HTTP_CREATED : Response::HTTP_OK);
+    }
+
+    private function annotationSaveFailure(\Throwable $exception, string $stage): JsonResponse
+    {
+        // Only authenticated editors reach this response. Never include exception
+        // messages, SQL, URLs, absolute paths or trace arguments in browser diagnostics.
+        $diagnostics = [
+            'stage' => $stage,
+            'exception' => (new \ReflectionClass($exception))->getShortName(),
+            'code' => $exception->getCode(),
+            'file' => basename($exception->getFile()),
+            'line' => $exception->getLine(),
+        ];
+
+        if ($exception instanceof DriverException) {
+            $diagnostics['sqlState'] = $exception->getSQLState();
+        }
+        if ($exception instanceof FileException && $exception->getCode() > 0 && function_exists('curl_strerror')) {
+            $diagnostics['downloadError'] = curl_strerror($exception->getCode());
+        }
+        if ($exception instanceof FileException && preg_match('/^The external image returned HTTP status ([1-5][0-9]{2})\.$/D', $exception->getMessage(), $match)) {
+            $diagnostics['downloadHttpStatus'] = (int) $match[1];
+        }
+
+        return new JsonResponse([
+            'error' => 'annotation_save_failed',
+            'diagnostics' => $diagnostics,
+        ], Response::HTTP_INTERNAL_SERVER_ERROR, ['Cache-Control' => 'no-store']);
     }
 
     #[Route('/{_locale<nl|en>}/reports/{reportId}/annotations/{annotationId}', name: 'report_annotations_delete', methods: ['DELETE'])]

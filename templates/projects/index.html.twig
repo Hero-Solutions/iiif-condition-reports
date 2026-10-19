@@ -27,6 +27,7 @@
             <table class="data-table">
                 <thead>
                     <tr>
+                        <th class="project-reference">{{ 'projects.reference_code'|trans }}</th>
                         <th>{{ 'projects.project_title'|trans }}</th>
                         <th>{{ 'projects.type'|trans }}</th>
                         <th>{{ 'projects.status'|trans }}</th>
@@ -41,11 +42,17 @@
                         {% set project_url = path('projects_edit', {'_locale': app.request.locale, id: project.id}) %}
                         {% set report_count = report_counts[project.id]|default(null) %}
                         <tr data-row-href="{{ project_url }}">
+                            <td class="project-reference">
+                                {% if project.referenceCode is not empty %}
+                                    {{ project.referenceCode }}
+                                {% elseif project.tmsId is not null %}
+                                    TMS #{{ project.tmsId }}
+                                {% else %}
+                                    #{{ project.id }}
+                                {% endif %}
+                            </td>
                             <td>
                                 <a href="{{ project_url }}"><strong>{{ project.title }}</strong></a>
-                                {% if project.referenceCode %}
-                                    <span class="table-sub">{{ project.referenceCode }}</span>
-                                {% endif %}
                                 {% if project.tmsId %}
                                     <span class="table-sub">TMS{% if not project.tmsPresent %} · {{ 'tms_sync.missing_project'|trans }}{% endif %}</span>
                                 {% endif %}
