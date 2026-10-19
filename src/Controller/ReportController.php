@@ -345,20 +345,25 @@ final class ReportController extends AbstractController
     {
         [$report, $image] = $this->reportImageForIds($reportId, $imageId);
         $this->assertReportMediaRequest($report, $request, 'report_image_' . $imageId . '_');
+        $direction = $request->request->get('direction', 'right');
+        if (!in_array($direction, ['left', 'right'], true)) {
+            throw new BadRequestHttpException('Invalid rotation direction.');
+        }
+        $degrees = $direction === 'left' ? -90 : 90;
 
         $rotated = null;
         $previousPaths = [];
         try {
-            $this->entityManager->wrapInTransaction(function () use ($report, $image, $rotation, &$rotated, &$previousPaths): void {
+            $this->entityManager->wrapInTransaction(function () use ($report, $image, $rotation, $degrees, &$rotated, &$previousPaths): void {
                 // Use the same lock as annotation saves, then read the latest image.
                 $this->entityManager->refresh($report->getObjectRecord(), LockMode::PESSIMISTIC_WRITE);
                 $this->entityManager->refresh($image, LockMode::PESSIMISTIC_WRITE);
                 $previousPaths = [$image->getPath(), $image->getThumbnailPath()];
-                $rotated = $this->reportImageStorage->rotate($image->getPath());
+                $rotated = $this->reportImageStorage->rotate($image->getPath(), $degrees);
 
                 foreach ($this->entityManager->getRepository(Annotation::class)->findBy(['reportImage' => $image]) as $annotation) {
-                    $annotation->setTarget($rotation->clockwise(
-                        $annotation->getTarget(), $rotated['source_width'], $rotated['source_height'],
+                    $annotation->setTarget($rotation->rotate(
+                        $annotation->getTarget(), $rotated['source_width'], $rotated['source_height'], $degrees,
                     ));
                 }
                 $image->setPath($rotated['image_url'])->setThumbnailPath($rotated['thumbnail_url']);

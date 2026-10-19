@@ -196,7 +196,7 @@ const sources = [
 ];
 const actionTemplate = new Element('template');
 actionTemplate.content = new Element();
-for (const action of ['rotate', 'delete']) {
+for (const action of ['rotate-left', 'rotate-right', 'delete']) {
     const button = new Element('button'); button.dataset.reportImageAction = '';
     button.setAttribute('data-report-image-action', '');
     button.setAttribute('form', `report-image-${action}-5`);
@@ -211,7 +211,7 @@ const controller = {
 };
 Workbench.prototype.renderSources.call(controller);
 assert.equal(images.list.children[0].querySelectorAll('button').length, 1, 'Main image canvases never receive action buttons.');
-assert.equal(images.list.children[1].querySelectorAll('button').length, 3, 'Photo selection, rotation and deletion share a single thumbnail cell.');
+assert.equal(images.list.children[1].querySelectorAll('button').length, 4, 'Photo selection, both rotation directions and deletion share a single thumbnail cell.');
 assert.equal(images.list.children[1].querySelector('button').querySelectorAll('button').length, 0, 'Action buttons are not nested inside the selection button.');
 flush();
 const imageToggle = images.root.querySelector('.report-choice-toggle');
@@ -229,13 +229,13 @@ assert.equal(imageToggle.querySelector('.report-choice-current').textContent, 'D
 addImage.emit('click');
 assert.equal(imageManager.open, true, 'The add button survives rebuilding the source list.');
 assert.equal(controller.currentSource.key, 'photo', 'Adding images does not select another source.');
-assert.equal(images.list.querySelectorAll('button').length, 4, 'The add action is not an image choice.');
+assert.equal(images.list.querySelectorAll('button').length, 5, 'The add action is not an image choice.');
 closeImageManager.emit('click');
 imageToggle.getBoundingClientRect = () => ({ top: 700, bottom: 744 });
 imageToggle.emit('click');
 assert.ok(images.root.classList.contains('choice-menu-above'), 'Open upwards near the viewport bottom.');
 const photoActions = images.list.children[1].querySelectorAll('[data-report-image-action]');
-photoActions[1].emit('click');
+photoActions[2].emit('click');
 assert.equal(imageToggle.getAttribute('aria-expanded'), 'true', 'Cancelling a delete confirmation leaves the image list open.');
 assert.equal(controller.currentSource.key, 'photo', 'Image actions do not select another source.');
 images.list.children[1].querySelector('button').focus();

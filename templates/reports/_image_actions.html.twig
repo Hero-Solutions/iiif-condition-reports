@@ -23,8 +23,8 @@
 
 {% for image in report_images %}
     {% set actions = [
-        {name: 'rotate', route: 'rotate', icon: 'rotate', label: 'reports.rotate'},
-        {name: 'delete', route: 'delete', icon: 'trash', label: 'reports.delete_image'}
+        {name: 'rotate-left', route: 'rotate', direction: 'left', icon: 'rotate-left', label: 'reports.rotate_left'},
+        {name: 'rotate-right', route: 'rotate', direction: 'right', icon: 'rotate', label: 'reports.rotate_right'}
     ] %}
     {% if not loop.first %}
         {% set actions = actions|merge([{name: 'move-up', route: 'move', direction: 'up', icon: 'up', label: 'reports.move_up'}]) %}
@@ -32,6 +32,7 @@
     {% if not loop.last %}
         {% set actions = actions|merge([{name: 'move-down', route: 'move', direction: 'down', icon: 'down', label: 'reports.move_down'}]) %}
     {% endif %}
+    {% set actions = actions|merge([{name: 'delete', route: 'delete', icon: 'trash', label: 'reports.delete_image'}]) %}
     {{ _self.controls(image.id, report.id, app.request.locale, actions, 'reports.confirm_delete_photo') }}
 {% endfor %}
 {% for choice in frame_schema_choices|filter(choice => choice.imageId) %}

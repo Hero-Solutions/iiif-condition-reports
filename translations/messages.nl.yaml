@@ -475,6 +475,8 @@ reports:
   iiif_url_required: 'Geef een IIIF-manifest-URL in.'
   image_rotated: 'Foto gedraaid.'
   rotate: Draaien
+  rotate_left: '90° linksom draaien'
+  rotate_right: '90° rechtsom draaien'
   move_up: 'Naar voren'
   move_down: 'Naar achteren'
   confirm_delete_photo: 'Deze foto en de bijbehorende annotaties verwijderen?'

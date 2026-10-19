@@ -475,6 +475,8 @@ reports:
   iiif_url_required: 'Enter an IIIF manifest URL.'
   image_rotated: 'Photo rotated.'
   rotate: Rotate
+  rotate_left: 'Rotate 90° counterclockwise'
+  rotate_right: 'Rotate 90° clockwise'
   move_up: 'Move forward'
   move_down: 'Move backward'
   confirm_delete_photo: 'Delete this photo and its annotations?'

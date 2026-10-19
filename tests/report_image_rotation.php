@@ -55,17 +55,26 @@ $target = static fn (array $selector): array => [
     'annotation' => 'fixture', 'selector' => $selector,
     'sourceDimensions' => ['width' => 112, 'height' => 72],
 ];
-$result = $rotation->clockwise($target($polygon), 112, 72);
+$result = $rotation->rotate($target($polygon), 112, 72);
 check($result['selector']['geometry']['points'] == [[64, 12], [64, 32], [48, 32]], 'Rotate around the original image height, not width or annotation bounds.');
 check($result['selector']['geometry']['bounds'] == box(48, 12, 64, 32), 'Update selection bounds.');
-$result = $rotation->clockwise($target($ellipse), 112, 72);
+$result = $rotation->rotate($target($ellipse), 112, 72);
 check($result['selector']['geometry'] == ['cx' => 37, 'cy' => 23, 'rx' => 3, 'ry' => 6, 'bounds' => box(34, 17, 40, 29)], 'Rotate ellipse centers and swap radii.');
-$result = $rotation->clockwise($target($multi), 112, 72);
+$result = $rotation->rotate($target($multi), 112, 72);
 check($result['selector']['geometry']['polygons'][0]['rings'][1]['points'] == [[52, 20], [42, 20], [42, 30], [52, 30]], 'Keep erased holes in their rotated positions.');
 check($result['selector']['geometry']['polygons'][1]['bounds'] == box(57, 80, 67, 90), 'Rotate every disconnected polygon and its bounds.');
 check($result['selector']['geometry']['bounds'] == box(22, 10, 67, 90), 'Update the full multipolygon bounds.');
+$result = $rotation->rotate($target($polygon), 112, 72, -90);
+check($result['selector']['geometry']['points'] == [[8, 100], [8, 80], [24, 80]], 'Left rotation uses the original width for the new vertical coordinates.');
+check($result['selector']['geometry']['bounds'] == box(8, 80, 24, 100), 'Update bounds when turning left.');
+$result = $rotation->rotate($target($ellipse), 112, 72, -90);
+check($result['selector']['geometry'] == ['cx' => 35, 'cy' => 89, 'rx' => 3, 'ry' => 6, 'bounds' => box(32, 83, 38, 95)], 'Rotate ellipse centers and radii counterclockwise.');
+foreach ([$polygon, $ellipse, $multi] as $selector) {
+    $left = $rotation->rotate($target($selector), 112, 72, -90);
+    check($rotation->rotate($left, 72, 112, 90) == $target($selector), 'Opposite turns restore all shapes, including polygon holes.');
+}
 try {
-    $rotation->clockwise(['selector' => ['type' => 'UNKNOWN']], 112, 72);
+    $rotation->rotate(['selector' => ['type' => 'UNKNOWN']], 112, 72);
     throw new RuntimeException('Unsupported shapes must not silently remain unrotated.');
 } catch (FileException) {
 }
@@ -141,7 +150,15 @@ try {
     imagejpeg($pixels, $directory . '/photo-thumb.jpg');
     imagedestroy($pixels);
 
-    for ($turn = 1; $turn <= 4; ++$turn) {
+    $request->request->set('direction', 'invalid');
+    try {
+        $controller->rotateImage($report->getId(), $photo->getId(), $request, $rotation);
+        throw new RuntimeException('Invalid rotation directions must be rejected.');
+    } catch (Symfony\Component\HttpKernel\Exception\BadRequestHttpException) {
+        check($storage->exists($photo->getPath()) && count(glob($directory . '/*')) === 2, 'Reject invalid directions before changing files.');
+    }
+    foreach (['right', 'right', 'right', 'right', 'left', 'left', 'left', 'left', 'right', 'left'] as $direction) {
+        $request->request->set('direction', $direction);
         $oldPath = $photo->getPath();
         $oldThumb = $photo->getThumbnailPath();
         $before = imagecreatefrompng($directory . '/' . basename($oldPath));
@@ -154,7 +171,8 @@ try {
         $after = imagecreatefrompng($directory . '/' . basename($photo->getPath()));
         check(imagesx($after) === imagesy($before) && imagesy($after) === imagesx($before), 'Swap actual pixel dimensions.');
         foreach ([[5, 5], [60, 5], [5, 60], [60, 60]] as [$x, $y]) {
-            check(imagecolorat($after, imagesy($before) - 1 - $y, $x) === imagecolorat($before, $x, $y), 'Pixels must rotate clockwise with the coordinates.');
+            [$newX, $newY] = $direction === 'right' ? [imagesy($before) - 1 - $y, $x] : [$y, imagesx($before) - 1 - $x];
+            check(imagecolorat($after, $newX, $newY) === imagecolorat($before, $x, $y), 'Pixels must rotate in the requested direction with the coordinates.');
         }
         $dimensions = ['width' => imagesx($after), 'height' => imagesy($after)];
         foreach ($annotations as $index => $annotation) {
@@ -168,14 +186,14 @@ try {
         imagedestroy($after);
     }
     foreach ($annotations as $index => $annotation) {
-        check($annotation->getTarget() == ($initialTargets[$index] + ['sourceDimensions' => ['width' => 112, 'height' => 72]]), 'Four rotations must restore every coordinate, bound and source dimension.');
+        check($annotation->getTarget() == ($initialTargets[$index] + ['sourceDimensions' => ['width' => 112, 'height' => 72]]), 'Full turns and opposite turns must restore every coordinate, bound and source dimension.');
     }
     $manager->refresh($main);
     $manager->refresh($other);
     check($main->getTarget() === $target($polygon) && $other->getTarget() === $target($ellipse), 'Never rotate other photos or the main image annotations.');
     $pixels = imagecreatefrompng($directory . '/' . basename($photo->getPath()));
     for ($y = 0; $y < 72; ++$y) {
-        for ($x = 0; $x < 112; ++$x) check(imagecolorat($pixels, $x, $y) === $originalPixels[$y * 112 + $x], 'Four PNG rotations restore every original pixel.');
+        for ($x = 0; $x < 112; ++$x) check(imagecolorat($pixels, $x, $y) === $originalPixels[$y * 112 + $x], 'Full and opposite PNG rotations restore every original pixel.');
     }
     imagedestroy($pixels);
 
@@ -195,7 +213,7 @@ try {
     check($manager->getConnection()->fetchAllAssociative('SELECT id, target FROM annotations ORDER BY id') === $oldTargets, 'Rollback all annotation coordinates.');
     check($storage->exists($oldPath) && hash_file('sha256', $directory . '/' . basename($oldPath)) === $oldHash, 'Preserve the original image on failure.');
     check(count(glob($directory . '/*')) === 2, 'Remove failed replacement files without leaving orphans.');
-    echo "PASS: clockwise pixels and annotations, ellipses, polygon holes, four rotations, thumbnails, history, other images and database rollback.\n";
+    echo "PASS: left/right pixels and annotations, ellipses, polygon holes, full and opposite turns, thumbnails, history, other images and database rollback.\n";
 } finally {
     // Only files created in this unique fixture directory; never traverse or delete recursively.
     foreach (glob($directory . '/*') as $file) if (is_file($file)) unlink($file);

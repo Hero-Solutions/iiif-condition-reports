@@ -117,6 +117,14 @@ foreach (['nl', 'en'] as $locale) {
                 check($count('//template[@id="report-image-actions-' . $imageId . '"]//button[@form="report-image-delete-' . $imageId . '" and @data-report-image-action]') === 1, 'Each image cell has its own delete action.');
             }
             check($count('//template[@id="report-image-actions-7"]//button') === 1, 'Shared frame sketches only offer removal.');
+            foreach ([5, 6] as $imageId) {
+                foreach (['left', 'right'] as $direction) {
+                    $formId = 'report-image-rotate-' . $direction . '-' . $imageId;
+                    check($count('//template[@id="report-image-actions-' . $imageId . '"]//button[@form="' . $formId . '"]') === 1, 'Each photo has a button for each rotation direction.');
+                    check($count('//form[@id="' . $formId . '"]//input[@name="direction" and @value="' . $direction . '"]') === 1, 'Rotation direction is submitted by its own form.');
+                }
+                check($count('//template[@id="report-image-actions-' . $imageId . '"]//button[last()][@form="report-image-delete-' . $imageId . '"]') === 1, 'Delete is the last action so it can align on the right.');
+            }
             foreach ($xpath->query('//template//button[@data-report-image-action]') as $button) {
                 check($count('//form[@id="' . $button->getAttribute('form') . '" and @hidden and @data-report-image-action-form]') === 1, 'Actions submit their own hidden form outside report autosave.');
             }
