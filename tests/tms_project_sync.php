@@ -220,7 +220,7 @@ try {
 
     // HTTP failure, manifest configuration change, limited scope and malformed data never leave partial changes.
     foreach (['failure', 'invalid_json', 'internal_failure', 'changed', 'scope', 'orphan', 'duplicate', 'collision', 'bad_limit', 'missing_column', 'missing_dataset',
-        'zero_object_id', 'zero_title_parent', 'duplicate_zero_title', 'invalid_title_id', 'negative_title_id', 'null_title_id', 'empty_title_id', 'missing_title_id'] as $scenario) {
+        'zero_object_id', 'zero_title_parent', 'duplicate_zero_title', 'invalid_title_id', 'negative_title_id', 'null_title_id', 'empty_title_id', 'missing_title_id', 'actor_conflict'] as $scenario) {
         $badEm = manager();
         $old = new Project('Previously imported', Project::TYPE_LOAN);
         $old->applyTmsSource('loans', '99', ['record' => [], 'mapped' => []], new DateTimeImmutable('2020-01-01'));
@@ -252,15 +252,18 @@ try {
         if ($scenario === 'null_title_id') $bad['data']['object_titles'][0]['TitleID'] = null;
         if ($scenario === 'empty_title_id') $bad['data']['object_titles'][0]['TitleID'] = '';
         if ($scenario === 'missing_title_id') unset($bad['data']['object_titles'][0]['TitleID']);
+        if ($scenario === 'actor_conflict') $bad['data']['parties'][] = party(['ConXrefDetailID' => '602', 'DisplayName' => 'Conflicting name']);
         $test = new CommandTester(new SyncTmsProjectsCommand(syncer($badEm, $bad, $directory)));
         check($test->execute([]) === 1, 'Invalid import was accepted: ' . $scenario);
         if ($scenario === 'failure') check(str_contains($test->getDisplay(), 'HTTP 503 (dataset documents, offset 0)'), 'HTTP diagnostic lost request context.');
         if ($scenario === 'invalid_json') check(str_contains($test->getDisplay(), 'invalid JSON (manifest)'), 'API diagnostic was hidden by the command.');
         if ($scenario === 'duplicate_zero_title') check(str_contains($test->getDisplay(), 'Dubbele bron-ID 0 in dataset object_titles'), 'Zero title IDs must still be checked for duplicates.');
+        if ($scenario === 'actor_conflict') check(str_contains($test->getDisplay(), 'Tegenstrijdige naam/adresgegevens'), 'Conflicting actor metadata was not detected.');
         check(!str_contains($test->getDisplay(), 'SECRET_DO_NOT_PRINT') && !str_contains($test->getDisplay(), 'FAKE-password'), 'Failure output leaked raw data.');
         check($badEm->getConnection()->fetchAllAssociative('SELECT * FROM projects') === $beforeProjects, 'Failure changed projects: ' . $scenario);
         check($badEm->getConnection()->fetchAllAssociative('SELECT * FROM object_records') === $beforeObjects, 'Failure changed objects: ' . $scenario);
         check($badEm->getConnection()->fetchOne('SELECT COUNT(*) FROM object_log_entries') === 0, 'Rolled-back sync left audit entries.');
+        check($badEm->getConnection()->fetchOne('SELECT COUNT(*) FROM actors') === 0, 'Rolled-back sync left actors.');
         check(glob($directory . '/download-*') === [], 'Temporary download leaked after failure.');
         $badEm->close();
     }

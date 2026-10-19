@@ -14,7 +14,8 @@ final class TmsActorSync
 {
     public function __construct(private readonly EntityManagerInterface $entityManager) {}
 
-    public function synchronize(array $parties, array $projects, string $importId): array
+    /** @param callable(int): array $readParty Reads one row from the private download file. */
+    public function synchronize(array $parties, array $projects, string $importId, callable $readParty): array
     {
         $em = $this->entityManager;
         $em->flush();
@@ -23,10 +24,11 @@ final class TmsActorSync
             $em->createQuery('UPDATE ' . $class . ' a SET a.tmsPresent = false WHERE a.tmsId IS NOT NULL')->execute();
         }
         $result = ['actors' => 0, 'actors_created' => 0, 'actor_links' => 0];
-        $actors = $valuesByKey = $available = [];
+        $actors = $valueHashes = $available = [];
         foreach ($parties as $table => $parents) {
-            foreach ($parents as $parent => $rows) {
-                foreach ($rows as $row) {
+            foreach ($parents as $parent => $offsets) {
+                foreach ($offsets as $offset) {
+                    $row = $readParty($offset);
                     if (!self::visible($row) || trim($row['DisplayName'] ?? '') === '') continue;
                     $detail = self::sourceId($row, 'ConXrefDetailID');
                     $identity = [self::sourceId($row, 'ConstituentID'), self::sourceId($row, 'NameID'),
@@ -36,10 +38,11 @@ final class TmsActorSync
                     }
                     $key = hash('sha256', json_encode($identity, JSON_THROW_ON_ERROR));
                     $values = self::actorValues($row);
-                    if (isset($valuesByKey[$key]) && $valuesByKey[$key] !== $values) {
+                    $valueHash = hash('sha256', json_encode($values, JSON_THROW_ON_ERROR), true);
+                    if (isset($valueHashes[$key]) && $valueHashes[$key] !== $valueHash) {
                         throw new UnexpectedValueException('Tegenstrijdige naam/adresgegevens voor TMS-actorrelatie ' . $detail);
                     }
-                    $valuesByKey[$key] = $values;
+                    $valueHashes[$key] = $valueHash;
                     if (!isset($actors[$key])) {
                         $actor = $em->getRepository(Actor::class)->findOneBy(['tmsKey' => $key]);
                         if ($actor === null) {
@@ -62,13 +65,15 @@ final class TmsActorSync
                         ++$result['actors'];
                         $em->clear();
                     }
-                    $available[$table][$parent][$detail] = ['actor_id' => $actors[$key], 'row' => $row];
+                    // Keep only the actor ID and file position, not every decoded source row.
+                    $available[$table][$parent][$detail] = [$actors[$key], $offset];
                 }
             }
         }
+        unset($actors, $valueHashes);
         foreach ($projects['loans'] as $id => $projectId) {
-            foreach ($available['81'][$id] ?? [] as $detail => $source) {
-                $this->assign($em->getReference(Project::class, $projectId), (string) $detail, $source, $importId);
+            foreach ($available['81'][$id] ?? [] as $detail => [$actorId, $offset]) {
+                $this->assign($em->getReference(Project::class, $projectId), (string) $detail, $actorId, $readParty($offset), $importId);
                 ++$result['actor_links'];
             }
         }
@@ -93,8 +98,8 @@ final class TmsActorSync
                             if (in_array((string) $loanId, $loanIds, true)) $sources += $available['81'][$loanId] ?? [];
                         }
                     }
-                    foreach ($sources as $detail => $source) {
-                        $this->assign($em->find(ProjectObject::class, $linkRow['id']), (string) $detail, $source, $importId);
+                    foreach ($sources as $detail => [$actorId, $offset]) {
+                        $this->assign($em->find(ProjectObject::class, $linkRow['id']), (string) $detail, $actorId, $readParty($offset), $importId);
                         ++$result['actor_links'];
                     }
                     $em->clear();
@@ -104,12 +109,12 @@ final class TmsActorSync
         return $result;
     }
 
-    private function assign(Project|ProjectObject $parent, string $id, array $source, string $importId): void
+    private function assign(Project|ProjectObject $parent, string $id, int $actorId, array $row, string $importId): void
     {
         $em = $this->entityManager;
         $class = $parent instanceof Project ? ProjectActor::class : ProjectObjectActor::class;
         $parentKey = $parent instanceof Project ? 'project' : 'projectObject';
-        $actor = $em->getReference(Actor::class, $source['actor_id']);
+        $actor = $em->getReference(Actor::class, $actorId);
         $assignment = $em->getRepository($class)->findOneBy([$parentKey => $parent, 'tmsId' => $id]);
         if ($assignment === null) {
             $assignment = new $class($parent, $actor);
@@ -117,12 +122,12 @@ final class TmsActorSync
         } else {
             $em->refresh($assignment, LockMode::PESSIMISTIC_WRITE);
         }
-        $mapped = self::role($source['row']);
+        $mapped = self::role($row);
         $previous = $assignment->getTmsData()['mapped'] ?? null;
         if ($previous === null || [$assignment->getRole(), $assignment->getCustomRole()] === $previous) {
             $assignment->setRole($mapped[0])->setCustomRole($mapped[1]);
         }
-        $assignment->applyTmsSource($id, $actor, ['record' => $source['row'], 'mapped' => $mapped, 'import_id' => $importId]);
+        $assignment->applyTmsSource($id, $actor, ['record' => $row, 'mapped' => $mapped, 'import_id' => $importId]);
         $em->flush();
         $em->clear();
     }

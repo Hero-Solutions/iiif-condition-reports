@@ -134,12 +134,35 @@ final class TmsProjectSync
         }
         $file = $files[$dataset];
         rewind($file);
-        while (($line = fgets($file)) !== false) {
-            yield json_decode($line, true, 64, JSON_THROW_ON_ERROR);
+        while (!feof($file)) {
+            $offset = ftell($file);
+            $line = fgets($file);
+            if ($line === false) break;
+            if ($offset === false) {
+                throw new UnexpectedValueException('De tijdelijke API-download kan niet worden geïndexeerd.');
+            }
+            yield $offset => json_decode($line, true, 64, JSON_THROW_ON_ERROR);
         }
         if (!feof($file)) {
             throw new UnexpectedValueException('De tijdelijke API-download kon niet volledig worden gelezen.');
         }
+    }
+
+    private function rowAt(array $files, string $dataset, int $offset): array
+    {
+        $file = $files[$dataset];
+        if (fseek($file, $offset) !== 0 || ($line = fgets($file)) === false) {
+            throw new UnexpectedValueException('De tijdelijke API-download kon niet volledig worden gelezen: ' . $dataset);
+        }
+        return json_decode($line, true, 64, JSON_THROW_ON_ERROR);
+    }
+
+    /** Load only the metadata belonging to the current object or project. */
+    private function readRows(array $files, string $dataset, array $offsets): array
+    {
+        $rows = [];
+        foreach ($offsets as $offset) $rows[] = $this->rowAt($files, $dataset, $offset);
+        return $rows;
     }
 
     private function apply(array $files, array $manifest): array
@@ -156,7 +179,7 @@ final class TmsProjectSync
         $parties = $documents = [];
         foreach (['parties' => 'ConXrefDetailID', 'documents' => 'MediaXrefID'] as $dataset => $pk) {
             $seen = [];
-            foreach ($this->rows($files, $dataset) as $row) {
+            foreach ($this->rows($files, $dataset) as $offset => $row) {
                 $this->unique($seen, $this->id($row, $pk), $dataset);
                 $table = $this->id($row, 'TableID');
                 if (!in_array($table, ['81', '108'], true)) {
@@ -164,12 +187,13 @@ final class TmsProjectSync
                 }
                 $parentId = $this->id($row, 'ID');
                 if ($dataset === 'parties') {
-                    $parties[$table][$parentId][] = $row;
+                    $parties[$table][$parentId][] = $offset;
                 } else {
-                    $documents[$table][$parentId][] = $row;
+                    $documents[$table][$parentId][] = $offset;
                 }
             }
         }
+        unset($seen);
 
         $objects = [];
         foreach ($this->rows($files, 'objects') as $row) {
@@ -192,7 +216,8 @@ final class TmsProjectSync
             if (!$new) {
                 $this->entityManager->refresh($object, LockMode::PESSIMISTIC_WRITE);
             }
-            $objectTitles = $titles[$id] ?? [];
+            $objectTitles = $this->readRows($files, 'object_titles', $titles[$id] ?? []);
+            $objectParties = $this->readRows($files, 'parties', $parties['108'][$id] ?? []);
             $title = $this->objectTitle($objectTitles) ?? $this->text($row, 'ObjectName') ?? $number;
             if ($new) {
                 $object = (new ObjectRecord($number, mb_substr($title, 0, 255)))->setSource(ObjectRecord::SOURCE_TMS, $id);
@@ -202,7 +227,7 @@ final class TmsProjectSync
             $before = $new ? [] : $this->objectLogger->snapshot($object);
             $values = ['inventoryNumber' => $number, 'title' => mb_substr($title, 0, 255)];
             if (isset($files['parties'])) {
-                $values['creator'] = TmsActorSync::creators($parties['108'][$id] ?? []);
+                $values['creator'] = TmsActorSync::creators($objectParties);
             } elseif (array_key_exists('creator', $object->getTmsData()['mapped'] ?? [])) {
                 $values['creator'] = $object->getTmsData()['mapped']['creator'];
             }
@@ -215,15 +240,13 @@ final class TmsProjectSync
                 }
             }
             $object->applyTmsSource($id, ['record' => $row, 'titles' => $objectTitles,
-                'parties' => $parties['108'][$id] ?? [], 'documents' => $documents['108'][$id] ?? [],
+                'parties' => $objectParties, 'documents' => $this->readRows($files, 'documents', $documents['108'][$id] ?? []),
                 'mapped' => $values, 'import_id' => $importId], $at);
             $this->objectLogger->record($object, $before, ObjectLogEntry::TMS_SYNC, createdAt: $at);
             $this->entityManager->flush();
             $objects[$id] = $object->getId();
             ++$result['objects'];
-            if ($result['objects'] % 100 === 0) {
-                $this->entityManager->clear();
-            }
+            $this->entityManager->clear();
         }
         foreach ([$titles, $parties['108'] ?? [], $documents['108'] ?? []] as $related) {
             $this->requireParents($related, $objects, 'objects');
@@ -238,7 +261,8 @@ final class TmsProjectSync
         $exhibitionLoans = $this->group($files, 'exhibition_loans', 'ExhibitionID');
         $loanExhibitions = [];
         foreach ($exhibitionLoans as $exhibitionId => $links) {
-            foreach ($links as $link) {
+            foreach ($links as $offset) {
+                $link = $this->rowAt($files, 'exhibition_loans', $offset);
                 $loanExhibitions[$this->id($link, 'LoanID')][] = (string) $exhibitionId;
             }
         }
@@ -268,18 +292,16 @@ final class TmsProjectSync
                     'endDate' => $isLoan ? $this->date($row, 'EndISODate') : null];
                 $this->mergeFields($project, $values, $project->getTmsData()['mapped'] ?? null);
                 $project->applyTmsSource($dataset, $id, ['record' => $row, 'mapped' => $values,
-                    'loan_ids' => $isLoan ? [] : array_values(array_unique(array_map(fn(array $link): string => $this->id($link, 'LoanID'), $exhibitionLoans[$id] ?? []))),
+                    'loan_ids' => $isLoan ? [] : array_values(array_unique(array_map(fn(array $link): string => $this->id($link, 'LoanID'), $this->readRows($files, 'exhibition_loans', $exhibitionLoans[$id] ?? [])))),
                     'exhibition_ids' => $isLoan ? array_values(array_unique($loanExhibitions[$id] ?? [])) : [],
-                    'parties' => $isLoan ? ($parties['81'][$id] ?? []) : [],
-                    'documents' => $isLoan ? ($documents['81'][$id] ?? []) : [],
-                    'shipments' => $isLoan ? ($shipments[$id] ?? []) : [],
+                    'parties' => $isLoan ? $this->readRows($files, 'parties', $parties['81'][$id] ?? []) : [],
+                    'documents' => $isLoan ? $this->readRows($files, 'documents', $documents['81'][$id] ?? []) : [],
+                    'shipments' => $isLoan ? $this->readRows($files, 'shipments', $shipments[$id] ?? []) : [],
                     'import_id' => $importId], $at);
                 $this->entityManager->flush();
                 $projects[$dataset][$id] = $project->getId();
                 ++$result['projects'];
-                if ($result['projects'] % 100 === 0) {
-                    $this->entityManager->clear();
-                }
+                $this->entityManager->clear();
             }
         }
         $this->requireParents($exhibitionLoans, $projects['exhibitions'], 'exhibitions');
@@ -292,13 +314,14 @@ final class TmsProjectSync
             'exhibition_objects' => ['exhibitions', 'ExhibitionID', 'ExhObjXrefID']] as $dataset => [$kind, $parentKey, $pk]) {
             $groups = $this->group($files, $dataset, $parentKey, $pk);
             $this->requireParents($groups, $projects[$kind], $kind);
-            foreach ($groups as $parent => $rows) {
+            foreach ($groups as $parent => $offsets) {
                 $byObject = [];
-                foreach ($rows as $row) {
-                    $byObject[$this->id($row, 'ObjectID')][] = $row;
+                foreach ($offsets as $offset) {
+                    $row = $this->rowAt($files, $dataset, $offset);
+                    $byObject[$this->id($row, 'ObjectID')][] = $offset;
                 }
                 $this->requireParents($byObject, $objects, 'objects');
-                foreach ($byObject as $id => $sourceRows) {
+                foreach ($byObject as $id => $sourceOffsets) {
                     $project = $this->entityManager->getReference(Project::class, $projects[$kind][$parent]);
                     $object = $this->entityManager->getReference(ObjectRecord::class, $objects[$id]);
                     $link = $this->entityManager->getRepository(ProjectObject::class)->findOneBy(['project' => $project, 'objectRecord' => $object]);
@@ -308,7 +331,7 @@ final class TmsProjectSync
                     } else {
                         $this->entityManager->refresh($link, LockMode::PESSIMISTIC_WRITE);
                     }
-                    $link->applyTmsSource(['records' => $sourceRows, 'import_id' => $importId]);
+                    $link->applyTmsSource(['records' => $this->readRows($files, $dataset, $sourceOffsets), 'import_id' => $importId]);
                     ++$result['links'];
                     if ($result['links'] % 100 === 0) {
                         $this->entityManager->flush();
@@ -318,20 +341,23 @@ final class TmsProjectSync
             }
         }
         $this->entityManager->flush();
-        $result += $this->actorSync->synchronize($parties, $projects, $importId);
+        unset($groups, $byObject, $objects);
+        $result += $this->actorSync->synchronize($parties, $projects, $importId,
+            fn(int $offset): array => $this->rowAt($files, 'parties', $offset));
         $result['projects_missing'] = (int) $this->entityManager->createQuery('SELECT COUNT(p.id) FROM App\\Entity\\Project p WHERE p.tmsId IS NOT NULL AND p.tmsPresent = false')->getSingleScalarResult();
         $result['links_missing'] = (int) $this->entityManager->createQuery('SELECT COUNT(po.id) FROM App\\Entity\\ProjectObject po WHERE po.tmsPresent = false')->getSingleScalarResult();
         return $result;
     }
 
+    /** Index file positions, not decoded rows: source payloads stay on disk. */
     private function group(array $files, string $dataset, string $parentKey, ?string $pk = null): array
     {
         $groups = $seen = [];
-        foreach ($this->rows($files, $dataset) as $row) {
+        foreach ($this->rows($files, $dataset) as $offset => $row) {
             if ($pk !== null) {
                 $this->unique($seen, $this->id($row, $pk), $dataset);
             }
-            $groups[$this->id($row, $parentKey)][] = $row;
+            $groups[$this->id($row, $parentKey)][] = $offset;
         }
         return $groups;
     }

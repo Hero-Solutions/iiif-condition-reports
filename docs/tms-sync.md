@@ -67,6 +67,8 @@ Nieuwe rapporten krijgen de actuele project- en objectactoren. Bij een TMS-proje
 
 Alle pagina's worden eerst naar tijdelijke bestanden buiten `public/` geschreven. Elke pagina moet dezelfde scope hebben; na de download worden de datasetinstellingen en scope opnieuw gecontroleerd. Pas daarna wordt één databasetransactie gestart. Fouten tijdens het koppelen of opslaan rollen alle appwijzigingen en bijbehorende objectlogregels terug. Bestaande rijen worden tijdens bijwerken vergrendeld. Tijdelijke bestanden worden na succes of een opgevangen fout verwijderd. Na een harde processtop kunnen restbestanden achterblijven in de private importmap; de bestandsvergrendeling komt vanzelf vrij.
 
+De relatie-indexen bevatten alleen bron-ID's en bestandsposities. Titels, documenten, transporten en actorinformatie worden per object of project uit die bestanden gelezen. Doctrine geeft verwerkte objecten en projecten na het opslaan vrij; actorrelaties bewaren alleen actor-ID's en bestandsposities. Zo blijven niet alle gedecodeerde bronrijen tegelijk in PHP-geheugen. Dit vereist geen extra PHP-extensie, databasewijziging of andere API.
+
 De API biedt geen consistente bronsnapshot over meerdere aanvragen. Gegevenswijzigingen tijdens het ophalen kunnen daardoor een gemengde import opleveren. De apptransactie beschermt alleen het opslaan in de app. De lokale `import_id` is uitsluitend een traceer-ID; er is geen dump-ID of gedeeld statusbestand. Bronmetadata blijft voor verdwenen records als geschiedenis bewaard. De benodigde tabellen in de app moeten transactioneel zijn (de applicatiemigraties gebruiken InnoDB).
 
 Geïsoleerde controles vanuit de workspace, zonder appbootstrap of netwerk:
@@ -80,3 +82,9 @@ php -n -d 'extension_dir=C:/Program Files/PHP/ext' -d extension=pdo_sqlite -d ex
 ```
 
 De tests gebruiken verzonnen gegevens, een nep-HTTP-transport en SQLite in geheugen. Ze controleren onder meer idempotentie, paginering, rollback, actoridentiteiten, adresvarianten, rapportovername, verdwenen/terugkerende relaties, lokale wijzigingen, DataHub-samenwerking, uitgeschakelde imports en overlappende runs. De ketentest vereist de naastliggende `tms-api`- en appcheckout en gebruikt de daadwerkelijke queries en JSON van `loan_projects.php`. Er is geen test tegen de uiteindelijke productie-API, MySQL-dump of serverplanning uitgevoerd.
+
+`tests/tms_project_sync_memory.php` genereert pagina's met 95.000 documenten, 10.000 actorrelaties en 10.000 titels en importeert die in een wegwerp-SQLite-bestand binnen de workspace. De test dwingt een PHP-limiet van 128 MB af en controleert ook de opgeslagen bronmetadata en actorkoppelingen. De lokale run op 2026-10-19 had een PHP-geheugenpiek van 22 MiB; dat is geen meting van de productiedata of van het volledige procesgeheugen. Uitvoeren zonder appbootstrap of netwerk:
+
+```powershell
+php -n -d allow_url_fopen=0 -d 'extension_dir=C:/Program Files/PHP/ext' -d extension=pdo_sqlite -d extension=mbstring tests/tms_project_sync_memory.php
+```
