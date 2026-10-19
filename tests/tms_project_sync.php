@@ -56,7 +56,8 @@ function datasets(): array
         ],
         'object_titles' => [
             ['TitleID' => '201', 'ObjectID' => '100', 'Title' => 'Do not replace DataHub', 'Displayed' => '1', 'Active' => '1', 'LanguageID' => '2', 'DisplayOrder' => '1'],
-            ['TitleID' => '202', 'ObjectID' => '101', 'Title' => 'Incoming title', 'Displayed' => '1', 'Active' => '1', 'LanguageID' => '2', 'DisplayOrder' => '1'],
+            // The supplied legacy mirror contains a real title with TitleID 0.
+            ['TitleID' => '0', 'ObjectID' => '101', 'Title' => 'Incoming title', 'Displayed' => '1', 'Active' => '1', 'LanguageID' => '2', 'DisplayOrder' => '1'],
             ['TitleID' => '203', 'ObjectID' => '101', 'Title' => 'English title', 'Displayed' => '1', 'Active' => '1', 'LanguageID' => '1', 'DisplayOrder' => '1'],
         ],
         'loan_objects' => [['LoanObjXrefID' => '301', 'LoanID' => '10', 'ObjectID' => '101', 'SpecialConditions' => 'Test condition'],
@@ -147,6 +148,7 @@ try {
     check($datahub->getTmsId() === '100' && $datahub->getTitle() === 'DataHub title' && $datahub->getExternalId() === 'lido:original', 'Existing DataHub identity/content changed.');
     check($datahub->getImageUrl() === '/uploads/fixture.jpg' && $datahub->getCreator() === 'DataHub artist' && $datahub->getSourceData()['custom'] === 'preserve', 'DataHub image/source fields changed.');
     check($object->getTitle() === 'Incoming title' && $object->getSource() === ObjectRecord::SOURCE_TMS, 'Create missing incoming objects with a suitable title.');
+    check($object->getTmsData()['titles'][0]['TitleID'] === '0', 'TitleID zero must remain intact in source metadata.');
     check($em->find(Project::class, $manualId)->getTmsId() === null, 'Never claim a local project merely because its reference matches.');
     $link = $em->getRepository(ProjectObject::class)->findOneBy(['project' => $loan]);
     check(count($link->getTmsData()['records']) === 2, 'Multiple source links must not create duplicate project objects or discard conditions.');
@@ -217,7 +219,8 @@ try {
     fclose($held);
 
     // HTTP failure, manifest configuration change, limited scope and malformed data never leave partial changes.
-    foreach (['failure', 'invalid_json', 'internal_failure', 'changed', 'scope', 'orphan', 'duplicate', 'collision', 'bad_limit', 'missing_column', 'missing_dataset'] as $scenario) {
+    foreach (['failure', 'invalid_json', 'internal_failure', 'changed', 'scope', 'orphan', 'duplicate', 'collision', 'bad_limit', 'missing_column', 'missing_dataset',
+        'zero_object_id', 'zero_title_parent', 'duplicate_zero_title', 'invalid_title_id', 'negative_title_id', 'null_title_id', 'empty_title_id', 'missing_title_id'] as $scenario) {
         $badEm = manager();
         $old = new Project('Previously imported', Project::TYPE_LOAN);
         $old->applyTmsSource('loans', '99', ['record' => [], 'mapped' => []], new DateTimeImmutable('2020-01-01'));
@@ -241,10 +244,19 @@ try {
         if ($scenario === 'bad_limit') $bad['bad_limit'] = true;
         if ($scenario === 'missing_column') unset($bad['data']['loans'][0]['LoanNumber']);
         if ($scenario === 'missing_dataset') unset($bad['data']['exhibitions']);
+        if ($scenario === 'zero_object_id') $bad['data']['objects'][0]['ObjectID'] = '0';
+        if ($scenario === 'zero_title_parent') $bad['data']['object_titles'][0]['ObjectID'] = '0';
+        if ($scenario === 'duplicate_zero_title') $bad['data']['object_titles'][0]['TitleID'] = '000';
+        if ($scenario === 'invalid_title_id') $bad['data']['object_titles'][0]['TitleID'] = 'not-an-id';
+        if ($scenario === 'negative_title_id') $bad['data']['object_titles'][0]['TitleID'] = '-1';
+        if ($scenario === 'null_title_id') $bad['data']['object_titles'][0]['TitleID'] = null;
+        if ($scenario === 'empty_title_id') $bad['data']['object_titles'][0]['TitleID'] = '';
+        if ($scenario === 'missing_title_id') unset($bad['data']['object_titles'][0]['TitleID']);
         $test = new CommandTester(new SyncTmsProjectsCommand(syncer($badEm, $bad, $directory)));
         check($test->execute([]) === 1, 'Invalid import was accepted: ' . $scenario);
         if ($scenario === 'failure') check(str_contains($test->getDisplay(), 'HTTP 503 (dataset documents, offset 0)'), 'HTTP diagnostic lost request context.');
         if ($scenario === 'invalid_json') check(str_contains($test->getDisplay(), 'invalid JSON (manifest)'), 'API diagnostic was hidden by the command.');
+        if ($scenario === 'duplicate_zero_title') check(str_contains($test->getDisplay(), 'Dubbele bron-ID 0 in dataset object_titles'), 'Zero title IDs must still be checked for duplicates.');
         check(!str_contains($test->getDisplay(), 'SECRET_DO_NOT_PRINT') && !str_contains($test->getDisplay(), 'FAKE-password'), 'Failure output leaked raw data.');
         check($badEm->getConnection()->fetchAllAssociative('SELECT * FROM projects') === $beforeProjects, 'Failure changed projects: ' . $scenario);
         check($badEm->getConnection()->fetchAllAssociative('SELECT * FROM object_records') === $beforeObjects, 'Failure changed objects: ' . $scenario);

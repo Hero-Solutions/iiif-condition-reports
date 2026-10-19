@@ -356,10 +356,12 @@ final class TmsProjectSync
     private function id(array $row, string $key): string
     {
         $id = $row[$key] ?? null;
-        if (!is_string($id) || !preg_match('/^[0-9]{1,18}$/D', $id) || trim($id, '0') === '') {
+        // ObjTitles can contain TitleID 0. Other source identities must remain positive.
+        if (!is_string($id) || !preg_match('/^[0-9]{1,18}$/D', $id)
+            || ($key !== 'TitleID' && trim($id, '0') === '')) {
             throw new UnexpectedValueException('Ontbrekende of ongeldige TMS-ID: ' . $key);
         }
-        return ltrim($id, '0');
+        return ltrim($id, '0') ?: '0';
     }
 
     private function text(array $row, string $key): ?string

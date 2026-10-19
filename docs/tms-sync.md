@@ -10,7 +10,7 @@ Alle onderstaande serverhandelingen zijn **uitsluitend voor de beheerder om zelf
 2. Neem de instellingen uit [tms-api-settings.example](tms-api-settings.example) over in de eigen `.env`/`.env.local`. Vul URL, Basic-authgebruikersnaam en wachtwoord in. Zet `EXTERNAL_LOANS_ENABLED=1`. De instelling schakelt zowel bruiklenen als tentoonstellingen in.
 3. Zorg dat de app de private map `var/tms-sync/` kan maken en beschrijven. Gebruik één vaste scheduler op één appserver. Het commando gebruikt daar een bestandslot tegen gelijktijdige uitvoeringen. Plan de DataHub-objectharvest en TMS-import na elkaar.
 4. Plan de appimport na een geslaagde MySQL-dump, zonder overlap. De API leest de actuele MySQL-tabellen rechtstreeks; ze detecteert geen lopende of mislukte dump. De API moet alle tentoonstellingen aanbieden (`exhibition_ids=null`). Werk het script en de app samen bij naar API-contract 2; er zijn geen dumpcommando's nodig.
-5. Vul op de API-server de toegestane `party_visibility`-regels in `loan_projects.php` in, zoals beschreven in de [API-documentatie](../../tms-api/README.md#rechten-voor-partijen-en-documenten). Een lege lijst schakelt actoren uit. De app meldt dat expliciet en markeert eerdere TMS-actorkoppelingen als niet actief voor nieuwe rapporten.
+5. Gebruik de actuele `loan_projects.php`: gerelateerde actoren zijn standaard ingeschakeld, zonder `party_visibility`-configuratie. Het manifest moet `parties.enabled=true` tonen. Met een oudere API die actoren uitschakelt, meldt de app dat expliciet en markeert ze eerdere TMS-actorkoppelingen als niet actief voor nieuwe rapporten.
 6. Voer daarna op de appserver zelf een eerste import uit:
 
    ```sh
@@ -18,6 +18,8 @@ Alle onderstaande serverhandelingen zijn **uitsluitend voor de beheerder om zelf
    ```
 
 Controleer de tellingen en de geïmporteerde projecten. Onvolledige datasets, ontbrekende relatie-ID's, dubbele bron-ID's en conflicterende inventarisnummers laten de volledige import mislukken. Het commando geeft exitcode 1; een geslaagde import of een bewust overgeslagen run geeft 0. Een uitgeschakelde import doet geen API-aanvragen en verandert geen gegevens.
+
+`ObjTitles.TitleID=0` komt voor in de aangeleverde oude TMS-mirror en wordt als titel-ID geaccepteerd. De titel blijft behouden, inclusief het oorspronkelijke ID. Ontbrekende, lege en ongeldige titel-ID's en dubbele titel-ID's blijven fouten; voor object-, project- en relatie-ID's blijft een positief ID vereist.
 
 Bij API-fouten toont het commando de concrete gecontroleerde foutmelding, met `manifest` of de dataset en offset. Verbindingsfouten bevatten de cURL-code en de vaste beschrijving; HTTP-fouten bevatten de statuscode. Dit werkt zonder `-vvv`. Standaard worden wachtwoorden, HTTP-antwoorden en SQL niet weergegeven. Overige onverwachte fouten behouden de algemene melding; de foutklasse alleen bewijst geen databaseprobleem.
 
