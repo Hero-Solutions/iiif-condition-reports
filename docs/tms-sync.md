@@ -19,7 +19,9 @@ Alle onderstaande serverhandelingen zijn **uitsluitend voor de beheerder om zelf
 
 Controleer de tellingen en de geïmporteerde projecten. Onvolledige datasets, ontbrekende relatie-ID's, dubbele bron-ID's en conflicterende inventarisnummers laten de volledige import mislukken. Het commando geeft exitcode 1; een geslaagde import of een bewust overgeslagen run geeft 0. Een uitgeschakelde import doet geen API-aanvragen en verandert geen gegevens.
 
-`ObjTitles.TitleID=0` komt voor in de aangeleverde oude TMS-mirror en wordt als titel-ID geaccepteerd. De titel blijft behouden, inclusief het oorspronkelijke ID. Ontbrekende, lege en ongeldige titel-ID's en dubbele titel-ID's blijven fouten; voor object-, project- en relatie-ID's blijft een positief ID vereist.
+`ObjTitles.TitleID=0` en `MediaXrefs.MediaXrefID=0` komen voor in de aangeleverde oude TMS-mirror en worden als titel-ID en document-ID geaccepteerd. De titel en documentmetadata blijven behouden, inclusief het oorspronkelijke ID. Ontbrekende, lege en ongeldige ID's en dubbele ID's blijven fouten; voor de overige object-, project- en relatie-ID's blijft een positief ID vereist.
+
+De ID's waarmee de projectimport rijen groepeert en koppelt, worden al bij ontvangst van elke API-pagina gecontroleerd. Een fout meldt de kolom, de reden (bijvoorbeeld null, leeg of nul), dataset, pagina-offset en rijpositie. Er worden daarna geen volgende pagina's meer opgehaald en de databasetransactie is nog niet gestart. De rijpositie binnen de pagina begint bij 1; de absolute rij-offset begint bij 0. Willekeurige ongeldige tekstwaarden worden niet in de foutmelding afgedrukt. Dubbele ID's, ontbrekende ouders en actorconflicten worden tijdens het koppelen gecontroleerd.
 
 Bij API-fouten toont het commando de concrete gecontroleerde foutmelding, met `manifest` of de dataset en offset. Verbindingsfouten bevatten de cURL-code en de vaste beschrijving; HTTP-fouten bevatten de statuscode. Dit werkt zonder `-vvv`. Standaard worden wachtwoorden, HTTP-antwoorden en SQL niet weergegeven. Overige onverwachte fouten behouden de algemene melding; de foutklasse alleen bewijst geen databaseprobleem.
 

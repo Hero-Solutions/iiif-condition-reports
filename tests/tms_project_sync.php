@@ -66,7 +66,11 @@ function datasets(): array
         'exhibition_loans' => [['ExhibitionID' => '10', 'LoanID' => '10']],
         'shipments' => [['LoanID' => '10', 'ShipmentID' => '501', 'ShipmentNumber' => 'SHIP-01']],
         'parties' => [party()],
-        'documents' => [['MediaXrefID' => '701', 'TableID' => '81', 'ID' => '10', 'PrimaryFileName' => 'fake.pdf']],
+        'documents' => [
+            ['MediaXrefID' => '701', 'TableID' => '81', 'ID' => '10', 'PrimaryFileName' => 'fake.pdf'],
+            // The supplied legacy mirror also contains an object document with MediaXrefID 0.
+            ['MediaXrefID' => '0', 'TableID' => '108', 'ID' => '101', 'PrimaryFileName' => 'fake-object.pdf'],
+        ],
     ];
 }
 
@@ -90,6 +94,7 @@ function syncer(EntityManager $em, array &$state, string $directory, bool $enabl
         }
         check(in_array('Authorization: Basic ' . base64_encode('test:FAKE-password'), $headers, true), 'Basic auth is required.');
         $dataset = $query['dataset'];
+        $state['requests'][] = [$dataset, (int) $query['offset']];
         check(!in_array($dataset, $state['disabled'] ?? [], true), 'Disabled dataset was requested.');
         if ($dataset === ($state['fail_dataset'] ?? '') && (int) $query['offset'] >= ($state['fail_offset'] ?? 0)) {
             return ['status' => $state['failure_status'] ?? 503, 'body' => 'SECRET_DO_NOT_PRINT'];
@@ -149,6 +154,8 @@ try {
     check($datahub->getImageUrl() === '/uploads/fixture.jpg' && $datahub->getCreator() === 'DataHub artist' && $datahub->getSourceData()['custom'] === 'preserve', 'DataHub image/source fields changed.');
     check($object->getTitle() === 'Incoming title' && $object->getSource() === ObjectRecord::SOURCE_TMS, 'Create missing incoming objects with a suitable title.');
     check($object->getTmsData()['titles'][0]['TitleID'] === '0', 'TitleID zero must remain intact in source metadata.');
+    check($object->getTmsData()['documents'][0]['MediaXrefID'] === '0'
+        && $object->getTmsData()['documents'][0]['PrimaryFileName'] === 'fake-object.pdf', 'MediaXrefID zero must preserve the document and its original identity.');
     check($em->find(Project::class, $manualId)->getTmsId() === null, 'Never claim a local project merely because its reference matches.');
     $link = $em->getRepository(ProjectObject::class)->findOneBy(['project' => $loan]);
     check(count($link->getTmsData()['records']) === 2, 'Multiple source links must not create duplicate project objects or discard conditions.');
@@ -174,6 +181,7 @@ try {
     check($loan->getTitle() === 'Local override' && $loan->getReferenceCode() === 'LN-02' && $loan->getDescription() === 'Changed upstream', 'Preserve overrides while refreshing unchanged source-owned fields.');
     check($loan->getStatus() === Project::STATUS_COMPLETED && $loan->getEnvironmentalCondition('temperature') === '20 C', 'Preserve local workflow and conditions.');
     check($object->getTitle() === 'Changed incoming title' && $object->getSyncStatus() === ObjectRecord::SYNC_SYNCED, 'Refresh TMS object without treating the sync as a manual edit.');
+    check(count($object->getTmsData()['documents']) === 1 && $object->getTmsData()['documents'][0]['MediaXrefID'] === '0', 'Repeated import duplicated or lost the document with MediaXrefID zero.');
     check($em->find(ProjectObject::class, $linkId)->getNotes() === 'Keep local notes', 'Preserve link notes.');
     check($em->getRepository(Report::class)->count([]) === 1 && $em->find(Report::class, $reportId) !== null, 'Reports must survive repeated sync.');
 
@@ -220,7 +228,8 @@ try {
 
     // HTTP failure, manifest configuration change, limited scope and malformed data never leave partial changes.
     foreach (['failure', 'invalid_json', 'internal_failure', 'changed', 'scope', 'orphan', 'duplicate', 'collision', 'bad_limit', 'missing_column', 'missing_dataset',
-        'zero_object_id', 'zero_title_parent', 'duplicate_zero_title', 'invalid_title_id', 'negative_title_id', 'null_title_id', 'empty_title_id', 'missing_title_id', 'actor_conflict'] as $scenario) {
+        'zero_object_id', 'zero_title_parent', 'duplicate_zero_title', 'invalid_title_id', 'negative_title_id', 'null_title_id', 'empty_title_id', 'missing_title_id',
+        'zero_document_parent', 'duplicate_zero_document', 'actor_conflict'] as $scenario) {
         $badEm = manager();
         $old = new Project('Previously imported', Project::TYPE_LOAN);
         $old->applyTmsSource('loans', '99', ['record' => [], 'mapped' => []], new DateTimeImmutable('2020-01-01'));
@@ -252,12 +261,16 @@ try {
         if ($scenario === 'null_title_id') $bad['data']['object_titles'][0]['TitleID'] = null;
         if ($scenario === 'empty_title_id') $bad['data']['object_titles'][0]['TitleID'] = '';
         if ($scenario === 'missing_title_id') unset($bad['data']['object_titles'][0]['TitleID']);
+        if ($scenario === 'zero_document_parent') $bad['data']['documents'][1]['ID'] = '0';
+        if ($scenario === 'duplicate_zero_document') $bad['data']['documents'][0]['MediaXrefID'] = '000';
         if ($scenario === 'actor_conflict') $bad['data']['parties'][] = party(['ConXrefDetailID' => '602', 'DisplayName' => 'Conflicting name']);
         $test = new CommandTester(new SyncTmsProjectsCommand(syncer($badEm, $bad, $directory)));
         check($test->execute([]) === 1, 'Invalid import was accepted: ' . $scenario);
         if ($scenario === 'failure') check(str_contains($test->getDisplay(), 'HTTP 503 (dataset documents, offset 0)'), 'HTTP diagnostic lost request context.');
         if ($scenario === 'invalid_json') check(str_contains($test->getDisplay(), 'invalid JSON (manifest)'), 'API diagnostic was hidden by the command.');
         if ($scenario === 'duplicate_zero_title') check(str_contains($test->getDisplay(), 'Dubbele bron-ID 0 in dataset object_titles'), 'Zero title IDs must still be checked for duplicates.');
+        if ($scenario === 'duplicate_zero_document') check(str_contains($test->getDisplay(), 'Dubbele bron-ID 0 in dataset documents'), 'Zero document IDs must still be checked for duplicates.');
+        if ($scenario === 'zero_document_parent') check(str_contains($test->getDisplay(), 'ID; waarde is 0'), 'Document parent IDs must remain positive.');
         if ($scenario === 'actor_conflict') check(str_contains($test->getDisplay(), 'Tegenstrijdige naam/adresgegevens'), 'Conflicting actor metadata was not detected.');
         check(!str_contains($test->getDisplay(), 'SECRET_DO_NOT_PRINT') && !str_contains($test->getDisplay(), 'FAKE-password'), 'Failure output leaked raw data.');
         check($badEm->getConnection()->fetchAllAssociative('SELECT * FROM projects') === $beforeProjects, 'Failure changed projects: ' . $scenario);
@@ -265,6 +278,38 @@ try {
         check($badEm->getConnection()->fetchOne('SELECT COUNT(*) FROM object_log_entries') === 0, 'Rolled-back sync left audit entries.');
         check($badEm->getConnection()->fetchOne('SELECT COUNT(*) FROM actors') === 0, 'Rolled-back sync left actors.');
         check(glob($directory . '/download-*') === [], 'Temporary download leaked after failure.');
+        $badEm->close();
+    }
+
+    // ID failures identify the source page/row and stop before later downloads or database writes.
+    foreach ([
+        ['null', null, 'waarde is null'],
+        ['empty', '', 'waarde is leeg'],
+        ['missing', null, 'kolom ontbreekt'],
+        ['negative', '-1', 'verwacht 1 tot 18 cijfers'],
+        ['too_long', '1234567890123456789', 'verwacht 1 tot 18 cijfers'],
+        ['too_many_zeros', str_repeat('0', 19), 'verwacht 1 tot 18 cijfers'],
+        ['newline', "701\n", 'verwacht 1 tot 18 cijfers'],
+        ['text', 'SECRET_DO_NOT_PRINT', 'verwacht 1 tot 18 cijfers'],
+    ] as [$scenario, $value, $reason]) {
+        $badEm = manager();
+        $bad = state();
+        $bad['data']['documents'] = [];
+        for ($i = 0; $i < 502; ++$i) {
+            $bad['data']['documents'][] = ['MediaXrefID' => (string) (701 + $i), 'TableID' => '81', 'ID' => '10'];
+        }
+        $bad['data']['documents'][1]['MediaXrefID'] = $value;
+        if ($scenario === 'missing') unset($bad['data']['documents'][1]['MediaXrefID']);
+        $test = new CommandTester(new SyncTmsProjectsCommand(syncer($badEm, $bad, $directory)));
+        check($test->execute([]) === 1, 'Invalid document ID was accepted: ' . $scenario);
+        $display = $test->getDisplay();
+        check(str_contains($display, 'MediaXrefID; ' . $reason)
+            && str_contains($display, 'dataset documents, pagina-offset 0, rij 2, rij-offset 1'), 'Document ID diagnostic lacks reason or position.');
+        check(!str_contains($display, 'SECRET_DO_NOT_PRINT'), 'ID diagnostic exposed arbitrary source text.');
+        check(!in_array(['documents', 500], $bad['requests'], true) && $bad['manifests'] === 1, 'Downloaded more data after detecting an invalid source ID.');
+        check($badEm->isOpen() && !$badEm->getConnection()->isTransactionActive(), 'ID failure should happen before the import transaction.');
+        check($badEm->getRepository(Project::class)->count([]) === 0 && $badEm->getRepository(ObjectRecord::class)->count([]) === 0, 'ID failure stored partial data.');
+        check(glob($directory . '/download-*') === [], 'ID failure leaked temporary downloads.');
         $badEm->close();
     }
 
@@ -302,6 +347,12 @@ try {
     check(str_contains($pagedCommand->getDisplay(), 'dataset exhibitions, offset 500'), 'Failure did not identify page 2.');
     check($pagedEm->getConnection()->fetchOne("SELECT title FROM projects WHERE tms_type = 'exhibitions' AND tms_id = '1'") === 'Fixture 1', 'Page 1 escaped before page 2 succeeded.');
     check(glob($directory . '/download-*') === [], 'Temporary download files remain.');
+    unset($paged['fail_dataset'], $paged['fail_offset']);
+    $paged['data']['exhibitions'][500]['ExhibitionID'] = '0';
+    check($pagedCommand->execute([]) === 1, 'Invalid ID on page 2 must fail the command.');
+    check(str_contains($pagedCommand->getDisplay(), 'ExhibitionID; waarde is 0')
+        && str_contains($pagedCommand->getDisplay(), 'dataset exhibitions, pagina-offset 500, rij 1, rij-offset 500'), 'ID diagnostic did not identify page 2.');
+    check($pagedEm->getConnection()->fetchOne("SELECT title FROM projects WHERE tms_type = 'exhibitions' AND tms_id = '1'") === 'Fixture 1', 'Invalid ID on page 2 changed previously imported data.');
     // Actors are usable assignments, not just JSON metadata. Keep identities and visibility variants apart.
     $actorEm = manager();
     $localActor = new Actor('Fictional lender');

@@ -14,6 +14,18 @@ final class TmsProjectSync
     private const REQUIRED = ['exhibitions', 'loans', 'objects', 'object_titles',
         'exhibition_objects', 'loan_objects', 'exhibition_loans', 'shipments'];
     private const OPTIONAL = ['parties', 'documents'];
+    private const SOURCE_IDS = [
+        'exhibitions' => ['ExhibitionID'],
+        'loans' => ['LoanID'],
+        'objects' => ['ObjectID'],
+        'object_titles' => ['TitleID', 'ObjectID'],
+        'exhibition_objects' => ['ExhObjXrefID', 'ExhibitionID', 'ObjectID'],
+        'loan_objects' => ['LoanObjXrefID', 'LoanID', 'ObjectID'],
+        'exhibition_loans' => ['ExhibitionID', 'LoanID'],
+        'shipments' => ['LoanID'],
+        'parties' => ['ConXrefDetailID', 'TableID', 'ID'],
+        'documents' => ['MediaXrefID', 'TableID', 'ID'],
+    ];
 
     public function __construct(
         private readonly TmsApiClient $client,
@@ -87,7 +99,7 @@ final class TmsProjectSync
                 if (($page['scope'] ?? null) !== $manifest['scope']) {
                     throw new UnexpectedValueException('De API-scope is tijdens het ophalen gewijzigd.');
                 }
-                foreach ($page['data'] as $row) {
+                foreach ($page['data'] as $rowIndex => $row) {
                     if (!is_array($row) || $row === [] || array_is_list($row)) {
                         throw new UnexpectedValueException('Ongeldige rij in API-dataset: ' . $dataset);
                     }
@@ -109,6 +121,14 @@ final class TmsProjectSync
                         if (!array_key_exists($column, $row)) {
                             throw new UnexpectedValueException('Een verwachte bronkolom ontbreekt: ' . $dataset . '.' . $column);
                         }
+                    }
+                    // Check identities on arrival, before requesting further pages or opening a transaction.
+                    try {
+                        foreach (self::SOURCE_IDS[$dataset] as $key) $this->id($row, $key);
+                    } catch (UnexpectedValueException $error) {
+                        throw new UnexpectedValueException($error->getMessage() . sprintf(
+                            ' (dataset %s, pagina-offset %d, rij %d, rij-offset %d).',
+                            $dataset, $offset, $rowIndex + 1, $offset + $rowIndex), 0, $error);
                     }
                     $line = json_encode($row, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE) . "\n";
                     if (fwrite($file, $line) !== strlen($line)) {
@@ -382,10 +402,19 @@ final class TmsProjectSync
     private function id(array $row, string $key): string
     {
         $id = $row[$key] ?? null;
-        // ObjTitles can contain TitleID 0. Other source identities must remain positive.
+        // The supplied legacy mirror contains TitleID 0 and MediaXrefID 0.
         if (!is_string($id) || !preg_match('/^[0-9]{1,18}$/D', $id)
-            || ($key !== 'TitleID' && trim($id, '0') === '')) {
-            throw new UnexpectedValueException('Ontbrekende of ongeldige TMS-ID: ' . $key);
+            || (!in_array($key, ['TitleID', 'MediaXrefID'], true) && trim($id, '0') === '')) {
+            // Describe malformed values without logging arbitrary source text.
+            $reason = match (true) {
+                !array_key_exists($key, $row) => 'kolom ontbreekt',
+                $id === null => 'waarde is null',
+                !is_string($id) => 'waarde is geen tekst',
+                $id === '' => 'waarde is leeg',
+                strlen($id) <= 18 && trim($id, '0') === '' => 'waarde is 0; een positief ID is vereist',
+                default => 'verwacht 1 tot 18 cijfers zonder spaties of andere tekens',
+            };
+            throw new UnexpectedValueException('Ontbrekende of ongeldige TMS-ID: ' . $key . '; ' . $reason);
         }
         return ltrim($id, '0') ?: '0';
     }
