@@ -349,35 +349,36 @@ final class ReportController extends AbstractController
         $rotated = null;
         $previousPaths = [];
         try {
-            try {
-                $this->entityManager->wrapInTransaction(function () use ($report, $image, $rotation, &$rotated, &$previousPaths): void {
-                    // Use the same lock as annotation saves, then read the latest image.
-                    $this->entityManager->refresh($report->getObjectRecord(), LockMode::PESSIMISTIC_WRITE);
-                    $this->entityManager->refresh($image, LockMode::PESSIMISTIC_WRITE);
-                    $previousPaths = [$image->getPath(), $image->getThumbnailPath()];
-                    $rotated = $this->reportImageStorage->rotate($image->getPath());
+            $this->entityManager->wrapInTransaction(function () use ($report, $image, $rotation, &$rotated, &$previousPaths): void {
+                // Use the same lock as annotation saves, then read the latest image.
+                $this->entityManager->refresh($report->getObjectRecord(), LockMode::PESSIMISTIC_WRITE);
+                $this->entityManager->refresh($image, LockMode::PESSIMISTIC_WRITE);
+                $previousPaths = [$image->getPath(), $image->getThumbnailPath()];
+                $rotated = $this->reportImageStorage->rotate($image->getPath());
 
-                    foreach ($this->entityManager->getRepository(Annotation::class)->findBy(['reportImage' => $image]) as $annotation) {
-                        $annotation->setTarget($rotation->clockwise(
-                            $annotation->getTarget(), $rotated['source_width'], $rotated['source_height'],
-                        ));
-                    }
-                    $image->setPath($rotated['image_url'])->setThumbnailPath($rotated['thumbnail_url']);
-                });
-            } catch (\Throwable $exception) {
-                if ($rotated !== null) {
-                    $this->reportImageStorage->remove($rotated['image_url']);
-                    $this->reportImageStorage->remove($rotated['thumbnail_url']);
+                foreach ($this->entityManager->getRepository(Annotation::class)->findBy(['reportImage' => $image]) as $annotation) {
+                    $annotation->setTarget($rotation->clockwise(
+                        $annotation->getTarget(), $rotated['source_width'], $rotated['source_height'],
+                    ));
                 }
+                $image->setPath($rotated['image_url'])->setThumbnailPath($rotated['thumbnail_url']);
+            });
+        } catch (\Throwable $exception) {
+            if ($rotated !== null) {
+                $this->reportImageStorage->remove($rotated['image_url']);
+                $this->reportImageStorage->remove($rotated['thumbnail_url']);
+            }
+            if (!$exception instanceof FileException) {
                 throw $exception;
             }
-            foreach ($previousPaths as $path) {
-                $this->reportImageStorage->remove($path);
-            }
-            $this->addFlash('success', 'reports.image_rotated');
-        } catch (FileException $exception) {
             $this->addFlash('error', $exception->getMessage());
+
+            return $this->redirectToReportTab($report, $request, 'damage');
         }
+        foreach ($previousPaths as $path) {
+            $this->reportImageStorage->remove($path);
+        }
+        $this->addFlash('success', 'reports.image_rotated');
 
         return $this->redirectToReportTab($report, $request, 'damage');
     }
