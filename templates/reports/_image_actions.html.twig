@@ -1,0 +1,41 @@
+{% macro controls(image_id, report_id, locale, actions, confirmation) %}
+    {% for action in actions %}
+        <form id="report-image-{{ action.name }}-{{ image_id }}" method="post" hidden
+              action="{{ path('reports_images_' ~ action.route, {_locale: locale, reportId: report_id, imageId: image_id}) }}"
+              data-report-image-action-form
+              {% if action.name == 'delete' %}data-report-image-delete onsubmit="return confirm('{{ confirmation|trans|e('js') }}');"{% endif %}>
+            <input type="hidden" name="_token" value="{{ csrf_token('report_image_' ~ image_id ~ '_' ~ report_id) }}">
+            {% if action.direction is defined %}<input type="hidden" name="direction" value="{{ action.direction }}">{% endif %}
+        </form>
+    {% endfor %}
+    <template id="report-image-actions-{{ image_id }}">
+        <div class="report-annotation-source-actions">
+            {% for action in actions %}
+                <button type="submit" form="report-image-{{ action.name }}-{{ image_id }}"
+                        class="compact-icon-button{{ action.name == 'delete' ? ' danger' : '' }}"
+                        data-report-image-action aria-label="{{ action.label|trans }}" title="{{ action.label|trans }}">
+                    <svg class="icon" aria-hidden="true"><use href="#i-{{ action.icon }}"/></svg>
+                </button>
+            {% endfor %}
+        </div>
+    </template>
+{% endmacro %}
+
+{% for image in report_images %}
+    {% set actions = [
+        {name: 'rotate', route: 'rotate', icon: 'rotate', label: 'reports.rotate'},
+        {name: 'delete', route: 'delete', icon: 'trash', label: 'reports.delete_image'}
+    ] %}
+    {% if not loop.first %}
+        {% set actions = actions|merge([{name: 'move-up', route: 'move', direction: 'up', icon: 'up', label: 'reports.move_up'}]) %}
+    {% endif %}
+    {% if not loop.last %}
+        {% set actions = actions|merge([{name: 'move-down', route: 'move', direction: 'down', icon: 'down', label: 'reports.move_down'}]) %}
+    {% endif %}
+    {{ _self.controls(image.id, report.id, app.request.locale, actions, 'reports.confirm_delete_photo') }}
+{% endfor %}
+{% for choice in frame_schema_choices|filter(choice => choice.imageId) %}
+    {{ _self.controls(choice.imageId, report.id, app.request.locale, [
+        {name: 'delete', route: 'delete', icon: 'trash', label: 'reports.annotation_remove_frame'}
+    ], 'reports.confirm_delete_frame_schema') }}
+{% endfor %}

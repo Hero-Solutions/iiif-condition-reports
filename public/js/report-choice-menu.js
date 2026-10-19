@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
         container.insertBefore(toggle, list);
         container.classList.add('has-choice-menu');
 
-        const options = () => Array.from(list.querySelectorAll('button')).filter((button) => !button.disabled && !button.hidden);
+        const options = () => Array.from(list.querySelectorAll('button')).filter((button) => !button.disabled && !button.hidden && !button.hasAttribute('data-report-image-action'));
         const selected = () => list.querySelector('button.active');
         const isOpen = () => toggle.getAttribute('aria-expanded') === 'true';
 
@@ -55,6 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         toggle.addEventListener('click', () => isOpen() ? close(true) : open());
         container.addEventListener('click', (event) => {
+            if (event.target.closest('[data-report-image-action]')) return;
             // Image selection rebuilds the buttons before this event reaches the container.
             if (isOpen() && event.composedPath().includes(list) && event.target.closest('button')) {
                 close(true);

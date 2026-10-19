@@ -163,7 +163,13 @@ class ObjectImageStorage
         return $imageUrl !== null && str_starts_with($imageUrl, $this->publicPrefix);
     }
 
-    public function rotate(string $imageUrl, int $degrees = 90): void
+    /**
+     * Create a rotated copy. Keep the original until its database replacement succeeds.
+     * New URLs also prevent browsers from displaying cached, unrotated pixels.
+     *
+     * @return array{image_url: string, thumbnail_url: string, source_width: int, source_height: int}
+     */
+    public function rotate(string $imageUrl, int $degrees = 90): array
     {
         if (!$this->exists($imageUrl)) {
             throw new FileException('The image does not exist.');
@@ -188,7 +194,16 @@ class ObjectImageStorage
             throw new FileException('The image could not be decoded.');
         }
 
+        $basename = bin2hex(random_bytes(16));
+        $filename = $basename . '.' . $this->extensionForMimeType($mimeType);
+        $destination = $this->uploadDirectory . DIRECTORY_SEPARATOR . $filename;
+
         try {
+            if ($mimeType === 'image/jpeg') {
+                $source = $this->orientJpeg($source, $path);
+            }
+            $width = imagesx($source);
+            $height = imagesy($source);
             $rotated = imagerotate($source, -$degrees, 0);
 
             if (!$rotated instanceof \GdImage) {
@@ -196,10 +211,11 @@ class ObjectImageStorage
             }
 
             try {
+                imagesavealpha($rotated, true);
                 $written = match ($mimeType) {
-                    'image/jpeg' => imagejpeg($rotated, $path, 92),
-                    'image/png' => imagepng($rotated, $path, 6),
-                    'image/webp' => function_exists('imagewebp') && imagewebp($rotated, $path, 90),
+                    'image/jpeg' => imagejpeg($rotated, $destination, 92),
+                    'image/png' => imagepng($rotated, $destination, 6),
+                    'image/webp' => function_exists('imagewebp') && imagewebp($rotated, $destination, 90),
                 };
 
                 if (!$written) {
@@ -208,15 +224,19 @@ class ObjectImageStorage
             } finally {
                 imagedestroy($rotated);
             }
+        } catch (\Throwable $exception) {
+            if (is_file($destination)) {
+                unlink($destination);
+            }
+            throw $exception;
         } finally {
             imagedestroy($source);
         }
 
-        $thumbnailPath = preg_replace('~\.[^.]+$~', '-thumb.jpg', $path);
-
-        if (is_string($thumbnailPath)) {
-            $this->createThumbnail($path, $thumbnailPath, $mimeType);
-        }
+        return $this->finishStoredImage($filename, $basename, $mimeType) + [
+            'source_width' => $width,
+            'source_height' => $height,
+        ];
     }
 
     public function exists(?string $imageUrl): bool

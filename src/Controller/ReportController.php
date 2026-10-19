@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Service\MainImageHistory;
+use App\Service\AnnotationRotation;
 use App\Entity\Actor;
 use App\Entity\Annotation;
 use App\Entity\DamageCase;
@@ -340,13 +341,39 @@ final class ReportController extends AbstractController
     }
 
     #[Route('/{_locale<nl|en>}/reports/{reportId}/images/{imageId}/rotate', name: 'reports_images_rotate', methods: ['POST'])]
-    public function rotateImage(int $reportId, int $imageId, Request $request): Response
+    public function rotateImage(int $reportId, int $imageId, Request $request, AnnotationRotation $rotation): Response
     {
         [$report, $image] = $this->reportImageForIds($reportId, $imageId);
         $this->assertReportMediaRequest($report, $request, 'report_image_' . $imageId . '_');
 
+        $rotated = null;
+        $previousPaths = [];
         try {
-            $this->reportImageStorage->rotate($image->getPath());
+            try {
+                $this->entityManager->wrapInTransaction(function () use ($report, $image, $rotation, &$rotated, &$previousPaths): void {
+                    // Use the same lock as annotation saves, then read the latest image.
+                    $this->entityManager->refresh($report->getObjectRecord(), LockMode::PESSIMISTIC_WRITE);
+                    $this->entityManager->refresh($image, LockMode::PESSIMISTIC_WRITE);
+                    $previousPaths = [$image->getPath(), $image->getThumbnailPath()];
+                    $rotated = $this->reportImageStorage->rotate($image->getPath());
+
+                    foreach ($this->entityManager->getRepository(Annotation::class)->findBy(['reportImage' => $image]) as $annotation) {
+                        $annotation->setTarget($rotation->clockwise(
+                            $annotation->getTarget(), $rotated['source_width'], $rotated['source_height'],
+                        ));
+                    }
+                    $image->setPath($rotated['image_url'])->setThumbnailPath($rotated['thumbnail_url']);
+                });
+            } catch (\Throwable $exception) {
+                if ($rotated !== null) {
+                    $this->reportImageStorage->remove($rotated['image_url']);
+                    $this->reportImageStorage->remove($rotated['thumbnail_url']);
+                }
+                throw $exception;
+            }
+            foreach ($previousPaths as $path) {
+                $this->reportImageStorage->remove($path);
+            }
             $this->addFlash('success', 'reports.image_rotated');
         } catch (FileException $exception) {
             $this->addFlash('error', $exception->getMessage());

@@ -178,7 +178,6 @@ class ReportAnnotationWorkbench {
         this.undoButton = workbench.querySelector('[data-annotation-undo]');
         this.eraserButton = workbench.querySelector('[data-annotation-eraser]');
         this.deleteButton = workbench.querySelector('[data-annotation-delete]');
-        this.deleteImageButton = workbench.querySelector('[data-annotation-delete-image]');
         this.status = workbench.querySelector('[data-annotation-status]');
         this.sourceList = workbench.querySelector('[data-annotation-source-list]');
         this.drawingLayer = workbench.querySelector('[data-annotation-drawing-layer]');
@@ -319,6 +318,8 @@ class ReportAnnotationWorkbench {
         this.sourceList.hidden = false;
 
         for (const source of this.sources) {
+            const card = document.createElement('div');
+            card.className = `report-annotation-source-card${source.key === this.currentSource.key ? ' active' : ''}`;
             const button = document.createElement('button');
             button.type = 'button';
             button.className = `report-annotation-source-button${source.key === this.currentSource.key ? ' active' : ''}`;
@@ -337,7 +338,19 @@ class ReportAnnotationWorkbench {
             label.textContent = source.label;
             button.append(label);
             button.addEventListener('click', () => this.switchSource(source));
-            this.sourceList.append(button);
+            card.append(button);
+            // Only additional report images have action templates; main IIIF canvases never do.
+            const actions = Number.isSafeInteger(source.reportImageId) && source.reportImageId > 0 && !source.key.startsWith('main')
+                ? document.getElementById(`report-image-actions-${source.reportImageId}`) : null;
+            if (actions) card.append(actions.content.cloneNode(true));
+            this.sourceList.append(card);
+        }
+        this.syncImageActions();
+    }
+
+    syncImageActions() {
+        for (const button of this.sourceList.querySelectorAll('[data-report-image-action]')) {
+            button.disabled = this.eraserBusy || Boolean(this.mode) || this.startingDrawing;
         }
     }
 
@@ -740,13 +753,7 @@ class ReportAnnotationWorkbench {
         this.eraserWidths.inert = !erasing || this.eraserBusy;
         this.eraserWidths.setAttribute('aria-hidden', erasing ? 'false' : 'true');
         this.sourceList.inert = this.eraserBusy;
-        // Only additional report images have a delete form. Main IIIF canvases never do.
-        const imageId = this.currentSource.reportImageId;
-        const deleteForm = Number.isSafeInteger(imageId) && imageId > 0 && !this.currentSource.key.startsWith('main')
-            ? document.getElementById(`report-image-delete-${imageId}`) : null;
-        this.deleteImageButton.hidden = !deleteForm;
-        this.deleteImageButton.disabled = !deleteForm || this.eraserBusy || Boolean(this.mode) || this.startingDrawing;
-        this.deleteImageButton.setAttribute('form', deleteForm?.id || '');
+        this.syncImageActions();
         this.legend.inert = this.eraserBusy;
         this.finishButton.disabled = !this.mode || this.eraserBusy;
         const canUndo = erasing

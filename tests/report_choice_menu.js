@@ -191,21 +191,35 @@ media.matches = true; media.emit('change');
 load('report-annotation-viewer.js');
 const Workbench = vm.runInContext('ReportAnnotationWorkbench', context);
 const sources = [
-    { key: 'main', label: 'Hoofdafbeelding', thumbnailUrl: 'fixture-main.png' },
-    { key: 'photo', label: 'Detail.png', thumbnailUrl: 'fixture-detail.png' },
+    { key: 'main:2', label: 'Hoofdafbeelding', thumbnailUrl: 'fixture-main.png', reportImageId: 5 },
+    { key: 'photo', label: 'Detail.png', thumbnailUrl: 'fixture-detail.png', reportImageId: 5 },
 ];
+const actionTemplate = new Element('template');
+actionTemplate.content = new Element();
+for (const action of ['rotate', 'delete']) {
+    const button = new Element('button'); button.dataset.reportImageAction = '';
+    button.setAttribute('data-report-image-action', '');
+    button.setAttribute('form', `report-image-${action}-5`);
+    actionTemplate.content.append(button);
+}
+document.getElementById = id => id === 'report-image-actions-5' ? actionTemplate : null;
 const controller = {
     sourceList: images.list, sources, currentSource: sources[0],
+    eraserBusy: false, mode: null, startingDrawing: false,
+    syncImageActions() { Workbench.prototype.syncImageActions.call(this); },
     switchSource(source) { this.currentSource = source; Workbench.prototype.renderSources.call(this); },
 };
 Workbench.prototype.renderSources.call(controller);
+assert.equal(images.list.children[0].querySelectorAll('button').length, 1, 'Main image canvases never receive action buttons.');
+assert.equal(images.list.children[1].querySelectorAll('button').length, 3, 'Photo selection, rotation and deletion share a single thumbnail cell.');
+assert.equal(images.list.children[1].querySelector('button').querySelectorAll('button').length, 0, 'Action buttons are not nested inside the selection button.');
 flush();
 const imageToggle = images.root.querySelector('.report-choice-toggle');
 assert.equal(imageToggle.hidden, false);
 assert.equal(imageToggle.querySelector('img').src, 'fixture-main.png');
 imageToggle.emit('click');
-await pointerFocus(images.list.children[1], imageToggle);
-images.list.children[1].emit('click');
+await pointerFocus(images.list.children[1].querySelector('button'), imageToggle);
+images.list.children[1].querySelector('button').emit('click');
 flush();
 assert.equal(controller.currentSource.key, 'photo');
 assert.equal(imageToggle.getAttribute('aria-expanded'), 'false', 'Close even after source renderer replaces the clicked button.');
@@ -215,11 +229,18 @@ assert.equal(imageToggle.querySelector('.report-choice-current').textContent, 'D
 addImage.emit('click');
 assert.equal(imageManager.open, true, 'The add button survives rebuilding the source list.');
 assert.equal(controller.currentSource.key, 'photo', 'Adding images does not select another source.');
-assert.equal(images.list.querySelectorAll('button').length, 2, 'The add action is not an image choice.');
+assert.equal(images.list.querySelectorAll('button').length, 4, 'The add action is not an image choice.');
 closeImageManager.emit('click');
 imageToggle.getBoundingClientRect = () => ({ top: 700, bottom: 744 });
 imageToggle.emit('click');
 assert.ok(images.root.classList.contains('choice-menu-above'), 'Open upwards near the viewport bottom.');
+const photoActions = images.list.children[1].querySelectorAll('[data-report-image-action]');
+photoActions[1].emit('click');
+assert.equal(imageToggle.getAttribute('aria-expanded'), 'true', 'Cancelling a delete confirmation leaves the image list open.');
+assert.equal(controller.currentSource.key, 'photo', 'Image actions do not select another source.');
+images.list.children[1].querySelector('button').focus();
+document.activeElement.emit('keydown', { key: 'ArrowDown' });
+assert.equal(document.activeElement, images.list.children[0].querySelector('button'), 'Arrow navigation skips action buttons.');
 document.activeElement.emit('focusout', { relatedTarget: document });
 document.activeElement = document;
 await Promise.resolve();

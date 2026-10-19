@@ -24,7 +24,7 @@ function check(bool $condition, string $message): void
 
 $root = dirname(__DIR__);
 $templates = ['base.html.twig' => '{% block body %}{% endblock %}'];
-foreach (['form', '_image_manager', '_frame_schema_picker', 'report_form_renderer', '_section_documents', '_document_upload'] as $name) {
+foreach (['form', '_image_manager', '_image_actions', '_frame_schema_picker', 'report_form_renderer', '_section_documents', '_document_upload'] as $name) {
     $templates['reports/' . $name . '.html.twig'] = file_get_contents($root . '/templates/reports/' . $name . '.html.twig');
 }
 foreach (['reports/_context_details', 'projects/_actor_assignment_list', 'projects/_actor_assignment_form'] as $name) {
@@ -102,23 +102,30 @@ foreach (['nl', 'en'] as $locale) {
         check($count('//dialog[@id="report-image-manager"]//input[@type="file" and @multiple]') === 1, 'Multiple file upload.');
         check($count('//dialog//input[@capture="environment"]') === 1, 'Camera capture.');
         check($count('//dialog//input[@type="url"]/../following-sibling::button[@disabled]') === 2, 'URL loading starts disabled.');
+        check($count('//dialog//*[@data-report-photo-card] | //dialog//form[@data-report-image-action-form]') === 0, 'Adding images no longer shows existing image management.');
+        check(!str_contains($html, 'report-image-manager-existing'), 'Remove the old image management section.');
+        check($count('//*[@data-annotation-delete-image]') === 0, 'There is no separate delete button next to Add.');
         foreach ($xpath->query('//dialog//button[@form]') as $button) {
             check($count('//form[@id="' . $button->getAttribute('form') . '"]') === 1, 'Frame add/delete buttons retain their forms.');
         }
         if ($hasImages) {
-            check($count('//*[@data-annotation-delete-image and @hidden and @disabled and @form=""]') === 1, 'Direct image deletion starts disabled until an additional photo is selected.');
             check($count('//form[@data-report-image-delete]') === 3, 'Photos and frame sketches each have a delete form.');
-            check($count('//*[contains(@class, "is-main-image")]//form | //*[contains(@class, "is-main-image")]//button') === 0, 'The main image never has deletion controls.');
+            check($count('//template[starts-with(@id, "report-image-actions-")]') === 3, 'Only additional images have action templates.');
             foreach ([5, 6, 7] as $imageId) {
                 check($count('//form[@id="report-image-delete-' . $imageId . '" and @data-report-image-delete and @onsubmit]') === 1, 'Every extra image has one confirmation and autosave-aware delete form.');
                 check($count('//form[@id="report-image-delete-' . $imageId . '"]//input[@name="_token"]') === 1, 'Image deletion retains CSRF protection.');
+                check($count('//template[@id="report-image-actions-' . $imageId . '"]//button[@form="report-image-delete-' . $imageId . '" and @data-report-image-action]') === 1, 'Each image cell has its own delete action.');
+            }
+            check($count('//template[@id="report-image-actions-7"]//button') === 1, 'Shared frame sketches only offer removal.');
+            foreach ($xpath->query('//template//button[@data-report-image-action]') as $button) {
+                check($count('//form[@id="' . $button->getAttribute('form') . '" and @hidden and @data-report-image-action-form]') === 1, 'Actions submit their own hidden form outside report autosave.');
             }
             check($count('//*[@data-main-image-fingerprint="fixture-old-image"]') === 1, 'Submit the identity of the image shown in the editor.');
             check($count('//*[@data-annotation-source and @data-source-key="main:2" and @data-image-url="/old-back.jpg"]') === 1, 'Archived canvases keep their original keys and files.');
             check($count('//*[@data-annotation-source and @data-source-key="main:2" and @data-manifest-url="https://images.invalid/old-back/info.json"]') === 1, 'The editor reopens the exact saved IIIF service URL.');
             check($count('//*[@data-annotation-source and @data-source-key="main"]') === 0, 'Do not mix the current source into an archived report.');
             foreach (['rotate', 'move', 'delete'] as $action) {
-                check($count('//dialog//form[starts-with(@action, "/reports_images_' . $action . '")]') > 0, 'Retain image ' . $action . '.');
+                check($count('//section[@class="report-editor"]/form[starts-with(@action, "/reports_images_' . $action . '")]') > 0, 'Retain image ' . $action . ' outside the add dialog.');
             }
         }
         check(str_contains($html, $translator->trans('reports.add_images')), 'Translated dialog title.');
