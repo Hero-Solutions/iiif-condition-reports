@@ -30,8 +30,9 @@ function element(dataset = {}) {
         querySelectorAll: () => [],
     };
 }
+const imageDeleteForms = new Map();
 const context = vm.createContext({
-    document: { addEventListener() {}, documentElement: { lang: 'nl', dataset: {} } },
+    document: { addEventListener() {}, documentElement: { lang: 'nl', dataset: {} }, getElementById: id => imageDeleteForms.get(id) || null },
     window: { clearTimeout, setTimeout },
     structuredClone,
     OpenSeadragon: { Point: class { constructor(x, y) { this.x = x; this.y = y; } } },
@@ -95,6 +96,33 @@ function setup(cases = []) {
     return controller;
 }
 const settle = () => new Promise(resolve => setImmediate(resolve));
+// Deletion follows the selected extra image and never targets the main image or the report form.
+{
+    const controller = setup();
+    for (const id of [5, 7]) imageDeleteForms.set(`report-image-delete-${id}`, { id: `report-image-delete-${id}` });
+    for (const source of [{ key: 'main' }, { key: 'main:2', reportImageId: 5 }, { key: 'missing', reportImageId: 99 }]) {
+        controller.switchSource(source);
+        assert.equal(controller.deleteImageButton.hidden, true);
+        assert.equal(controller.deleteImageButton.disabled, true);
+        assert.equal(controller.deleteImageButton.getAttribute('form'), '');
+    }
+    for (const id of [5, 7]) {
+        controller.switchSource({ key: `report-image-${id}`, reportImageId: id, tileSource: {} });
+        assert.equal(controller.deleteImageButton.hidden, false);
+        assert.equal(controller.deleteImageButton.disabled, false);
+        assert.equal(controller.deleteImageButton.getAttribute('form'), `report-image-delete-${id}`);
+    }
+    controller.mode = 'draw';
+    controller.syncDrawingActions();
+    assert.equal(controller.deleteImageButton.disabled, true, 'Finish drawing before deleting an image.');
+    controller.mode = null;
+    controller.eraserBusy = true;
+    controller.syncDrawingActions();
+    assert.equal(controller.deleteImageButton.disabled, true, 'Wait for annotation changes to finish.');
+    controller.eraserBusy = false;
+    controller.switchSource({ key: 'main' });
+    assert.equal(controller.deleteImageButton.hidden, true, 'Switching back to the main image removes deletion access.');
+}
 const select = {
     damage: c => c.selectDamageValue('Kras'),
     color: c => c.colorButtons[1].emit('click'),

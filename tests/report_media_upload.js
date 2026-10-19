@@ -55,6 +55,7 @@ function uploadForm(kind, saveNow) {
     let allowSave = false;
     const url = uploadForm('url', async () => allowSave);
     const deletion = uploadForm('delete', async () => allowSave);
+    const imageDeletion = uploadForm('delete', async () => allowSave);
     const dialogs = ['report-image-manager'].map(id => {
         const open = element();
         const close = element();
@@ -70,7 +71,7 @@ function uploadForm(kind, saveNow) {
         querySelectorAll(selector) {
             if (selector === '[data-report-media-dialog]') return dialogs.map(item => item.dialog);
             if (selector === '[data-report-media-form]') return [file.form, url.form];
-            if (selector === '[data-report-document-delete], [data-report-image-delete]') return [deletion.form];
+            if (selector === '[data-report-document-delete], [data-report-image-delete]') return [deletion.form, imageDeletion.form];
             return dialogs.filter(item => selector === `[data-report-media-open="${item.dialog.id}"]`).map(item => item.open);
         },
         addEventListener: (_, callback) => callback(),
@@ -113,6 +114,8 @@ function uploadForm(kind, saveNow) {
     assert.equal(url.submit.disabled, false);
     await deletion.form.emit('submit');
     assert.equal(deletion.form.submissions, 0, 'Do not delete while report edits cannot be saved.');
+    await imageDeletion.form.emit('submit');
+    assert.equal(imageDeletion.form.submissions, 0, 'Photo deletion also waits for a successful save.');
     allowSave = true;
     await url.form.emit('submit');
     assert.equal(url.form.submissions, 1, 'Retry succeeds after report edits are saved.');
@@ -120,5 +123,9 @@ function uploadForm(kind, saveNow) {
     assert.equal(deletion.form.submissions, 0, 'Respect cancelling the delete confirmation.');
     await deletion.form.emit('submit');
     assert.equal(deletion.form.submissions, 1, 'Delete after saving current report edits.');
+    await imageDeletion.form.emit('submit', { defaultPrevented: true });
+    assert.equal(imageDeletion.form.submissions, 0, 'Cancelling photo deletion must preserve the image.');
+    await imageDeletion.form.emit('submit');
+    assert.equal(imageDeletion.form.submissions, 1, 'Delete the photo only after saving report edits.');
     console.log('PASS: inline document upload, image dialog, uploads/deletion after autosave, cancelled deletes, duplicate prevention and failure/retry.');
 })().catch(error => { console.error(error); process.exitCode = 1; });

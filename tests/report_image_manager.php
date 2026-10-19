@@ -106,6 +106,13 @@ foreach (['nl', 'en'] as $locale) {
             check($count('//form[@id="' . $button->getAttribute('form') . '"]') === 1, 'Frame add/delete buttons retain their forms.');
         }
         if ($hasImages) {
+            check($count('//*[@data-annotation-delete-image and @hidden and @disabled and @form=""]') === 1, 'Direct image deletion starts disabled until an additional photo is selected.');
+            check($count('//form[@data-report-image-delete]') === 3, 'Photos and frame sketches each have a delete form.');
+            check($count('//*[contains(@class, "is-main-image")]//form | //*[contains(@class, "is-main-image")]//button') === 0, 'The main image never has deletion controls.');
+            foreach ([5, 6, 7] as $imageId) {
+                check($count('//form[@id="report-image-delete-' . $imageId . '" and @data-report-image-delete and @onsubmit]') === 1, 'Every extra image has one confirmation and autosave-aware delete form.');
+                check($count('//form[@id="report-image-delete-' . $imageId . '"]//input[@name="_token"]') === 1, 'Image deletion retains CSRF protection.');
+            }
             check($count('//*[@data-main-image-fingerprint="fixture-old-image"]') === 1, 'Submit the identity of the image shown in the editor.');
             check($count('//*[@data-annotation-source and @data-source-key="main:2" and @data-image-url="/old-back.jpg"]') === 1, 'Archived canvases keep their original keys and files.');
             check($count('//*[@data-annotation-source and @data-source-key="main:2" and @data-manifest-url="https://images.invalid/old-back/info.json"]') === 1, 'The editor reopens the exact saved IIIF service URL.');
