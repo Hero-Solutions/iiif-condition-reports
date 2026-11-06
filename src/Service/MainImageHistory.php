@@ -77,6 +77,14 @@ final class MainImageHistory
         return $thumbnails;
     }
 
+    public function copyReference(Report $source, Report $target): void
+    {
+        $link = $this->linkFor($source);
+        if ($link !== null) {
+            $this->entityManager->persist(new ReportMainImage($target, $link->getImageVersion()));
+        }
+    }
+
     /** Called before saving a main-image annotation. Never accept a drawing from a stale page. */
     public function preserveForAnnotation(Report $report, string $fingerprint, string $sourceKey, array $references = []): void
     {

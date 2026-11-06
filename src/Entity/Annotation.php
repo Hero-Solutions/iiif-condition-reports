@@ -76,6 +76,21 @@ class Annotation
         return $this->id;
     }
 
+    public function copyTo(DamageCase $damageCase, ?ReportImage $image): self
+    {
+        $sourceKey = $image === null ? $this->sourceKey : 'report-image-' . $image->getId();
+        $copy = new self($damageCase->getReport(), $damageCase, $sourceKey, $this->clientId);
+        $copy->setReportImage($image);
+        $copy->target = $this->target;
+        $copy->bodies = $this->bodies;
+        $copy->sortOrder = $this->sortOrder;
+        $copy->createdById = $this->createdById;
+        $copy->createdAt = $this->createdAt;
+        $copy->updatedAt = $this->updatedAt;
+
+        return $copy;
+    }
+
     public function getReport(): Report
     {
         return $this->report;

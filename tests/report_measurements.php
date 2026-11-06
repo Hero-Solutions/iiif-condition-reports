@@ -74,8 +74,12 @@ check($rows('painting', ['height_full' => '0', 'width_full' => '12,5', 'depth_fu
 check($rows('painting', ['weight_full' => '1,5'])[0]['values'] === ['Gewicht: 1,5 kg'], 'Weight-only groups must remain visible in kg.');
 check($rows('painting', ['number_of_parts' => '2'])[0]['values'] === ['2'], 'Part counts must remain unitless.');
 check($rows('work_on_paper', ['number_of_parts' => '1', 'measurement_parts' => [1 => ['height_passe_partout' => '10', 'width_passe_partout' => '20']]])[1] === ['label' => 'Onderdeel 1 — Passe-partout', 'values' => ['10 × 20 cm']], 'Two-dimensional groups must not invent a depth.');
-check($rows('sculpture', ['number_of_parts' => '1', 'measurement_parts' => [1 => ['type' => 'Sokkel', 'height' => '10', 'width' => '20', 'depth' => '30', 'weight' => '2']]])[1] === ['label' => 'Onderdeel 1 — Sokkel', 'values' => ['10 × 20 × 30 cm', 'Gewicht: 2 kg']], 'Preserve part specification and separate weight from dimensions.');
-check($rows('sculpture', ['number_of_parts' => '1', 'measurement_parts' => [1 => ['type' => 'Sokkel']]])[1] === ['label' => 'Onderdeel 1', 'values' => ['Sokkel']], 'Do not discard a specification without dimensions.');
+check($rows('sculpture', ['number_of_parts' => '2', 'measurement_parts' => [1 => ['type' => 'Sokkel', 'height' => '10', 'width' => '20', 'depth' => '30', 'weight' => '2']]])[1] === ['label' => 'Onderdeel 1 — Sokkel', 'values' => ['10 × 20 × 30 cm', 'Gewicht: 2 kg']], 'Preserve part specification and separate weight from dimensions.');
+check($rows('sculpture', ['number_of_parts' => '2', 'measurement_parts' => [1 => ['type' => 'Sokkel']]])[1] === ['label' => 'Onderdeel 1', 'values' => ['Sokkel']], 'Do not discard a specification without dimensions.');
+check($rows('sculpture', ['number_of_parts' => '1', 'height_full' => '100', 'measurement_parts' => [1 => ['type' => 'Sokkel', 'height' => '10']]]) === [
+    ['label' => 'Aantal onderdelen', 'values' => ['1']],
+    ['label' => 'Volledig beeldhouwwerk', 'values' => ['100 × — × — cm']],
+], 'A single sculpture displays only the whole-work measurements in the report.');
 foreach (array_keys($measurements) as $type) {
     check($rows($type, []) === [], 'Empty measurement sections must stay hidden: ' . $type);
     check($rows($type, ['height_full' => ' ', 'weight_full' => '']) === [], 'Whitespace must not create a section.');
@@ -98,6 +102,18 @@ foreach (['nl', 'en'] as $locale) {
     check(str_contains($form, 'name="report_data[measurement_parts][2][height_without_frame]"'), 'Every painting part needs both frame groups.');
     $reduced = $twig->render('fixture', ['measurements' => $measurements['painting'], 'data' => array_replace($paintingData, ['number_of_parts' => '1'])]);
     check(!str_contains($reduced, 'data-measurement-part="2"'), 'Hidden parts must not be submitted after reopening.');
+    $sculpture = ['measurements' => $measurements['sculpture'], 'data' => ['number_of_parts' => '1', 'height_full' => '100']];
+    $single = $twig->render('fixture', $sculpture);
+    check(str_contains($single, 'name="report_data[height_full]" value="100"'), 'A single sculpture keeps the whole-work field.');
+    check(!str_contains($single, 'data-measurement-part="1"'), 'A single sculpture needs no blank part fields.');
+    $sculpture['data']['measurement_parts'][1] = ['type' => 'Sokkel', 'height' => '0'];
+    $existing = $twig->render('fixture', $sculpture);
+    check(!str_contains($existing, 'data-measurement-part="1"'), 'A single sculpture must omit previously saved part fields.');
+    $sculpture['data']['number_of_parts'] = '2';
+    $sculpture['data']['measurement_parts'][2] = ['type' => 'Sculptuur', 'height' => '100'];
+    $multiple = $twig->render('fixture', $sculpture);
+    check(str_contains($multiple, 'data-measurement-part="1"') && str_contains($multiple, 'data-measurement-part="2"'),
+        'A sculpture with multiple parts must show both parts.');
     foreach ($measurements as $definition) {
         $form = $twig->render('fixture', ['measurements' => $definition, 'data' => []]);
         check(str_contains($form, $translator->trans('Height') . ' (cm)'), 'Length inputs must specify cm.');

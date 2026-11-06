@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
         element.dispatchEvent(new Event('change', { bubbles: true }));
     };
 
-    compactGroups.forEach((group) => {
+    const initializeGroup = (group) => {
         const combobox = group.querySelector('[data-compact-combobox]');
         const search = group.querySelector('[data-compact-search]');
         const menu = group.querySelector('[data-compact-options]');
@@ -21,8 +21,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const useCustom = group.querySelector('[data-use-custom]');
         const customQuery = group.querySelector('[data-custom-query]');
         const noOptions = group.querySelector('[data-no-options]');
-        const treatmentDateField = group.querySelector('[data-treatment-date-field]');
-        const treatmentDate = group.querySelector('[data-treatment-date]');
+        const customTreatmentTemplate = group.querySelector('[data-custom-treatment-template]');
+        const treatmentDateField = group.matches('[data-treatment-group]') ? group.querySelector('[data-treatment-date-field]') : null;
+        const treatmentDate = treatmentDateField?.querySelector('[data-treatment-date]');
+        let nextCustomTreatment = 0;
 
         const updateTreatmentDate = () => {
             if (!treatmentDateField) {
@@ -50,9 +52,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         };
 
-        group.querySelectorAll('[data-compact-quick-item]').forEach((item) => {
-            const toggle = item.querySelector('[data-compact-quick-toggle]');
+        const clearQuickItem = (item) => {
+            item.classList.remove('is-selected');
+            item.querySelector('[data-compact-quick-toggle]')?.setAttribute('aria-pressed', 'false');
+            clearItem(item);
+        };
 
+        group.querySelectorAll('[data-compact-quick-item]').forEach((item) => {
+            if (item.closest('[data-compact-group]') !== group) {
+                return;
+            }
+
+            const toggle = item.querySelector('[data-compact-quick-toggle]');
             if (!toggle) {
                 return;
             }
@@ -67,9 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             return;
                         }
 
-                        candidate.classList.remove('is-selected');
-                        candidate.querySelector('[data-compact-quick-toggle]')?.setAttribute('aria-pressed', 'false');
-                        clearItem(candidate);
+                        clearQuickItem(candidate);
                         notifyChange(candidate);
                     });
                 }
@@ -103,6 +112,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         group.querySelectorAll('[data-remove-compact-item]').forEach((button) => {
+            if (button.closest('[data-compact-group]') !== group) {
+                return;
+            }
+
             button.addEventListener('click', () => {
                 const item = button.closest('[data-compact-item]');
 
@@ -110,7 +123,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
 
-                clearItem(item);
+                if (item.matches('[data-custom-treatment]')) {
+                    item.remove();
+                    notifyChange(form);
+                    return;
+                }
+
+                if (item.matches('[data-treatment-group]')) {
+                    item.querySelectorAll('[data-compact-quick-item].is-selected').forEach(clearQuickItem);
+                    item.querySelectorAll('input:not([type="hidden"]):not([type="checkbox"])').forEach((input) => {
+                        input.value = '';
+                    });
+                    item.disabled = true;
+                } else {
+                    clearItem(item);
+                }
+
                 item.hidden = true;
                 notifyChange(item);
             });
@@ -156,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const customItem = Array.from(group.querySelectorAll('[data-open-custom]'))
                 .find((item) => item.hidden) || null;
-            const canUseCustom = query !== '' && !exactMatch && customItem !== null;
+            const canUseCustom = query !== '' && !exactMatch && (customItem !== null || customTreatmentTemplate !== null);
 
             useCustom.hidden = !canUseCustom;
             customQuery.textContent = `${customOptionPrefix} ${search.value.trim()}`;
@@ -174,17 +202,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const activateItem = (item, customValue = '') => {
             item.hidden = false;
 
-            item.querySelectorAll('[data-option-control]').forEach((control) => {
-                control.disabled = false;
+            if (item.matches('[data-treatment-group]')) {
+                item.disabled = false;
+            } else {
+                item.querySelectorAll('[data-option-control]').forEach((control) => {
+                    control.disabled = false;
 
-                if (control.matches('[data-presence-control]')) {
-                    control.value = '1';
-                }
+                    if (control.matches('[data-presence-control]')) {
+                        control.value = '1';
+                    }
 
-                if (control.type === 'checkbox') {
-                    control.checked = true;
-                }
-            });
+                    if (control.type === 'checkbox') {
+                        control.checked = true;
+                    }
+                });
+            }
 
             const customControl = item.querySelector('[data-custom-value]');
             const itemLabel = item.querySelector('[data-item-label]');
@@ -219,6 +251,29 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         useCustom.addEventListener('click', () => {
+            if (customTreatmentTemplate) {
+                const customName = search.value.trim();
+                if (customName === '') {
+                    return;
+                }
+
+                while (itemForName('custom-treatment-' + nextCustomTreatment)) {
+                    nextCustomTreatment += 1;
+                }
+
+                const index = nextCustomTreatment++;
+                const item = customTreatmentTemplate.content.firstElementChild.cloneNode(true);
+                item.dataset.compactItem = 'custom-treatment-' + index;
+                item.dataset.compactGroup = item.dataset.compactItem;
+                item.querySelectorAll('[name]').forEach((input) => {
+                    input.name = input.name.replace('[__index__]', '[' + index + ']');
+                });
+                group.querySelector('[data-selected-list]').append(item);
+                initializeGroup(item);
+                activateItem(item, customName);
+                return;
+            }
+
             const item = Array.from(group.querySelectorAll('[data-open-custom]'))
                 .find((candidate) => candidate.hidden) || null;
 
@@ -287,7 +342,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 closeMenu();
             }
         });
-    });
+    };
+
+    compactGroups.forEach(initializeGroup);
+
+    const dependentGroups = Array.from(form.querySelectorAll('[data-compact-requires]'), (group) => ({
+        group,
+        controls: group.dataset.compactRequires.split(' ').map((name) => form.elements.namedItem('report_data[' + name + ']')),
+    }));
+    if (dependentGroups.length > 0) {
+        const updateDependentGroups = () => {
+            dependentGroups.forEach(({ group, controls }) => {
+                const visible = controls.every((control) => control?.checked && !control.matches(':disabled'));
+                group.hidden = !visible;
+                group.disabled = !visible;
+            });
+        };
+        form.addEventListener('change', updateDependentGroups);
+        updateDependentGroups();
+    }
 
     form.querySelectorAll('[data-conditional-block]').forEach((block) => {
         const content = block.querySelector('[data-conditional-content]');

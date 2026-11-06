@@ -32,7 +32,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (compactItems.length > 0) {
             const visibleItems = compactItems.filter((item) => {
-                const selected = !item.matches('[data-compact-quick-item]') || item.classList.contains('is-selected');
+                const quickItem = item.matches('[data-compact-quick-item]');
+                const selected = !quickItem || (item.classList.contains('is-selected') && item.closest('[data-treatment-group][data-compact-item]') === null);
 
                 return selected && !item.hidden && item.closest('[data-conditional-content][hidden]') === null;
             }).length;

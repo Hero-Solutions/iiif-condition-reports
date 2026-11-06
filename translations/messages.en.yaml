@@ -378,6 +378,8 @@ reports:
   woodworm_active: 'Woodworm (active)'
   woodworm_old: 'Woodworm (old)'
   treatment_date: Date
+  add_treatment: 'Add treatment'
+  other_treatment: 'Other treatment'
   number_of_hours: 'Number of hours'
   further_explanation: 'Further explanation'
   transport_and_display: 'Transport and display'

@@ -128,7 +128,7 @@ parameters:
       default: 'Number of parts'
       painting: 'Number of parts (in case of polyptychs / works in a series / ...)'
       work_on_paper: 'Number of parts (in case of polyptychs / works in a series / ...)'
-      sculpture: 'Number of parts pedestal included'
+      sculpture: 'Number of separate parts (include a loose pedestal)'
     # Measurements has a slightly more complex structure than the other fields. It is split into separate parts, each with its own header and items with labels, along with repeating elements for each part.
     measurements:
       default:
@@ -200,6 +200,7 @@ parameters:
               width_window_passe_partout: Width
       sculpture:
         header: 'Complete sculpture'
+        minimum_parts: 2
         items:
           height_full: Height
           width_full: Width

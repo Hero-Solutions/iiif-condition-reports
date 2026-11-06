@@ -19,6 +19,7 @@ use App\Entity\Report;
 use App\Entity\ReportActor;
 use App\Entity\ReportDocument;
 use App\Entity\ReportImage;
+use App\Entity\ReportManifest;
 use App\Entity\ReportSeries;
 use App\Entity\User;
 use App\Service\ObjectThumbnailProvider;
@@ -81,19 +82,41 @@ final class ReportController extends AbstractController
             throw $this->createNotFoundException();
         }
 
-        $report = $this->entityManager->wrapInTransaction(function () use ($series): Report {
-            // Serialize draft creation for this object, including requests from other projects.
-            $this->entityManager->lock($series->getObjectRecord(), LockMode::PESSIMISTIC_WRITE);
+        $copiedImages = [];
+        $copiedDocuments = [];
+        try {
+            $report = $this->entityManager->wrapInTransaction(function () use ($series, &$copiedImages, &$copiedDocuments): Report {
+                // Serialize draft creation for this object, including requests from other projects.
+                $this->entityManager->lock($series->getObjectRecord(), LockMode::PESSIMISTIC_WRITE);
 
-            $activeDraft = $this->entityManager
-                ->getRepository(Report::class)
-                ->findOneBy([
-                    'objectRecord' => $series->getObjectRecord(),
-                    'status' => Report::STATUS_ACTIVE,
-                ], ['createdAt' => 'DESC', 'id' => 'DESC']);
+                $activeDraft = $this->entityManager
+                    ->getRepository(Report::class)
+                    ->findOneBy([
+                        'objectRecord' => $series->getObjectRecord(),
+                        'status' => Report::STATUS_ACTIVE,
+                    ], ['createdAt' => 'DESC', 'id' => 'DESC']);
 
-            return $activeDraft ?? $this->createDraft($series);
-        });
+                if ($activeDraft instanceof Report) {
+                    return $activeDraft;
+                }
+
+                $draft = $this->createDraft($series);
+                $source = $draft->getBasedOnReport();
+                if ($source !== null) {
+                    $this->copyReportContent($source, $draft, $copiedImages, $copiedDocuments);
+                }
+
+                return $draft;
+            });
+        } catch (\Throwable $exception) {
+            foreach ($copiedImages as $path) {
+                $this->reportImageStorage->remove($path);
+            }
+            foreach ($copiedDocuments as $path) {
+                $this->reportDocumentStorage->remove($path);
+            }
+            throw $exception;
+        }
 
         if ($report->getSeries() !== $series) {
             $project = $series->getProject();
@@ -179,6 +202,12 @@ final class ReportController extends AbstractController
             'size' => $document->getSize(),
         ], $this->reportDocuments($report));
 
+        $data = $report->getData();
+        $measurements = $this->formDefinition->forObject($report->getObjectRecord())['measurements'];
+        if (isset($measurements['minimum_parts']) && (int) ($data['number_of_parts'] ?? 0) < $measurements['minimum_parts']) {
+            unset($data['measurement_parts']);
+        }
+
         return $this->json([
             'id' => $report->getId(),
             'status' => $report->getStatus(),
@@ -201,7 +230,7 @@ final class ReportController extends AbstractController
                 'reference' => $report->getProject()?->getReferenceCode(),
                 'title' => $report->getProject()?->getTitle(),
             ] : null,
-            'data' => $report->getData(),
+            'data' => $data,
             'images' => $images,
             'main_image' => $this->mainImages->forReport($report),
             'documents' => $documents,
@@ -889,6 +918,88 @@ final class ReportController extends AbstractController
         }
 
         return $report;
+    }
+
+    /**
+     * @param list<string> $copiedImages
+     * @param list<string> $copiedDocuments
+     */
+    private function copyReportContent(Report $source, Report $target, array &$copiedImages, array &$copiedDocuments): void
+    {
+        $images = [];
+        foreach ($this->reportImages($source) as $image) {
+            $path = $this->copyReportImageFile($image->getPath(), $copiedImages);
+            $thumbnail = $image->getThumbnailPath();
+            $copy = (new ReportImage($target, $path, $image->getSource()))
+                ->setObjectRecord($image->getObjectRecord())
+                ->setThumbnailPath(match ($thumbnail) {
+                    null => null,
+                    $image->getPath() => $path,
+                    default => $this->copyReportImageFile($thumbnail, $copiedImages),
+                })
+                ->setOriginalName($image->getOriginalName())
+                ->setMimeType($image->getMimeType())
+                ->setSortOrder($image->getSortOrder());
+            $this->entityManager->persist($copy);
+            $images[$image->getId()] = $copy;
+        }
+
+        foreach ($this->reportDocuments($source) as $document) {
+            $path = $this->reportDocumentStorage->copy($document->getPath());
+            if ($path !== $document->getPath()) {
+                $copiedDocuments[] = $path;
+            }
+            $this->entityManager->persist((new ReportDocument($target, $path, $document->getOriginalName(), $document->getMimeType()))
+                ->setSection($document->getSection())
+                ->setCategory($document->getCategory())
+                ->setSize($document->getSize())
+                ->setSortOrder($document->getSortOrder()));
+        }
+
+        foreach ($this->entityManager->getRepository(ReportManifest::class)->findBy(['report' => $source]) as $manifest) {
+            $this->entityManager->persist(new ReportManifest($target, $manifest->getManifest(), $manifest->getRole()));
+        }
+
+        if ($images !== []) {
+            // Annotation source keys contain the new image IDs.
+            $this->entityManager->flush();
+        }
+
+        $damageCases = [];
+        $order = ['sortOrder' => 'ASC', 'createdAt' => 'ASC', 'id' => 'ASC'];
+        foreach ($this->entityManager->getRepository(DamageCase::class)->findBy(['report' => $source, 'deleted' => false], $order) as $case) {
+            $copy = $case->copyTo($target);
+            $this->entityManager->persist($copy);
+            $damageCases[$case->getId()] = $copy;
+        }
+
+        $hasMainAnnotations = false;
+        foreach ($this->entityManager->getRepository(Annotation::class)->findBy(['report' => $source, 'deleted' => false], $order) as $annotation) {
+            $case = $damageCases[$annotation->getDamageCase()->getId()] ?? null;
+            $sourceImage = $annotation->getReportImage();
+            $image = $sourceImage === null ? null : ($images[$sourceImage->getId()] ?? null);
+            $isMain = $sourceImage === null && str_starts_with($annotation->getSourceKey(), 'main');
+            if ($case === null || ($image === null && !$isMain)) {
+                continue;
+            }
+            $this->entityManager->persist($annotation->copyTo($case, $image));
+            $hasMainAnnotations = $hasMainAnnotations || $isMain;
+        }
+
+        if ($hasMainAnnotations) {
+            $this->mainImages->copyReference($source, $target);
+        }
+    }
+
+    /** @param list<string> $copiedImages */
+    private function copyReportImageFile(string $path, array &$copiedImages): string
+    {
+        $copy = $this->reportImageStorage->copy($path);
+        if ($copy !== $path) {
+            $copiedImages[] = $copy;
+        }
+
+        return $copy;
     }
 
     private function latestReportForObject(ObjectRecord $object): ?Report

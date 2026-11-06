@@ -6,8 +6,8 @@ declare(strict_types=1);
 // Run with php -n and the mbstring, intl and pdo_sqlite extensions.
 use App\Controller\PageController;
 use App\Controller\ReportController;
-use App\Entity\{Actor, ObjectRecord, OrganizationContact, Project, Report, ReportActor, ReportDocument, ReportImage, ReportSeries};
-use App\Service\{ReportAuthorProvider, ReportFormDefinition, ReportTitleFormatter};
+use App\Entity\{ObjectRecord, Report, ReportSeries};
+use App\Service\{MainImageHistory, ReportAuthorProvider, ReportFormDefinition, ReportMeasurementDefaults, ReportTitleFormatter};
 use App\Twig\ReportExtension;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\{EntityManager, ORMSetup};
@@ -92,14 +92,14 @@ $config = ORMSetup::createAttributeMetadataConfiguration([$root . '/src/Entity']
 $config->setAutoGenerateProxyClasses(false);
 $config->setNamingStrategy(new Doctrine\ORM\Mapping\UnderscoreNamingStrategy(CASE_LOWER));
 $manager = new EntityManager(DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true]), $config);
-$classes = [ObjectRecord::class, Project::class, ReportSeries::class, Report::class,
-    Actor::class, OrganizationContact::class, ReportActor::class, ReportImage::class, ReportDocument::class];
-(new SchemaTool($manager))->createSchema(array_map($manager->getClassMetadata(...), $classes));
+(new SchemaTool($manager))->createSchema($manager->getMetadataFactory()->getAllMetadata());
 $manager->persist($object);
 $manager->persist($series);
 $manager->persist($report);
 $manager->flush();
 $controllerReflection->getProperty('entityManager')->setValue($controller, $manager);
+$controllerReflection->getProperty('measurementDefaults')->setValue($controller, new ReportMeasurementDefaults());
+$controllerReflection->getProperty('mainImages')->setValue($controller, new MainImageHistory($manager));
 $createDraft = $controllerReflection->getMethod('createDraft');
 $draft = $createDraft->invoke($controller, $series);
 $manager->flush();

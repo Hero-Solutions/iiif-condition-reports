@@ -104,10 +104,13 @@ final class ReportDocumentBuilder
                 $rows[] = $measurement;
             }
 
-            $parts = is_array($data['measurement_parts'] ?? null) ? $data['measurement_parts'] : [];
+            $partCount = (int) $numberOfParts;
+            $parts = $partCount >= ($measurements['minimum_parts'] ?? 1) && is_array($data['measurement_parts'] ?? null)
+                ? $data['measurement_parts']
+                : [];
             ksort($parts, SORT_NUMERIC);
             foreach ($parts as $number => $part) {
-                if (!is_array($part) || !ctype_digit((string) $number) || $number < 1 || $number > (int) $numberOfParts) {
+                if (!is_array($part) || !ctype_digit((string) $number) || $number < 1 || $number > $partCount) {
                     continue;
                 }
 
@@ -203,16 +206,32 @@ final class ReportDocumentBuilder
                 $rows[] = $this->row('reports.presence', [$this->translator->trans('reports.' . $presence)]);
             }
 
+            $picker = $block['treatment_picker'] ?? null;
             if ($presence !== 'absent') {
                 foreach ($block['groups'] ?? [] as $group) {
                     if (!is_array($group) || ($group['heading'] ?? false) === true) {
                         continue;
                     }
 
-                    $values = $this->groupValues($group, $data);
+                    if (!array_all($group['requires'] ?? [], fn (string $name): bool => $this->fieldSelected(['name' => $name], $data))) {
+                        continue;
+                    }
 
-                    if ($values !== []) {
+                    $values = $this->groupValues($group, $data);
+                    $selectedTreatment = $picker !== null && isset($group['treatment'])
+                        && $this->hasValue($data[$group['treatment']['selected_name']] ?? null);
+
+                    if ($values !== [] || $selectedTreatment) {
                         $rows[] = $this->row($group['title'] ?? 'reports.section', $values);
+                    }
+                }
+
+                if ($picker !== null) {
+                    foreach ((array) ($data[$picker['data_key']] ?? []) as $treatment) {
+                        $name = is_array($treatment) ? ($treatment['name'] ?? null) : null;
+                        if (is_string($name) && trim($name) !== '') {
+                            $rows[] = ['label' => $name, 'values' => $this->groupValues($picker['custom_group'], $treatment)];
+                        }
                     }
                 }
             }

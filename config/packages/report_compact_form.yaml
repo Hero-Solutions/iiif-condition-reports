@@ -2014,6 +2014,10 @@ parameters:
                   old_restoration: 'Old restoration'
                   custom: { type: custom }
                 custom_slots: 1
+          -
+            id: condition-sculpture-finishing-layer
+            title: 'Specific condition of the finishing layer'
+            groups:
               -
                 id: condition_specific_condition_of_the_sculpture_surface_pollution_5
                 title: 'Surface pollution'
@@ -2073,15 +2077,17 @@ parameters:
                   old_restoration: 'Old restoration'
                   custom: { type: custom }
                 custom_slots: 1
-              -
-                id: condition_sculpture_conservation_heading
-                title: Conservation/restauration
-                control: heading
+          -
+            id: condition-sculpture-conservation
+            title: Conservation/restauration
+            treatment_picker: sculpture_custom_treatments
+            groups:
               -
                 id: condition_specific_condition_of_the_sculpture_conservation_treatment_10
                 title: 'Conservation treatment'
                 control: treatment
                 prefix: condition_sculpture_specific_condition_conservation_treatment_
+                legacy: true
               -
                 id: condition_specific_condition_of_the_sculpture_cleaning_11
                 title: Cleaning
@@ -2109,15 +2115,75 @@ parameters:
                 prefix: condition_sculpture_specific_condition_research_
               -
                 id: condition_specific_condition_of_the_sculpture_conservation_restauration_16
-                title: Conservation/restauration
+                title: reports.other_treatment
                 control: treatment
                 prefix: condition_sculpture_specific_condition_custom_
+                legacy: true
       recommendations:
         blocks:
           -
             id: recommendations-block-0
             title: Presentation
             groups:
+              -
+                id: recommendations_presentation_setup_plan_guidelines_2
+                title: 'Setup plan / guidelines'
+                control: single
+                prefix: recommendations_sculpture_presentation_guidelines_
+                choices:
+                  present: Present
+                  absent: Absent
+                  not_necessary: 'Not necessary'
+              -
+                id: recommendations_presentation_recommendations_3
+                title: 'Display position'
+                control: search
+                prefix: recommendations_sculpture_presentation_setup_
+                choices:
+                  standing: Standing
+                  lying: Lying
+                  hanging: Hanging
+                  other: { type: custom }
+                custom_slots: 1
+              -
+                id: recommendations_presentation_standing_4
+                title: Placement
+                control: search
+                requires: [recommendations_sculpture_presentation_setup_standing]
+                prefix: recommendations_sculpture_presentation_setup_standing_
+                choices:
+                  free_in_the_room: 'Free in the room'
+                  on_pedestal: 'On pedestal'
+                  in_showcase: 'In showcase'
+                  with_hood: 'With hood'
+                custom_slots: 1
+              -
+                id: recommendations_presentation_on_pedestal_5
+                title: Pedestal
+                control: multiple
+                requires: [recommendations_sculpture_presentation_setup_standing, recommendations_sculpture_presentation_setup_standing_on_pedestal]
+                prefix: recommendations_sculpture_presentation_setup_standing_on_pedestal_
+                choices:
+                  stabilizing: 'Stabilizing pedestal'
+                  weighted: 'Weighted pedestal'
+              -
+                id: recommendations_presentation_hanging_6
+                title: 'Hanging method'
+                control: multiple
+                requires: [recommendations_sculpture_presentation_setup_hanging]
+                prefix: recommendations_sculpture_presentation_setup_hanging_
+                choices:
+                  from_the_ceiling: 'From the ceiling'
+                  against_the_wall: 'Against the wall'
+              -
+                id: recommendations_presentation_hanging_system_7
+                title: 'Hanging system'
+                control: single
+                requires: [recommendations_sculpture_presentation_setup_hanging]
+                prefix: recommendations_sculpture_presentation_setup_hanging_system_
+                choices:
+                  present: Present
+                  absent: Absent
               -
                 id: recommendations_presentation_security_conditions_0
                 title: 'Security conditions'
@@ -2129,87 +2195,36 @@ parameters:
                   climate_box: 'Climate box'
                   barriers: Barriers
                   alarm: { type: detail, label: Alarm }
-                  mechanical_protection: 'Mechanical protection'
+                  mechanical_protection_security_screws: 'Security screws'
+                  mechanical_protection_safety_hooks: 'Safety hooks'
+                  mechanical_protection_bottom_support: 'Extra support at the bottom required'
                   other: { type: custom }
-                custom_slots: 1
-              -
-                id: recommendations_presentation_mechanical_protection_1
-                title: 'Mechanical protection'
-                control: search
-                prefix: recommendations_sculpture_presentation_security_conditions_mechanical_protection_
-                choices:
-                  security_screws: 'Security screws'
-                  safety_hooks: 'Safety hooks'
-                  bottom_support: 'Extra support at the bottom required'
-                  other: { type: custom }
-                custom_slots: 1
-              -
-                id: recommendations_presentation_setup_plan_guidelines_2
-                title: 'Setup plan / guidelines'
-                control: multiple
-                prefix: recommendations_sculpture_presentation_guidelines_
-                radio_groups:
-                  availability: [present, absent]
-                choices:
-                  present: Present
-                  absent: Absent
-                  not_necessary: 'Not necessary'
-              -
-                id: recommendations_presentation_recommendations_3
-                title: Recommendations
-                control: search
-                prefix: recommendations_sculpture_presentation_setup_
-                choices:
-                  standing: Standing
-                  hanging: Hanging
-                  lying: Lying
-                  other: { type: custom }
-                custom_slots: 1
-              -
-                id: recommendations_presentation_standing_4
-                title: Standing
-                control: search
-                prefix: recommendations_sculpture_presentation_setup_standing_
-                choices:
-                  free_in_the_room: 'Free in the room'
-                  on_pedestal: 'On pedestal'
-                  in_showcase: 'In showcase'
-                  with_hood: 'With hood'
-                  extra_bottom_support_required: 'Extra support at the bottom required'
-                custom_slots: 1
-              -
-                id: recommendations_presentation_on_pedestal_5
-                title: 'On pedestal'
-                control: multiple
-                prefix: recommendations_sculpture_presentation_setup_standing_on_pedestal_
-                choices:
-                  stabilizing: 'Stabilizing pedestal'
-                  weighted: 'Weighted pedestal'
-              -
-                id: recommendations_presentation_hanging_6
-                title: Hanging
-                control: multiple
-                prefix: recommendations_sculpture_presentation_setup_hanging_
-                choices:
-                  from_the_ceiling: 'From the ceiling'
-                  against_the_wall: 'Against the wall'
-                  system: 'Hanging system'
-              -
-                id: recommendations_presentation_hanging_system_7
-                title: 'Hanging system'
-                control: single
-                prefix: recommendations_sculpture_presentation_setup_hanging_system_
-                choices:
-                  present: Present
-                  absent: Absent
+                  mechanical_protection_other: { type: custom }
+                custom_slots: 2
               -
                 id: recommendations_presentation_tools_needed_for_setup_9
                 title: 'Tools needed for setup'
                 control: single
                 prefix: recommendations_sculpture_presentation_tools_setup_
                 choices:
+                  'yes': 'Yes'
                   'no': 'No'
-                  unclear: Unclear
+                  unclear: 'To be determined'
+              -
+                id: recommendations_presentation_setup_equipment
+                title: 'Setup equipment'
+                control: search
+                requires: [recommendations_sculpture_presentation_tools_setup_yes]
+                prefix: recommendations_sculpture_presentation_setup_equipment_
+                choices:
+                  car: 'Car with pneumatic tires'
+                  pallet_truck: 'Pallet truck'
+                  trolley: Trolley
+                  telehandler: Telehandler
+                  stacker: Stacker
+                  gantry_crane: 'Gantry crane'
+                  other: { type: custom }
+                custom_slots: 1
           -
             id: recommendations-block-1
             title: 'Environmental and climatic conditions during storage, transport and presentations'
@@ -2287,7 +2302,7 @@ parameters:
                   type: number
               -
                 id: recommendations_manipulation_transport_moving_and_installation_equipment_2
-                title: 'Moving and installation equipment'
+                title: 'Moving equipment'
                 control: search
                 prefix: recommendations_sculpture_manipulation_transport_moving_equipment_
                 choices:

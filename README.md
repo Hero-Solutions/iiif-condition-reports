@@ -59,9 +59,10 @@ URLs. Neither saving annotations nor preserving history during a Datahub sync do
 metadata or image bytes, or creates image files. Canvas order, annotation coordinates
 and individual stroke widths are preserved.
 When the Datahub manifest URL or image-service URL changes, annotated reports keep their
-original URLs in the editor, preview, PDF, zoom viewer and report list. New reports and
-reports without active main-image annotations follow the current image. Annotations on
-extra photos or frame sketches do not pin the main image.
+original URLs in the editor, preview, PDF, zoom viewer and report list. A follow-up that
+inherits active main-image annotations keeps their original image URLs and canvas order.
+Reports without active main-image annotations use the current image when created.
+Annotations on extra photos or frame sketches do not pin the main image.
 Previous annotated images appear under **Vorige hoofdafbeeldingen** on the object page,
 with the date the sync detected the change. This is not a restoration date.
 Existing annotations without URL history retain their previous source URLs before sync

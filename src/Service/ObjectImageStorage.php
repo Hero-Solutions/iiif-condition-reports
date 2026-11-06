@@ -163,6 +163,24 @@ class ObjectImageStorage
         return $imageUrl !== null && str_starts_with($imageUrl, $this->publicPrefix);
     }
 
+    public function copy(string $imageUrl): string
+    {
+        if (!$this->isStoredImage($imageUrl)) {
+            return $imageUrl;
+        }
+
+        $extension = pathinfo(basename($imageUrl), PATHINFO_EXTENSION);
+        $copyUrl = $this->publicPrefix . bin2hex(random_bytes(16)) . '.' . $extension;
+        $destination = $this->pathForUrl($copyUrl);
+
+        if (!@copy($this->pathForUrl($imageUrl), $destination)) {
+            $this->remove($copyUrl);
+            throw new FileException('The report image could not be copied.');
+        }
+
+        return $copyUrl;
+    }
+
     /**
      * Create a rotated copy. Keep the original until its database replacement succeeds.
      * New URLs also prevent browsers from displaying cached, unrotated pixels.

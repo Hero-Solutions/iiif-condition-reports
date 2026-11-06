@@ -25,6 +25,7 @@ final class ReportMeasurementDefaults
                     'volledig' => ['_without_frame'],
                     default => [],
                 },
+                ObjectRecord::TYPE_SCULPTURE => in_array($extent, ['', 'volledig'], true) ? ['_full'] : [],
                 default => in_array($extent, ['', 'volledig'], true) ? ['_full', ''] : [],
             };
 

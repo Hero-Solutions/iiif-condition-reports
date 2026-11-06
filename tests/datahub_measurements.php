@@ -96,7 +96,9 @@ $paper = $defaults->for($object);
 check(!isset($paper['height_box']) && !isset($paper['height_full']) && $paper['measurement_parts'][1]['height_without_frame'] === '22.7', 'A frame must not be mapped to a storage box.');
 check(!isset($paper['measurement_parts'][1]['depth_without_frame']), 'Only fill fields available for the object type.');
 $object->setObjectType(ObjectRecord::TYPE_SCULPTURE);
-check($defaults->for($object)['height_full'] === '22.7', 'Complete sculpture dimensions use Volledig.');
+$sculpture = $defaults->for($object);
+check($sculpture['height_full'] === '22.7', 'Complete sculpture dimensions use Volledig.');
+check($sculpture['number_of_parts'] === '1' && !isset($sculpture['measurement_parts']), 'A single sculpture gets only whole-work measurements.');
 check($defaults->for(new ObjectRecord('MANUAL', 'Fixture')) === [], 'Manual objects keep existing behavior.');
 
 // Actual harvest prepare/sync and draft creation, with an isolated database.

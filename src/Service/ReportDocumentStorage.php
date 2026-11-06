@@ -57,6 +57,23 @@ final class ReportDocumentStorage
         ];
     }
 
+    public function copy(string $path): string
+    {
+        if (!str_starts_with($path, self::PUBLIC_PREFIX)) {
+            return $path;
+        }
+
+        $filename = bin2hex(random_bytes(16)) . '.' . pathinfo(basename($path), PATHINFO_EXTENSION);
+        $copyPath = self::PUBLIC_PREFIX . $filename;
+
+        if (!@copy($this->uploadDirectory . DIRECTORY_SEPARATOR . basename($path), $this->uploadDirectory . DIRECTORY_SEPARATOR . $filename)) {
+            $this->remove($copyPath);
+            throw new FileException('The report document could not be copied.');
+        }
+
+        return $copyPath;
+    }
+
     public function remove(string $path): void
     {
         if (!str_starts_with($path, self::PUBLIC_PREFIX)) {

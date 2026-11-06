@@ -4,16 +4,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const template = document.querySelector('[data-measurement-part-template]');
     if (!count || !container || !template) return;
 
+    const minimumParts = Number(container.dataset.minimumParts || 1);
     // Keep detached parts so correcting the count does not erase work in this editor.
     const parts = new Map(Array.from(container.children, part => [Number(part.dataset.measurementPart), part]));
+
     const update = () => {
         const total = Number(count.value || 0);
         if (!Number.isSafeInteger(total) || total < 0) return;
 
+        const visibleCount = total >= minimumParts ? total : 0;
         for (const [number, part] of parts) {
-            if (number > total) part.remove();
+            if (number > visibleCount) part.remove();
         }
-        for (let number = 1; number <= total; number += 1) {
+        for (let number = 1; number <= visibleCount; number += 1) {
             let part = parts.get(number);
             if (!part) {
                 const copy = document.createElement('template');

@@ -70,6 +70,20 @@ class DamageCase
         return $this->id;
     }
 
+    public function copyTo(Report $report): self
+    {
+        $copy = new self($report, $this->clientId, $this->label, $this->color);
+        $copy->legendGeometry = $this->legendGeometry;
+        $copy->legendNote = $this->legendNote;
+        $copy->strokeWidth = $this->strokeWidth;
+        $copy->sortOrder = $this->sortOrder;
+        $copy->createdById = $this->createdById;
+        $copy->createdAt = $this->createdAt;
+        $copy->updatedAt = $this->updatedAt;
+
+        return $copy;
+    }
+
     public function getReport(): Report
     {
         return $this->report;

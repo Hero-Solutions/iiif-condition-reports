@@ -378,6 +378,8 @@ reports:
   woodworm_active: 'Houtworm (actief)'
   woodworm_old: 'Houtworm (oud)'
   treatment_date: Datum
+  add_treatment: 'Ingreep toevoegen'
+  other_treatment: 'Andere ingreep'
   number_of_hours: 'Aantal uren'
   further_explanation: 'Verdere toelichting'
   transport_and_display: 'Transport en presentatie'
@@ -801,7 +803,7 @@ sculpture: Sculptuur
 Measurements: Afmetingen
 'Number of parts': 'Aantal onderdelen'
 'Number of parts (in case of polyptychs / works in a series / ...)': 'Aantal onderdelen (in geval van veelluiken / werken in een reeks / ...)'
-'Number of parts pedestal included': 'Aantal onderdelen inclusief sokkel'
+'Number of separate parts (include a loose pedestal)': 'Aantal onderdelen (een losse sokkel is een apart onderdeel)'
 Parts: Onderdelen
 Part: Deel
 Specification: Specificatie
@@ -1309,7 +1311,12 @@ Present: Aanwezig
 'Not present': 'Niet aanwezig'
 Absent: Afwezig
 'Not necessary': 'Niet noodzakelijk'
-'Tools needed for setup': 'Hulpmiddelen nodig bij opstelling'
+'Tools needed for setup': 'Hulpmiddelen nodig bij opstelling?'
+'To be determined': 'Nog te bepalen'
+'Setup equipment': 'Hulpmiddelen bij opstelling'
+'Display position': 'Wijze van opstelling'
+Placement: Plaatsing
+'Hanging method': Ophangwijze
 Unclear: Onduidelijk
 Setup: Opstelling
 Standing: Staand
@@ -1571,7 +1578,8 @@ Steddie: Steddie
 'Material technical condition': 'Materiaaltechnische conditie'
 'Optical visual condition': 'Optisch-visuele conditie'
 'Specific condition of the sculpture': 'Specifieke toestand van de sculptuur'
-'Surface pollution': 'Oppervlakte vervuiling'
+'Specific condition of the finishing layer': 'Specifieke toestand van de afwerklaag'
+'Surface pollution': Oppervlaktevervuiling
 'Chemical and/or biological damage': 'Chemische en/of biologische schade'
 Mold: Schimmel
 'Physical and/or constructive damage': 'Fysieke en/of constructieve schade'

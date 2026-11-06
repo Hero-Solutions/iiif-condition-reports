@@ -110,6 +110,19 @@ final class ReportFormDefinition
                 }
             }
 
+            if (isset($block['treatment_picker'])) {
+                $prepared['treatment_picker'] = [
+                    'data_key' => $block['treatment_picker'],
+                    'custom_group' => $this->group([
+                        'id' => 'custom-treatment',
+                        'control' => 'treatment',
+                        'date_name' => 'date',
+                        'hours_name' => 'hours',
+                        'detail_name' => 'details',
+                    ]),
+                ];
+            }
+
             if (isset($block['presence']) && is_array($block['presence'])) {
                 $prepared['presence'] = [
                     'present' => $this->presenceField(
@@ -143,6 +156,7 @@ final class ReportFormDefinition
             'heading' => $control === 'heading',
             'quick_select' => in_array($control, ['single', 'multiple'], true),
             'fields' => $this->choiceFields($config),
+            'requires' => $config['requires'] ?? [],
         ];
 
         if ($control === 'single') {
@@ -190,6 +204,8 @@ final class ReportFormDefinition
                 'date_name' => $dateName,
                 'hours_name' => (string) ($config['hours_name'] ?? $baseName),
                 'detail_name' => (string) ($config['detail_name'] ?? $baseName . '_details'),
+                'selected_name' => '__selected_treatment_' . $baseName,
+                'legacy' => (bool) ($config['legacy'] ?? false),
             ];
             $group['fields'] = [];
         } elseif ($control === 'condition') {

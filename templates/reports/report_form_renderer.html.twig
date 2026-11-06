@@ -38,12 +38,16 @@
         {% endif %}
 
         {% if measurements.repeat is defined %}
-            <div data-measurement-parts>
-                {% for number, part in data.measurement_parts|default([]) %}
-                    {% if number > 0 and number <= data.number_of_parts|default(0) %}
-                        {{ _self.measurement_part(measurements.repeat, number, part) }}
-                    {% endif %}
-                {% endfor %}
+            {% set count = data.number_of_parts|default(0) %}
+            {% set minimum_parts = measurements.minimum_parts|default(1) %}
+            <div data-measurement-parts data-minimum-parts="{{ minimum_parts }}">
+                {% if count >= minimum_parts %}
+                    {% for number, part in data.measurement_parts|default([]) %}
+                        {% if number > 0 and number <= count %}
+                            {{ _self.measurement_part(measurements.repeat, number, part) }}
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
             </div>
             <template data-measurement-part-template>{{ _self.measurement_part(measurements.repeat, '__part__', {}) }}</template>
         {% endif %}
@@ -111,15 +115,27 @@
                 {% endif %}
 
                 <div class="compact-report-groups" {% if has_presence %}data-conditional-content {% if not present_selected %}hidden{% endif %}{% endif %}>
-                    {% for group in block.groups %}
-                        {% if not group.note_only|default(false) %}
-                            {% if group.heading|default(false) %}
-                                <h4 class="compact-intermediate-title">{{ group.title|trans }}</h4>
-                            {% else %}
-                                {{ _self.render_compact_group(group, data) }}
+                    {% if block.treatment_picker is defined %}
+                        {{ _self.render_treatment_picker(block, data) }}
+                    {% else %}
+                        {% for group in block.groups %}
+                            {% if not group.note_only|default(false) %}
+                                {% if group.heading|default(false) %}
+                                    <h4 class="compact-intermediate-title">{{ group.title|trans }}</h4>
+                                {% else %}
+                                    {% set requires = group.requires|default([]) %}
+                                    {% if requires is empty %}
+                                        {{ _self.render_compact_group(group, data) }}
+                                    {% else %}
+                                        {% set visible = requires|filter(name => not (attribute(data, name)|default(false) or attribute(data, '__enabled_' ~ name)|default(false))) is empty %}
+                                        <fieldset class="compact-dependent-group" data-compact-requires="{{ requires|join(' ') }}" data-conditional-content {% if not visible %}hidden disabled{% endif %}>
+                                            {{ _self.render_compact_group(group, data) }}
+                                        </fieldset>
+                                    {% endif %}
+                                {% endif %}
                             {% endif %}
-                        {% endif %}
-                    {% endfor %}
+                        {% endfor %}
+                    {% endif %}
                 </div>
 
                 <div class="compact-block-remarks">
@@ -153,31 +169,7 @@
                 >
             </div>
         {% elseif group.treatment is defined %}
-            {% set treatment_date = attribute(data, group.treatment.date_name)|default('') %}
-            {% set treatment_hours = attribute(data, group.treatment.hours_name)|default('') %}
-            {% set treatment_details = attribute(data, group.treatment.detail_name)|default('') %}
-            {% set treatment_happened = attribute(data, group.treatment.happened_name)|default(null)
-                or attribute(data, '__enabled_' ~ group.treatment.happened_name)|default(null)
-                or treatment_date != '' %}
-            <div class="compact-treatment-controls">
-                <div class="compact-quick-list compact-treatment-status">
-                    {{ _self.render_compact_quick_groups(group.treatment.status_fields, data) }}
-                </div>
-                <div class="compact-treatment-details">
-                    <label class="compact-treatment-input" data-treatment-date-field {% if not treatment_happened %}hidden{% endif %}>
-                        <span>{{ 'reports.treatment_date'|trans }}</span>
-                        <input type="date" name="report_data[{{ group.treatment.date_name }}]" value="{{ treatment_date }}" data-treatment-date>
-                    </label>
-                    <label class="compact-treatment-input compact-treatment-hours">
-                        <span>{{ 'reports.number_of_hours'|trans }}</span>
-                        <input {{ _self.numeric_attributes(true) }} name="report_data[{{ group.treatment.hours_name }}]" value="{{ treatment_hours }}">
-                    </label>
-                    <label class="compact-treatment-input compact-treatment-explanation">
-                        <span>{{ 'reports.further_explanation'|trans }}</span>
-                        <input type="text" name="report_data[{{ group.treatment.detail_name }}]" value="{{ treatment_details }}">
-                    </label>
-                </div>
-            </div>
+            {{ _self.render_treatment_controls(group, data) }}
         {% elseif group.condition|default(false) %}
             <div class="compact-quick-list compact-condition-rating">
                 {{ _self.render_compact_quick_groups(group.rating_fields, data) }}
@@ -196,54 +188,103 @@
     </section>
 {% endmacro %}
 
-{% macro render_compact_picker(group, data) %}
+{% macro render_compact_menu(id, options, placeholder, label = null) %}
     <div class="compact-combobox" data-compact-combobox>
         <div class="compact-search-control">
             <svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>
-            <input
-                type="search"
-                autocomplete="off"
-                role="combobox"
-                aria-autocomplete="list"
-                aria-expanded="false"
-                aria-controls="compact-options-{{ group.id }}"
-                placeholder="{{ 'reports.search_add'|trans }}"
-                data-compact-search
-            >
+            <input type="search" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false"
+                aria-controls="compact-options-{{ id }}" placeholder="{{ placeholder|trans }}" aria-label="{{ (label ?? placeholder)|trans }}" data-compact-search>
         </div>
-        <div class="compact-options" id="compact-options-{{ group.id }}" role="listbox" data-compact-options hidden>
-            {% for field in group.fields %}
-                {% set field_value = attribute(data, field.name)|default(null) %}
-                {% set enabled_value = attribute(data, '__enabled_' ~ field.name)|default(null) %}
-                {% set detail_value = field.type == 'checkbox_custom' ? attribute(data, field.name ~ '_text')|default('') : '' %}
-                {% if field.type == 'checkbox' %}
-                    {% set selected = field_value or enabled_value %}
-                {% elseif field.type == 'checkbox_custom' %}
-                    {% set selected = field_value or enabled_value or detail_value != '' %}
-                {% else %}
-                    {% set selected = enabled_value or (field_value is not null and field_value != '') %}
-                {% endif %}
-                {% if not field.open_custom %}
-                    {% set option_label = field.label|trans %}
-                    <button
-                        type="button"
-                        role="option"
-                        data-compact-option="{{ field.name }}"
-                        data-search-text="{{ option_label|lower }}"
-                        data-option-label="{{ option_label|lower }}"
-                        {% if selected %}hidden{% endif %}
-                    >
-                        {{ option_label }}
-                    </button>
-                {% endif %}
+        <div class="compact-options" id="compact-options-{{ id }}" role="listbox" data-compact-options hidden>
+            {% for option in options %}
+                {% set label = option.label|trans %}
+                <button type="button" role="option" data-compact-option="{{ option.name }}" data-search-text="{{ label|lower }}" data-option-label="{{ label|lower }}">{{ label }}</button>
             {% endfor %}
-            <button type="button" class="compact-use-custom" data-use-custom hidden>
-                <span data-custom-query></span>
-            </button>
+            <button type="button" class="compact-use-custom" data-use-custom hidden><span data-custom-query></span></button>
             <p data-no-options hidden>{{ 'reports.no_matching_options'|trans }}</p>
         </div>
     </div>
+{% endmacro %}
 
+{% macro render_treatment_picker(block, data) %}
+    {% set picker = block.treatment_picker %}
+    {% set options = block.groups|filter(group => not group.treatment.legacy)|map(group => {name: group.id, label: group.title}) %}
+    {% set custom_prefix = 'report_data[' ~ picker.data_key ~ ']' %}
+    <div class="compact-treatment-picker" data-compact-group="{{ block.id }}">
+        {{ _self.render_compact_menu(block.id, options, 'reports.add_treatment') }}
+        <div class="compact-selected-list" data-selected-list>
+            {% for group in block.groups %}
+                {{ _self.render_treatment_item(group, data) }}
+            {% endfor %}
+            {% for index, treatment in attribute(data, picker.data_key)|default([]) %}
+                {% if treatment.name|default('')|trim != '' %}
+                    {{ _self.render_treatment_item(picker.custom_group, treatment, custom_prefix, index) }}
+                {% endif %}
+            {% endfor %}
+        </div>
+        <template data-custom-treatment-template>
+            {{ _self.render_treatment_item(picker.custom_group, [], custom_prefix, '__index__') }}
+        </template>
+    </div>
+{% endmacro %}
+
+{% macro render_treatment_item(group, data, prefix = 'report_data', index = null) %}
+    {% set treatment = group.treatment %}
+    {% set custom = index is not null %}
+    {% set input_prefix = custom ? prefix ~ '[' ~ index ~ ']' : prefix %}
+    {% set item_name = custom ? group.id ~ '-' ~ index : group.id %}
+    {% set title = custom ? data.name|default('') : group.title|trans %}
+    {% set selected = custom ? title != '' : (
+        attribute(data, treatment.selected_name)|default('')
+        or attribute(data, treatment.date_name)|default('')|trim != ''
+        or attribute(data, treatment.hours_name)|default('')|trim != ''
+        or attribute(data, treatment.detail_name)|default('')|trim != ''
+        or treatment.status_fields|filter(field => attribute(data, field.name)|default(false) or attribute(data, '__enabled_' ~ field.name)|default(false)) is not empty
+    ) %}
+    {% if selected or not treatment.legacy %}
+        <fieldset class="compact-treatment-item" data-compact-item="{{ item_name }}" data-compact-group="{{ item_name }}" data-treatment-group {% if custom %}data-custom-treatment{% endif %} {% if not selected %}disabled hidden{% endif %}>
+            {% if custom %}
+                <input type="hidden" name="{{ input_prefix }}[name]" value="{{ title }}" data-custom-value>
+            {% else %}
+                <input type="hidden" name="{{ input_prefix }}[{{ treatment.selected_name }}]" value="1">
+            {% endif %}
+            <div class="compact-field-group-heading">
+                <h4 data-item-label>{{ title }}</h4>
+                {{ _self.render_compact_remove() }}
+            </div>
+            {{ _self.render_treatment_controls(group, data, input_prefix) }}
+        </fieldset>
+    {% endif %}
+{% endmacro %}
+
+{% macro render_treatment_controls(group, data, input_prefix = 'report_data') %}
+    {% set date = attribute(data, group.treatment.date_name)|default('') %}
+    {% set happened = attribute(data, group.treatment.happened_name)|default(null)
+        or attribute(data, '__enabled_' ~ group.treatment.happened_name)|default(null)
+        or date != '' %}
+    <div class="compact-treatment-controls">
+        <div class="compact-quick-list compact-treatment-status">
+            {{ _self.render_compact_quick_groups(group.treatment.status_fields, data, input_prefix) }}
+        </div>
+        <div class="compact-treatment-details">
+            <label class="compact-treatment-input" data-treatment-date-field {% if not happened %}hidden{% endif %}>
+                <span>{{ 'reports.treatment_date'|trans }}</span>
+                <input type="date" name="{{ input_prefix }}[{{ group.treatment.date_name }}]" value="{{ date }}" data-treatment-date>
+            </label>
+            <label class="compact-treatment-input compact-treatment-hours">
+                <span>{{ 'reports.number_of_hours'|trans }}</span>
+                <input {{ _self.numeric_attributes(true) }} name="{{ input_prefix }}[{{ group.treatment.hours_name }}]" value="{{ attribute(data, group.treatment.hours_name)|default('') }}">
+            </label>
+            <label class="compact-treatment-input compact-treatment-explanation">
+                <span>{{ 'reports.further_explanation'|trans }}</span>
+                <input type="text" name="{{ input_prefix }}[{{ group.treatment.detail_name }}]" value="{{ attribute(data, group.treatment.detail_name)|default('') }}">
+            </label>
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro render_compact_picker(group, data) %}
+    {{ _self.render_compact_menu(group.id, group.fields|filter(field => not field.open_custom), 'reports.search_add', group.title) }}
     <div class="compact-selected-list" data-selected-list>
         {% for field in group.fields %}
             {{ _self.render_compact_item(field, data) }}
@@ -251,7 +292,7 @@
     </div>
 {% endmacro %}
 
-{% macro render_compact_quick_groups(fields, data) %}
+{% macro render_compact_quick_groups(fields, data, input_prefix = 'report_data') %}
     {% set choice_groups = {} %}
     {% for field in fields|filter(field => not field.open_custom) %}
         {% set key = field.selection_group|default('independent') %}
@@ -261,13 +302,13 @@
     {% for choices in choice_groups %}
         <div class="compact-choice-group">
             {% for field in choices %}
-                {{ _self.render_compact_quick_item(field, data) }}
+                {{ _self.render_compact_quick_item(field, data, input_prefix) }}
             {% endfor %}
         </div>
     {% endfor %}
 {% endmacro %}
 
-{% macro render_compact_quick_item(field, data) %}
+{% macro render_compact_quick_item(field, data, input_prefix) %}
     {% set field_value = attribute(data, field.name)|default(null) %}
     {% set enabled_name = '__enabled_' ~ field.name %}
     {% set enabled_value = attribute(data, enabled_name)|default(null) %}
@@ -282,8 +323,8 @@
         {% if field.selection_group is defined %}data-selection-group="{{ field.selection_group }}"{% endif %}
         {% if field.treatment_happened|default(false) %}data-treatment-happened{% endif %}
     >
-        <input type="hidden" name="report_data[{{ enabled_name }}]" value="1" data-option-control {% if not selected %}disabled{% endif %}>
-        <input type="checkbox" name="report_data[{{ field.name }}]" value="1" data-option-control checked hidden {% if not selected %}disabled{% endif %}>
+        <input type="hidden" name="{{ input_prefix }}[{{ enabled_name }}]" value="1" data-option-control {% if not selected %}disabled{% endif %}>
+        <input type="checkbox" name="{{ input_prefix }}[{{ field.name }}]" value="1" data-option-control checked hidden {% if not selected %}disabled{% endif %}>
 
         <button type="button" class="compact-quick-choice" data-compact-quick-toggle aria-pressed="{{ selected ? 'true' : 'false' }}">
             {{ field.label|trans }}
@@ -332,11 +373,15 @@
         </div>
 
         <div class="compact-item-actions">
-            <button type="button" class="compact-icon-button compact-remove-item" data-remove-compact-item aria-label="{{ 'actions.remove'|trans }}" title="{{ 'actions.remove'|trans }}">
-                <svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg>
-            </button>
+            {{ _self.render_compact_remove() }}
         </div>
     </div>
+{% endmacro %}
+
+{% macro render_compact_remove() %}
+    <button type="button" class="compact-icon-button compact-remove-item" data-remove-compact-item aria-label="{{ 'actions.remove'|trans }}" title="{{ 'actions.remove'|trans }}">
+        <svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg>
+    </button>
 {% endmacro %}
 
 {% macro text_input(name, label, data, placeholder = null, prefix = 'report_data') %}
